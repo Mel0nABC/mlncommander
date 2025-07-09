@@ -9,8 +9,8 @@ from entity.File_or_directory_info import File_or_directory_info
 
 
 class Explorer(Gtk.Widget):
-    def __init__(self):
-
+    def __init__(self, name):
+        self.name = name
         self.actual_path = Path("/")
 
         # Obtenemos lista de datos
@@ -20,8 +20,10 @@ class Explorer(Gtk.Widget):
         self.selection = Gtk.MultiSelection.new(self.store)
 
         # el widget que mostrará la información
+
         self.column_view = Gtk.ColumnView.new(self.selection)
         self.column_view.set_show_column_separators(True)
+
         # self.column_view.set_show_row_separators(True)
         # self.column_view.set_single_click_activate(True) # Para activar elementos con un solo click
         # Gtk.ColumnView.set_single_click_activate(self.column_view, True)
@@ -116,6 +118,9 @@ class Explorer(Gtk.Widget):
 
     def get_column_view(self):
         return self.column_view
+
+    def get_selection(self):
+        return self.selection
 
     def get_actual_path(self):
         return str(self.actual_path)

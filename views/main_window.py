@@ -16,6 +16,9 @@ class Window(Gtk.Window):
     def __init__(self, app):
         super().__init__(application=app)
 
+        self.explorer_focused = None
+        self.explorer_nofocused = None
+
         # Obtenemos información de la pantalla
 
         display = Gdk.Display.get_default()
@@ -24,7 +27,7 @@ class Window(Gtk.Window):
         horizontal = geometry.width
         vertical = geometry.height
 
-        self.set_default_size(horizontal / 2, vertical / 2)
+        self.set_default_size(horizontal / 2, vertical)
         self.set_titlebar(header().get_new_header())
 
         # Box, con orientación vertical y separación de 6 entre objetos
@@ -53,25 +56,25 @@ class Window(Gtk.Window):
         vertical_screen_2.append(vertical_entry_2)
 
         # Exploradores de archivos
-        explorer_1 = Explorer()
+        explorer_1 = Explorer(name="explorer_1")
         vertical_entry_1.set_text(explorer_1.get_actual_path())
-        explorer_2 = Explorer()
+        explorer_2 = Explorer(name="explorer_2")
         vertical_entry_2.set_text(explorer_2.get_actual_path())
 
         # # Añadimos exploradores de archivos a su respectiva pantalla
-        explorer_1_column_view = explorer_1.get_column_view()
-        explorer_2_column_view = explorer_2.get_column_view()
-        explorer_1_column_view.set_vexpand(True)
-        explorer_2_column_view.set_vexpand(True)
+        self.explorer_1_column_view = explorer_1.get_column_view()
+        self.explorer_2_column_view = explorer_2.get_column_view()
+        self.explorer_1_column_view.set_vexpand(True)
+        self.explorer_2_column_view.set_vexpand(True)
 
         # Para tener scroll en los  navegadores al obtener lista largas de archivos.
         scroll_1 = Gtk.ScrolledWindow()
         scroll_1.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll_1.set_child(explorer_1_column_view)
+        scroll_1.set_child(self.explorer_1_column_view)
 
         scroll_2 = Gtk.ScrolledWindow()
         scroll_2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll_2.set_child(explorer_2_column_view)
+        scroll_2.set_child(self.explorer_2_column_view)
 
         vertical_screen_1.append(scroll_1)
         vertical_screen_2.append(scroll_2)
@@ -90,11 +93,10 @@ class Window(Gtk.Window):
         )
         horizontal_boton_menu.set_hexpand(True)
 
-        for i in range(1, 10):
-            btn1 = Gtk.Button()
-            lbl1 = Gtk.Label(label=f"F{i}")
-            btn1.set_child(lbl1)
-            horizontal_boton_menu.append(btn1)
+        btn_F5 = Gtk.Button()
+        lbl_F5 = Gtk.Label(label="Copiar < F5 >")
+        btn_F5.set_child(lbl_F5)
+        horizontal_boton_menu.append(btn_F5)
 
         horizontal_boton_menu.set_halign(Gtk.Align.CENTER)
 
@@ -113,9 +115,23 @@ class Window(Gtk.Window):
             "activate", Actions.entry_on_enter_change_path, explorer_2
         )
 
-        explorer_1_column_view.connect(
+        self.explorer_1_column_view.connect(
             "activate", Actions.on_doble_click, explorer_1, vertical_entry_1
         )
-        explorer_2_column_view.connect(
+        self.explorer_2_column_view.connect(
             "activate", Actions.on_doble_click, explorer_2, vertical_entry_2
+        )
+
+        self.explorer_1_column_view.add_controller(
+            Actions.set_explorer_focused(explorer_1, explorer_2, self)
+        )
+        self.explorer_2_column_view.add_controller(
+            Actions.set_explorer_focused(explorer_2, explorer_1, self)
+        )
+
+        btn_F5.connect(
+            "clicked",
+            lambda btn: Actions.on_copy(
+                btn, self.explorer_focused, self.explorer_nofocused
+            ),
         )
