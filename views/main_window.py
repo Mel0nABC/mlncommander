@@ -5,7 +5,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, Gdk
 
-from controls import Actions
+from controls import Actions, Action_keys
 from views.menu_bar import Menu_bar
 from views.header import header
 from views.explorer import Explorer
@@ -135,3 +135,13 @@ class Window(Gtk.Window):
                 btn, self.explorer_focused, self.explorer_nofocused
             ),
         )
+
+        # Crear un EventControllerKey y conectarlo
+        key_controller = Gtk.EventControllerKey.new()
+        key_controller.connect(
+            "key-pressed",
+            Action_keys.on_key_press,
+            self
+        )
+
+        self.add_controller(key_controller)

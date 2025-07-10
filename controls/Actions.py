@@ -1,6 +1,6 @@
 from utilities.file_manager import File_manager
 from pathlib import Path
-import sys
+import sys, shutil
 from utilities.file_manager import File_manager
 import gi
 from gi.repository import Gtk
@@ -88,6 +88,8 @@ def set_explorer_focused(focused_explorer, unfocused_explorer, win):
     controller = Gtk.GestureClick()
 
     def on_pressed(gesture, n_press, x, y):
+        print(focused_explorer)
+        print(unfocused_explorer)
         if win.explorer_focused:
             win.explorer_nofocused = win.explorer_focused
             selection = win.explorer_focused.get_selection()
@@ -100,7 +102,7 @@ def set_explorer_focused(focused_explorer, unfocused_explorer, win):
     return controller
 
 
-def on_copy(button, source, destination):
+def on_copy(source, destination, button=None):
     """
     TODO, copiar ficheros o directorios.
     """
@@ -119,6 +121,28 @@ def on_copy(button, source, destination):
             selected_items.append(selection.get_item(index))
             print(selection.get_item(index))
     print(f"Destination: {destination.name} --> {destination.actual_path}")
+
+    for source_item in selected_items:
+        print(f"SOURCE --> {source_item.path_file}")
+        print(f"DESTIONATION --> {destination.actual_path}/{source_item.name}")
+
+        if source_item.path_file.is_dir():
+            print("directorio")
+            destination_str = f"{destination.actual_path}/{source_item.name}"
+            shutil.copytree(
+                source_item.path_file,
+                destination_str,
+                copy_function=shutil.copy2,
+            )
+        else:
+            print("Archivo")
+            shutil.copy2(source_item.path_file, destination.actual_path)
+
+    destination.load_new_path(destination.actual_path)
+
+    # HAY QUE FILTRAR EL TEMA DE COPIAR UN DIRECTORIO DENTRO DE UNO DE SUS SUBDIRECTORIOS, GENERA UN BUCLE INFINITO
+    # libreria filecmp para comparar archivos y directorios
+    # librería shutil para copiar
 
 
 def on_create_dir():

@@ -11,7 +11,7 @@ from entity.File_or_directory_info import File_or_directory_info
 class Explorer(Gtk.Widget):
     def __init__(self, name):
         self.name = name
-        self.actual_path = Path("/")
+        self.actual_path = Path("/media/Almacenamiento/Download/pruebas_copiar")
 
         # Obtenemos lista de datos
         self.store = File_manager.get_path_list(self.actual_path)
