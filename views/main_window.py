@@ -5,7 +5,8 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, Gdk
 
-from controls import Actions, Action_keys
+from controls.Actions import Actions
+from controls import Action_keys
 from views.menu_bar import Menu_bar
 from views.header import header
 from views.explorer import Explorer
@@ -108,40 +109,38 @@ class Window(Gtk.Window):
 
         # EVENTOS PARA ENTRY
 
+        actions = Actions()
+
         vertical_entry_1.connect(
-            "activate", Actions.entry_on_enter_change_path, explorer_1
+            "activate", actions.entry_on_enter_change_path, explorer_1
         )
         vertical_entry_2.connect(
-            "activate", Actions.entry_on_enter_change_path, explorer_2
+            "activate", actions.entry_on_enter_change_path, explorer_2
         )
 
         self.explorer_1_column_view.connect(
-            "activate", Actions.on_doble_click, explorer_1, vertical_entry_1
+            "activate", actions.on_doble_click, explorer_1, vertical_entry_1
         )
         self.explorer_2_column_view.connect(
-            "activate", Actions.on_doble_click, explorer_2, vertical_entry_2
+            "activate", actions.on_doble_click, explorer_2, vertical_entry_2
         )
 
         self.explorer_1_column_view.add_controller(
-            Actions.set_explorer_focused(explorer_1, explorer_2, self)
+            actions.set_explorer_focused(explorer_1, explorer_2, self)
         )
         self.explorer_2_column_view.add_controller(
-            Actions.set_explorer_focused(explorer_2, explorer_1, self)
+            actions.set_explorer_focused(explorer_2, explorer_1, self)
         )
 
         btn_F5.connect(
             "clicked",
-            lambda btn: Actions.on_copy(
+            lambda btn: actions.on_copy(
                 btn, self.explorer_focused, self.explorer_nofocused
             ),
         )
 
         # Crear un EventControllerKey y conectarlo
         key_controller = Gtk.EventControllerKey.new()
-        key_controller.connect(
-            "key-pressed",
-            Action_keys.on_key_press,
-            self
-        )
+        key_controller.connect("key-pressed", Action_keys.on_key_press, self)
 
         self.add_controller(key_controller)

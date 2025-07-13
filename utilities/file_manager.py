@@ -1,5 +1,6 @@
 from entity.File_or_directory_info import File_or_directory_info
 import gi
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gio, Gtk
 from pathlib import Path
 

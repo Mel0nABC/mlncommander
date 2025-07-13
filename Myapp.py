@@ -1,13 +1,14 @@
 from views.main_window import Window
 from gi.repository import Gtk, Gio
-from controls import Actions
+from controls.Actions import Actions
 
 
 class App(Gtk.Application):
     def __init__(self):
         super().__init__()
         action_exit = Gio.SimpleAction.new("exit", None)
-        action_exit.connect("activate", Actions.on_exit)
+        action = Actions()
+        action_exit.connect("activate", action.on_exit)
         self.add_action(action_exit)
 
     def do_activate(self):
