@@ -1,8 +1,11 @@
 from utilities.file_manager import File_manager
+from entity.File_or_directory_info import File_or_directory_info
 from pathlib import Path
 from datetime import datetime
 from utilities.file_manager import File_manager
 from views.overwrite_options import Overwrite_dialog
+from views.selected_for_copy import Selected_for_copy
+
 import sys, shutil, filecmp
 import gi, os
 
@@ -12,13 +15,11 @@ from gi.repository import Gtk
 
 class Actions:
 
-    def __init__(self):
+    def __init__(self, parent):
 
         self.source_file_general = None
         self.destination_file_general = None
-
-        self.check_button_all_files = None
-        self.response_general = None
+        self.parent = parent
 
     def on_exit(action, param):
         """
@@ -122,24 +123,24 @@ class Actions:
 
         selection = explorer_src.get_selection()
         self.selected_items = []
-        self.destination_file = explorer_dst.actual_path
         for index in range(selection.get_n_items()):
             if selection.is_selected(index):
                 self.selected_items.append(selection.get_item(index))
 
-        # Cuando sólo se copia un archivo o un directorio
-        if len(self.selected_items) == 1:
-            self.copy_one_file_dir(explorer_src, explorer_dst, parent)
-        else:
-            # Cuando se copian varios arcivos o directorios
-            self.copy_multi_file_dir(explorer_src, explorer_dst, parent)
+        if explorer_src.actual_path == explorer_dst.actual_path:
+            self.show_msg_alert("Intentar copiar un archivo a él mismo")
+            return
 
-        explorer_dst.load_new_path(explorer_dst.actual_path)
+        copy_window = Selected_for_copy(
+            self.parent, self, explorer_src, explorer_dst, self.selected_items
+        )
 
-    def copy_one_file_dir(self, explorer_src, explorer_dst, parent):
-        source_file = self.selected_items[0].path_file
-        self.destination_file = Path(f"{explorer_dst.actual_path}/{source_file.name}")
-        if not self.destination_file.exists():
+    def copy_one_file_dir(self, explorer_src, explorer_dst, parent, selected_items):
+        print("COPIANDO UN ARCHIVO")
+        source_file = selected_items[0].path_file
+        destination_file = Path(f"{explorer_dst.actual_path}/{source_file.name}")
+
+        if not destination_file.exists():
             # NO EXISTE
             if source_file.is_dir():
                 # ES UN DIRECTORIO
@@ -153,27 +154,30 @@ class Actions:
                         "Esta copiando el directorio origen en uno de sus subdirectorios, esto traerá problemas de copias infinitas"
                     )
                     return
-                shutil.copytree(source_file, self.destination_file)
+                shutil.copytree(source_file, destination_file)
             else:
                 # ES UN ARCHIVO
-                shutil.copy(source_file, self.destination_file)
+                shutil.copy(source_file, destination_file)
         else:
             # EXISTE
-            print("EXISTE")
-            self.filter_exist_file_or_dir(parent, explorer_dst, self.selected_items)
+            exist_files_or_dir_one_file = []
+            exist_files_or_dir_one_file.append(source_file)
+            self.open_overwrite_dialog(
+                parent, explorer_src, explorer_dst, exist_files_or_dir_one_file
+            )
 
-    def copy_multi_file_dir(self, explorer_src, explorer_dst, parent):
-        self.exist_files_or_dir = []
+    def copy_multi_file_dir(self, parent, explorer_src, explorer_dst):
+        exist_files_or_dir = []
         # MULTIPLES ARCHIVOS
-        for item in self.selected_items:
+        for src_item in self.selected_items:
             destination_dir = Path(f"{explorer_dst.actual_path}")
-            destination_file = Path(f"{explorer_dst.actual_path}/{item.name}")
+            destination_file = Path(f"{explorer_dst.actual_path}/{src_item.name}")
             # NO EXISTE
             if not destination_file.exists():
-                if item.path_file.is_dir():
+                if src_item.path_file.is_dir():
                     # ES UN DIRECTORIO
                     # Comprobar si el directorio destino es dos veces el mismo que origen, para evitar copia infinita y cuelgue de la alpicación
-                    check_subdir_loop = str(f"{item}/{item.name}") == str(
+                    check_subdir_loop = str(f"{src_item}/{src_item.name}") == str(
                         f"{explorer_dst.actual_path}"
                     )
 
@@ -182,104 +186,109 @@ class Actions:
                             "Esta copiando el directorio origen en uno de sus subdirectorios, esto traerá problemas de copias infinitas"
                         )
                         return
-                    shutil.copytree(str(item.path), str(destination_file))
+                    shutil.copytree(str(src_item.path), str(destination_file))
                 else:
                     # ES UN ARCHIVO
-                    shutil.copy(str(item.path), str(destination_dir))
+                    shutil.copy(str(src_item.path), str(destination_dir))
 
             else:
                 # EXISTE
-                self.exist_files_or_dir.append(item)
 
-        # SI HAY ALGÚN ARCHIVO REPETIDO
-        if self.exist_files_or_dir:
-            self.filter_exist_file_or_dir(parent, explorer_dst, self.exist_files_or_dir)
+                exist_files_or_dir.append(src_item.path_file)
 
-    def filter_exist_file_or_dir(self, parent, explorer_dst, exist_files_or_dir):
-        print("LISTA DE ARCHIVOS QUE EXISTEN EN DST")
-        for i in exist_files_or_dir:
-            destination = i.path_file
+        self.open_overwrite_dialog(
+            parent, explorer_src, explorer_dst, exist_files_or_dir
+        )
 
-            # COMPROBAR SI HAY CONTENIDO EN LA RUTA DESTINO (SÓLO DIRECTORIOS), SALTA AL SIGUIENTE ELEMENTO SI ESTÁ  VACÍO
-            if destination.is_dir():
-                try:
-                    next(destination.iterdir())
-                except:
-                    continue
-
-            
-            
-            
-            
-
-    def open_overwrite_dialog(self, parent, explorer_dst, exist_files_or_dir):
+    def open_overwrite_dialog(
+        self, parent, explorer_src, explorer_dst, exist_files_or_dir
+    ):
         print("OPEN OVERWRITE")
+        if not explorer_src:
+            return
 
-        def on_response(
-            dialog,
-            response_id,
-            explorer_dst=explorer_dst,
-            exist_files_or_dir=exist_files_or_dir,
-        ):
+        if not explorer_dst:
+            return
 
-            for item in exist_files_or_dir:
-                print(f"EXISTE -> {item}")
-                # source = item.path_file
-                # self.response_general = dialog.response.get("response")
-                # self.check_button_all_files = dialog.response.get("all_files")
+        if not exist_files_or_dir:
+            return
 
-                # destination_dir = explorer_dst.actual_path
+        def next_dialog(index):
+            if index >= len(exist_files_or_dir):
+                return
 
-                # if destination_dir.is_dir():
-                #     destination_dir = Path(f"{destination_dir}/{source.name}")
+            src_info = exist_files_or_dir[index]
+            dst_info = Path(f"{explorer_dst.actual_path}/{src_info.name}")
+            overwrite_dialog = Overwrite_dialog(parent, src_info, dst_info)
+            overwrite_dialog.present()
 
-                # print(source)
-                # print(destination_dir)
-                # print("############")
+            def on_response(
+                dialog,
+                response_id,
+                explorer_src=explorer_src,
+                explorer_dst=explorer_dst,
+                exist_files_or_dir=exist_files_or_dir,
+            ):
 
-                # if not destination_dir.exists():
-                #     print("NO EXISTE")
-                #     if source.is_dir():  # ES UN DIRECTORIO
-                #         print("DIRECTORIO")
-                #         shutil.copytree(source, destination_dir)
-                #     else:  # ES UN ARCHIVO
-                #         print("ARCHIVO")
-                #         shutil.copy(source, destination_dir)
+                try:
+                    response_general = dialog.response.get("response")
+                    check_button_all_files = dialog.response.get("all_files")
+                except AttributeError as e:
+                    return
 
-                #     continue
+                if response_general == "cancel":
+                    print("Cancelado")
+                    return
 
-                # print("DESPUES")
+                if response_general == "skip":
+                    print("SKIP")
+                    if check_button_all_files:
+                        return
 
-                # if self.response_general == "cancel" or self.response_general == "skip":
-                #     if self.check_button_all_files:
-                #         print("Se cancela o skipea todos los archivos")
-                #         dialog.close()
-                #         return
+                    next_dialog(index + 1)
+                    return
 
-                # if self.response_general == "overwrite_date":
-                #     source_datetime = datetime.fromtimestamp(source.stat().st_ctime)
-                #     destination_datetime = datetime.fromtimestamp(
-                #         destination_file.stat().st_ctime
-                #     )
-                #     print(source_datetime)
-                #     print(destination_datetime)
-                #     if source_datetime < destination_datetime:
-                #         print("el archivo de origen es mayor")
+                if response_general == "overwrite":
+                    if check_button_all_files:
+                        for i in range(index, len(exist_files_or_dir)):
+                            src = exist_files_or_dir[i]
+                            self.overwrite(src, explorer_dst)
+                        return
 
-                # if self.response_general == "overwrite_diff":
-                #     print(self.response_general)
+                    src = exist_files_or_dir[index]
+                    self.overwrite(src, explorer_dst)
 
-                # if self.response_general == "rename":
-                #     print(self.response_general)
+                if response_general == "overwrite_date":
+                    print(response_general)
 
-                # dialog.close()
-                # selected_items.remove(item)
-                # if len(selected_items) != 0:
-                #     self.open_overwrite_dialog(parent, explorer_dst, selected_items)
+                if response_general == "overwrite_diff":
+                    print(response_general)
 
-        overwrite_dialog = Overwrite_dialog(parent)
-        overwrite_dialog.present()
-        overwrite_dialog.connect("response", on_response)
+                if response_general == "rename":
+                    print(response_general)
+
+                next_dialog(index + 1)
+
+            overwrite_dialog.connect("response", on_response)
+
+        next_dialog(0)
+
+    def overwrite(self, src, explorer_dst):
+        dst_dir = explorer_dst.actual_path
+        dst = f"{dst_dir}/{src.name}"
+        update_path = Path(dst_dir)
+        old_name = f"{dst}.old"
+        os.rename(dst, old_name)
+        old_file = Path(old_name)
+        if old_file.exists():
+            if src.is_dir():
+                shutil.copytree(src, dst)
+                shutil.rmtree(old_name)
+            else:
+                shutil.copy(src, dst)
+                os.remove(old_name)
+
+        self.change_path(explorer_dst, update_path)
 
     def on_create_dir():
         """

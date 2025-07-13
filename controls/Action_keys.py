@@ -16,7 +16,7 @@ def on_key_press(controller, keyval, keycode, state, win):
     destination = win.explorer_nofocused
     key_pressed_name = Gdk.keyval_name(keyval)
 
-    actions = Actions()
+    actions = Actions(win)
 
     if key_pressed_name == _F5_KEY:
         actions.on_copy(source, destination, win)

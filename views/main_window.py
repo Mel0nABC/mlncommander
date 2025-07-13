@@ -109,7 +109,7 @@ class Window(Gtk.Window):
 
         # EVENTOS PARA ENTRY
 
-        actions = Actions()
+        actions = Actions(self)
 
         vertical_entry_1.connect(
             "activate", actions.entry_on_enter_change_path, explorer_1
@@ -135,7 +135,7 @@ class Window(Gtk.Window):
         btn_F5.connect(
             "clicked",
             lambda btn: actions.on_copy(
-                btn, self.explorer_focused, self.explorer_nofocused
+                self.explorer_focused, self.explorer_nofocused, self, btn
             ),
         )
 
@@ -144,3 +144,7 @@ class Window(Gtk.Window):
         key_controller.connect("key-pressed", Action_keys.on_key_press, self)
 
         self.add_controller(key_controller)
+
+    @staticmethod
+    def get_windows():
+        return self
