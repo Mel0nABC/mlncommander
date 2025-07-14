@@ -1,14 +1,13 @@
+from entity.File_or_directory_info import File_or_directory_info
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk
-
-from entity.File_or_directory_info import File_or_directory_info
+from gi.repository import Gtk, Gio, Gdk, GLib
+import asyncio
 
 
 class Overwrite_dialog(Gtk.Dialog):
     def __init__(self, parent, src_info, dst_info):
-
         super().__init__(
             title="Elige una opción para sobre escribir",
             transient_for=parent,
@@ -107,6 +106,10 @@ class Overwrite_dialog(Gtk.Dialog):
 
         box.append(self.vertical_box)
 
+        self.future = asyncio.get_event_loop().create_future()
+        self.connect("response", self._on_response)
+        self.show()
+
     def get_opcion_seleccionada(self, botton):
 
         botton_pressed = botton.get_name()
@@ -148,3 +151,12 @@ class Overwrite_dialog(Gtk.Dialog):
             }
 
         self.close()
+
+    def _on_response(self, dialog, response_id):
+        if not self.future.done():
+            self.future.set_result(self.response)
+        self.destroy()
+
+    async def wait_response_async(self):
+        response = await self.future
+        return response

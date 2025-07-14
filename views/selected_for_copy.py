@@ -4,6 +4,7 @@ gi.require_version("Gtk", "4.0")
 
 from gi.repository import Gtk, Gdk, Gio, GObject
 from entity.File_or_directory_info import File_or_directory_info
+from views.copying import Copying
 
 
 class Selected_for_copy(Gtk.Dialog):
@@ -124,6 +125,10 @@ class Selected_for_copy(Gtk.Dialog):
         self.set_default_size(self.horizontal_size, self.vertical_size * 3)
 
     def start_copy(self, button):
+        self.destroy()
+        copy_proccess = Copying(
+            self.parent, self.explorer_src, self.explorer_dst, self.selected_items
+        )
         # Cuando sólo se copia un archivo o un directorio
         if len(self.selected_items) == 1:
             self.action.copy_one_file_dir(
@@ -132,8 +137,7 @@ class Selected_for_copy(Gtk.Dialog):
         else:
             # Cuando se copian varios arcivos o directorios
             self.action.copy_multi_file_dir(
-                self.parent, self.explorer_src, self.explorer_dst
+                self.parent, self.explorer_src, self.explorer_dst, self.selected_items
             )
 
         self.explorer_dst.load_new_path(self.explorer_dst.actual_path)
-        self.destroy()
