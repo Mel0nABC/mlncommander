@@ -3,7 +3,7 @@
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk
+from gi.repository import Gtk, Gio, Gdk, GLib
 
 from controls.Actions import Actions
 from controls import Action_keys
@@ -14,7 +14,7 @@ from views.explorer import Explorer
 
 class Window(Gtk.Window):
 
-    def __init__(self, app):
+    def __init__(self, app,  actions):
         super().__init__(application=app)
 
         self.explorer_focused = None
@@ -94,10 +94,14 @@ class Window(Gtk.Window):
         )
         horizontal_boton_menu.set_hexpand(True)
 
-        btn_F5 = Gtk.Button()
-        lbl_F5 = Gtk.Label(label="Copiar < F5 >")
-        btn_F5.set_child(lbl_F5)
+        btn_F5 = Gtk.Button(label="Copiar < F5 >")
         horizontal_boton_menu.append(btn_F5)
+
+        btn_F6 = Gtk.Button(label="Mover < F6 >")
+        horizontal_boton_menu.append(btn_F6)
+
+        btn_F7 = Gtk.Button(label="Crear dir < F7 >")
+        horizontal_boton_menu.append(btn_F7)
 
         horizontal_boton_menu.set_halign(Gtk.Align.CENTER)
 
@@ -109,7 +113,7 @@ class Window(Gtk.Window):
 
         # EVENTOS PARA ENTRY
 
-        actions = Actions(self)
+        # actions = Actions(self)
 
         vertical_entry_1.connect(
             "activate", actions.entry_on_enter_change_path, explorer_1
@@ -139,9 +143,23 @@ class Window(Gtk.Window):
             ),
         )
 
+        btn_F6.connect(
+            "clicked",
+            lambda btn: actions.on_create_dir(
+                self.explorer_focused, self.explorer_nofocused, self, btn
+            ),
+        )
+
+        btn_F7.connect(
+            "clicked",
+            lambda btn: actions.on_create_dir(
+                self.explorer_focused, self.explorer_nofocused, self, btn
+            ),
+        )
+
         # Crear un EventControllerKey y conectarlo
         key_controller = Gtk.EventControllerKey.new()
-        key_controller.connect("key-pressed", Action_keys.on_key_press, self)
+        key_controller.connect("key-pressed", Action_keys.on_key_press, self, actions)
 
         self.add_controller(key_controller)
 

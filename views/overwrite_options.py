@@ -5,7 +5,6 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, Gdk, GLib
 import asyncio
 
-
 class Overwrite_dialog(Gtk.Dialog):
     def __init__(self, parent, src_info, dst_info):
         super().__init__(
@@ -42,7 +41,7 @@ class Overwrite_dialog(Gtk.Dialog):
         perm_src_labe = Gtk.Label.new(f"Permisos: {self.src_info.permissions}")
         perm_src_labe.set_halign(Gtk.Align.START)
 
-        dst_label = Gtk.Label.new(f"Origen: {self.dst_info.path_file}")
+        dst_label = Gtk.Label.new(f"Destino: {self.dst_info.path_file}")
         dst_label.set_margin_top(20)
         dst_label.set_halign(Gtk.Align.START)
         size_dst_label = Gtk.Label.new(f"Tamaño: {self.dst_info.size}")
@@ -156,6 +155,7 @@ class Overwrite_dialog(Gtk.Dialog):
         if not self.future.done():
             self.future.set_result(self.response)
         self.destroy()
+
 
     async def wait_response_async(self):
         response = await self.future

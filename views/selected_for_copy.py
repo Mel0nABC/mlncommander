@@ -5,11 +5,12 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, Gio, GObject
 from entity.File_or_directory_info import File_or_directory_info
 from views.copying import Copying
+import asyncio
 
 
 class Selected_for_copy(Gtk.Dialog):
 
-    def __init__(self, parent, action, explorer_src, explorer_dst, selected_items):
+    def __init__(self, parent, explorer_src, explorer_dst, selected_items):
         super().__init__(
             title="Lista para copiar",
             transient_for=parent,
@@ -20,7 +21,6 @@ class Selected_for_copy(Gtk.Dialog):
         self.selected_items = selected_items
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
-        self.action = action
 
         display = Gdk.Display.get_default()
         monitor = display.get_primary_monitor()
@@ -86,16 +86,17 @@ class Selected_for_copy(Gtk.Dialog):
         btn_copy.connect("clicked", self.start_copy)
         btn_cancel.connect("clicked", self.on_exit, self)
 
-        self.show()
+        self.response = None
+        self.future = asyncio.get_event_loop().create_future()
+        self.connect("response", self._on_response)
 
-    def on_exit(self, button, window):
-        window.destroy()
+        self.show()
 
     def show_copy_list(self, button):
         items = Gio.ListStore.new(File_or_directory_info)
         for i in self.selected_items:
-            items.append(i)
-            print(i.path)
+            items.append(File_or_directory_info(i))
+            print(i)
 
         factory = Gtk.SignalListItemFactory()
 
@@ -124,20 +125,35 @@ class Selected_for_copy(Gtk.Dialog):
         self.vertical_box.append(scroll)
         self.set_default_size(self.horizontal_size, self.vertical_size * 3)
 
-    def start_copy(self, button):
-        self.destroy()
-        copy_proccess = Copying(
-            self.parent, self.explorer_src, self.explorer_dst, self.selected_items
-        )
-        # Cuando sólo se copia un archivo o un directorio
-        if len(self.selected_items) == 1:
-            self.action.copy_one_file_dir(
-                self.explorer_src, self.explorer_dst, self.parent, self.selected_items
-            )
-        else:
-            # Cuando se copian varios arcivos o directorios
-            self.action.copy_multi_file_dir(
-                self.parent, self.explorer_src, self.explorer_dst, self.selected_items
-            )
+    def on_exit(self, button, window):
+        self.response = False
+        self.close()
 
-        self.explorer_dst.load_new_path(self.explorer_dst.actual_path)
+    def start_copy(self, button):
+        self.response = True
+        self.close()
+
+    #     copy_proccess = Copying(
+    #         self.parent, self.explorer_src, self.explorer_dst, self.selected_items
+    #     )
+    #     # Cuando sólo se copia un archivo o un directorio
+    #     if len(self.selected_items) == 1:
+    #         self.action.copy_one_file_dir(
+    #             self.explorer_src, self.explorer_dst, self.parent, self.selected_items
+    #         )
+    #     else:
+    #         # Cuando se copian varios arcivos o directorios
+    #         self.action.copy_multi_file_dir(
+    #             self.parent, self.explorer_src, self.explorer_dst, self.selected_items
+    #         )
+
+    #     self.explorer_dst.load_new_path(self.explorer_dst.actual_path)
+
+    def _on_response(self, dialog, response_id):
+        if not self.future.done():
+            self.future.set_result(self.response)
+        self.destroy()
+
+    async def wait_response_async(self):
+        response = await self.future
+        return response

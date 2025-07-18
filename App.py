@@ -4,7 +4,10 @@ import gi, os, time, asyncio
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GLib
+
 import gbulb
+
+gbulb.install()  # Esto integra asyncio con GTK
 
 
 class App(Gtk.Application):
@@ -12,8 +15,9 @@ class App(Gtk.Application):
         super().__init__()
 
     def do_activate(self):
-        self.win = Window(self)
-        action = Actions(self.win)
+        action = Actions()
+        self.win = Window(self, action)
+        action.set_parent(self.win)
         action_exit = Gio.SimpleAction.new("exit", None)
         action_exit.connect("activate", action.on_exit)
         self.add_action(action_exit)
@@ -23,6 +27,5 @@ class App(Gtk.Application):
         return self.win
 
 
-gbulb.install()
 app = App()
-asyncio.run(app.run())
+app.run()
