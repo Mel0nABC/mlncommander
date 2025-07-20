@@ -59,7 +59,7 @@ class Create_dir_dialog(Gtk.Dialog):
         self.connect("response", self._on_response)
         self.show()
 
-    def exit(self):
+    def exit(self, button):
         self.destroy()
 
     def get_opcion_seleccionada(self, botton):

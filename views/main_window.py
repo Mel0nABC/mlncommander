@@ -14,7 +14,7 @@ from views.explorer import Explorer
 
 class Window(Gtk.Window):
 
-    def __init__(self, app,  actions):
+    def __init__(self, app, actions):
         super().__init__(application=app)
 
         self.explorer_focused = None
@@ -57,9 +57,10 @@ class Window(Gtk.Window):
         vertical_screen_2.append(vertical_entry_2)
 
         # Exploradores de archivos
-        explorer_1 = Explorer(name="explorer_1")
+        explorer_1 = Explorer("explorer_1", vertical_entry_1)
         vertical_entry_1.set_text(explorer_1.get_actual_path())
-        explorer_2 = Explorer(name="explorer_2")
+
+        explorer_2 = Explorer("explorer_2", vertical_entry_2)
         vertical_entry_2.set_text(explorer_2.get_actual_path())
 
         # # Añadimos exploradores de archivos a su respectiva pantalla
@@ -102,6 +103,9 @@ class Window(Gtk.Window):
 
         btn_F7 = Gtk.Button(label="Crear dir < F7 >")
         horizontal_boton_menu.append(btn_F7)
+
+        btn_F8 = Gtk.Button(label="Eliminar < F8 >")
+        horizontal_boton_menu.append(btn_F8)
 
         horizontal_boton_menu.set_halign(Gtk.Align.CENTER)
 

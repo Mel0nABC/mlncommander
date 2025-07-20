@@ -9,9 +9,10 @@ from entity.File_or_directory_info import File_or_directory_info
 
 
 class Explorer(Gtk.Widget):
-    def __init__(self, name):
+    def __init__(self, name, entry):
         self.name = name
         self.actual_path = Path("/home/mel0n/Downloads/pruebas_copiar")
+        self.entry = entry
 
         # Obtenemos lista de datos
         self.store = File_manager.get_path_list(self.actual_path)
@@ -129,6 +130,7 @@ class Explorer(Gtk.Widget):
         self.selection = Gtk.MultiSelection.new(self.store)
         self.column_view.set_model(self.selection)
         self.actual_path = path
+        self.entry.set_text(str(path))
 
     def remove_actual_store(self):
         self.store.remove_all()

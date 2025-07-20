@@ -8,15 +8,14 @@ from views.copying import Copying
 import asyncio
 
 
-class Selected_for_copy(Gtk.Dialog):
+class Selected_for_delete(Gtk.Dialog):
 
     def __init__(self, parent, explorer_src, explorer_dst, selected_items):
         super().__init__(
-            title="Lista para copiar",
+            title="Lista para eliminar",
             transient_for=parent,
             modal=True,
         )
-
         self.parent = parent
         self.selected_items = selected_items
         self.explorer_src = explorer_src
@@ -42,7 +41,7 @@ class Selected_for_copy(Gtk.Dialog):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
-        lbl_dst = Gtk.Label(label="Destino a copiar:")
+        lbl_dst = Gtk.Label(label="Ruta para eliminar:")
         lbl_dst.set_halign(Gtk.Align.START)
 
         entry_dst = Gtk.Entry()
@@ -63,7 +62,7 @@ class Selected_for_copy(Gtk.Dialog):
         )
         horizontal_box_btn_sec.set_halign(Gtk.Align.END)
 
-        btn_copy = Gtk.Button(label="Copiar")
+        btn_copy = Gtk.Button(label="Eliminar")
         btn_cancel = Gtk.Button(label="Cancelar")
 
         horizontal_box_btn_sec.append(btn_copy)
@@ -82,8 +81,8 @@ class Selected_for_copy(Gtk.Dialog):
 
         self.box.append(self.vertical_box)
 
-        btn_show_files.connect("clicked", self.show_copy_list)
-        btn_copy.connect("clicked", self.start_copy)
+        btn_show_files.connect("clicked", self.show_delete_list)
+        btn_copy.connect("clicked", self.start_delete)
         btn_cancel.connect("clicked", self.on_exit, self)
 
         self.response = None
@@ -92,7 +91,7 @@ class Selected_for_copy(Gtk.Dialog):
 
         self.show()
 
-    def show_copy_list(self, button):
+    def show_delete_list(self, button):
         items = Gio.ListStore.new(File_or_directory_info)
         for i in self.selected_items:
             items.append(File_or_directory_info(i))
@@ -129,7 +128,7 @@ class Selected_for_copy(Gtk.Dialog):
         self.response = False
         self.close()
 
-    def start_copy(self, button):
+    def start_delete(self, button):
         self.response = True
         self.close()
 

@@ -74,7 +74,8 @@ class Rename_dialog(Gtk.Dialog):
         self.response_text = None
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
-        self.show()
+        self.present()
+        print("VENTANA")
 
     def exit(self, button):
         self.destroy()

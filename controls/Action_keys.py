@@ -30,7 +30,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         return True
 
     if key_pressed_name == _F8_KEY:
-        print("F8")
+        actions.on_delete(explorer_focused, explorer_nofocused, win)
         return True
 
     if key_pressed_name == _F9_KEY:
