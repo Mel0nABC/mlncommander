@@ -16,7 +16,6 @@ class Selected_for_copy(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
-
         self.parent = parent
         self.selected_items = selected_items
         self.explorer_src = explorer_src

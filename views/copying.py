@@ -23,11 +23,13 @@ class Copying(Gtk.Dialog):
         self.set_default_size(500, 60)
 
         self.lbl_src = Gtk.Label(label="SRC")
+        self.lbl_src.set_halign(Gtk.Align.START)
         self.lbl_src.set_margin_top(20)
         self.lbl_src.set_margin_end(20)
         self.lbl_src.set_margin_start(20)
 
         self.lbl_dst = Gtk.Label(label="DST")
+        self.lbl_dst.set_halign(Gtk.Align.START)
         self.lbl_dst.set_margin_top(20)
         self.lbl_dst.set_margin_end(20)
         self.lbl_dst.set_margin_start(20)
@@ -59,9 +61,16 @@ class Copying(Gtk.Dialog):
         try:
             self.lbl_src.set_text(str(self.src_info))
             self.lbl_dst.set_text(str(self.dst_info))
-            src_size = f"{self.src_info.stat().st_size}"
-            dst_size = f"{self.dst_info.stat().st_size}"
-            self.lbl_size.set_text(f"{src_size}/{dst_size} bytes")
+            src_size_text = f"{self.src_info.stat().st_size}"
+            dst_size_text = f"{self.dst_info.stat().st_size}"
+
+            src_size = int(src_size_text)
+            dst_size = int(dst_size_text)
+
+            src_size = src_size / 1024 / 1024
+            dst_size = dst_size / 1024 / 1024
+
+            self.lbl_size.set_text(f"{src_size:.2f}/{dst_size:.2f} Mbytes")
             if src_size == dst_size:
                 self.dialog_response = True
                 GLib.idle_add(self.response, Gtk.ResponseType.OK)
@@ -85,3 +94,5 @@ class Copying(Gtk.Dialog):
     async def wait_response_async(self):
         response = await self.future
         return response
+
+ 

@@ -7,13 +7,13 @@ import asyncio
 
 
 class Create_dir_dialog(Gtk.Dialog):
-    def __init__(self, parent, explorer_focused):
+    def __init__(self, parent, explorer_src):
         super().__init__(
             title="Renombrando archivo",
             transient_for=parent,
             modal=True,
         )
-        self.dst_info = explorer_focused.actual_path
+        self.dst_info = explorer_src.actual_path
 
         display = Gdk.Display.get_default()
         monitor = display.get_primary_monitor()

@@ -17,8 +17,8 @@ class Window(Gtk.Window):
     def __init__(self, app, actions):
         super().__init__(application=app)
 
-        self.explorer_focused = None
-        self.explorer_nofocused = None
+        self.explorer_src = None
+        self.explorer_dst = None
 
         # Obtenemos información de la pantalla
 
@@ -134,30 +134,30 @@ class Window(Gtk.Window):
         )
 
         self.explorer_1_column_view.add_controller(
-            actions.set_explorer_focused(explorer_1, explorer_2, self)
+            actions.set_explorer_src(explorer_1, explorer_2, self)
         )
         self.explorer_2_column_view.add_controller(
-            actions.set_explorer_focused(explorer_2, explorer_1, self)
+            actions.set_explorer_src(explorer_2, explorer_1, self)
         )
 
         btn_F5.connect(
             "clicked",
             lambda btn: actions.on_copy(
-                self.explorer_focused, self.explorer_nofocused, self, btn
+                self.explorer_src, self.explorer_dst, self, btn
             ),
         )
 
         btn_F6.connect(
             "clicked",
             lambda btn: actions.on_create_dir(
-                self.explorer_focused, self.explorer_nofocused, self, btn
+                self.explorer_src, self.explorer_dst, self, btn
             ),
         )
 
         btn_F7.connect(
             "clicked",
             lambda btn: actions.on_create_dir(
-                self.explorer_focused, self.explorer_nofocused, self, btn
+                self.explorer_src, self.explorer_dst, self, btn
             ),
         )
 
