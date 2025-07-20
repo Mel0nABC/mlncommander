@@ -6,6 +6,7 @@ from controls.Actions import Actions
 from utilities import create, move, remove, rename, update
 from utilities.my_copy import My_copy
 from utilities.create import Create
+from utilities.remove import Remove
 
 _F5_KEY = Gdk.keyval_name(Gdk.KEY_F5)  # Copiar, hecho
 _F6_KEY = Gdk.keyval_name(Gdk.KEY_F6)  # Mover
@@ -35,7 +36,8 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         return True
 
     if key_pressed_name == _F8_KEY:
-        actions.on_delete(explorer_src, explorer_dst, win)
+        remove = Remove()
+        remove.on_delete(explorer_src, win)
         return True
 
     if key_pressed_name == _F9_KEY:

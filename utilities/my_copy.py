@@ -38,7 +38,7 @@ class My_copy:
             self.action.show_msg_alert("Intentar copiar un archivo a él mismo")
             return
 
-        selected_items = self.get_selected_items_from_explorer(explorer_src)
+        selected_items = self.action.get_selected_items_from_explorer(explorer_src)
 
         if not selected_items:
             return
@@ -48,18 +48,6 @@ class My_copy:
                 parent, selected_items, dst_dir, explorer_src, explorer_dst
             )
         )
-
-    def get_selected_items_from_explorer(self, explorer):
-        """
-        Obtiene la lista de selection de un explorer
-        """
-        selection = explorer.get_selection()
-        selected_items = []
-        for index in range(selection.get_n_items()):
-            if selection.is_selected(index):
-                selected_items.append(selection.get_item(index).path_file)
-
-        return selected_items
 
     async def copy_proccess(
         self, parent, selected_items, dst_dir, explorer_src, explorer_dst

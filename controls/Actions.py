@@ -116,3 +116,15 @@ class Actions:
         controller.connect("pressed", lambda *args: on_pressed(*args))
         return controller
 
+
+    def get_selected_items_from_explorer(self, explorer):
+        """
+        Obtiene la lista de selection de un explorer
+        """
+        selection = explorer.get_selection()
+        selected_items = []
+        for index in range(selection.get_n_items()):
+            if selection.is_selected(index):
+                selected_items.append(selection.get_item(index).path_file)
+
+        return selected_items

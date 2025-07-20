@@ -42,4 +42,3 @@ class Create:
 
         os.mkdir(dst_dir)
         self.action.change_path(explorer_dst, explorer_dst.actual_path)
-        print(explorer_dst.actual_path)

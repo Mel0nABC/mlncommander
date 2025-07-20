@@ -10,7 +10,7 @@ import asyncio
 
 class Selected_for_delete(Gtk.Dialog):
 
-    def __init__(self, parent, explorer_src, explorer_dst, selected_items):
+    def __init__(self, parent, explorer_src, selected_items):
         super().__init__(
             title="Lista para eliminar",
             transient_for=parent,
@@ -19,7 +19,6 @@ class Selected_for_delete(Gtk.Dialog):
         self.parent = parent
         self.selected_items = selected_items
         self.explorer_src = explorer_src
-        self.explorer_dst = explorer_dst
 
         display = Gdk.Display.get_default()
         monitor = display.get_primary_monitor()
@@ -41,20 +40,16 @@ class Selected_for_delete(Gtk.Dialog):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
-        lbl_dst = Gtk.Label(label="Ruta para eliminar:")
-        lbl_dst.set_halign(Gtk.Align.START)
+        lbl_src = Gtk.Label(
+            label="¿Eliminar permanentemente el/los archivo(s) e directorio(s) seleccionado(s)?\n\nEsta operación no puede deshacerse."
+        )
+        lbl_src.set_halign(Gtk.Align.START)
 
-        entry_dst = Gtk.Entry()
-        entry_dst.set_text(str(self.explorer_dst.actual_path))
-        entry_dst.set_hexpand(True)
+        self.vertical_box.append(lbl_src)
 
-        self.vertical_box.append(lbl_dst)
-        self.vertical_box.append(entry_dst)
+        self.show_delete_list()
 
         horizonntal_box_btn = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-
-        btn_show_files = Gtk.Button(label=f"Archivos ({len(self.selected_items)})")
-        horizonntal_box_btn.append(btn_show_files)
         horizonntal_box_btn.set_halign(Gtk.Align.START)
 
         horizontal_box_btn_sec = Gtk.Box(
@@ -81,7 +76,6 @@ class Selected_for_delete(Gtk.Dialog):
 
         self.box.append(self.vertical_box)
 
-        btn_show_files.connect("clicked", self.show_delete_list)
         btn_copy.connect("clicked", self.start_delete)
         btn_cancel.connect("clicked", self.on_exit, self)
 
@@ -91,11 +85,10 @@ class Selected_for_delete(Gtk.Dialog):
 
         self.show()
 
-    def show_delete_list(self, button):
+    def show_delete_list(self, button=None):
         items = Gio.ListStore.new(File_or_directory_info)
         for i in self.selected_items:
             items.append(File_or_directory_info(i))
-            print(i)
 
         factory = Gtk.SignalListItemFactory()
 
