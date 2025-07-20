@@ -20,11 +20,9 @@ class Create:
             - Si el directorio ya existe, que avise.
         """
 
-        print("TEma 1")
         asyncio.ensure_future(self.on_create_dir_async(explorer_dst, parent))
 
     async def on_create_dir_async(self, explorer_dst, parent):
-        print("TEma 2")
         create_dir = Create_dir_dialog(parent, explorer_dst)
         response = await create_dir.wait_response_async()
         dst_dir = Path(f"{explorer_dst.actual_path}/{response}")

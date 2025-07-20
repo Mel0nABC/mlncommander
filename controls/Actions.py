@@ -48,7 +48,7 @@ class Actions:
         type = explorer.store[position].type
         if type == "FILE" or type == "LN BREAK":
             text = "¡Advertencia! Esta intentando abrir un archivo, esta opción aún no esta disponible."
-            self.action.show_msg_alert(text)
+            self.show_msg_alert(text)
             return
 
         path = explorer.store[position].path_file
@@ -79,9 +79,10 @@ class Actions:
                 raise FileNotFoundError()
             explorer.remove_actual_store()
             explorer.load_new_path(path)
+            explorer.update_watchdog_path(path)
         except FileNotFoundError:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
-            self.action.show_msg_alert(text)
+            self.show_msg_alert(text)
 
     def show_msg_alert(self, text_input: str):
         """
@@ -116,7 +117,6 @@ class Actions:
         controller.connect("pressed", lambda *args: on_pressed(*args))
         return controller
 
-
     def get_selected_items_from_explorer(self, explorer):
         """
         Obtiene la lista de selection de un explorer
@@ -125,6 +125,8 @@ class Actions:
         selected_items = []
         for index in range(selection.get_n_items()):
             if selection.is_selected(index):
-                selected_items.append(selection.get_item(index).path_file)
+                item = selection.get_item(index).path_file
+                if not str(item) == "..":
+                    selected_items.append(selection.get_item(index).path_file)
 
         return selected_items

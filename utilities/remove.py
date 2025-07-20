@@ -24,6 +24,11 @@ class Remove:
                 "Ha surgido algún problema al intentar eliminar la ubicacion seleccionada"
             )
         selected_items = self.action.get_selected_items_from_explorer(explorer_src)
+
+        if not selected_items:
+            self.action.show_msg_alert("Debe seleccionar algún archivo o directorio.")
+            return
+
         asyncio.ensure_future(self.delete_select(parent, explorer_src, selected_items))
 
     async def delete_select(self, parent, explorer_src, selected_items):
@@ -38,6 +43,7 @@ class Remove:
 
         def delete_now(explorer_src, selected_items):
             for item in selected_items:
+                print(item)
                 if item.is_dir():
                     delete_now(explorer_src, item.iterdir())
                     if len(list(item.iterdir())) == 0:
