@@ -19,6 +19,7 @@ class Window(Gtk.Window):
 
         self.explorer_src = None
         self.explorer_dst = None
+        self.my_watchdog = None
 
         # Obtenemos información de la pantalla
 

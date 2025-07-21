@@ -1,7 +1,7 @@
 import gi, threading
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GObject
+from gi.repository import Gtk, Gio, GObject, GLib
 from utilities.file_manager import File_manager
 from controls.Actions import Actions
 from pathlib import Path
@@ -12,13 +12,13 @@ from utilities.my_watchdog import My_watchdog
 
 class Explorer(Gtk.Widget):
     def __init__(self, name, entry):
+        super().__init__()
 
         self.name = name
         self.actual_path = Path("/home/mel0n/Downloads/pruebas_copiar")
         self.entry = entry
         self.my_watchdog = None
         self.action = Actions()
-        asyncio.ensure_future(self.control_watchdog(self.actual_path, self.action))
 
         # Obtenemos lista de datos
         self.store = File_manager.get_path_list(self.actual_path)
@@ -117,6 +117,8 @@ class Explorer(Gtk.Widget):
         self.column_view.append_column(column_date)
         self.column_view.append_column(column_permission)
 
+        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
+
     def get_column_view(self):
         return self.column_view
 
@@ -130,7 +132,6 @@ class Explorer(Gtk.Widget):
         return self.store
 
     def load_new_path(self, path: Path):
-        print(f"LOAD NEW PATH: {path}")
         # Obtenemos lista de datos
         self.store = File_manager.get_path_list(path)
         # Envoltorio que se conecta al modelo y permite seleccionar varios objetos
@@ -142,13 +143,13 @@ class Explorer(Gtk.Widget):
     def remove_actual_store(self):
         self.store.remove_all()
 
-    def update_watchdog_path(self, path):
-        asyncio.ensure_future(self.control_watchdog(path, self.action))
+    def update_watchdog_path(self, path, explorer):
+        asyncio.ensure_future(self.control_watchdog(path, explorer))
 
-    async def control_watchdog(self, path, action):
+    async def control_watchdog(self, path, explorer):
         if self.my_watchdog:
             self.my_watchdog.stop()
-            self.watchdog_thread.join
-        self.my_watchdog = My_watchdog(str(path), action, self)
+            # self.watchdog_thread.join()
+        self.my_watchdog = My_watchdog(str(path), explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
