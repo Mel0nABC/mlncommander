@@ -43,7 +43,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
     if key_pressed_name == _F8_KEY:
         # delete/remove
         remove = Remove()
-        remove.on_delete(explorer_src, win)
+        remove.on_delete(explorer_src, explorer_dst, win)
         return True
 
     if key_pressed_name == _F9_KEY:

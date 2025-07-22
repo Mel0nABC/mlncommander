@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from views.copying import Copying
 from views.selected_for_delete import Selected_for_delete
-import gi, os, time, shutil, asyncio, threading, multiprocessing
+import gi, os, time, shutil, asyncio, threading, multiprocessing, traceback, subprocess
 from gi.repository import GLib
 
 
@@ -12,7 +12,7 @@ class Remove:
     def __init__(self):
         self.action = Actions()
 
-    def on_delete(self, explorer_src, parent):
+    def on_delete(self, explorer_src, explorer_dst, parent):
         """
         Eliminar archivos y directorios, sin vuelta atrás.
 
@@ -29,9 +29,11 @@ class Remove:
             self.action.show_msg_alert("Debe seleccionar algún archivo o directorio.")
             return
 
-        asyncio.ensure_future(self.delete_select(parent, explorer_src, selected_items))
+        asyncio.ensure_future(
+            self.delete_select(parent, explorer_src, explorer_dst, selected_items)
+        )
 
-    async def delete_select(self, parent, explorer_src, selected_items):
+    async def delete_select(self, parent, explorer_src, explorer_dst, selected_items):
         """
         Pide  confirmación sobre que eliminar y lo realiza, borra el contenido de directorios.
         """
@@ -41,17 +43,29 @@ class Remove:
         if not response:
             return
 
-        def delete_now(explorer_src, selected_items):
+        def delete_now(selected_items):
             for item in selected_items:
                 print(item)
-                if item.is_dir():
-                    delete_now(explorer_src, item.iterdir())
-                    if len(list(item.iterdir())) == 0:
-                        os.rmdir(item)
-                else:
-                    os.remove(item)
+                if item.exists():
+                    if item.is_dir():
+                        try:
+                            contents = list(item.iterdir())
+                            if contents:
+                                delete_now(contents)
+                            item.rmdir()
+                        except Exception as e:
+                            print(f"❌ Error al eliminar directorio {item}: {e}")
 
-        delete_now(explorer_src, selected_items)
+                    else:
+                        try:
+                            item.unlink()
+                        except Exception as e:
+                            print(f"❌ Error al eliminar archivo {item}: {e}")
+            print(
+                "FOR FINALIZADO ###########################################################"
+            )
+
+        delete_now(list(selected_items))
         self.action.change_path(explorer_src, explorer_src.actual_path)
 
     async def create_dialog_selected_for_delete(

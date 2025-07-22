@@ -117,7 +117,7 @@ class Explorer(Gtk.Widget):
         self.column_view.append_column(column_date)
         self.column_view.append_column(column_permission)
 
-        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
+        # GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
     def get_column_view(self):
         return self.column_view
@@ -143,13 +143,13 @@ class Explorer(Gtk.Widget):
     def remove_actual_store(self):
         self.store.remove_all()
 
-    def update_watchdog_path(self, path, explorer):
-        asyncio.ensure_future(self.control_watchdog(path, explorer))
+    # def update_watchdog_path(self, path, explorer):
+    #     asyncio.ensure_future(self.control_watchdog(path, explorer))
 
-    async def control_watchdog(self, path, explorer):
-        if self.my_watchdog:
-            self.my_watchdog.stop()
-            # self.watchdog_thread.join()
-        self.my_watchdog = My_watchdog(str(path), explorer)
-        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
-        self.watchdog_thread.start()
+    # async def control_watchdog(self, path, explorer):
+    #     if self.my_watchdog:
+    #         self.my_watchdog.stop()
+    #         # self.watchdog_thread.join()
+    #     self.my_watchdog = My_watchdog(str(path), explorer)
+    #     self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
+    #     self.watchdog_thread.start()

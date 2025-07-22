@@ -11,3 +11,9 @@ EL EXPLORADOR 1 --> /home/mel0n/Downloads/pruebas_copiar  -- SE BORRA existe_dir
 EL OTRO EXPLORADOR ESTÁ EN : /home/mel0n/Downloads/pruebas_copiar/existe_directorio
 
 HAY QUE ACTUALIZAR EL PATH DEL EXPLORADOR 2 AL DEL 1
+
+
+
+BORRANDO:
+
+- LOS ULTIMOS ARCHIVOS DE UNA CADENA DE DIRECTORIOS O UN ARCHIVO SOLO, GENERA UN BUCLE INFINITO

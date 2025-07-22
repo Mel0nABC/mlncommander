@@ -12,17 +12,18 @@ class My_watchdog:
         self.explorer = explorer
 
     def start(self):
-        self.observer.schedule(MiHandler(self.path, self.explorer), path=self.path)
+        self.observer.schedule(MiHandler(self.path, self.explorer), path=self.path, recursive=False)
         self.observer.start()
 
         print(f"Monitoreando: {self.path}")
+
         try:
             while self.observer.is_alive():
                 time.sleep(1)
 
         except KeyboardInterrupt:
             self.stop()
-
+        print(f"WATCHDOG FINALIZADO: {self.path}")
     def stop(self):
         self.observer.stop()
         self.observer.join()

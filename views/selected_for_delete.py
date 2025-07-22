@@ -83,7 +83,7 @@ class Selected_for_delete(Gtk.Dialog):
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
 
-        self.show()
+        self.present()
 
     def show_delete_list(self, button=None):
         items = Gio.ListStore.new(File_or_directory_info)

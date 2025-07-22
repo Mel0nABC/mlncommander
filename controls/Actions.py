@@ -1,13 +1,11 @@
 from pathlib import Path
 
-from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
 from views.rename_dialog import Rename_dialog
 from views.selected_for_copy import Selected_for_copy
 from views.selected_for_delete import Selected_for_delete
 from views.copying import Copying
-import sys, shutil, filecmp
-import gi, os, time, asyncio, threading, multiprocessing
+import gi, sys
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, Gdk, GLib
@@ -18,9 +16,6 @@ class Actions:
     def __init__(self):
 
         self.parent = None
-
-        self.copying_dialog = None
-        self.progress_on = False
 
     def set_parent(self, parent):
         self.parent = parent
@@ -79,7 +74,7 @@ class Actions:
                 raise FileNotFoundError()
             explorer.remove_actual_store()
             explorer.load_new_path(path)
-            explorer.update_watchdog_path(path, explorer)
+            # explorer.update_watchdog_path(path, explorer)
         except FileNotFoundError:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
             self.show_msg_alert(text)
