@@ -45,7 +45,6 @@ class Remove:
 
         def delete_now(selected_items):
             for item in selected_items:
-                print(item)
                 if item.exists():
                     if item.is_dir():
                         try:
@@ -61,9 +60,6 @@ class Remove:
                             item.unlink()
                         except Exception as e:
                             print(f"❌ Error al eliminar archivo {item}: {e}")
-            print(
-                "FOR FINALIZADO ###########################################################"
-            )
 
         delete_now(list(selected_items))
         self.action.change_path(explorer_src, explorer_src.actual_path)

@@ -76,7 +76,6 @@ class Copying(Gtk.Dialog):
                 GLib.idle_add(self.response, Gtk.ResponseType.OK)
 
         except Exception as e:
-            # print("Error")
             self.lbl_src.set_text(str(self.src_info))
             self.lbl_dst.set_text("Obteniendo destino ..")
             self.lbl_size.set_text("Caldulando ...")

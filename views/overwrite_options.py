@@ -107,7 +107,7 @@ class Overwrite_dialog(Gtk.Dialog):
 
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
-        self.show()
+        self.present()
 
     def get_opcion_seleccionada(self, botton):
 

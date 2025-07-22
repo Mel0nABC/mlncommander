@@ -101,9 +101,7 @@ class My_copy:
 
                     else:
 
-                        result = await self.init_copy_work(
-                            parent, src_info, dst_info
-                        )
+                        result = await self.init_copy_work(parent, src_info, dst_info)
                         if not result:
                             self.action.show_msg_alert(
                                 "Se ha cancelado la copia de archivos"
@@ -151,13 +149,12 @@ class My_copy:
         """
         Inicia el proceso de copia
         """
-        # print(f"TOTAL FILES: {total_files}")
         self.progress_on = True
-        thread_update_dialog = threading.Thread(
+        self.thread_update_dialog = threading.Thread(
             target=self.update_dialog_copying,
             args=(parent, src_info, dst_info),
         )
-        thread_update_dialog.start()
+        self.thread_update_dialog.start()
 
         thread_copy_file = multiprocessing.Process(
             target=self.copy_file, args=(src_info, dst_info)
@@ -166,13 +163,11 @@ class My_copy:
 
         result = await self.create_dialog_copying(parent, src_info, dst_info)
 
-        if not result:
-            if thread_update_dialog.is_alive():
-                self.progress_on = False
-                thread_update_dialog.join()
-            if thread_copy_file.is_alive():
-                thread_copy_file.terminate()
-                thread_copy_file.join()
+        if self.thread_update_dialog.is_alive():
+            self.progress_on = False
+            self.thread_update_dialog.join()
+        if thread_copy_file.is_alive():
+            thread_copy_file.join()
 
         return result
 

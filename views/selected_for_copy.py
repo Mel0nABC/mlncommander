@@ -89,13 +89,12 @@ class Selected_for_copy(Gtk.Dialog):
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
 
-        self.show()
+        self.present()
 
     def show_copy_list(self, button):
         items = Gio.ListStore.new(File_or_directory_info)
         for i in self.selected_items:
             items.append(File_or_directory_info(i))
-            print(i)
 
         factory = Gtk.SignalListItemFactory()
 

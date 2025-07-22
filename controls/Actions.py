@@ -91,7 +91,7 @@ class Actions:
             text=text_input,
         )
         dialog.connect("response", lambda d, r: d.destroy())
-        dialog.show()
+        dialog.present()
 
     @staticmethod
     def set_explorer_src(focused_explorer, unfocused_explorer, win):
