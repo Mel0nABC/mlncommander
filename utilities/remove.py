@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from views.copying import Copying
 from views.selected_for_delete import Selected_for_delete
+from views.deleting import Deleting
 import gi, os, time, shutil, asyncio, threading, multiprocessing, traceback, subprocess
 from gi.repository import GLib
 
@@ -11,6 +12,8 @@ class Remove:
 
     def __init__(self):
         self.action = Actions()
+        self.dialog_deleting = None
+        self.stop_deleting = False
 
     def on_delete(self, explorer_src, explorer_dst, parent):
         """
@@ -43,26 +46,55 @@ class Remove:
         if not response:
             return
 
-        def delete_now(selected_items):
-            for item in selected_items:
-                if item.exists():
-                    if item.is_dir():
-                        try:
-                            contents = list(item.iterdir())
-                            if contents:
-                                delete_now(contents)
-                            item.rmdir()
-                        except Exception as e:
-                            print(f"❌ Error al eliminar directorio {item}: {e}")
+        self.thread_update_deleting = threading.Thread(
+            target=self.delete_now,
+            args=(selected_items, explorer_src),
+        )
 
-                    else:
-                        try:
-                            item.unlink()
-                        except Exception as e:
-                            print(f"❌ Error al eliminar archivo {item}: {e}")
+        response = await self.create_dialog_deleting(parent, explorer_src.actual_path)
 
-        delete_now(list(selected_items))
-        self.action.change_path(explorer_src, explorer_src.actual_path)
+        if not response:
+            self.stop_deleting = True
+            self.action.show_msg_alert(
+                "Se detubo el proceso de borrado antes de finalizar."
+            )
+
+    def delete_now(self, selected_items, explorer_src):
+
+        for item in selected_items:
+
+            if self.stop_deleting:
+                return
+
+            GLib.idle_add(self.dialog_deleting.update_labels, item)
+
+            if item.exists():
+                if item.is_dir():
+                    try:
+                        contents = list(item.iterdir())
+                        if contents:
+                            self.delete_now(contents, explorer_src)
+                        item.rmdir()
+                    except Exception as e:
+                        print(f"❌ Error al eliminar directorio {item}: {e}")
+
+                else:
+                    try:
+                        item.unlink()
+                    except Exception as e:
+                        print(f"❌ Error al eliminar archivo {item}: {e}")
+        GLib.idle_add(self.dialog_deleting.finish_deleting)
+        GLib.idle_add(self.action.change_path, explorer_src, explorer_src.actual_path)
+
+    async def create_dialog_deleting(self, parent, src_info):
+        """
+        Crea dialog mostrando info del archivo que se está copiando
+        """
+        self.dialog_deleting = Deleting(parent, src_info)
+        self.thread_update_deleting.start()
+        self.dialog_deleting.update_labels(src_info)
+        response = await self.dialog_deleting.wait_response_async()
+        return response
 
     async def create_dialog_selected_for_delete(
         self, parent, explorer_src, selected_items

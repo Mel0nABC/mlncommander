@@ -9,15 +9,14 @@ import threading, asyncio, time
 
 class Copying(Gtk.Dialog):
 
-    def __init__(self, parent, src_info, dst_info):
+    def __init__(self, parent):
         super().__init__(
             title="Copiando ..",
             transient_for=parent,
             modal=True,
         )
-
-        self.src_info = src_info
-        self.dst_info = dst_info
+        self.src_info = None
+        self.dst_info = None
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.set_child(self.box)
         self.set_default_size(500, 60)
@@ -54,26 +53,32 @@ class Copying(Gtk.Dialog):
         self.dialog_response = False
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
-        self.present()
+        # self.present()
+
+    def set_labels(self, src_info, dst_info):
+        self.src_info = src_info
+        self.dst_info = dst_info
 
     def update_labels(self):
         # ESTA función se ejecuta en el hilo principal (vía idle_add)
+
         try:
-            self.lbl_src.set_text(str(self.src_info))
-            self.lbl_dst.set_text(str(self.dst_info))
-            src_size_text = f"{self.src_info.stat().st_size}"
-            dst_size_text = f"{self.dst_info.stat().st_size}"
+            if self.src_info and self.dst_info:
+                self.lbl_src.set_text(str(self.src_info))
+                self.lbl_dst.set_text(str(self.dst_info))
+                src_size_text = f"{self.src_info.stat().st_size}"
+                dst_size_text = f"{self.dst_info.stat().st_size}"
 
-            src_size = int(src_size_text)
-            dst_size = int(dst_size_text)
+                src_size = int(src_size_text)
+                dst_size = int(dst_size_text)
 
-            src_size = src_size / 1024 / 1024
-            dst_size = dst_size / 1024 / 1024
+                src_size = src_size / 1024 / 1024
+                dst_size = dst_size / 1024 / 1024
 
-            self.lbl_size.set_text(f"{src_size:.2f}/{dst_size:.2f} Mbytes")
-            if src_size == dst_size:
-                self.dialog_response = True
-                GLib.idle_add(self.response, Gtk.ResponseType.OK)
+                self.lbl_size.set_text(f"{src_size:.2f}/{dst_size:.2f} Mbytes")
+                # if src_size == dst_size:
+                #     self.dialog_response = True
+                #     GLib.idle_add(self.response, Gtk.ResponseType.OK)
 
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))
@@ -94,4 +99,6 @@ class Copying(Gtk.Dialog):
         response = await self.future
         return response
 
- 
+    def close_copying(self):
+        self.dialog_response = True
+        GLib.idle_add(self.response, Gtk.ResponseType.OK)

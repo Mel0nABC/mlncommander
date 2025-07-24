@@ -74,7 +74,7 @@ class Actions:
                 raise FileNotFoundError()
             explorer.remove_actual_store()
             explorer.load_new_path(path)
-            # explorer.update_watchdog_path(path, explorer)
+            explorer.update_watchdog_path(path, explorer)
         except FileNotFoundError:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
             self.show_msg_alert(text)

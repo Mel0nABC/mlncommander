@@ -4,7 +4,9 @@ from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
 from views.selected_for_copy import Selected_for_copy
 from views.copying import Copying
+from views.rename_dialog import Rename_dialog
 import gi, os, time, shutil, asyncio, threading, multiprocessing
+from threading import Event
 from gi.repository import GLib
 
 
@@ -13,6 +15,8 @@ class My_copy:
     def __init__(self):
         self.action = Actions()
         self.copying_dialog = None
+        self.response_dic = {}
+        self.rename_response = None
 
     def on_copy(self, explorer_src, explorer_dst, parent):
         """
@@ -55,65 +59,55 @@ class My_copy:
         """
         Recorre los ficheros o directorios de la lista recibida (selected_items) y los filtra según que hay  en destino
         """
-        self.all_files = False
+
         src_dir = explorer_src.actual_path
         dst_dir = explorer_dst.actual_path
 
         response = await self.create_dialog_selected_for_copy(
             parent, explorer_src, explorer_dst, selected_items
         )
-
         if not response:
             return
 
-        async def iterate_folders(
-            parent, selected_items, dst_dir, explorer_src, explorer_dst
-        ):
-            for src_info in selected_items:
-                dst_info = Path(f"{dst_dir}/{src_info.name}")
-                bucle_src_error = Path(f"{src_info}/{src_info.name}")
-                if dst_info.resolve().is_relative_to(bucle_src_error.resolve()):
-                    self.action.show_msg_alert(
-                        "No se puede copiar en esta ruta, se genera bucle infinito."
-                    )
-                    continue
+        self.progress_on = True
 
-                # DESTINO NO EXISTE
-                if not dst_info.exists():
+        self.thread_iterater_folder = threading.Thread(
+            target=self.iterate_folders,
+            args=(parent, selected_items, dst_dir, explorer_src, explorer_dst),
+        )
 
-                    if src_info.is_dir():
-                        os.mkdir(dst_info)
-                        if dst_info.exists():
-                            if len(list(src_info.iterdir())) != 0:
-                                selected_items_folder = src_info.iterdir()
-                                await iterate_folders(
-                                    parent,
-                                    selected_items_folder,
-                                    dst_info,
-                                    explorer_src,
-                                    explorer_dst,
-                                )
+        result = await self.create_dialog_copying(parent)
 
-                        else:
-                            self.action.show_msg_alert(
-                                f"Ha ocurrido un error al crear la ruta:\n\n{dst_info}"
-                            )
+    def iterate_folders(
+        self, parent, selected_items, dst_dir, explorer_src, explorer_dst
+    ):
+        self.all_files = False
+        self.thread_update_dialog = threading.Thread(
+            target=self.update_dialog_copying,
+            args=(parent,),
+        )
+        self.thread_update_dialog.start()
 
-                    else:
+        for src_info in selected_items:
+            dst_info = Path(f"{dst_dir}/{src_info.name}")
+            self.copying_dialog.set_labels(src_info, dst_info)
+            bucle_src_error = Path(f"{src_info}/{src_info.name}")
 
-                        result = await self.init_copy_work(parent, src_info, dst_info)
-                        if not result:
-                            self.action.show_msg_alert(
-                                "Se ha cancelado la copia de archivos"
-                            )
-                            return
+            if dst_info.resolve().is_relative_to(bucle_src_error.resolve()):
+                self.action.show_msg_alert(
+                    "No se puede copiar en esta ruta, se genera bucle infinito."
+                )
+                continue
 
-                # DESTINO EXISTE
-                else:
-                    if src_info.is_dir():
+            # DESTINO NO EXISTE
+            if not dst_info.exists():
+                if src_info.is_dir():
+                    os.mkdir(dst_info)
+                    if dst_info.exists():
                         if len(list(src_info.iterdir())) != 0:
                             selected_items_folder = src_info.iterdir()
-                            await iterate_folders(
+                            GLib.idle_add(
+                                self.iterate_folders,
                                 parent,
                                 selected_items_folder,
                                 dst_info,
@@ -122,96 +116,146 @@ class My_copy:
                             )
 
                     else:
+                        self.action.show_msg_alert(
+                            f"Ha ocurrido un error al crear la ruta:\n\n{dst_info}"
+                        )
 
-                        if not self.all_files:
-                            response_dic = await self.overwrite_response_dialog(
-                                parent, src_info, dst_info
-                            )
-                            self.response_type = response_dic["response"]
-                            self.all_files = response_dic["all_files"]
+                else:
+                    self.copy_file(src_info, dst_info)
 
-                        await self.overwrite_with_type(
+            # DESTINO EXISTE
+            else:
+                if src_info.is_dir():
+                    if len(list(src_info.iterdir())) != 0:
+                        selected_items_folder = src_info.iterdir()
+
+                        GLib.idle_add(
+                            self.iterate_folders,
                             parent,
-                            src_info,
+                            selected_items_folder,
                             dst_info,
                             explorer_src,
                             explorer_dst,
-                            self.response_type,
                         )
 
-        await iterate_folders(
-            parent, selected_items, dst_dir, explorer_src, explorer_dst
-        )
-        self.copying_dialog.destroy()
-        self.action.change_path(explorer_dst, dst_dir)
+                else:
+                    self.threading_event = threading.Event()
 
-    async def init_copy_work(self, parent, src_info, dst_info):
-        """
-        Inicia el proceso de copia
-        """
-        self.progress_on = True
-        self.thread_update_dialog = threading.Thread(
-            target=self.update_dialog_copying,
-            args=(parent, src_info, dst_info),
-        )
-        self.thread_update_dialog.start()
+                    if not self.all_files:
+                        GLib.idle_add(
+                            lambda: (
+                                asyncio.ensure_future(
+                                    self.overwrite_response_dialog(
+                                        parent, src_info, dst_info
+                                    )
+                                ),
+                                False,
+                            )[1]
+                        )
+                        self.threading_event.wait()
+                        self.response_type = self.response_dic["response"]
+                        self.all_files = self.response_dic["all_files"]
 
-        thread_copy_file = multiprocessing.Process(
-            target=self.copy_file, args=(src_info, dst_info)
-        )
-        thread_copy_file.start()
-
-        result = await self.create_dialog_copying(parent, src_info, dst_info)
-
+                    self.overwrite_with_type(
+                        parent,
+                        src_info,
+                        dst_info,
+                        explorer_src,
+                        explorer_dst,
+                        self.response_type,
+                    )
+        self.copying_dialog.close_copying()
+        # self.copying_dialog.destroy()
+        GLib.idle_add(self.action.change_path, explorer_dst, dst_dir)
         if self.thread_update_dialog.is_alive():
             self.progress_on = False
             self.thread_update_dialog.join()
-        if thread_copy_file.is_alive():
-            thread_copy_file.join()
-
-        return result
 
     def copy_file(self, src_info, dst_info):
         """
-        copia ficheros de un src a su dst
+        copia ficheros de un src a su dst, devuelve true  si se copió , false si no.
         """
         shutil.copy(src_info, dst_info)
+        if dst_info.exists():
+            return True
+        else:
+            return False
 
     async def overwrite_response_dialog(self, parent, src_info, dst_info):
         """
         Ventana/Dialog para dar respuesta a las opciones cuando el fichero existe en destino
         """
-        response_dic = {}
         dialog_response = await self.create_dialog_overwrite(parent, src_info, dst_info)
-        response_dic["response"] = dialog_response["response"]
-        response_dic["all_files"] = dialog_response["all_files"]
+        self.response_dic["response"] = dialog_response["response"]
+        self.response_dic["all_files"] = dialog_response["all_files"]
 
-        return response_dic
+        self.threading_event.set()
 
-    async def overwrite_with_type(
+    def overwrite_with_type(
         self, parent, src_info, dst_info, explorer_src, explorer_dst, response_type
     ):
         """
         En base al valor de response_type, realiza una acción u otra
         """
+
         if response_type == "overwrite":
-            await self.overwrite(parent, src_info, dst_info, explorer_dst)
+            self.overwrite(parent, src_info, dst_info, explorer_dst)
 
         if response_type == "overwrite_date":
             src_file_date = datetime.fromtimestamp(src_info.stat().st_ctime)
             dst_file_date = datetime.fromtimestamp(dst_info.stat().st_ctime)
             if src_file_date > dst_file_date:
-                await self.overwrite(parent, src_info, dst_info, explorer_dst)
+                self.overwrite(parent, src_info, dst_info, explorer_dst)
 
         if response_type == "overwrite_diff":
             if src_info.stat().st_size != dst_info.stat().st_size:
-                await self.overwrite(parent, src_info, dst_info, explorer_dst)
+                self.overwrite(parent, src_info, dst_info, explorer_dst)
 
         if response_type == "rename":
-            rename_response = await self.create_dialog_rename(parent, dst_info)
-            if dst_info.name != rename_response:
-                new_name = Path(f"{dst_info.parent}/{rename_response}")
-                await self.init_copy_work(parent, src_info, new_name)
+            self.rename_event = threading.Event()
+
+            GLib.idle_add(
+                lambda: (
+                    asyncio.ensure_future(self.create_dialog_rename(parent, dst_info)),
+                    False,
+                )[1]
+            )
+            # Evento para generar  pause en  el hilo
+            self.rename_event.wait()
+
+            if dst_info.name != self.rename_response:
+                new_name = Path(f"{dst_info.parent}/{self.rename_response}")
+
+                if new_name.exists():
+                    GLib.idle_add(
+                        self.action.show_msg_alert, "El nombre del fichero ya existe"
+                    )
+                else:
+                    self.copying_dialog.set_labels(src_info, new_name)
+                    self.copy_file(src_info, new_name)
+
+    def overwrite(self, parent, src_info, dst_info, explorer_dst):
+        """
+        Cuando va a sobre escribir, renombra  el archivo viejo hasta que se copie correctamente el nuevo
+        """
+        dst_old_name = f"{dst_info}.old"
+        dst_old_file = Path(dst_old_name)
+        if dst_old_file.exists():
+            os.remove(dst_old_file)
+        os.rename(dst_info, dst_old_name)
+
+        if dst_old_file.exists():
+            if src_info.is_dir():
+                shutil.copytree(src_info, dst_info)
+                shutil.rmtree(dst_old_file)
+            else:
+                result = self.copy_file(src_info, dst_info)
+
+                if result:
+                    os.remove(dst_old_file)
+                else:
+                    os.remove(dst_info)
+                    os.rename(dst_old_file, dst_info)
 
     async def create_dialog_overwrite(self, parent, src_info, dst_info):
         """
@@ -228,48 +272,33 @@ class My_copy:
         """
         Crea dialog de la lista seleccionada para copiar
         """
+
         selected_for_copy = Selected_for_copy(
             parent, explorer_src, explorer_dst, selected_items
         )
         response = await selected_for_copy.wait_response_async()
         return response
 
-    async def create_dialog_copying(self, parent, src_info, dst_info):
+    async def create_dialog_copying(self, parent):
         """
         Crea dialog mostrando info del archivo que se está copiando
         """
-        self.copying_dialog = Copying(parent, src_info, dst_info)
-        self.copying_dialog.update_labels()
+        self.copying_dialog = Copying(parent)
+        self.copying_dialog.present()
+        self.thread_iterater_folder.start()
         response = await self.copying_dialog.wait_response_async()
         return response
 
-    def update_dialog_copying(self, parent, src_info, dst_info):
+    async def create_dialog_rename(self, parent, dst_info):
+        rename_dialog = Rename_dialog(parent, dst_info)
+        self.rename_response = await rename_dialog.wait_response_async()
+        self.rename_event.set()
+
+    def update_dialog_copying(self, parent):
         """
         Actualiza la  información que muestra el dialog Copying()
         """
         while self.progress_on:
-            time.sleep(0.2)
+            time.sleep(0.1)
             if self.copying_dialog is not None:
                 GLib.idle_add(self.copying_dialog.update_labels)
-
-    async def overwrite(self, parent, src_info, dst_info, explorer_dst):
-        """
-        Cuando va a sobre escribir, renombra  el archivo viejo hasta que se copie correctamente el nuevo
-        """
-        dst_old_name = f"{dst_info}.old"
-        dst_old_file = Path(dst_old_name)
-        if dst_old_file.exists():
-            os.remove(dst_old_file)
-        os.rename(dst_info, dst_old_name)
-
-        if dst_old_file.exists():
-            if src_info.is_dir():
-                shutil.copytree(src_info, dst_info)
-                shutil.rmtree(dst_old_file)
-            else:
-                result = await self.init_copy_work(parent, src_info, dst_info)
-                if result:
-                    os.remove(dst_old_file)
-                else:
-                    os.remove(dst_info)
-                    os.rename(dst_old_file, dst_info)

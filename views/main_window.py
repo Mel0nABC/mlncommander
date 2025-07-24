@@ -20,6 +20,9 @@ class Window(Gtk.Window):
         self.explorer_src = None
         self.explorer_dst = None
         self.my_watchdog = None
+        self.entry_margin = 6
+        self.horizontal_button_list_margin = 8
+        self.scroll_1_margin = 10
 
         # Obtenemos información de la pantalla
 
@@ -53,6 +56,16 @@ class Window(Gtk.Window):
         vertical_entry_1 = Gtk.Entry()
         vertical_entry_2 = Gtk.Entry()
 
+        vertical_entry_1.set_margin_top(self.entry_margin)
+        vertical_entry_1.set_margin_end(self.entry_margin / 2)
+        vertical_entry_1.set_margin_bottom(self.entry_margin)
+        vertical_entry_1.set_margin_start(self.entry_margin)
+
+        vertical_entry_2.set_margin_top(self.entry_margin)
+        vertical_entry_2.set_margin_end(self.entry_margin)
+        vertical_entry_2.set_margin_bottom(self.entry_margin)
+        vertical_entry_2.set_margin_start(self.entry_margin / 2)
+
         # Añadimos entrys a su respectiva pantalla
         vertical_screen_1.append(vertical_entry_1)
         vertical_screen_2.append(vertical_entry_2)
@@ -74,10 +87,18 @@ class Window(Gtk.Window):
         scroll_1 = Gtk.ScrolledWindow()
         scroll_1.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroll_1.set_child(self.explorer_1_column_view)
+        scroll_1.set_margin_end(self.scroll_1_margin / 2)
+        scroll_1.set_margin_bottom(self.scroll_1_margin)
+        scroll_1.set_margin_start(self.scroll_1_margin)
 
         scroll_2 = Gtk.ScrolledWindow()
         scroll_2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroll_2.set_child(self.explorer_2_column_view)
+
+        scroll_2.set_child(self.explorer_1_column_view)
+        scroll_2.set_margin_end(self.scroll_1_margin)
+        scroll_2.set_margin_bottom(self.scroll_1_margin)
+        scroll_2.set_margin_start(self.scroll_1_margin / 2)
 
         vertical_screen_1.append(scroll_1)
         vertical_screen_2.append(scroll_2)
@@ -94,6 +115,10 @@ class Window(Gtk.Window):
         horizontal_boton_menu = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
+        horizontal_boton_menu.set_margin_top(self.horizontal_button_list_margin)
+        horizontal_boton_menu.set_margin_end(self.horizontal_button_list_margin)
+        horizontal_boton_menu.set_margin_bottom(self.horizontal_button_list_margin)
+        horizontal_boton_menu.set_margin_start(self.horizontal_button_list_margin)
         horizontal_boton_menu.set_hexpand(True)
 
         btn_F5 = Gtk.Button(label="Copiar < F5 >")

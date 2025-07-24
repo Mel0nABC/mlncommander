@@ -23,6 +23,7 @@ class App(Gtk.Application):
         self.add_action(action_exit)
         self.win.present()
 
+
     def get_application(self):
         return self.win
 
