@@ -2,7 +2,6 @@ from controls.Actions import Actions
 from pathlib import Path
 from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
-from views.selected_for_copy import Selected_for_copy
 from views.create_dir_dialog import Create_dir_dialog
 from views.copying import Copying
 import gi, os, time, shutil, asyncio, threading, multiprocessing
@@ -19,6 +18,10 @@ class Create:
         TODO, para crear un directorio:
             - Si el directorio ya existe, que avise.
         """
+
+        if not explorer_dst:
+            self.action.show_msg_alert("Debe seleccionar explorador.")
+            return
 
         asyncio.ensure_future(self.on_create_dir_async(explorer_dst, parent))
 

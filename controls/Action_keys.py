@@ -14,6 +14,7 @@ _F6_KEY = Gdk.keyval_name(Gdk.KEY_F6)  # Mover
 _F7_KEY = Gdk.keyval_name(Gdk.KEY_F7)  # Crear directorio
 _F8_KEY = Gdk.keyval_name(Gdk.KEY_F8)  # Eliminar
 _F9_KEY = Gdk.keyval_name(Gdk.KEY_F9)  # Actualizar
+_F10_KEY = Gdk.keyval_name(Gdk.KEY_F10)  # Salir
 
 
 @staticmethod
@@ -30,7 +31,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
     if key_pressed_name == _F6_KEY:
         # Move
-        move = Move()
+        move = Move(win)
         move.on_move(explorer_src, explorer_dst)
         return True
 
@@ -48,6 +49,10 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
     if key_pressed_name == _F9_KEY:
         print("F9")
+        return True
+
+    if key_pressed_name == _F10_KEY:
+        print("F10")
         return True
 
     return False

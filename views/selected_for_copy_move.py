@@ -8,11 +8,13 @@ from views.copying import Copying
 import asyncio
 
 
-class Selected_for_copy(Gtk.Dialog):
+class Selected_for_copy_move(Gtk.Dialog):
 
-    def __init__(self, parent, explorer_src, explorer_dst, selected_items):
+    def __init__(
+        self, parent, explorer_src, explorer_dst, selected_items, title_str, btn_src
+    ):
         super().__init__(
-            title="Lista para copiar",
+            title=title_str,
             transient_for=parent,
             modal=True,
         )
@@ -41,7 +43,7 @@ class Selected_for_copy(Gtk.Dialog):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
-        lbl_dst = Gtk.Label(label="Destino a copiar:")
+        lbl_dst = Gtk.Label(label=f"Destino a {btn_src}:")
         lbl_dst.set_halign(Gtk.Align.START)
 
         entry_dst = Gtk.Entry()
@@ -62,7 +64,7 @@ class Selected_for_copy(Gtk.Dialog):
         )
         horizontal_box_btn_sec.set_halign(Gtk.Align.END)
 
-        btn_copy = Gtk.Button(label="Copiar")
+        btn_copy = Gtk.Button(label=btn_src)
         btn_cancel = Gtk.Button(label="Cancelar")
 
         horizontal_box_btn_sec.append(btn_copy)

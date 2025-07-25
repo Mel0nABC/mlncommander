@@ -2,9 +2,10 @@ from controls.Actions import Actions
 from pathlib import Path
 from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
-from views.selected_for_copy import Selected_for_copy
+from views.selected_for_copy_move import Selected_for_copy_move
 from views.copying import Copying
 from views.rename_dialog import Rename_dialog
+from utilities.rename import Rename_Logic
 import gi, os, time, shutil, asyncio, threading, multiprocessing
 from threading import Event
 from gi.repository import GLib
@@ -23,13 +24,8 @@ class My_copy:
         Inicio para copiar ficheros o directorios.
         """
 
-        src_dir = explorer_src.actual_path
-        dst_dir = explorer_dst.actual_path
-
         if not explorer_src:
-            self.action.show_msg_alert(
-                "Debe seleccionar un archivo o carpeta antes de intentar copiar."
-            )
+            self.action.show_msg_alert("Debe seleccionar algún archivo o carpeta")
             return
 
         if not explorer_dst:
@@ -38,6 +34,9 @@ class My_copy:
             )
             return
 
+        src_dir = explorer_src.actual_path
+        dst_dir = explorer_dst.actual_path
+
         if src_dir == dst_dir:
             self.action.show_msg_alert("Intentar copiar un archivo a él mismo")
             return
@@ -45,6 +44,7 @@ class My_copy:
         selected_items = self.action.get_selected_items_from_explorer(explorer_src)
 
         if not selected_items:
+            self.action.show_msg_alert("Debe seleccionar algún archivo o directorio.")
             return
 
         asyncio.ensure_future(
@@ -63,7 +63,7 @@ class My_copy:
         src_dir = explorer_src.actual_path
         dst_dir = explorer_dst.actual_path
 
-        response = await self.create_dialog_selected_for_copy(
+        response = await self.create_dialog_selected_for_copy_move(
             parent, explorer_src, explorer_dst, selected_items
         )
         if not response:
@@ -166,7 +166,7 @@ class My_copy:
                     )
         self.copying_dialog.close_copying()
         # self.copying_dialog.destroy()
-        GLib.idle_add(self.action.change_path, explorer_dst, dst_dir)
+        GLib.idle_add(self.action.change_path, explorer_dst, explorer_dst.actual_path)
         if self.thread_update_dialog.is_alive():
             self.progress_on = False
             self.thread_update_dialog.join()
@@ -220,6 +220,7 @@ class My_copy:
                     False,
                 )[1]
             )
+
             # Evento para generar  pause en  el hilo
             self.rename_event.wait()
 
@@ -266,15 +267,15 @@ class My_copy:
         response = await dialog.wait_response_async()
         return response
 
-    async def create_dialog_selected_for_copy(
+    async def create_dialog_selected_for_copy_move(
         self, parent, explorer_src, explorer_dst, selected_items
     ):
         """
         Crea dialog de la lista seleccionada para copiar
         """
 
-        selected_for_copy = Selected_for_copy(
-            parent, explorer_src, explorer_dst, selected_items
+        selected_for_copy = Selected_for_copy_move(
+            parent, explorer_src, explorer_dst, selected_items, "Listo para copiar", "Copiar"
         )
         response = await selected_for_copy.wait_response_async()
         return response
@@ -290,8 +291,8 @@ class My_copy:
         return response
 
     async def create_dialog_rename(self, parent, dst_info):
-        rename_dialog = Rename_dialog(parent, dst_info)
-        self.rename_response = await rename_dialog.wait_response_async()
+        rename_logic = Rename_Logic()
+        self.rename_response = await rename_logic.create_dialog_rename(parent, dst_info)
         self.rename_event.set()
 
     def update_dialog_copying(self, parent):

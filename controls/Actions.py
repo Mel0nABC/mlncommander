@@ -2,7 +2,6 @@ from pathlib import Path
 
 from views.overwrite_options import Overwrite_dialog
 from views.rename_dialog import Rename_dialog
-from views.selected_for_copy import Selected_for_copy
 from views.selected_for_delete import Selected_for_delete
 from views.copying import Copying
 import gi, sys
@@ -27,6 +26,7 @@ class Actions:
         """
         Para salir desde el menú Archivo -> Exit.
         """
+        print("Saliendo")
         sys.exit(0)
 
     def entry_on_enter_change_path(self, entry, explorer):

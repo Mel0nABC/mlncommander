@@ -10,9 +10,13 @@ from controls import Action_keys
 from views.menu_bar import Menu_bar
 from views.header import header
 from views.explorer import Explorer
+from utilities.my_copy import My_copy
+from utilities.create import Create
+from utilities.remove import Remove
+from utilities.move import Move
 
 
-class Window(Gtk.Window):
+class Window(Gtk.ApplicationWindow):
 
     def __init__(self, app, actions):
         super().__init__(application=app)
@@ -37,8 +41,9 @@ class Window(Gtk.Window):
 
         # Box, con orientación vertical y separación de 6 entre objetos
         main_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        menu_bar = Menu_bar(self)
 
-        main_vertical_box.append(Menu_bar().get_new_menu_bar())
+        main_vertical_box.append(menu_bar.get_new_menu_bar())
 
         # Box horizontal para los exploradores, dos ventanas iguales.
         horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -71,15 +76,15 @@ class Window(Gtk.Window):
         vertical_screen_2.append(vertical_entry_2)
 
         # Exploradores de archivos
-        explorer_1 = Explorer("explorer_1", vertical_entry_1)
-        vertical_entry_1.set_text(explorer_1.get_actual_path())
+        self.explorer_1 = Explorer("explorer_1", vertical_entry_1)
+        vertical_entry_1.set_text(self.explorer_1.get_actual_path())
 
-        explorer_2 = Explorer("explorer_2", vertical_entry_2)
-        vertical_entry_2.set_text(explorer_2.get_actual_path())
+        self.explorer_2 = Explorer("explorer_2", vertical_entry_2)
+        vertical_entry_2.set_text(self.explorer_2.get_actual_path())
 
         # # Añadimos exploradores de archivos a su respectiva pantalla
-        self.explorer_1_column_view = explorer_1.get_column_view()
-        self.explorer_2_column_view = explorer_2.get_column_view()
+        self.explorer_1_column_view = self.explorer_1.get_column_view()
+        self.explorer_2_column_view = self.explorer_2.get_column_view()
         self.explorer_1_column_view.set_vexpand(True)
         self.explorer_2_column_view.set_vexpand(True)
 
@@ -94,8 +99,6 @@ class Window(Gtk.Window):
         scroll_2 = Gtk.ScrolledWindow()
         scroll_2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroll_2.set_child(self.explorer_2_column_view)
-
-        scroll_2.set_child(self.explorer_1_column_view)
         scroll_2.set_margin_end(self.scroll_1_margin)
         scroll_2.set_margin_bottom(self.scroll_1_margin)
         scroll_2.set_margin_start(self.scroll_1_margin / 2)
@@ -133,6 +136,9 @@ class Window(Gtk.Window):
         btn_F8 = Gtk.Button(label="Eliminar < F8 >")
         horizontal_boton_menu.append(btn_F8)
 
+        btn_F10 = Gtk.Button(label="Salir < F10 >")
+        horizontal_boton_menu.append(btn_F10)
+
         horizontal_boton_menu.set_halign(Gtk.Align.CENTER)
 
         main_vertical_box.append(horizontal_boton_menu)
@@ -141,50 +147,53 @@ class Window(Gtk.Window):
 
         # ZONA DE SEÑALES(EVENTOS)
 
-        # EVENTOS PARA ENTRY
-
-        # actions = Actions(self)
-
         vertical_entry_1.connect(
-            "activate", actions.entry_on_enter_change_path, explorer_1
+            "activate", actions.entry_on_enter_change_path, self.explorer_1
         )
         vertical_entry_2.connect(
-            "activate", actions.entry_on_enter_change_path, explorer_2
+            "activate", actions.entry_on_enter_change_path, self.explorer_2
         )
 
         self.explorer_1_column_view.connect(
-            "activate", actions.on_doble_click, explorer_1, vertical_entry_1
+            "activate", actions.on_doble_click, self.explorer_1, vertical_entry_1
         )
         self.explorer_2_column_view.connect(
-            "activate", actions.on_doble_click, explorer_2, vertical_entry_2
+            "activate", actions.on_doble_click, self.explorer_2, vertical_entry_2
         )
 
         self.explorer_1_column_view.add_controller(
-            actions.set_explorer_src(explorer_1, explorer_2, self)
+            actions.set_explorer_src(self.explorer_1, self.explorer_2, self)
         )
         self.explorer_2_column_view.add_controller(
-            actions.set_explorer_src(explorer_2, explorer_1, self)
+            actions.set_explorer_src(self.explorer_2, self.explorer_1, self)
         )
-
+        
+        my_copy = My_copy()
         btn_F5.connect(
             "clicked",
-            lambda btn: actions.on_copy(
-                self.explorer_src, self.explorer_dst, self, btn
-            ),
+            lambda btn: my_copy.on_copy(self.explorer_src, self.explorer_dst, self),
         )
 
+        move = Move(self)
         btn_F6.connect(
             "clicked",
-            lambda btn: actions.on_create_dir(
-                self.explorer_src, self.explorer_dst, self, btn
-            ),
+            lambda btn: move.on_move(self.explorer_src, self.explorer_dst),
         )
 
+        create = Create()
         btn_F7.connect(
             "clicked",
-            lambda btn: actions.on_create_dir(
-                self.explorer_src, self.explorer_dst, self, btn
-            ),
+            lambda btn: create.on_create_dir(self.explorer_src, self),
+        )
+        remove = Remove()
+        btn_F8.connect(
+            "clicked",
+            lambda btn: remove.on_delete(self.explorer_src, self.explorer_dst, self),
+        )
+
+        btn_F10.connect(
+            "clicked",
+            lambda btn: self.exit(self),
         )
 
         # Crear un EventControllerKey y conectarlo
@@ -193,6 +202,15 @@ class Window(Gtk.Window):
 
         self.add_controller(key_controller)
 
+        self.connect("close-request", self.exit)
+
     @staticmethod
     def get_windows():
         return self
+
+    def exit(self, win=None):
+        self.close()
+        mwdog1 = self.explorer_1.get_watchdog()
+        mwdog2 = self.explorer_2.get_watchdog()
+        mwdog1.stop()
+        mwdog2.stop()

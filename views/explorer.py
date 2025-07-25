@@ -153,3 +153,6 @@ class Explorer(Gtk.Widget):
         self.my_watchdog = My_watchdog(str(path), explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
+
+    def get_watchdog(self):
+        return self.my_watchdog
