@@ -7,8 +7,10 @@ from utilities import create, move, remove, rename, update
 from utilities.my_copy import My_copy
 from utilities.create import Create
 from utilities.remove import Remove
+from utilities.rename import Rename_Logic
 from utilities.move import Move
 
+_F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Renombrar
 _F5_KEY = Gdk.keyval_name(Gdk.KEY_F5)  # Copiar, hecho
 _F6_KEY = Gdk.keyval_name(Gdk.KEY_F6)  # Mover
 _F7_KEY = Gdk.keyval_name(Gdk.KEY_F7)  # Crear directorio
@@ -22,6 +24,12 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
     explorer_src = win.explorer_src
     explorer_dst = win.explorer_dst
     key_pressed_name = Gdk.keyval_name(keyval)
+
+    if key_pressed_name == _F2_KEY:
+        # Copy
+        rename_logic = Rename_Logic()
+        rename_logic.on_rename(explorer_src, win)
+        return True
 
     if key_pressed_name == _F5_KEY:
         # Copy

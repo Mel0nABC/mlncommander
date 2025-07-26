@@ -13,9 +13,7 @@ class Rename_dialog(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
-
         self.dst_info = File_or_directory_info(dst_info)
-
         display = Gdk.Display.get_default()
         monitor = display.get_primary_monitor()
         geometry = monitor.get_geometry()
@@ -30,7 +28,6 @@ class Rename_dialog(Gtk.Dialog):
         vertical_box_info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         vertical_box_info.set_margin_top(20)
         vertical_box_info.set_margin_start(20)
-
         dst_label = Gtk.Label.new(f"Destino: {self.dst_info.path_file}")
         dst_label.set_margin_top(20)
         dst_label.set_halign(Gtk.Align.START)
@@ -47,8 +44,7 @@ class Rename_dialog(Gtk.Dialog):
         vertical_box_info.append(perm_dst_labe)
 
         self.entry_file_name = Gtk.Entry()
-        self.entry_file_name.set_text(dst_info.name)
-
+        self.entry_file_name.set_text(self.dst_info.name)
         vertical_box_info.append(self.entry_file_name)
 
         box.append(vertical_box_info)
@@ -57,8 +53,10 @@ class Rename_dialog(Gtk.Dialog):
         self.boton2 = Gtk.Button(label="CANCELAR")
 
         self.boton1.connect("clicked", self.get_opcion_seleccionada)
-        self.boton2.connect("clicked", self.exit)
-
+        # self.boton2.connect("clicked", self.exit)
+        self.boton2.connect(
+            "clicked", lambda btn: self.response(Gtk.ResponseType.CANCEL)
+        )
         self.vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         self.vertical_box.set_margin_top(20)

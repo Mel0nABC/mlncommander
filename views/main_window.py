@@ -14,6 +14,7 @@ from utilities.my_copy import My_copy
 from utilities.create import Create
 from utilities.remove import Remove
 from utilities.move import Move
+from utilities.rename import Rename_Logic
 
 
 class Window(Gtk.ApplicationWindow):
@@ -124,6 +125,9 @@ class Window(Gtk.ApplicationWindow):
         horizontal_boton_menu.set_margin_start(self.horizontal_button_list_margin)
         horizontal_boton_menu.set_hexpand(True)
 
+        btn_F2 = Gtk.Button(label="Renombrar < F2 >")
+        horizontal_boton_menu.append(btn_F2)
+
         btn_F5 = Gtk.Button(label="Copiar < F5 >")
         horizontal_boton_menu.append(btn_F5)
 
@@ -167,7 +171,13 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_2_column_view.add_controller(
             actions.set_explorer_src(self.explorer_2, self.explorer_1, self)
         )
-        
+
+        rename_logic = Rename_Logic()
+        btn_F2.connect(
+            "clicked",
+            lambda btn: rename_logic.on_rename(self.explorer_src, self),
+        )
+
         my_copy = My_copy()
         btn_F5.connect(
             "clicked",

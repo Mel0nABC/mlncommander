@@ -19,7 +19,7 @@ class My_watchdog:
 
         try:
             while self.observer.is_alive():
-                time.sleep(1)
+                time.sleep(0.1)
 
         except KeyboardInterrupt:
             self.stop()

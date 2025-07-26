@@ -26,7 +26,6 @@ class Actions:
         """
         Para salir desde el menú Archivo -> Exit.
         """
-        print("Saliendo")
         sys.exit(0)
 
     def entry_on_enter_change_path(self, entry, explorer):

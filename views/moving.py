@@ -54,7 +54,7 @@ class Moving(Gtk.Dialog):
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
 
-    def set_labels(self, src_info, dst_info):
+    def set_labels(self, src_info: Path, dst_info: Path):
         self.src_info = src_info
         self.dst_info = dst_info
         self.lbl_src.set_text(str(self.src_info))

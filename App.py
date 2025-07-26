@@ -24,9 +24,6 @@ class App(Gtk.Application):
     def get_application(self):
         return self.win
 
-    def exit():
-        print("test")
-
 
 app = App()
 app.run()

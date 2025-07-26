@@ -13,7 +13,6 @@ class Overwrite_dialog(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
-
         self.src_info = File_or_directory_info(src_info)
         self.dst_info = File_or_directory_info(dst_info)
         self.response = None
@@ -109,6 +108,7 @@ class Overwrite_dialog(Gtk.Dialog):
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
         self.present()
+
 
     def get_opcion_seleccionada(self, botton):
 
