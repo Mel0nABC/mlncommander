@@ -1,6 +1,6 @@
 import gi, threading
 
-gi.require_version("Gtk", "4.0")
+# gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GObject, GLib
 from utilities.file_manager import File_manager
 from controls.Actions import Actions
@@ -20,100 +20,51 @@ class Explorer(Gtk.ColumnView):
         self.my_watchdog = None
         self.action = Actions()
 
-        # Obtenemos lista de datos
+        item_list = list(File_manager.get_path_list(self.actual_path))
+        properties = [prop.name for prop in File_or_directory_info.list_properties()]
+        type_list = [
+            "type",
+            "name",
+            "size",
+            "date_created_str",
+            "permissions",
+        ]
+        for property_name in type_list:
+
+            factory = Gtk.SignalListItemFactory()
+            factory.connect("setup", self.setup, property_name)
+            factory.connect("bind", self.bind, property_name)
+            column = Gtk.ColumnViewColumn.new(property_name, factory)
+
+            # Create a Gtk.Expression for the property
+            property_expression = Gtk.PropertyExpression.new(
+                File_or_directory_info, None, property_name
+            )
+
+            property_type = File_or_directory_info.find_property(
+                property_name
+            ).value_type.fundamental
+
+            sorter = Gtk.StringSorter.new(property_expression)
+
+            column.set_sorter(sorter)
+            column.set_expand(True)
+            column.set_resizable(True)
+
+            self.append_column(column)
+            # Set the sorter on the column
+            column.set_sorter(sorter)
+
+        # DATA
         self.store = File_manager.get_path_list(self.actual_path)
-
-        # Envoltorio que se conecta al modelo y permite seleccionar varios objetos
-        self.selection = Gtk.MultiSelection.new(self.store)
-
-        # el widget que mostrará la información
-
-        self.set_show_column_separators(True)
+        self.sorter = Gtk.ColumnView.get_sorter(self)
+        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
+        self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
+
+        # CONFIGURE COLUMNVIEW
         self.set_show_column_separators(True)
         self.set_vexpand(True)
-
-        # Creamos columnas
-        factory_type = Gtk.SignalListItemFactory.new()
-        factory_type.connect(
-            "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
-        )
-        factory_type.connect(
-            "bind",
-            lambda factory, item: item.get_child().set_text(
-                item.get_item().get_property("type")
-            ),
-        )
-
-        factory_name = Gtk.SignalListItemFactory.new()
-        factory_name.connect(
-            "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
-        )
-        factory_name.connect(
-            "bind",
-            lambda factory, item: item.get_child().set_text(
-                item.get_item().get_property("name")
-            ),
-        )
-
-        factory_size = Gtk.SignalListItemFactory.new()
-        factory_size.connect(
-            "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
-        )
-        factory_size.connect(
-            "bind",
-            lambda factory, item: item.get_child().set_text(
-                item.get_item().get_property("size")
-            ),
-        )
-
-        factory_date = Gtk.SignalListItemFactory.new()
-        factory_date.connect(
-            "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
-        )
-        factory_date.connect(
-            "bind",
-            lambda factory, item: item.get_child().set_text(
-                item.get_item().get_property("date_created_str")
-            ),
-        )
-
-        factory_permission = Gtk.SignalListItemFactory.new()
-        factory_permission.connect(
-            "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
-        )
-        factory_permission.connect(
-            "bind",
-            lambda factory, item: item.get_child().set_text(
-                item.get_item().get_property("permissions")
-            ),
-        )
-
-        column_type = Gtk.ColumnViewColumn(title="Tipo", factory=factory_type)
-        column_name = Gtk.ColumnViewColumn(title="Nombre", factory=factory_name)
-        column_size = Gtk.ColumnViewColumn(title="Tamaño", factory=factory_size)
-        column_date = Gtk.ColumnViewColumn(title="Fecha", factory=factory_date)
-        column_permission = Gtk.ColumnViewColumn(
-            title="Permisos", factory=factory_permission
-        )
-
-        column_type.set_expand(True)
-        column_name.set_expand(True)
-        column_size.set_expand(True)
-        column_date.set_expand(True)
-        column_permission.set_expand(True)
-
-        column_type.set_resizable(True)
-        column_name.set_resizable(True)
-        column_size.set_resizable(True)
-        column_date.set_resizable(True)
-        column_permission.set_resizable(True)
-
-        self.append_column(column_type)
-        self.append_column(column_name)
-        self.append_column(column_size)
-        self.append_column(column_date)
-        self.append_column(column_permission)
 
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
@@ -132,7 +83,6 @@ class Explorer(Gtk.ColumnView):
     def load_new_path(self, path: Path):
         # Obtenemos lista de datos
         self.store = File_manager.get_path_list(path)
-        # Envoltorio que se conecta al modelo y permite seleccionar varios objetos
         self.selection = Gtk.MultiSelection.new(self.store)
         self.set_model(self.selection)
         self.actual_path = path
@@ -154,3 +104,13 @@ class Explorer(Gtk.ColumnView):
 
     def get_watchdog(self):
         return self.my_watchdog
+
+    def setup(self, signal, cell, property_name):
+        label = Gtk.Label(xalign=0)
+        cell.set_child(label)
+
+    def bind(self, signal, cell, property_name):
+        item = cell.get_item()
+        label = cell.get_child()
+        value = item.get_property(property_name)
+        label.set_text(str(value))

@@ -1,6 +1,7 @@
 from entity.File_or_directory_info import File_or_directory_info
 import gi
-gi.require_version("Gtk", "4.0")
+
+# gi.require_version("Gtk", "4.0")
 from gi.repository import Gio, Gtk
 from pathlib import Path
 
@@ -9,6 +10,7 @@ class File_manager:
 
     def get_path_list(path: Path):
         list_content = Gio.ListStore.new(File_or_directory_info)
+
         try:
             back_row = File_or_directory_info(path="..")
             back_row.type = "BACK"
@@ -20,8 +22,6 @@ class File_manager:
             for content in path.iterdir():
                 new_info = File_or_directory_info(content.absolute())
                 list_content.append(new_info)
-
         except Exception as e:
             print(f"Excepción {e}")
-
         return list_content
