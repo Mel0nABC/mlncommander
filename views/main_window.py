@@ -83,23 +83,17 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_2 = Explorer("explorer_2", vertical_entry_2)
         vertical_entry_2.set_text(self.explorer_2.get_actual_path())
 
-        # # Añadimos exploradores de archivos a su respectiva pantalla
-        self.explorer_1_column_view = self.explorer_1.get_column_view()
-        self.explorer_2_column_view = self.explorer_2.get_column_view()
-        self.explorer_1_column_view.set_vexpand(True)
-        self.explorer_2_column_view.set_vexpand(True)
-
         # Para tener scroll en los  navegadores al obtener lista largas de archivos.
         scroll_1 = Gtk.ScrolledWindow()
         scroll_1.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll_1.set_child(self.explorer_1_column_view)
+        scroll_1.set_child(self.explorer_1)
         scroll_1.set_margin_end(self.scroll_1_margin / 2)
         scroll_1.set_margin_bottom(self.scroll_1_margin)
         scroll_1.set_margin_start(self.scroll_1_margin)
 
         scroll_2 = Gtk.ScrolledWindow()
         scroll_2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll_2.set_child(self.explorer_2_column_view)
+        scroll_2.set_child(self.explorer_2)
         scroll_2.set_margin_end(self.scroll_1_margin)
         scroll_2.set_margin_bottom(self.scroll_1_margin)
         scroll_2.set_margin_start(self.scroll_1_margin / 2)
@@ -158,19 +152,30 @@ class Window(Gtk.ApplicationWindow):
             "activate", actions.entry_on_enter_change_path, self.explorer_2
         )
 
-        self.explorer_1_column_view.connect(
+        self.explorer_1.connect(
             "activate", actions.on_doble_click, self.explorer_1, vertical_entry_1
         )
-        self.explorer_2_column_view.connect(
+        self.explorer_2.connect(
             "activate", actions.on_doble_click, self.explorer_2, vertical_entry_2
         )
 
-        self.explorer_1_column_view.add_controller(
-            actions.set_explorer_src(self.explorer_1, self.explorer_2, self)
+        focus_explorer_1 = Gtk.EventControllerFocus()
+        focus_explorer_1.connect(
+            "enter",
+            lambda controller: actions.set_explorer_src(
+                self.explorer_1, self.explorer_2, self
+            ),
         )
-        self.explorer_2_column_view.add_controller(
-            actions.set_explorer_src(self.explorer_2, self.explorer_1, self)
+        self.explorer_1.add_controller(focus_explorer_1)
+
+        focus_explorer_2 = Gtk.EventControllerFocus()
+        focus_explorer_2.connect(
+            "enter",
+            lambda controller: actions.set_explorer_src(
+                self.explorer_2, self.explorer_1, self
+            ),
         )
+        self.explorer_2.add_controller(focus_explorer_2)
 
         rename_logic = Rename_Logic()
         btn_F2.connect(

@@ -25,6 +25,8 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
     explorer_dst = win.explorer_dst
     key_pressed_name = Gdk.keyval_name(keyval)
 
+    print(f"Key pressed: {key_pressed_name}, state: {state}")
+
     if key_pressed_name == _F2_KEY:
         # Copy
         rename_logic = Rename_Logic()

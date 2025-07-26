@@ -97,19 +97,13 @@ class Actions:
         """
         Gestión de qué explorador tiene el foco
         """
-        controller = Gtk.GestureClick()
+        if win.explorer_src:
+            win.explorer_dst = win.explorer_src
+            selection = win.explorer_src.get_selection()
+            selection.unselect_all()
 
-        def on_pressed(gesture, n_press, x, y):
-            if win.explorer_src:
-                win.explorer_dst = win.explorer_src
-                selection = win.explorer_src.get_selection()
-                selection.unselect_all()
-
-            win.explorer_dst = unfocused_explorer
-            win.explorer_src = focused_explorer
-
-        controller.connect("pressed", lambda *args: on_pressed(*args))
-        return controller
+        win.explorer_dst = unfocused_explorer
+        win.explorer_src = focused_explorer
 
     def get_selected_items_from_explorer(self, explorer):
         """

@@ -10,7 +10,7 @@ from entity.File_or_directory_info import File_or_directory_info
 from utilities.my_watchdog import My_watchdog
 
 
-class Explorer(Gtk.Widget):
+class Explorer(Gtk.ColumnView):
     def __init__(self, name, entry):
         super().__init__()
 
@@ -28,12 +28,10 @@ class Explorer(Gtk.Widget):
 
         # el widget que mostrará la información
 
-        self.column_view = Gtk.ColumnView.new(self.selection)
-        self.column_view.set_show_column_separators(True)
-
-        # self.column_view.set_show_row_separators(True)
-        # self.column_view.set_single_click_activate(True) # Para activar elementos con un solo click
-        # Gtk.ColumnView.set_single_click_activate(self.column_view, True)
+        self.set_show_column_separators(True)
+        self.set_model(self.selection)
+        self.set_show_column_separators(True)
+        self.set_vexpand(True)
 
         # Creamos columnas
         factory_type = Gtk.SignalListItemFactory.new()
@@ -111,11 +109,11 @@ class Explorer(Gtk.Widget):
         column_date.set_resizable(True)
         column_permission.set_resizable(True)
 
-        self.column_view.append_column(column_type)
-        self.column_view.append_column(column_name)
-        self.column_view.append_column(column_size)
-        self.column_view.append_column(column_date)
-        self.column_view.append_column(column_permission)
+        self.append_column(column_type)
+        self.append_column(column_name)
+        self.append_column(column_size)
+        self.append_column(column_date)
+        self.append_column(column_permission)
 
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
@@ -136,7 +134,7 @@ class Explorer(Gtk.Widget):
         self.store = File_manager.get_path_list(path)
         # Envoltorio que se conecta al modelo y permite seleccionar varios objetos
         self.selection = Gtk.MultiSelection.new(self.store)
-        self.column_view.set_model(self.selection)
+        self.set_model(self.selection)
         self.actual_path = path
         self.entry.set_text(str(path))
 
