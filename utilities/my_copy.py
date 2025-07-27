@@ -84,6 +84,14 @@ class My_copy:
 
         result = await self.create_dialog_copying(parent)
 
+        print(result)
+
+        if not result:
+            self.progress_on = False
+            GLib.idle_add(
+                self.action.show_msg_alert, "El último archivo debe finalizar su copia."
+            )
+
     def iterate_folders(
         self, parent, selected_items, dst_dir, explorer_src, explorer_dst
     ):
@@ -111,7 +119,8 @@ class My_copy:
             else:
                 self.copying_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
-                    shutil.copy(src_info, dst_info)
+                    # Para poder detener una copia de un archivo, habrá que hacer copia manualmente por bloques.
+                    self.copy_file(src_info, dst_info)
                 else:
                     self.event_overwrite = threading.Event()
                     if not self.all_files:
@@ -215,7 +224,7 @@ class My_copy:
                 while self.emergency_name.exists():
                     self.emergency_name = Path(f"{self.emergency_name}.copy")
                 self.copying_dialog.set_labels(src_info, self.new_name)
-                shutil.copy(src_info, self.emergency_name)
+                self.copy_file(src_info, self.emergency_name)
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
@@ -236,6 +245,7 @@ class My_copy:
 
         if dst_old_file.exists():
             if src_info.is_dir():
+                # COPIA CON COPY TREE, YA NO SE USA
                 shutil.copytree(src_info, dst_info)
                 shutil.rmtree(dst_old_file)
             else:
