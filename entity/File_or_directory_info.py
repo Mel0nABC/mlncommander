@@ -23,7 +23,7 @@ class File_or_directory_info(GObject.Object):
         self.path: str = path
         self.path_file = Path(path)
         self.name: str = self.path_file.name
-        self.is_directory: str = Path(path).is_dir()
+        self.is_directory: bool = Path(path).is_dir()
         self.is_sys_link: bool = self.path_file.is_symlink()
         self.path_exist: bool = self.path_file.exists()
 

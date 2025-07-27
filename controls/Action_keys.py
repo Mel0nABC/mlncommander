@@ -65,4 +65,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         print("F10")
         return True
 
+    # Para hacer el sistema de búsqueda al teclear
+    # self.scroll_to(2,None,Gtk.ListScrollFlags.SELECT,None)
+
     return False

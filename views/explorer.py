@@ -20,8 +20,6 @@ class Explorer(Gtk.ColumnView):
         self.my_watchdog = None
         self.action = Actions()
 
-        item_list = list(File_manager.get_path_list(self.actual_path))
-        properties = [prop.name for prop in File_or_directory_info.list_properties()]
         type_list = [
             "type",
             "name",
@@ -34,33 +32,44 @@ class Explorer(Gtk.ColumnView):
             factory = Gtk.SignalListItemFactory()
             factory.connect("setup", self.setup, property_name)
             factory.connect("bind", self.bind, property_name)
-            column = Gtk.ColumnViewColumn.new(property_name, factory)
+            column = Gtk.ColumnViewColumn.new(str.upper(property_name), factory)
 
             # Create a Gtk.Expression for the property
-            property_expression = Gtk.PropertyExpression.new(
-                File_or_directory_info, None, property_name
-            )
 
-            property_type = File_or_directory_info.find_property(
-                property_name
-            ).value_type.fundamental
+            if property_name == "type":
+                property_expression = Gtk.PropertyExpression.new(
+                    File_or_directory_info, None, "type"
+                )
+            elif property_name == "name":
+                property_expression = Gtk.PropertyExpression.new(
+                    File_or_directory_info, None, "name"
+                )
+            elif property_name == "size":
+                property_expression = Gtk.PropertyExpression.new(
+                    File_or_directory_info, None, "size"
+                )
+            elif property_name == "date_created_str":
+                property_expression = Gtk.PropertyExpression.new(
+                    File_or_directory_info, None, "date_created_str"
+                )
+            elif property_name == "permissions":
+                property_expression = Gtk.PropertyExpression.new(
+                    File_or_directory_info, None, "permissions"
+                )
 
             sorter = Gtk.StringSorter.new(property_expression)
 
             column.set_sorter(sorter)
             column.set_expand(True)
             column.set_resizable(True)
-
             self.append_column(column)
-            # Set the sorter on the column
-            column.set_sorter(sorter)
 
-        # DATA
-        self.store = File_manager.get_path_list(self.actual_path)
-        self.sorter = Gtk.ColumnView.get_sorter(self)
-        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
-        self.selection = Gtk.MultiSelection.new(self.sort_model)
-        self.set_model(self.selection)
+
+
+        # LOAD DATA
+        self.load_new_path(self.actual_path)
+
+        self.set_enable_rubberband(True)
 
         # CONFIGURE COLUMNVIEW
         self.set_show_column_separators(True)
@@ -81,10 +90,13 @@ class Explorer(Gtk.ColumnView):
         return self.store
 
     def load_new_path(self, path: Path):
-        # Obtenemos lista de datos
+
         self.store = File_manager.get_path_list(path)
-        self.selection = Gtk.MultiSelection.new(self.store)
+        self.sorter = Gtk.ColumnView.get_sorter(self)
+        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
+        self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
+
         self.actual_path = path
         self.entry.set_text(str(path))
 
