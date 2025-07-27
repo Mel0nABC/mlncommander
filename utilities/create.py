@@ -20,7 +20,7 @@ class Create:
         """
 
         if not explorer_dst:
-            self.action.show_msg_alert("Debe seleccionar explorador.")
+            self.action.show_msg_alert(parent, "Debe seleccionar explorador.")
             return
 
         asyncio.ensure_future(self.on_create_dir_async(explorer_dst, parent))
@@ -31,11 +31,13 @@ class Create:
         dst_dir = Path(f"{explorer_dst.actual_path}/{response}")
 
         if explorer_dst.actual_path == dst_dir or not response.strip():
-            self.action.show_msg_alert("Debes introducir algún nombre válido.")
+            self.action.show_msg_alert(parent, "Debes introducir algún nombre válido.")
             return
 
         if dst_dir.exists():
-            self.action.show_msg_alert("El directorio que quiere crear, ya existe.")
+            self.action.show_msg_alert(
+                parent, "El directorio que quiere crear, ya existe."
+            )
             return
 
         if dst_dir.name == "None":

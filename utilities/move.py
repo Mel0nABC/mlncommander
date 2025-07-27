@@ -26,13 +26,15 @@ class Move:
 
         if not explorer_src:
             self.action.show_msg_alert(
-                "Debe seleccionar un archivo o carpeta antes de intentar copiar."
+                self.parent,
+                "Debe seleccionar un archivo o carpeta antes de intentar copiar.",
             )
             return
 
         if not explorer_dst:
             self.action.show_msg_alert(
-                "Ha ocurrido un problema con la ventana de destino,reinicie la aplicación."
+                self.parent,
+                "Ha ocurrido un problema con la ventana de destino,reinicie la aplicación.",
             )
             return
 
@@ -97,13 +99,15 @@ class Move:
 
             if str(parent) == str(dst_dir):
                 self.action.show_msg_alert(
-                    "Estás queriendo mover el contenido al mismo directorio"
+                    self.parent,
+                    "Estás queriendo mover el contenido al mismo directorio",
                 )
                 continue
 
             if src_info == dst_dir:
                 self.action.show_msg_alert(
-                    "Estas intentando mover un directorio dentro de sí mismo"
+                    self.parent,
+                    "Estas intentando mover un directorio dentro de sí mismo",
                 )
                 continue
 
@@ -217,6 +221,7 @@ class Move:
                 shutil.move(src_info, self.emergency_name)
                 GLib.idle_add(
                     self.action.show_msg_alert,
+                    parent,
                     f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
                 )
             else:

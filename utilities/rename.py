@@ -21,7 +21,8 @@ class Rename_Logic:
 
         if not explorer_src:
             self.action.show_msg_alert(
-                "Debe seleccionar un archivo o carpeta antes de intentar copiar."
+                parent,
+                "Debe seleccionar un archivo o carpeta antes de intentar copiar.",
             )
             return
 
@@ -29,7 +30,8 @@ class Rename_Logic:
 
         if not selected_items:
             self.action.show_msg_alert(
-                "Debe seleccionar un archivo o carpeta antes de intentar copiar."
+                parent,
+                "Debe seleccionar un archivo o carpeta antes de intentar copiar.",
             )
             return
 

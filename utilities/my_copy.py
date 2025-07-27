@@ -26,12 +26,15 @@ class My_copy:
         Inicio para copiar ficheros o directorios.
         """
         if not explorer_src:
-            self.action.show_msg_alert("Debe seleccionar algún archivo o carpeta")
+            self.action.show_msg_alert(
+                parent, "Debe seleccionar algún archivo o carpeta"
+            )
             return
 
         if not explorer_dst:
             self.action.show_msg_alert(
-                "Ha ocurrido un problema con la ventana de destino,reinicie la aplicación."
+                parent,
+                "Ha ocurrido un problema con la ventana de destino,reinicie la aplicación.",
             )
             return
 
@@ -39,13 +42,15 @@ class My_copy:
         dst_dir = explorer_dst.actual_path
 
         if src_dir == dst_dir:
-            self.action.show_msg_alert("Intentar copiar un archivo a él mismo")
+            self.action.show_msg_alert(parent, "Intentar copiar un archivo a él mismo")
             return
 
         selected_items = self.action.get_selected_items_from_explorer(explorer_src)
 
         if not selected_items:
-            self.action.show_msg_alert("Debe seleccionar algún archivo o directorio.")
+            self.action.show_msg_alert(
+                parent, "Debe seleccionar algún archivo o directorio."
+            )
             return
 
         asyncio.ensure_future(
@@ -84,12 +89,10 @@ class My_copy:
 
         result = await self.create_dialog_copying(parent)
 
-        print(result)
-
         if not result:
             self.progress_on = False
-            GLib.idle_add(
-                self.action.show_msg_alert, "El último archivo debe finalizar su copia."
+            self.action.show_msg_alert(
+                parent, "El último archivo debe finalizar su copia."
             )
 
     def iterate_folders(
@@ -103,7 +106,7 @@ class My_copy:
 
             if dst_info.resolve().is_relative_to(bucle_src_error.resolve()):
                 self.action.show_msg_alert(
-                    "No se puede copiar en esta ruta, se genera bucle infinito."
+                    parent,"No se puede copiar en esta ruta, se genera bucle infinito."
                 )
                 continue
 
@@ -227,7 +230,7 @@ class My_copy:
                 self.copy_file(src_info, self.emergency_name)
                 GLib.idle_add(
                     self.action.show_msg_alert,
-                    f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
+                    parent,f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
                 )
             else:
                 self.copying_dialog.set_labels(src_info, self.new_name)

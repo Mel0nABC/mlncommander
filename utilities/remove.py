@@ -24,12 +24,12 @@ class Remove:
 
         if not src_info.exists():
             self.action.show_msg_alert(
-                "Ha surgido algún problema al intentar eliminar la ubicacion seleccionada"
+                parent,"Ha surgido algún problema al intentar eliminar la ubicacion seleccionada"
             )
         selected_items = self.action.get_selected_items_from_explorer(explorer_src)
 
         if not selected_items:
-            self.action.show_msg_alert("Debe seleccionar algún archivo o directorio.")
+            self.action.show_msg_alert(parent,"Debe seleccionar algún archivo o directorio.")
             return
 
         asyncio.ensure_future(
@@ -56,7 +56,7 @@ class Remove:
         if not response:
             self.stop_deleting = True
             self.action.show_msg_alert(
-                "Se detubo el proceso de borrado antes de finalizar."
+                parent,"Se detubo el proceso de borrado antes de finalizar."
             )
 
     def delete_now(self, selected_items, explorer_src):

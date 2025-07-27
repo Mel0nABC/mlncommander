@@ -78,12 +78,12 @@ class Actions:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
             self.show_msg_alert(text)
 
-    def show_msg_alert(self, text_input: str):
+    def show_msg_alert(self, parent, text_input: str):
         """
         Mensaje de alerta genérico, se le pasa el texto deseado
         """
         dialog = Gtk.MessageDialog(
-            # transient_for=self,
+            transient_for=parent,
             modal=True,
             buttons=Gtk.ButtonsType.OK,
             message_type=Gtk.MessageType.WARNING,
