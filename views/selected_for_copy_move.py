@@ -10,11 +10,9 @@ import asyncio
 
 class Selected_for_copy_move(Gtk.Dialog):
 
-    def __init__(
-        self, parent, explorer_src, explorer_dst, selected_items, title_str, btn_src
-    ):
+    def __init__(self, parent, explorer_src, explorer_dst, selected_items, btn_src):
         super().__init__(
-            title=title_str,
+            title=f"Listo para {str.lower(btn_src)} ..",
             transient_for=parent,
             modal=True,
         )
@@ -43,12 +41,14 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
-        lbl_dst = Gtk.Label(label=f"Destino a {btn_src}:")
+        lbl_dst = Gtk.Label(label=f"Destino a {str.lower(btn_src)}:")
         lbl_dst.set_halign(Gtk.Align.START)
 
         entry_dst = Gtk.Entry()
         entry_dst.set_text(str(self.explorer_dst.actual_path))
         entry_dst.set_hexpand(True)
+
+        entry_dst.connect("activate", self.start_copy)
 
         self.vertical_box.append(lbl_dst)
         self.vertical_box.append(entry_dst)

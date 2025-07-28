@@ -272,7 +272,6 @@ class My_copy:
             explorer_src,
             explorer_dst,
             selected_items,
-            "Listo para copiar",
             "Copiar",
         )
         response = await selected_for_copy.wait_response_async()

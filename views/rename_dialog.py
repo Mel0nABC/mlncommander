@@ -45,6 +45,7 @@ class Rename_dialog(Gtk.Dialog):
 
         self.entry_file_name = Gtk.Entry()
         self.entry_file_name.set_text(self.dst_info.name)
+        self.entry_file_name.connect("activate",self.get_opcion_seleccionada)
         vertical_box_info.append(self.entry_file_name)
 
         box.append(vertical_box_info)

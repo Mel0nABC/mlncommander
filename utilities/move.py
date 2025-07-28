@@ -24,6 +24,9 @@ class Move:
                 - Si el fichero existe, pedir confirmación sobre escribir (sobrescribir, cancelar)
         """
 
+        print(f"SOURCE: {explorer_src.name}")
+        print(f"DESTINO: {explorer_dst.name}")
+
         if not explorer_src:
             self.action.show_msg_alert(
                 self.parent,
@@ -59,7 +62,6 @@ class Move:
             explorer_src,
             explorer_dst,
             selected_items,
-            "Listo para mover ..",
             "Mover",
         )
         response = await selected_for_moving.wait_response_async()

@@ -42,10 +42,11 @@ class Actions:
         type = explorer.store[position].type
         if type == "FILE" or type == "LN BREAK":
             text = "¡Advertencia! Esta intentando abrir un archivo, esta opción aún no esta disponible."
-            self.show_msg_alert(text)
+            self.show_msg_alert(self.parent, text)
             return
 
         path = explorer.store[position].path_file
+
         if path.name == "..":
             actual_path_str = str(explorer.actual_path)
             folders = actual_path_str.split("/")
@@ -93,17 +94,27 @@ class Actions:
         dialog.present()
 
     @staticmethod
-    def set_explorer_src(focused_explorer, unfocused_explorer, win):
+    def set_explorer_src(explorer_focused, win):
         """
         Gestión de qué explorador tiene el foco
         """
-        if win.explorer_src:
-            win.explorer_dst = win.explorer_src
-            selection = win.explorer_src.get_selection()
-            selection.unselect_all()
 
-        win.explorer_dst = unfocused_explorer
-        win.explorer_src = focused_explorer
+        explorer_left = win.explorer_1
+        explorer_right = win.explorer_2
+
+        if explorer_focused == explorer_left:
+            print(f"{explorer_focused.name}: {explorer_left.n_row}")
+            explorer_left.focused = True
+            explorer_right.focused = False
+            explorer_right.selection.unselect_all()
+            win.set_explorers_types(explorer_left, explorer_right)
+
+        else:
+            print(f"{explorer_focused.name}: {explorer_right.n_row}")
+            explorer_right.focused = True
+            explorer_left.focused = False
+            explorer_left.selection.unselect_all()
+            win.set_explorers_types(explorer_right, explorer_left)
 
     def get_selected_items_from_explorer(self, explorer):
         """

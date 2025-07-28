@@ -20,12 +20,16 @@ class Remove:
         Eliminar archivos y directorios, sin vuelta atrás.
 
         """
+
+        print(f"SRC: {explorer_src.name}")
+        print(f"DST: {explorer_dst.name}")
         src_info = explorer_src.actual_path
 
         if not src_info.exists():
             self.action.show_msg_alert(
                 parent,"Ha surgido algún problema al intentar eliminar la ubicacion seleccionada"
             )
+
         selected_items = self.action.get_selected_items_from_explorer(explorer_src)
 
         if not selected_items:

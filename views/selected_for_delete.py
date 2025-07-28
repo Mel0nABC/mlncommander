@@ -57,10 +57,10 @@ class Selected_for_delete(Gtk.Dialog):
         )
         horizontal_box_btn_sec.set_halign(Gtk.Align.END)
 
-        btn_copy = Gtk.Button(label="Eliminar")
+        btn_accept = Gtk.Button(label="Eliminar")
         btn_cancel = Gtk.Button(label="Cancelar")
 
-        horizontal_box_btn_sec.append(btn_copy)
+        horizontal_box_btn_sec.append(btn_accept)
         horizontal_box_btn_sec.append(btn_cancel)
 
         horizonntal_btns = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -76,7 +76,7 @@ class Selected_for_delete(Gtk.Dialog):
 
         self.box.append(self.vertical_box)
 
-        btn_copy.connect("clicked", self.start_delete)
+        btn_accept.connect("clicked", self.start_delete)
         btn_cancel.connect("clicked", self.on_exit, self)
 
         self.response = None
@@ -84,6 +84,7 @@ class Selected_for_delete(Gtk.Dialog):
         self.connect("response", self._on_response)
 
         self.present()
+        btn_accept.grab_focus()
 
     def show_delete_list(self, button=None):
         items = Gio.ListStore.new(File_or_directory_info)
@@ -116,6 +117,8 @@ class Selected_for_delete(Gtk.Dialog):
 
         self.vertical_box.append(scroll)
         self.set_default_size(self.horizontal_size, self.vertical_size * 3)
+
+
 
     def on_exit(self, button, window):
         self.response = False

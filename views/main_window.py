@@ -61,6 +61,11 @@ class Window(Gtk.ApplicationWindow):
         # Campos entry, con la ruta actual o para cambiar.
         vertical_entry_1 = Gtk.Entry()
         vertical_entry_2 = Gtk.Entry()
+        self.search_str_entry = Gtk.Entry()
+        self.search_str_entry.set_editable(False)
+
+        vertical_entry_1.set_focusable(False)
+        vertical_entry_2.set_focusable(False)
 
         vertical_entry_1.set_margin_top(self.entry_margin)
         vertical_entry_1.set_margin_end(self.entry_margin / 2)
@@ -77,10 +82,10 @@ class Window(Gtk.ApplicationWindow):
         vertical_screen_2.append(vertical_entry_2)
 
         # Exploradores de archivos
-        self.explorer_1 = Explorer("explorer_1", vertical_entry_1)
+        self.explorer_1 = Explorer("explorer_1", vertical_entry_1, self)
         vertical_entry_1.set_text(self.explorer_1.get_actual_path())
 
-        self.explorer_2 = Explorer("explorer_2", vertical_entry_2)
+        self.explorer_2 = Explorer("explorer_2", vertical_entry_2, self)
         vertical_entry_2.set_text(self.explorer_2.get_actual_path())
 
         # Para tener scroll en los  navegadores al obtener lista largas de archivos.
@@ -137,6 +142,8 @@ class Window(Gtk.ApplicationWindow):
         btn_F10 = Gtk.Button(label="Salir < F10 >")
         horizontal_boton_menu.append(btn_F10)
 
+        horizontal_boton_menu.append(self.search_str_entry)
+
         horizontal_boton_menu.set_halign(Gtk.Align.CENTER)
 
         main_vertical_box.append(horizontal_boton_menu)
@@ -158,24 +165,6 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_2.connect(
             "activate", actions.on_doble_click, self.explorer_2, vertical_entry_2
         )
-
-        focus_explorer_1 = Gtk.EventControllerFocus()
-        focus_explorer_1.connect(
-            "enter",
-            lambda controller: actions.set_explorer_src(
-                self.explorer_1, self.explorer_2, self
-            ),
-        )
-        self.explorer_1.add_controller(focus_explorer_1)
-
-        focus_explorer_2 = Gtk.EventControllerFocus()
-        focus_explorer_2.connect(
-            "enter",
-            lambda controller: actions.set_explorer_src(
-                self.explorer_2, self.explorer_1, self
-            ),
-        )
-        self.explorer_2.add_controller(focus_explorer_2)
 
         rename_logic = Rename_Logic()
         btn_F2.connect(
@@ -229,3 +218,7 @@ class Window(Gtk.ApplicationWindow):
         mwdog2 = self.explorer_2.get_watchdog()
         mwdog1.stop()
         mwdog2.stop()
+
+    def set_explorers_types(self, explorer_src, explorer_dst):
+        self.explorer_src = explorer_src
+        self.explorer_dst = explorer_dst

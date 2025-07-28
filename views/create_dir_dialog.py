@@ -9,7 +9,7 @@ import asyncio
 class Create_dir_dialog(Gtk.Dialog):
     def __init__(self, parent, explorer_src):
         super().__init__(
-            title="Renombrando archivo",
+            title="Creando directorio",
             transient_for=parent,
             modal=True,
         )
@@ -31,6 +31,7 @@ class Create_dir_dialog(Gtk.Dialog):
         vertical_box_info.set_margin_start(20)
 
         self.entry_file_name = Gtk.Entry()
+        self.entry_file_name.connect("activate",self.get_opcion_seleccionada)
 
         vertical_box_info.append(self.entry_file_name)
 

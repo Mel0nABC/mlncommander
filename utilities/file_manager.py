@@ -19,9 +19,16 @@ class File_manager:
             back_row.permissions = ".."
 
             list_content.append(back_row)
-            for content in path.iterdir():
+
+            ordered_list = sorted(
+                path.iterdir(), key=lambda x: getattr(x, "name"), reverse=not True
+            )
+
+            for content in ordered_list:
                 new_info = File_or_directory_info(content.absolute())
                 list_content.append(new_info)
+
+            return list_content
         except Exception as e:
             print(f"Excepción {e}")
         return list_content
