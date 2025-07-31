@@ -20,6 +20,7 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.selected_items = selected_items
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
+        self.list_files_show = False
 
         display = Gdk.Display.get_default()
         monitor = display.get_primary_monitor()
@@ -29,7 +30,7 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.horizontal_size = horizontal / 5
         self.vertical_size = vertical / 8
 
-        self.set_default_size(self.horizontal_size, self.vertical_size)
+        self.on_default_size()
 
         self.box = self.get_content_area()
 
@@ -41,7 +42,7 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
-        lbl_dst = Gtk.Label(label=f"Destino a {str.lower(btn_src)}:")
+        lbl_dst = Gtk.Label(label=f"Destino:")
         lbl_dst.set_halign(Gtk.Align.START)
 
         entry_dst = Gtk.Entry()
@@ -94,36 +95,45 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.present()
 
     def show_copy_list(self, button):
-        items = Gio.ListStore.new(File_or_directory_info)
-        for i in self.selected_items:
-            items.append(File_or_directory_info(i))
+        if not self.list_files_show:
+            items = Gio.ListStore.new(File_or_directory_info)
+            for i in self.selected_items:
+                items.append(File_or_directory_info(i))
 
-        factory = Gtk.SignalListItemFactory()
+            factory = Gtk.SignalListItemFactory()
 
-        factory.connect(
-            "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
-        )
-        factory.connect(
-            "bind",
-            lambda factory, item: item.get_child().set_text(
-                str(item.get_item().get_property("path"))
-            ),
-        )
+            factory.connect(
+                "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
+            )
+            factory.connect(
+                "bind",
+                lambda factory, item: item.get_child().set_text(
+                    str(item.get_item().get_property("path"))
+                ),
+            )
 
-        selection = Gtk.NoSelection.new(model=items)
+            selection = Gtk.NoSelection.new(model=items)
 
-        list_view = Gtk.ListView.new(model=selection, factory=factory)
+            list_view = Gtk.ListView.new(model=selection, factory=factory)
 
-        scroll = Gtk.ScrolledWindow()
-        scroll.set_child(list_view)
-        scroll.set_vexpand(True)
-        scroll.set_margin_top(20)
-        scroll.set_margin_end(20)
-        scroll.set_margin_bottom(20)
-        scroll.set_margin_start(20)
 
-        self.vertical_box.append(scroll)
-        self.set_default_size(self.horizontal_size, self.vertical_size * 3)
+            self.scroll = Gtk.ScrolledWindow()
+            self.scroll.set_child(list_view)
+            self.scroll.set_vexpand(True)
+            self.scroll.set_margin_top(20)
+            self.scroll.set_margin_end(20)
+            self.scroll.set_margin_bottom(20)
+            self.scroll.set_margin_start(20)
+
+
+            self.vertical_box.append(self.scroll)
+            self.set_default_size(self.horizontal_size, self.vertical_size * 3)
+            self.list_files_show = True
+        else:
+            self.list_files_show = False
+            self.vertical_box.remove(self.scroll)
+            self.on_default_size()
+
 
     def on_exit(self, button, window):
         self.response = False
@@ -141,3 +151,6 @@ class Selected_for_copy_move(Gtk.Dialog):
     async def wait_response_async(self):
         response = await self.future
         return response
+
+    def on_default_size(self):
+        self.set_default_size(self.horizontal_size, self.vertical_size)

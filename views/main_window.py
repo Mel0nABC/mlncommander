@@ -51,64 +51,68 @@ class Window(Gtk.ApplicationWindow):
         horizontal_box.set_vexpand(True)
 
         # Pantalla con lista de archivos y directorios
-        vertical_screen_1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        vertical_screen_1.set_hexpand(True)
-        vertical_screen_1.set_vexpand(True)
-        vertical_screen_2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        vertical_screen_2.set_hexpand(True)
-        vertical_screen_2.set_vexpand(True)
+        self.vertical_screen_1 = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
+        self.vertical_screen_1.set_hexpand(True)
+        self.vertical_screen_1.set_vexpand(True)
+        self.vertical_screen_2 = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
+        self.vertical_screen_2.set_hexpand(True)
+        self.vertical_screen_2.set_vexpand(True)
 
         # Campos entry, con la ruta actual o para cambiar.
-        vertical_entry_1 = Gtk.Entry()
-        vertical_entry_2 = Gtk.Entry()
+        self.vertical_entry_1 = Gtk.Entry()
+        self.vertical_entry_2 = Gtk.Entry()
         self.search_str_entry = Gtk.Entry()
         self.search_str_entry.set_editable(False)
 
-        vertical_entry_1.set_focusable(False)
-        vertical_entry_2.set_focusable(False)
+        self.vertical_entry_1.set_focusable(False)
+        self.vertical_entry_2.set_focusable(False)
 
-        vertical_entry_1.set_margin_top(self.entry_margin)
-        vertical_entry_1.set_margin_end(self.entry_margin / 2)
-        vertical_entry_1.set_margin_bottom(self.entry_margin)
-        vertical_entry_1.set_margin_start(self.entry_margin)
+        self.vertical_entry_1.set_margin_top(self.entry_margin)
+        self.vertical_entry_1.set_margin_end(self.entry_margin / 2)
+        self.vertical_entry_1.set_margin_bottom(self.entry_margin)
+        self.vertical_entry_1.set_margin_start(self.entry_margin)
 
-        vertical_entry_2.set_margin_top(self.entry_margin)
-        vertical_entry_2.set_margin_end(self.entry_margin)
-        vertical_entry_2.set_margin_bottom(self.entry_margin)
-        vertical_entry_2.set_margin_start(self.entry_margin / 2)
+        self.vertical_entry_2.set_margin_top(self.entry_margin)
+        self.vertical_entry_2.set_margin_end(self.entry_margin)
+        self.vertical_entry_2.set_margin_bottom(self.entry_margin)
+        self.vertical_entry_2.set_margin_start(self.entry_margin / 2)
 
         # Añadimos entrys a su respectiva pantalla
-        vertical_screen_1.append(vertical_entry_1)
-        vertical_screen_2.append(vertical_entry_2)
+        self.vertical_screen_1.append(self.vertical_entry_1)
+        self.vertical_screen_2.append(self.vertical_entry_2)
 
         # Exploradores de archivos
-        self.explorer_1 = Explorer("explorer_1", vertical_entry_1, self)
-        vertical_entry_1.set_text(self.explorer_1.get_actual_path())
+        self.explorer_1 = Explorer("explorer_1", self.vertical_entry_1, self)
+        self.vertical_entry_1.set_text(self.explorer_1.get_actual_path())
 
-        self.explorer_2 = Explorer("explorer_2", vertical_entry_2, self)
-        vertical_entry_2.set_text(self.explorer_2.get_actual_path())
+        self.explorer_2 = Explorer("explorer_2", self.vertical_entry_2, self)
+        self.vertical_entry_2.set_text(self.explorer_2.get_actual_path())
 
         # Para tener scroll en los  navegadores al obtener lista largas de archivos.
-        scroll_1 = Gtk.ScrolledWindow()
-        scroll_1.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll_1.set_child(self.explorer_1)
-        scroll_1.set_margin_end(self.scroll_1_margin / 2)
-        scroll_1.set_margin_bottom(self.scroll_1_margin)
-        scroll_1.set_margin_start(self.scroll_1_margin)
+        self.scroll_1 = Gtk.ScrolledWindow()
+        self.scroll_1.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scroll_1.set_child(self.explorer_1)
+        self.scroll_1.set_margin_end(self.scroll_1_margin / 2)
+        self.scroll_1.set_margin_bottom(self.scroll_1_margin)
+        self.scroll_1.set_margin_start(self.scroll_1_margin)
 
-        scroll_2 = Gtk.ScrolledWindow()
-        scroll_2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll_2.set_child(self.explorer_2)
-        scroll_2.set_margin_end(self.scroll_1_margin)
-        scroll_2.set_margin_bottom(self.scroll_1_margin)
-        scroll_2.set_margin_start(self.scroll_1_margin / 2)
+        self.scroll_2 = Gtk.ScrolledWindow()
+        self.scroll_2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scroll_2.set_child(self.explorer_2)
+        self.scroll_2.set_margin_end(self.scroll_1_margin)
+        self.scroll_2.set_margin_bottom(self.scroll_1_margin)
+        self.scroll_2.set_margin_start(self.scroll_1_margin / 2)
 
-        vertical_screen_1.append(scroll_1)
-        vertical_screen_2.append(scroll_2)
+        self.vertical_screen_1.append(self.scroll_1)
+        self.vertical_screen_2.append(self.scroll_2)
 
         # Añadimos pantallas verticales a la horizontal
-        horizontal_box.append(vertical_screen_1)
-        horizontal_box.append(vertical_screen_2)
+        horizontal_box.append(self.vertical_screen_1)
+        horizontal_box.append(self.vertical_screen_2)
 
         # Añadimos horizontal que contiene Entry y Explorer a la vertical primaria
         main_vertical_box.append(horizontal_box)
@@ -152,18 +156,18 @@ class Window(Gtk.ApplicationWindow):
 
         # ZONA DE SEÑALES(EVENTOS)
 
-        vertical_entry_1.connect(
+        self.vertical_entry_1.connect(
             "activate", actions.entry_on_enter_change_path, self.explorer_1
         )
-        vertical_entry_2.connect(
+        self.vertical_entry_2.connect(
             "activate", actions.entry_on_enter_change_path, self.explorer_2
         )
 
         self.explorer_1.connect(
-            "activate", actions.on_doble_click, self.explorer_1, vertical_entry_1
+            "activate", actions.on_doble_click, self.explorer_1, self.vertical_entry_1
         )
         self.explorer_2.connect(
-            "activate", actions.on_doble_click, self.explorer_2, vertical_entry_2
+            "activate", actions.on_doble_click, self.explorer_2, self.vertical_entry_2
         )
 
         rename_logic = Rename_Logic()
@@ -208,6 +212,8 @@ class Window(Gtk.ApplicationWindow):
 
         self.connect("close-request", self.exit)
 
+        self.set_explorer_initial()
+
     @staticmethod
     def get_windows():
         return self
@@ -222,3 +228,10 @@ class Window(Gtk.ApplicationWindow):
     def set_explorers_types(self, explorer_src, explorer_dst):
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
+
+    def set_explorer_initial(self):
+        # Configuramos el foco inicial en explorer_1, izquierdo
+        self.explorer_1.focused = True
+        self.explorer_1.grab_focus()
+        self.set_explorers_types(self.explorer_1, self.explorer_2)
+        self.explorer_1.scroll_to(1, None, Gtk.ListScrollFlags.SELECT)

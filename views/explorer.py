@@ -1,7 +1,7 @@
 import gi, threading
 
-# gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GObject, GLib
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, Gdk, Gio, GObject, GLib
 from utilities.file_manager import File_manager
 from controls.Actions import Actions
 from pathlib import Path
@@ -23,12 +23,22 @@ class Explorer(Gtk.ColumnView):
         self.action = Actions()
         self.selection = None
         self.n_row = 0
+        self.n_row_old = 0
         self.search_str = ""
         self.thread_reset_str = threading.Thread(target=self.str_search_reset)
         self.count_rst_str = 0
+        self.COUNT_RST_TIME = 5000
         self.search_str_entry = win.search_str_entry
         self.store = None
         self.win = win
+        self.click_handler = 0
+        self.background_list = self.get_last_child()
+        self.handler_id_connect = 0
+        self.flags = (
+            Gtk.ListScrollFlags.SELECT
+            | Gtk.ListScrollFlags.NONE
+            | Gtk.ListScrollFlags.FOCUS
+        )
 
         type_list = [
             "type",
@@ -76,7 +86,7 @@ class Explorer(Gtk.ColumnView):
             self.append_column(column)
 
         # LOAD DATA
-        self.load_new_path(self.actual_path)
+        self.load_new_path(self.actual_path, self.n_row)
 
         self.set_enable_rubberband(True)
 
@@ -89,17 +99,36 @@ class Explorer(Gtk.ColumnView):
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
         # AL HACER CLICK EN UNA FILA, SE AJUSTA self.n_row
-        focus_explorer = Gtk.EventControllerFocus()
-        focus_explorer.connect(
+        self.focus_explorer = Gtk.EventControllerFocus()
+        self.focus_explorer.connect(
             "enter", lambda controller: self.set_explorer_focus(self.win)
         )
-        self.add_controller(focus_explorer)
+        self.add_controller(self.focus_explorer)
 
-        print(f"INICIO EXPLORER --> {self.focused}")
+    def load_css(self):
+
+        css = b"""
+            .background-search {
+                color: yellow;
+                background-color: black;
+                font-weight:bold;
+            }
+            """
+
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css)
+
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
+        )
 
     def set_explorer_focus(self, obj=None, n_press=None, x=None, y=None, win=None):
-        self.on_columnview_click()
-        self.action.set_explorer_src(self, self.win)
+
+        if self.count_rst_str > 0:
+            self.count_rst_str = self.COUNT_RST_TIME
+        else:
+            self.on_columnview_click()
+            self.action.set_explorer_src(self, self.win)
 
     def on_columnview_click(self):
         selected_item = list(self.action.get_selected_items_from_explorer(self))
@@ -125,7 +154,13 @@ class Explorer(Gtk.ColumnView):
     def get_store(self):
         return self.store
 
-    def load_new_path(self, path: Path):
+    def load_new_path(self, path: Path, row_file):
+
+        actual_path_old = self.actual_path
+        if path.is_relative_to(actual_path_old):
+            # Guardamos nº fila cuando subimos un directorio
+            self.n_row_old = self.n_row
+
         if self.store:
             self.remove_actual_store()
         self.store = File_manager.get_path_list(path)
@@ -133,7 +168,20 @@ class Explorer(Gtk.ColumnView):
         self.actual_path = path
         self.entry.set_text(str(path))
         # AL HACER CLICK EN UNA FILA, SE AJUSTA self.n_row
-        self.selection.connect("selection-changed", self.set_explorer_focus, self.win)
+        if not self.selection.handler_is_connected(self.handler_id_connect):
+            self.handler_id_connect = self.selection.connect(
+                "selection-changed", self.set_explorer_focus, self.win
+            )
+        # self.grab_focus()
+        if not path.is_relative_to(actual_path_old):
+            # Al retroceder directorio que aparezca en la misma ubicación.
+            self.scroll_to(self.n_row_old, None, self.flags)
+
+        print(path)
+        print(f"{actual_path_old}/{path.name}")
+        if str(path) == f"{actual_path_old}/{path.name}":
+            print("SUBIMOS DIRECTORIO")
+            self.scroll_to(0, None, self.flags)
 
     def remove_actual_store(self):
         self.set_model(None)
@@ -169,17 +217,24 @@ class Explorer(Gtk.ColumnView):
         return self.my_watchdog
 
     def setup(self, signal, cell, property_name):
-        label = Gtk.Label(xalign=0)
-        cell.set_child(label)
+        def setup_when_idle():
+            label = Gtk.Label(xalign=0)
+            cell.set_child(label)
+
+        GLib.idle_add(setup_when_idle)
 
     def bind(self, signal, cell, property_name):
-        item = cell.get_item()
-        label = cell.get_child()
-        value = item.get_property(property_name)
-        label.set_text(str(value))
+        def bind_when_idle():
+            item = cell.get_item()
+            if item:
+                label = cell.get_child()
+                value = item.get_property(property_name)
+                label.set_text(str(value))
 
-    def set_str_search(self, char):
-        self.search_str += char
+        GLib.idle_add(bind_when_idle)
+
+    def set_str_search(self, search_word):
+        self.search_str = search_word
 
         if not self.thread_reset_str.is_alive():
             self.thread_reset_str = threading.Thread(target=self.str_search_reset)
@@ -194,18 +249,32 @@ class Explorer(Gtk.ColumnView):
         self.search_str_entry.set_text(self.search_str)
 
     def str_search_reset(self):
-        while self.count_rst_str < 1:
-            time.sleep(1)
+
+        self.n_row_old = self.n_row
+
+        while self.count_rst_str < self.COUNT_RST_TIME:
+            time.sleep(0.001)
             self.count_rst_str += 1
+            # print(self.count_rst_str)
 
         self.search_str = ""
         self.search_str_entry.set_text("")
-        flags = (
-            Gtk.ListScrollFlags.SELECT
-            | Gtk.ListScrollFlags.NONE
-            | Gtk.ListScrollFlags.FOCUS
-        )
+        GLib.idle_add(self.load_new_path, self.actual_path, 0)
+        self.count_rst_str = 0
 
-        self.scroll_to(1, None, flags)
-        GLib.idle_add(self.load_new_path, self.actual_path)
-        self.grab_focus()
+    def set_background_search(self):
+        print("SET")
+        if self.selection.handler_is_connected(self.handler_id_connect):
+            print("DISCONNECT")
+            self.selection.disconnect(self.handler_id_connect)
+        self.load_css()
+        self.background_list.get_style_context().add_class("background-search")
+
+    def reset_background_search(self):
+        print("RESET")
+        if not self.selection.handler_is_connected(self.handler_id_connect):
+            print("CONNECTED")
+            self.handler_id_connect = self.selection.connect(
+                "selection-changed", self.set_explorer_focus, self.win
+            )
+        self.background_list.get_style_context().remove_class("background-search")

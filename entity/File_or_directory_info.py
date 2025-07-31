@@ -26,6 +26,7 @@ class File_or_directory_info(GObject.Object):
         self.is_directory: bool = Path(path).is_dir()
         self.is_sys_link: bool = self.path_file.is_symlink()
         self.path_exist: bool = self.path_file.exists()
+        self.selected = False
 
         # Filtrado si es un syslink y si existe su destino.
         if self.is_sys_link and not self.path_file.exists():

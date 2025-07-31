@@ -105,8 +105,11 @@ class My_copy:
             bucle_src_error = Path(f"{src_info}/{src_info.name}")
 
             if dst_info.resolve().is_relative_to(bucle_src_error.resolve()):
-                self.action.show_msg_alert(
-                    parent,"No se puede copiar en esta ruta, se genera bucle infinito."
+
+                GLib.idle_add(
+                    self.action.show_msg_alert,
+                    parent,
+                    "No se puede copiar en esta ruta, se genera bucle infinito.",
                 )
                 continue
 
@@ -230,7 +233,8 @@ class My_copy:
                 self.copy_file(src_info, self.emergency_name)
                 GLib.idle_add(
                     self.action.show_msg_alert,
-                    parent,f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
+                    parent,
+                    f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
                 )
             else:
                 self.copying_dialog.set_labels(src_info, self.new_name)
