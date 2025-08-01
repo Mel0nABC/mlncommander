@@ -73,7 +73,8 @@ class Actions:
             if not path.exists():
                 raise FileNotFoundError()
             explorer.remove_actual_store()
-            explorer.load_new_path(path,0)
+            explorer.load_new_path(path, 0)
+
             explorer.update_watchdog_path(path, explorer)
         except FileNotFoundError:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
@@ -101,17 +102,20 @@ class Actions:
         explorer_left = win.explorer_1
         explorer_right = win.explorer_2
 
-        if explorer_focused == explorer_left:
-            explorer_left.focused = True
-            explorer_right.focused = False
-            explorer_right.selection.unselect_all()
-            win.set_explorers_types(explorer_left, explorer_right)
+        try:
+            if explorer_focused == explorer_left:   
+                explorer_left.focused = True
+                explorer_right.focused = False
+                explorer_right.selection.unselect_all()
+                win.set_explorers_types(explorer_left, explorer_right)
 
-        else:
-            explorer_right.focused = True
-            explorer_left.focused = False
-            explorer_left.selection.unselect_all()
-            win.set_explorers_types(explorer_right, explorer_left)
+            else:
+                explorer_right.focused = True
+                explorer_left.focused = False
+                explorer_left.selection.unselect_all()
+                win.set_explorers_types(explorer_right, explorer_left)
+        except AttributeError as e:
+            print(f"Error inicialización: {e}")
 
     def get_selected_items_from_explorer(self, explorer):
         """

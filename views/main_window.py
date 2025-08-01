@@ -212,8 +212,6 @@ class Window(Gtk.ApplicationWindow):
 
         self.connect("close-request", self.exit)
 
-        self.set_explorer_initial()
-
     @staticmethod
     def get_windows():
         return self
@@ -224,14 +222,23 @@ class Window(Gtk.ApplicationWindow):
         mwdog2 = self.explorer_2.get_watchdog()
         mwdog1.stop()
         mwdog2.stop()
-
+        
     def set_explorers_types(self, explorer_src, explorer_dst):
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
 
     def set_explorer_initial(self):
+        # LOAD DATA DIRECTORY
+        self.explorer_1.load_new_path(
+            self.explorer_1.actual_path, self.explorer_1.n_row
+        )
+        self.explorer_2.load_new_path(
+            self.explorer_2.actual_path, self.explorer_2.n_row
+        )
         # Configuramos el foco inicial en explorer_1, izquierdo
         self.explorer_1.focused = True
         self.explorer_1.grab_focus()
-        self.set_explorers_types(self.explorer_1, self.explorer_2)
+        # self.set_explorers_types(self.explorer_1, self.explorer_2)
         self.explorer_1.scroll_to(1, None, Gtk.ListScrollFlags.SELECT)
+        self.explorer_1.load_controller()
+        self.explorer_2.load_controller()

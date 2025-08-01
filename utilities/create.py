@@ -44,4 +44,11 @@ class Create:
             return
 
         os.mkdir(dst_dir)
-        self.action.change_path(explorer_dst, explorer_dst.actual_path)
+        explorer_dst.load_new_data_path(explorer_dst.actual_path)
+        # explorer_dst.set_explorer_focus(parent)
+        row_number = 0
+        for index, item in enumerate(explorer_dst.store):
+            if dst_dir == item.path_file:
+                row_number = index
+        explorer_dst.grab_focus()
+        explorer_dst.scroll_to(row_number, None, explorer_dst.flags)

@@ -3,6 +3,7 @@ from watchdog.events import FileSystemEventHandler
 import time, gi
 from gi.repository import GLib
 from pathlib import Path
+from utilities.file_manager import File_manager
 
 
 class My_watchdog:
@@ -12,10 +13,10 @@ class My_watchdog:
         self.explorer = explorer
 
     def start(self):
-        self.observer.schedule(MiHandler(self.path, self.explorer), path=self.path, recursive=False)
+        self.observer.schedule(
+            MiHandler(self.path, self.explorer), path=self.path, recursive=False
+        )
         self.observer.start()
-
-        # print(f"Monitoreando: {self.path}")
 
         try:
             while self.observer.is_alive():
@@ -23,7 +24,7 @@ class My_watchdog:
 
         except KeyboardInterrupt:
             self.stop()
-        # print(f"WATCHDOG FINALIZADO: {self.path}")
+
     def stop(self):
         self.observer.stop()
         self.observer.join()
@@ -35,21 +36,21 @@ class MiHandler(FileSystemEventHandler):
         self.path = Path(path)
 
     def on_created(self, event):
-        # print(f"Archivo creado: {event.src_path}")
+        print(f"Archivo creado: {event.src_path}")
         self.load_new_path(self.path)
 
     def on_deleted(self, event):
-        # print(f"Archivo eliminado: {event.src_path}")
+        print(f"Archivo eliminado: {event.src_path}")
         self.load_new_path(self.path)
 
     def on_modified(self, event):
-        # print(f"Archivo modificado: {event.src_path}")
+        print(f"Archivo modificado: {event.src_path}")
         self.load_new_path(self.path)
 
     def on_moved(self, event):
-        # print(f"Archivo movido: {event.src_path} → {event.dest_path}")
+        print(f"Archivo movido: {event.src_path} → {event.dest_path}")
         self.load_new_path(self.path)
 
     def load_new_path(self, path):
         path = Path(path)
-        GLib.idle_add(self.explorer.load_new_path, path)
+        GLib.idle_add(self.explorer.load_new_data_path, path)

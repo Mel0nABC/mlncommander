@@ -25,7 +25,23 @@ _TAB = Gdk.keyval_name(Gdk.KEY_Tab)  # Babulador
 _BACKSPACE = Gdk.keyval_name(Gdk.KEY_BackSpace)  # Borrar
 _ESCAPE = Gdk.keyval_name(Gdk.KEY_Escape)  # Escape
 _PUNTO = Gdk.keyval_name(Gdk.KEY_period)  # Punto
+_DELETE = Gdk.keyval_name(Gdk.KEY_Delete)
 row_explorer = 1
+
+KP_KEYVALS = {
+    "KP_0": "0",
+    "KP_1": "1",
+    "KP_2": "2",
+    "KP_3": "3",
+    "KP_4": "4",
+    "KP_5": "5",
+    "KP_6": "6",
+    "KP_7": "7",
+    "KP_8": "8",
+    "KP_9": "9",
+    "KP_Subtract": "-",  # guion en teclado numérico
+    "KP_Decimal": ".",  # punto decimal en teclado numérico
+}
 
 
 @staticmethod
@@ -65,7 +81,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         create.on_create_dir(explorer_src, win)
         return True
 
-    if key_pressed_name == _F8_KEY:
+    if key_pressed_name == _F8_KEY or key_pressed_name == _DELETE:
         # delete/remove
         remove = Remove()
         remove.on_delete(explorer_src, explorer_dst, win)
@@ -81,7 +97,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
     if key_pressed_name == _TAB:
 
-        if explorer_src.count_rst_str > 0:
+        if explorer_src.count_rst_int > 0:
             explorer_src.count_rst_str = explorer_src.COUNT_RST_TIME
 
         if explorer_src.focused == True:
@@ -102,7 +118,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
             explorer_src.grab_focus()
             explorer_src.scroll_to(n_row_src, None, flags)
 
-        if explorer_src.count_rst_str > 0:
+        if explorer_src.count_rst_int > 0:
             explorer_src.reset_background_search()
 
         return True
@@ -125,6 +141,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         keyval in range(65, 91)
         or keyval in range(97, 123)
         or keyval in range(48, 58)
+        or keyval in range(65453, 65466)
         or keyval == 46
     ):
         # SISTEMA DE BÚSQUEDA DE NOMBRE EN ARCHIVOS Y CARPETAS
@@ -132,27 +149,39 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         if keyval == 46:
             key_pressed_name = "."
 
-        search_word = f"{explorer_src.search_str}{key_pressed_name}"
-        explorer_src.set_str_search(search_word)
+        if key_pressed_name in KP_KEYVALS:
+            key_pressed_name = KP_KEYVALS[key_pressed_name]
 
-        store = explorer_src.store
-        for index in reversed(range(len(store))):
-            item = store[index]
-            if item != None:
-                name = item.name
-                if not search_word.lower() in name.lower():
-                    store.remove(index)
-
-        sorter_model = explorer_src.sort_model.get_sorter()
-        GLib.idle_add(sorter_model.changed, 0)
-        explorer_src.set_background_search()
+        find_name_path(explorer_src, key_pressed_name)
 
     if key_pressed_name == _ESCAPE:
 
         # PARA CANCELAR CUANDO HAY FILAS SELECCIONADAS EN BÚSQUEDA DE ARCHIVOS
-        if explorer_src.count_rst_str > 0:
-            explorer_src.count_rst_str = explorer_src.COUNT_RST_TIME
+        if explorer_src.count_rst_int > 0:
+            explorer_src.count_rst_int = explorer_src.COUNT_RST_TIME
         explorer_src.reset_background_search()
         return True
 
     return False
+
+
+def find_name_path(explorer_src, key_pressed_name):
+    search_word = f"{explorer_src.search_str}{key_pressed_name}"
+    explorer_src.set_str_search(search_word)
+
+    store = explorer_src.store
+
+    for index in reversed(range(len(store))):
+        index_row = index
+        item = store[index]
+        if item != None:
+            name = item.name
+            # if not search_word.lower() in name.lower() and name != "..":
+            #     store.remove(index)
+            if not name.lower().startswith(search_word.lower()) and name != "..":
+                store.remove(index)
+
+        sorter_model = explorer_src.sort_model.get_sorter()
+        sorter_model.changed(0)
+        explorer_src.set_background_search()
+    GLib.idle_add(explorer_src.scroll_to, 1, None, explorer_src.flags)

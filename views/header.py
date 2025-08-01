@@ -9,7 +9,7 @@ class header:
 
     def __init__(self):
         self.header = Gtk.HeaderBar()
-        title = Gtk.Label(label="Mel0n Commander")
+        title = Gtk.Label(label="MLN Commander")
         self.header.set_title_widget(title)
         self.header.set_show_title_buttons(True)
 

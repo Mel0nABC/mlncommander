@@ -155,9 +155,16 @@ class My_copy:
                         explorer_dst,
                         self.response_type,
                     )
+
+            GLib.idle_add(explorer_src.load_new_data_path, src_info.parent)
+            GLib.idle_add(explorer_dst.load_new_data_path, dst_info.parent)
+            GLib.idle_add(explorer_src.set_explorer_focus, parent)
+            GLib.idle_add(
+                explorer_src.scroll_to, explorer_src.n_row, None, explorer_src.flags
+            )
+
         self.copying_dialog.close_copying()
-        # self.copying_dialog.destroy()
-        GLib.idle_add(self.action.change_path, explorer_dst, explorer_dst.actual_path)
+
         if self.thread_update_dialog.is_alive():
             self.progress_on = False
             self.thread_update_dialog.join()

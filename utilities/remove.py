@@ -20,20 +20,20 @@ class Remove:
         Eliminar archivos y directorios, sin vuelta atrás.
 
         """
-
-        print(f"SRC: {explorer_src.name}")
-        print(f"DST: {explorer_dst.name}")
         src_info = explorer_src.actual_path
 
         if not src_info.exists():
             self.action.show_msg_alert(
-                parent,"Ha surgido algún problema al intentar eliminar la ubicacion seleccionada"
+                parent,
+                "Ha surgido algún problema al intentar eliminar la ubicacion seleccionada",
             )
 
         selected_items = self.action.get_selected_items_from_explorer(explorer_src)
 
         if not selected_items:
-            self.action.show_msg_alert(parent,"Debe seleccionar algún archivo o directorio.")
+            self.action.show_msg_alert(
+                parent, "Debe seleccionar algún archivo o directorio."
+            )
             return
 
         asyncio.ensure_future(
@@ -52,7 +52,7 @@ class Remove:
 
         self.thread_update_deleting = threading.Thread(
             target=self.delete_now,
-            args=(selected_items, explorer_src),
+            args=(selected_items, explorer_src, parent),
         )
 
         response = await self.create_dialog_deleting(parent, explorer_src.actual_path)
@@ -60,10 +60,10 @@ class Remove:
         if not response:
             self.stop_deleting = True
             self.action.show_msg_alert(
-                parent,"Se detubo el proceso de borrado antes de finalizar."
+                parent, "Se detubo el proceso de borrado antes de finalizar."
             )
 
-    def delete_now(self, selected_items, explorer_src):
+    def delete_now(self, selected_items, explorer_src, parent):
 
         for item in selected_items:
 
@@ -77,7 +77,7 @@ class Remove:
                     try:
                         contents = list(item.iterdir())
                         if contents:
-                            self.delete_now(contents, explorer_src)
+                            self.delete_now(contents, explorer_src, parent)
                         item.rmdir()
                     except Exception as e:
                         print(f"❌ Error al eliminar directorio {item}: {e}")
@@ -87,8 +87,13 @@ class Remove:
                         item.unlink()
                     except Exception as e:
                         print(f"❌ Error al eliminar archivo {item}: {e}")
+
+            GLib.idle_add(explorer_src.load_new_data_path, item.parent)
+            GLib.idle_add(explorer_src.set_explorer_focus, parent)
+            GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
+
         GLib.idle_add(self.dialog_deleting.finish_deleting)
-        GLib.idle_add(self.action.change_path, explorer_src, explorer_src.actual_path)
+
 
     async def create_dialog_deleting(self, parent, src_info):
         """

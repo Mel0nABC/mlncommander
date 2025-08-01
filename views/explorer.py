@@ -18,6 +18,7 @@ class Explorer(Gtk.ColumnView):
         self.name = name
         self.focused = False
         self.actual_path = Path("/home/mel0n/Downloads/pruebas_copiar")
+        self.actual_path_old = None
         self.entry = entry
         self.my_watchdog = None
         self.action = Actions()
@@ -26,7 +27,7 @@ class Explorer(Gtk.ColumnView):
         self.n_row_old = 0
         self.search_str = ""
         self.thread_reset_str = threading.Thread(target=self.str_search_reset)
-        self.count_rst_str = 0
+        self.count_rst_int = 0
         self.COUNT_RST_TIME = 5000
         self.search_str_entry = win.search_str_entry
         self.store = None
@@ -85,9 +86,6 @@ class Explorer(Gtk.ColumnView):
 
             self.append_column(column)
 
-        # LOAD DATA
-        self.load_new_path(self.actual_path, self.n_row)
-
         self.set_enable_rubberband(True)
 
         # CONFIGURE COLUMNVIEW
@@ -98,7 +96,7 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
-        # AL HACER CLICK EN UNA FILA, SE AJUSTA self.n_row
+    def load_controller(self):
         self.focus_explorer = Gtk.EventControllerFocus()
         self.focus_explorer.connect(
             "enter", lambda controller: self.set_explorer_focus(self.win)
@@ -124,8 +122,8 @@ class Explorer(Gtk.ColumnView):
 
     def set_explorer_focus(self, obj=None, n_press=None, x=None, y=None, win=None):
 
-        if self.count_rst_str > 0:
-            self.count_rst_str = self.COUNT_RST_TIME
+        if self.count_rst_int > 0:
+            self.count_rst_int = self.COUNT_RST_TIME
         else:
             self.on_columnview_click()
             self.action.set_explorer_src(self, self.win)
@@ -156,32 +154,45 @@ class Explorer(Gtk.ColumnView):
 
     def load_new_path(self, path: Path, row_file):
 
-        actual_path_old = self.actual_path
-        if path.is_relative_to(actual_path_old):
-            # Guardamos nº fila cuando subimos un directorio
-            self.n_row_old = self.n_row
+        # Gestión para guardar el nº de fila cuando se avanza un directorio
+        if self.actual_path_old:
+            if not self.actual_path_old.is_relative_to(path):
+                self.actual_path_old = self.actual_path
+                self.n_row_old = self.n_row
+        else:
+            self.actual_path_old = self.actual_path
 
+        self.load_new_data_path(path)
+
+        # Volvemos a realizar el connect si estaba desconectado al entrar en nuevo folder
+        if not self.selection.handler_is_connected(self.handler_id_connect):
+            self.handler_id_connect = self.selection.connect(
+                "selection-changed", self.set_explorer_focus, self.win
+            )
+        # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
+        # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
+        if self.actual_path_old.is_relative_to(path):
+            # Retrocede
+            self.scroll_to(self.n_row_old, None, self.flags)
+        else:
+            # Avanza
+            size = len(list(self.store))
+            if size == 1:
+                file = 0
+            else:
+                file = 1
+            self.scroll_to(file, None, self.flags)
+
+        self.reset_background_search()
+
+    def load_new_data_path(self, path: Path):
+        # Cargamos la data del nuevo directorio
         if self.store:
             self.remove_actual_store()
         self.store = File_manager.get_path_list(path)
         self.apply_model_changes(self.store)
         self.actual_path = path
         self.entry.set_text(str(path))
-        # AL HACER CLICK EN UNA FILA, SE AJUSTA self.n_row
-        if not self.selection.handler_is_connected(self.handler_id_connect):
-            self.handler_id_connect = self.selection.connect(
-                "selection-changed", self.set_explorer_focus, self.win
-            )
-        # self.grab_focus()
-        if not path.is_relative_to(actual_path_old):
-            # Al retroceder directorio que aparezca en la misma ubicación.
-            self.scroll_to(self.n_row_old, None, self.flags)
-
-        print(path)
-        print(f"{actual_path_old}/{path.name}")
-        if str(path) == f"{actual_path_old}/{path.name}":
-            print("SUBIMOS DIRECTORIO")
-            self.scroll_to(0, None, self.flags)
 
     def remove_actual_store(self):
         self.set_model(None)
@@ -191,7 +202,6 @@ class Explorer(Gtk.ColumnView):
         self.remove_actual_store()
         self.store = Gio.ListStore.new(File_or_directory_info)
         for item in item_list:
-            print(item)
             self.store.append(item)
         self.apply_model_changes(self.store)
 
@@ -239,42 +249,46 @@ class Explorer(Gtk.ColumnView):
         if not self.thread_reset_str.is_alive():
             self.thread_reset_str = threading.Thread(target=self.str_search_reset)
             self.thread_reset_str.start()
-        self.count_rst_str = 0
+        self.count_rst_int = 0
         self.search_str_entry.set_text(self.search_str)
         return self.search_str
 
     def set_str_search_backspace(self, text):
-        self.count_rst_str = 0
+        self.count_rst_int = 0
         self.search_str = text
         self.search_str_entry.set_text(self.search_str)
 
     def str_search_reset(self):
-
         self.n_row_old = self.n_row
-
-        while self.count_rst_str < self.COUNT_RST_TIME:
+        while self.count_rst_int < self.COUNT_RST_TIME:
             time.sleep(0.001)
-            self.count_rst_str += 1
-            # print(self.count_rst_str)
-
+            self.count_rst_int += 1
         self.search_str = ""
         self.search_str_entry.set_text("")
         GLib.idle_add(self.load_new_path, self.actual_path, 0)
-        self.count_rst_str = 0
+        self.count_rst_int = 0
 
     def set_background_search(self):
-        print("SET")
         if self.selection.handler_is_connected(self.handler_id_connect):
-            print("DISCONNECT")
             self.selection.disconnect(self.handler_id_connect)
+
+            self.handler_id_connect = self.selection.connect(
+                "selection-changed", self.reset_count_rst_int
+            )
+
         self.load_css()
         self.background_list.get_style_context().add_class("background-search")
+        self.scroll_to(0, None, self.flags)
 
     def reset_background_search(self):
-        print("RESET")
+        if self.selection.handler_is_connected(self.handler_id_connect):
+            self.selection.disconnect(self.handler_id_connect)
+
         if not self.selection.handler_is_connected(self.handler_id_connect):
-            print("CONNECTED")
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.set_explorer_focus, self.win
             )
         self.background_list.get_style_context().remove_class("background-search")
+
+    def reset_count_rst_int(self, obj=None, n_press=None, x=None, y=None):
+        self.count_rst_int = 0
