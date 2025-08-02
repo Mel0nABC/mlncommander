@@ -15,7 +15,7 @@ from utilities.create import Create
 from utilities.remove import Remove
 from utilities.move import Move
 from utilities.rename import Rename_Logic
-
+from pathlib import Path
 
 class Window(Gtk.ApplicationWindow):
 
@@ -32,7 +32,9 @@ class Window(Gtk.ApplicationWindow):
         # Obtenemos información de la pantalla
 
         display = Gdk.Display.get_default()
-        monitor = display.get_primary_monitor()
+        # monitor = display.get_primary_monitor()
+        monitors = display.get_monitors()
+        monitor = monitors[0]
         geometry = monitor.get_geometry()
         horizontal = geometry.width
         vertical = geometry.height
@@ -75,11 +77,13 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_entry_1.set_margin_end(self.entry_margin / 2)
         self.vertical_entry_1.set_margin_bottom(self.entry_margin)
         self.vertical_entry_1.set_margin_start(self.entry_margin)
+        self.vertical_entry_1.set_hexpand(True)
 
         self.vertical_entry_2.set_margin_top(self.entry_margin)
         self.vertical_entry_2.set_margin_end(self.entry_margin)
         self.vertical_entry_2.set_margin_bottom(self.entry_margin)
         self.vertical_entry_2.set_margin_start(self.entry_margin / 2)
+        self.vertical_entry_2.set_hexpand(True)
 
         # Añadimos entrys a su respectiva pantalla
         self.vertical_screen_1.append(self.vertical_entry_1)
@@ -222,7 +226,7 @@ class Window(Gtk.ApplicationWindow):
         mwdog2 = self.explorer_2.get_watchdog()
         mwdog1.stop()
         mwdog2.stop()
-        
+
     def set_explorers_types(self, explorer_src, explorer_dst):
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst

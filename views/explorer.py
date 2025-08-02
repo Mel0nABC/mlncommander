@@ -9,6 +9,7 @@ from controls import Action_keys
 import os, asyncio, time
 from entity.File_or_directory_info import File_or_directory_info
 from utilities.my_watchdog import My_watchdog
+from icons.icon_manager import IconManager
 
 
 class Explorer(Gtk.ColumnView):
@@ -48,6 +49,8 @@ class Explorer(Gtk.ColumnView):
             "date_created_str",
             "permissions",
         ]
+        self.icon_manager = IconManager(win)
+
         for property_name in type_list:
 
             factory = Gtk.SignalListItemFactory()
@@ -83,8 +86,10 @@ class Explorer(Gtk.ColumnView):
             column.set_sorter(sorter)
             column.set_expand(True)
             column.set_resizable(True)
+            # column.set_fixed_width(100)
 
             self.append_column(column)
+
 
         self.set_enable_rubberband(True)
 
@@ -93,6 +98,8 @@ class Explorer(Gtk.ColumnView):
         self.set_vexpand(True)
         self.set_can_focus(True)
         self.set_focusable(True)
+        # self.set_hexpand(False)
+        # self.set_halign(Gtk.Align.START)
 
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
@@ -228,8 +235,12 @@ class Explorer(Gtk.ColumnView):
 
     def setup(self, signal, cell, property_name):
         def setup_when_idle():
-            label = Gtk.Label(xalign=0)
-            cell.set_child(label)
+            if property_name == "type":
+                image = Gtk.Image()
+                cell.set_child(image)
+            else:
+                label = Gtk.Label(xalign=0)
+                cell.set_child(label)
 
         GLib.idle_add(setup_when_idle)
 
@@ -237,9 +248,18 @@ class Explorer(Gtk.ColumnView):
         def bind_when_idle():
             item = cell.get_item()
             if item:
-                label = cell.get_child()
+                output_column = cell.get_child()
                 value = item.get_property(property_name)
-                label.set_text(str(value))
+                if property_name == "type":
+                    if item.type == "DIR":
+                        pintable = self.icon_manager.get_folder_icon()
+                    elif item.type == "FILE":
+                        pintable = self.icon_manager.get_file_icon()
+                    else:
+                        pintable = self.icon_manager.get_back_icon()
+                    output_column.set_from_paintable(pintable)
+                else:
+                    output_column.set_text(str(value))
 
         GLib.idle_add(bind_when_idle)
 

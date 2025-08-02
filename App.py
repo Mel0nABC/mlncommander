@@ -3,8 +3,8 @@ from controls.Actions import Actions
 import sys, gi, os, time, asyncio
 from pathlib import Path
 
-# gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GLib
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, Gdk, Gio, GLib
 
 import gbulb
 
@@ -13,7 +13,7 @@ gbulb.install()  # Esto integra asyncio con GTK
 
 class App(Gtk.Application):
     def __init__(self):
-        super().__init__()
+        super().__init__(application_id="com.mel0n.mlncommander")
 
     def do_activate(self):
         action = Actions()
