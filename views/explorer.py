@@ -86,10 +86,13 @@ class Explorer(Gtk.ColumnView):
             column.set_sorter(sorter)
             column.set_expand(True)
             column.set_resizable(True)
-            # column.set_fixed_width(100)
+
+            if property_name == "type":
+                column.set_fixed_width(1)
+            else:
+                column.set_fixed_width(100)
 
             self.append_column(column)
-
 
         self.set_enable_rubberband(True)
 
@@ -98,8 +101,7 @@ class Explorer(Gtk.ColumnView):
         self.set_vexpand(True)
         self.set_can_focus(True)
         self.set_focusable(True)
-        # self.set_hexpand(False)
-        # self.set_halign(Gtk.Align.START)
+        self.set_hexpand(False)
 
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
