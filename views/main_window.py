@@ -285,7 +285,6 @@ class Window(Gtk.ApplicationWindow):
 
     def save_config_file(self):
         # Se borra config y salvamos toda la configuración entera
-        print("Salvando config")
         with open(self.CONFIG_FILE, "a") as conf:
             conf.seek(0)
             conf.truncate()

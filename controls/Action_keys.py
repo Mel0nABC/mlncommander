@@ -55,7 +55,8 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         | Gtk.ListScrollFlags.NONE
         | Gtk.ListScrollFlags.FOCUS
     )
-    print(f"Key pressed: {key_pressed_name}, state: {state},  keyval: {keyval}")
+
+    # print(f"Key pressed: {key_pressed_name}, state: {state},  keyval: {keyval}")
 
     if key_pressed_name == _F2_KEY:
         # Copy
@@ -78,7 +79,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
     if key_pressed_name == _F7_KEY:
         # new dir
         create = Create()
-        create.on_create_dir(explorer_src, win)
+        create.on_create_dir(explorer_src, explorer_dst, win)
         return True
 
     if key_pressed_name == _F8_KEY or key_pressed_name == _DELETE:
@@ -97,9 +98,6 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
     if key_pressed_name == _TAB:
 
-        if explorer_src.count_rst_int > 0:
-            explorer_src.count_rst_str = explorer_src.COUNT_RST_TIME
-
         if explorer_src.focused == True:
             # EXPLORER 2 FOCUSED
             n_row_dst = explorer_dst.n_row
@@ -114,9 +112,6 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
             explorer_src.grab_focus()
             explorer_src.scroll_to(n_row_src, None, flags)
 
-        if explorer_src.count_rst_int > 0:
-            explorer_src.reset_background_search()
-
         return True
 
     if key_pressed_name == _BACKSPACE:
@@ -126,6 +121,9 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         if text != "":
             explorer_src.set_str_search_backspace(text)
             return True
+        else:
+            if len(text) == 0:
+                stop_search_mode(explorer_src)
 
         parent_path = explorer_src.actual_path.parent
         explorer_src.load_new_path(parent_path)
@@ -151,14 +149,17 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         find_name_path(explorer_src, key_pressed_name)
 
     if key_pressed_name == _ESCAPE:
-
-        # PARA CANCELAR CUANDO HAY FILAS SELECCIONADAS EN BÚSQUEDA DE ARCHIVOS
-        if explorer_src.count_rst_int > 0:
-            explorer_src.count_rst_int = explorer_src.COUNT_RST_TIME
-        explorer_src.reset_background_search()
+        stop_search_mode(explorer_src)
         return True
 
     return False
+
+
+def stop_search_mode(explorer_src):
+    # PARA CANCELAR CUANDO HAY FILAS SELECCIONADAS EN BÚSQUEDA DE ARCHIVOS
+    if explorer_src.count_rst_int > 0:
+        explorer_src.stop_search_mode()
+    explorer_src.stop_background_search()
 
 
 def find_name_path(explorer_src, key_pressed_name):

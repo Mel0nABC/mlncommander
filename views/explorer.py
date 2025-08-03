@@ -27,7 +27,7 @@ class Explorer(Gtk.ColumnView):
         self.n_row = 0
         self.n_row_old = 0
         self.search_str = ""
-        self.thread_reset_str = threading.Thread(target=self.str_search_reset)
+        self.thread_reset_str = threading.Thread(target=self.str_search_start)
         self.count_rst_int = 0
         self.COUNT_RST_TIME = 5000
         self.search_str_entry = win.search_str_entry
@@ -186,7 +186,8 @@ class Explorer(Gtk.ColumnView):
                 file = 1
             self.scroll_to(file, None, self.flags)
 
-        self.reset_background_search()
+        self.stop_background_search()
+        self.update_columns()
 
     def load_new_data_path(self, path: Path):
         # Cargamos la data del nuevo directorio
@@ -265,7 +266,7 @@ class Explorer(Gtk.ColumnView):
         self.search_str = search_word
 
         if not self.thread_reset_str.is_alive():
-            self.thread_reset_str = threading.Thread(target=self.str_search_reset)
+            self.thread_reset_str = threading.Thread(target=self.str_search_start)
             self.thread_reset_str.start()
         self.count_rst_int = 0
         self.search_str_entry.set_text(self.search_str)
@@ -276,15 +277,18 @@ class Explorer(Gtk.ColumnView):
         self.search_str = text
         self.search_str_entry.set_text(self.search_str)
 
-    def str_search_reset(self):
+    def str_search_start(self):
         self.n_row_old = self.n_row
         while self.count_rst_int < self.COUNT_RST_TIME:
             time.sleep(0.001)
             self.count_rst_int += 1
+            if not self.focused:
+                self.stop_search_mode()
         self.search_str = ""
         self.search_str_entry.set_text("")
-        GLib.idle_add(self.load_new_path, self.actual_path)
         self.count_rst_int = 0
+        GLib.idle_add(self.load_new_data_path, self.actual_path)
+        self.stop_background_search()
 
     def set_background_search(self):
         if self.selection.handler_is_connected(self.handler_id_connect):
@@ -298,7 +302,8 @@ class Explorer(Gtk.ColumnView):
         self.background_list.get_style_context().add_class("background-search")
         self.scroll_to(0, None, self.flags)
 
-    def reset_background_search(self):
+    def stop_background_search(self):
+
         if self.selection.handler_is_connected(self.handler_id_connect):
             self.selection.disconnect(self.handler_id_connect)
 
@@ -311,8 +316,11 @@ class Explorer(Gtk.ColumnView):
     def reset_count_rst_int(self, obj=None, n_press=None, x=None, y=None):
         self.count_rst_int = 0
 
-    def update_columns(self, explorer):
-        for column in explorer.get_columns():
+    def stop_search_mode(self):
+        self.count_rst_int = self.COUNT_RST_TIME
+
+    def update_columns(self):
+        for column in self.get_columns():
             title = column.get_title()
             if title == "TYPE":
                 column.set_fixed_width(30)

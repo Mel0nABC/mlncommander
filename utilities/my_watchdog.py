@@ -53,6 +53,5 @@ class MiHandler(FileSystemEventHandler):
 
     def load_new_path(self, path):
         path = Path(path)
-        if path.exists():
-            print(path)
-            GLib.idle_add(self.explorer.load_new_data_path, path)
+        # if path.exists():
+            # GLib.idle_add(self.explorer.load_new_data_path, path)

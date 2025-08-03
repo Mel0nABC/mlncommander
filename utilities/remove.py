@@ -94,8 +94,12 @@ class Remove:
                     except Exception as e:
                         print(f"❌ Error al eliminar archivo {item}: {e}")
 
-            GLib.idle_add(explorer_src.load_new_data_path, item.parent)
-            GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
+
+            GLib.idle_add(explorer_src.load_new_path, item.parent)
+            GLib.idle_add(explorer_src.scroll_to, explorer_src.n_row, None, explorer_src.flags)
+
+            if explorer_src.actual_path == explorer_dst.actual_path:
+                GLib.idle_add(explorer_dst.load_new_data_path, explorer_dst.actual_path)
 
         GLib.idle_add(self.dialog_deleting.finish_deleting)
 

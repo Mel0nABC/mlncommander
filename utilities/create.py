@@ -13,7 +13,7 @@ class Create:
     def __init__(self):
         self.action = Actions()
 
-    def on_create_dir(self, explorer_dst, parent, button=None):
+    def on_create_dir(self, explorer_dst, other_explorer, parent, button=None):
         """
         TODO, para crear un directorio:
             - Si el directorio ya existe, que avise.
@@ -23,9 +23,11 @@ class Create:
             self.action.show_msg_alert(parent, "Debe seleccionar explorador.")
             return
 
-        asyncio.ensure_future(self.on_create_dir_async(explorer_dst, parent))
+        asyncio.ensure_future(
+            self.on_create_dir_async(explorer_dst, other_explorer, parent)
+        )
 
-    async def on_create_dir_async(self, explorer_dst, parent):
+    async def on_create_dir_async(self, explorer_dst, other_explorer, parent):
         create_dir = Create_dir_dialog(parent, explorer_dst)
         response = await create_dir.wait_response_async()
         dst_dir = Path(f"{explorer_dst.actual_path}/{response}")
@@ -45,6 +47,10 @@ class Create:
 
         os.mkdir(dst_dir)
         explorer_dst.load_new_data_path(explorer_dst.actual_path)
+
+        if other_explorer.actual_path == explorer_dst.actual_path:
+            other_explorer.load_new_data_path(explorer_dst.actual_path)
+
         row_number = 0
         for index, item in enumerate(explorer_dst.store):
             if dst_dir == item.path_file:
