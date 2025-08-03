@@ -212,7 +212,9 @@ class Window(Gtk.ApplicationWindow):
         create = Create()
         btn_F7.connect(
             "clicked",
-            lambda btn: create.on_create_dir(self.explorer_src, self),
+            lambda btn: create.on_create_dir(
+                self.explorer_src, self.explorer_dst, self
+            ),
         )
         remove = Remove()
         btn_F8.connect(
