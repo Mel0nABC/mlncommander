@@ -79,7 +79,7 @@ INSTALACIÓN:
 3) python -m venv venv
 4) source venv/bin/activate.fish
 5) pip install -r requirements.txt
-6) ./venv/bin/python3.13 App.py
+6) ./venv/bin/python App.py
 
 REQUISITOS:
 
