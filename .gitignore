@@ -2,23 +2,65 @@
 *
 # Entornos virtuales
 venv/
-.venv/
-env/
 .env/
-ENV/
-**/venv/
-**/.venv/
-**/env/
-**/.env/
+.venv/
 
-# Archivos compilados de Python
+# Archivos de Python compilados
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Archivos del sistema o editor
+# Archivos de logs o dumps
+*.log
+*.out
+*.pid
+*.bak
 *.swp
-*.swo
-.DS_Store
-.idea/
+*.tmp
+
+# Configuraciones de entornos/IDE
 .vscode/
+.idea/
+*.code-workspace
+
+# Archivos de distribución
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Archivos de prueba/cache
+.pytest_cache/
+.coverage
+.tox/
+.nox/
+
+# Documentación generada
+docs/_build/
+
+# Archivos de entorno y configuración local
+.env
+*.env
+*.secret
+
+# Archivos de bases de datos temporales
+*.sqlite3
+
+# Archivos de sistemas operativos
+.DS_Store
+Thumbs.db
+
+# Otros entornos virtuales externos
+~/.virtualenvs/
+
+# AppImage u otros binarios empaquetados
+*.AppImage
+*.appimage
+*.bin
+*.run
+*.deb
+*.rpm
+
+# Archivos de lock o dependencias (si los generas)
+Pipfile.lock
+
