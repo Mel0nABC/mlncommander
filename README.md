@@ -1,5 +1,5 @@
 
-MLNCommander es un explorador de archivos con doble venta.a
+MLNCommander es un explorador de archivos con doble ventana
 
 <img width="1743" height="1429" alt="image" src="https://github.com/user-attachments/assets/9fdc75f6-8f12-45d3-8a1d-f11fe3414d97" />
 
@@ -50,7 +50,23 @@ Eliminar de uno a multiples opciones
 <img width="696" height="586" alt="image-8" src="https://github.com/user-attachments/assets/b94f4c74-a0cd-49b1-9c81-9c591c010c71" />
 
 
+TECLAS RÁPIDAS:
 
+F2 > renombrar
+F5 > copiar
+F6 > mover
+F7 > Crear directorio
+F8 > eliminar
+F10 > abre menú Archivo, el botón sí cierra.
+Tabulador > cambio de explorador
+
+ACTIVAR BÚSQUEDA:
+
+Sólo hay que escribir e irá buscando en el inicio de directorios e archivos.
+
+COMPATIBLE:
+
+Está realizado con Gdk+Python, usa los iconos symbolic, compatible con adwita o themes de gnome.
 
 
 
