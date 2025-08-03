@@ -1,5 +1,9 @@
+MLNCommander
 
 MLNCommander es un explorador de archivos con doble ventana
+
+<img width="128" height="128" alt="mlncommander_transparente" src="https://github.com/user-attachments/assets/0ddcce0e-50ec-4efe-8015-0984bc8e785e" />
+
 
 <img width="1743" height="1429" alt="image" src="https://github.com/user-attachments/assets/9fdc75f6-8f12-45d3-8a1d-f11fe3414d97" />
 
