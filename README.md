@@ -66,7 +66,7 @@ Sólo hay que escribir e irá buscando en el inicio de directorios e archivos.
 
 COMPATIBLE:
 
-Está realizado con Gdk+Python, usa los iconos symbolic, compatible con adwita o themes de gnome.
+Está realizado con Gtk+Python, usa los iconos symbolic, compatible con adwita o themes de gnome.
 
 
 
