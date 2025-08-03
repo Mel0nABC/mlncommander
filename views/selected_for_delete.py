@@ -20,11 +20,10 @@ class Selected_for_delete(Gtk.Dialog):
         self.selected_items = selected_items
         self.explorer_src = explorer_src
 
-        display = Gdk.Display.get_default()
-        monitor = display.get_primary_monitor()
-        geometry = monitor.get_geometry()
-        horizontal = geometry.width
-        vertical = geometry.height
+
+        horizontal = parent.horizontal
+        vertical = parent.vertical
+        
         self.horizontal_size = horizontal / 5
         self.vertical_size = vertical / 8
 

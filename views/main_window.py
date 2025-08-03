@@ -17,6 +17,9 @@ from utilities.move import Move
 from utilities.rename import Rename_Logic
 from pathlib import Path
 from icons.icon_manager import IconManager
+import tkinter as tk
+
+
 
 class Window(Gtk.ApplicationWindow):
 
@@ -39,14 +42,15 @@ class Window(Gtk.ApplicationWindow):
 
         # Obtenemos información de la pantalla
 
-        display = Gdk.Display.get_default()
-        monitors = display.get_monitors()
-        monitor = monitors[0]
-        geometry = monitor.get_geometry()
-        horizontal = geometry.width
-        vertical = geometry.height
+        root = tk.Tk()
+        root.withdraw()  # Oculta la ventana principal
+        self.horizontal = root.winfo_screenwidth()
+        self.vertical = root.winfo_screenheight()
+        root.destroy()
 
-        self.set_default_size(horizontal / 2, vertical)
+        print(f"Resolución de pantalla: {self.horizontal}x{self.vertical}")
+
+        self.set_default_size(self.horizontal / 2, self.vertical)
         self.set_titlebar(header().get_new_header())
 
         # Box, con orientación vertical y separación de 6 entre objetos
@@ -237,14 +241,6 @@ class Window(Gtk.ApplicationWindow):
 
         self.connect("close-request", self.exit)
 
-
-        # icon_manager = IconManager(self)
-        # path = Path("/media/Almacenamiento/Download/mlncommander_transparente.mp3")
-        # ico = icon_manager.get_icon_for_file(path)
-        # print(ico)
-        # image = Gtk.Image()
-        # image.set_from_paintable(ico)
-        # horizontal_boton_menu.append(image)
 
     @staticmethod
     def get_windows():

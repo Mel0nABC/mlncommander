@@ -15,11 +15,9 @@ class Create_dir_dialog(Gtk.Dialog):
         )
         self.dst_info = explorer_src.actual_path
 
-        display = Gdk.Display.get_default()
-        monitor = display.get_primary_monitor()
-        geometry = monitor.get_geometry()
-        horizontal = geometry.width
-        vertical = geometry.height
+
+        horizontal = parent.horizontal
+        vertical = parent.vertical
 
         self.set_default_size(horizontal / 5, vertical / 8)
 

@@ -120,7 +120,7 @@ class Explorer(Gtk.ColumnView):
         provider.load_from_data(css)
 
         Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
+            self.win.get_display(), provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
     def set_explorer_focus(self, obj=None, n_press=None, x=None, y=None, win=None):

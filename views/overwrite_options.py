@@ -6,6 +6,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, Gdk, GLib
 import asyncio
 
+
 class Overwrite_dialog(Gtk.Dialog):
     def __init__(self, parent, src_info, dst_info):
         super().__init__(
@@ -17,11 +18,8 @@ class Overwrite_dialog(Gtk.Dialog):
         self.dst_info = File_or_directory_info(dst_info)
         self.response = None
 
-        display = Gdk.Display.get_default()
-        monitor = display.get_primary_monitor()
-        geometry = monitor.get_geometry()
-        horizontal = geometry.width
-        vertical = geometry.height
+        horizontal = parent.horizontal
+        vertical = parent.vertical
 
         self.set_default_size(horizontal / 5, vertical / 5)
 
@@ -109,7 +107,6 @@ class Overwrite_dialog(Gtk.Dialog):
         self.connect("response", self._on_response)
         self.present()
 
-
     def get_opcion_seleccionada(self, botton):
 
         botton_pressed = botton.get_name()
@@ -156,7 +153,6 @@ class Overwrite_dialog(Gtk.Dialog):
         if not self.future.done():
             self.future.set_result(self.response)
         self.destroy()
-
 
     async def wait_response_async(self):
         response = await self.future

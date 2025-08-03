@@ -14,11 +14,10 @@ class Rename_dialog(Gtk.Dialog):
             modal=True,
         )
         self.dst_info = File_or_directory_info(dst_info)
-        display = Gdk.Display.get_default()
-        monitor = display.get_primary_monitor()
-        geometry = monitor.get_geometry()
-        horizontal = geometry.width
-        vertical = geometry.height
+
+
+        horizontal = parent.horizontal
+        vertical = parent.vertical
 
         self.set_default_size(horizontal / 5, vertical / 5)
 

@@ -22,11 +22,9 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.explorer_dst = explorer_dst
         self.list_files_show = False
 
-        display = Gdk.Display.get_default()
-        monitor = display.get_primary_monitor()
-        geometry = monitor.get_geometry()
-        horizontal = geometry.width
-        vertical = geometry.height
+        horizontal = parent.horizontal
+        vertical = parent.vertical
+
         self.horizontal_size = horizontal / 5
         self.vertical_size = vertical / 8
 
@@ -116,7 +114,6 @@ class Selected_for_copy_move(Gtk.Dialog):
 
             list_view = Gtk.ListView.new(model=selection, factory=factory)
 
-
             self.scroll = Gtk.ScrolledWindow()
             self.scroll.set_child(list_view)
             self.scroll.set_vexpand(True)
@@ -125,7 +122,6 @@ class Selected_for_copy_move(Gtk.Dialog):
             self.scroll.set_margin_bottom(20)
             self.scroll.set_margin_start(20)
 
-
             self.vertical_box.append(self.scroll)
             self.set_default_size(self.horizontal_size, self.vertical_size * 3)
             self.list_files_show = True
@@ -133,7 +129,6 @@ class Selected_for_copy_move(Gtk.Dialog):
             self.list_files_show = False
             self.vertical_box.remove(self.scroll)
             self.on_default_size()
-
 
     def on_exit(self, button, window):
         self.response = False
