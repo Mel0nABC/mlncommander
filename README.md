@@ -68,6 +68,17 @@ COMPATIBLE:
 
 Está realizado con Gtk+Python, usa los iconos symbolic, compatible con adwita o themes de gnome.
 
+INSTALACIÓN:
 
+1) git clone https://github.com/Mel0nABC/mlncommander
+2) cd mlncommander
+3) python -m venv venv
+4) source venv/bin/activate.fish
+5) pip install -r requirements.txt
+6) ./venv/bin/python3.13 App.py
+
+REQUISITOS:
+
+- python
 
 
