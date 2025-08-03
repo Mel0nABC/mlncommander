@@ -26,7 +26,7 @@ class Rename_Logic:
             )
             return
 
-        selected_items = self.action.get_selected_items_from_explorer(explorer_src)
+        selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
         if not selected_items:
             self.action.show_msg_alert(
@@ -36,11 +36,11 @@ class Rename_Logic:
             return
 
         self.iterator_thread = threading.Thread(
-            target=self.iterator_items, args=(parent, selected_items)
+            target=self.iterator_items, args=(parent, selected_items, explorer_src)
         )
         self.iterator_thread.start()
 
-    def iterator_items(self, parent, selected_items):
+    def iterator_items(self, parent, selected_items, explorer_src):
         for src_info in selected_items:
             self.wait_event = threading.Event()
 
@@ -56,12 +56,15 @@ class Rename_Logic:
             if not self.response == src_info.name:
                 new_path = Path(f"{src_info.parent}/{self.response}")
                 if new_path.exists():
-                    GLib.idle_add(
-                        self.action.show_msg_alert,
-                        f"El archivo con nombre {new_path.name}, ya existe.",
-                    )
+                    text = f"El archivo con nombre {new_path.name}, ya existe."
+                    GLib.idle_add(self.action.show_msg_alert, parent, text)
                     continue
                 os.rename(src_info, new_path)
+
+        print(f"RENAME: {explorer_src.n_row}")
+        GLib.idle_add(explorer_src.load_new_data_path, explorer_src.actual_path)
+        GLib.idle_add(self.action.set_explorer_to_focused, explorer_src, parent)
+        GLib.idle_add(explorer_src.scroll_to, explorer_src.n_row, None, explorer_src.flags)
 
     async def create_dialog_response(self, parent, src_info):
         self.response = await self.create_dialog_rename(parent, src_info)

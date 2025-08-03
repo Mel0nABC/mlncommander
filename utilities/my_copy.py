@@ -25,11 +25,15 @@ class My_copy:
         """
         Inicio para copiar ficheros o directorios.
         """
-        if not explorer_src:
+
+        selected_items = explorer_src.get_selected_items_from_explorer()[1]
+
+        if not selected_items:
             self.action.show_msg_alert(
-                parent, "Debe seleccionar algún archivo o carpeta"
+                parent, "Debe seleccionar algún archivo o directorio."
             )
             return
+
 
         if not explorer_dst:
             self.action.show_msg_alert(
@@ -45,14 +49,12 @@ class My_copy:
             self.action.show_msg_alert(parent, "Intentar copiar un archivo a él mismo")
             return
 
-        selected_items = self.action.get_selected_items_from_explorer(explorer_src)
 
         if not selected_items:
             self.action.show_msg_alert(
                 parent, "Debe seleccionar algún archivo o directorio."
             )
             return
-
         asyncio.ensure_future(
             self.copy_proccess(
                 parent, selected_items, dst_dir, explorer_src, explorer_dst
@@ -156,12 +158,7 @@ class My_copy:
                         self.response_type,
                     )
 
-            GLib.idle_add(explorer_src.load_new_data_path, src_info.parent)
             GLib.idle_add(explorer_dst.load_new_data_path, dst_info.parent)
-            GLib.idle_add(explorer_src.set_explorer_focus, parent)
-            GLib.idle_add(
-                explorer_src.scroll_to, explorer_src.n_row, None, explorer_src.flags
-            )
 
         self.copying_dialog.close_copying()
 

@@ -28,7 +28,7 @@ class Remove:
                 "Ha surgido algún problema al intentar eliminar la ubicacion seleccionada",
             )
 
-        selected_items = self.action.get_selected_items_from_explorer(explorer_src)
+        selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
         if not selected_items:
             self.action.show_msg_alert(
@@ -52,7 +52,7 @@ class Remove:
 
         self.thread_update_deleting = threading.Thread(
             target=self.delete_now,
-            args=(selected_items, explorer_src, parent),
+            args=(selected_items, explorer_src, explorer_dst, parent),
         )
 
         response = await self.create_dialog_deleting(parent, explorer_src.actual_path)
@@ -63,7 +63,7 @@ class Remove:
                 parent, "Se detubo el proceso de borrado antes de finalizar."
             )
 
-    def delete_now(self, selected_items, explorer_src, parent):
+    def delete_now(self, selected_items, explorer_src, explorer_dst, parent):
 
         for item in selected_items:
 
@@ -78,7 +78,13 @@ class Remove:
                         contents = list(item.iterdir())
                         if contents:
                             self.delete_now(contents, explorer_src, parent)
+                        if item == explorer_dst.actual_path:
+                            GLib.idle_add(
+                                explorer_dst.load_new_path,
+                                explorer_dst.actual_path.parent,
+                            )
                         item.rmdir()
+
                     except Exception as e:
                         print(f"❌ Error al eliminar directorio {item}: {e}")
 
@@ -89,11 +95,9 @@ class Remove:
                         print(f"❌ Error al eliminar archivo {item}: {e}")
 
             GLib.idle_add(explorer_src.load_new_data_path, item.parent)
-            GLib.idle_add(explorer_src.set_explorer_focus, parent)
             GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
 
         GLib.idle_add(self.dialog_deleting.finish_deleting)
-
 
     async def create_dialog_deleting(self, parent, src_info):
         """

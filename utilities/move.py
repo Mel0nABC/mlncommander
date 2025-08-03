@@ -24,10 +24,11 @@ class Move:
                 - Si el fichero existe, pedir confirmación sobre escribir (sobrescribir, cancelar)
         """
 
-        if not explorer_src:
+        selected_items = explorer_src.get_selected_items_from_explorer()[1]
+
+        if not selected_items:
             self.action.show_msg_alert(
-                self.parent,
-                "Debe seleccionar un archivo o carpeta antes de intentar copiar.",
+                self.parent, "Debe seleccionar algún archivo o directorio."
             )
             return
 
@@ -38,7 +39,6 @@ class Move:
             )
             return
 
-        selected_items = self.action.get_selected_items_from_explorer(explorer_src)
         dst_dir = explorer_dst.actual_path
         self.thread_iterater_folder = threading.Thread(
             target=self.iterate_folders,
@@ -156,14 +156,15 @@ class Move:
 
             GLib.idle_add(explorer_src.load_new_data_path, src_info.parent)
             GLib.idle_add(explorer_dst.load_new_data_path, dst_info.parent)
-            GLib.idle_add(explorer_src.set_explorer_focus, self.parent)
-            GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
 
             if src_info.exists() and src_info.is_dir():
                 if self.response_type != "skip" and not self.all_files:
                     os.rmdir(src_info)
 
+        # GLib.idle_add(explorer_src.load_new_data_path, src_info.parent)
+        # GLib.idle_add(explorer_dst.load_new_data_path, dst_info.parent)
         GLib.idle_add(self.moving_dialog.close_moving)
+        # GLib.idle_add(self.action.set_explorer_to_focused, explorer_src)
         # GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
 
     def overwrite_with_type(

@@ -42,7 +42,7 @@ class Actions:
         type = explorer.store[position].type
         if type == "FILE" or type == "LN BREAK":
             text = "¡Advertencia! Esta intentando abrir un archivo, esta opción aún no esta disponible."
-            self.show_msg_alert(self.parent, text)
+            GLib.idle_add(self.show_msg_alert,self.parent, text)
             return
 
         path = explorer.store[position].path_file
@@ -73,8 +73,7 @@ class Actions:
             if not path.exists():
                 raise FileNotFoundError()
             explorer.remove_actual_store()
-            explorer.load_new_path(path, 0)
-
+            explorer.load_new_path(path)
             explorer.update_watchdog_path(path, explorer)
         except FileNotFoundError:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
@@ -95,7 +94,7 @@ class Actions:
         dialog.present()
 
     @staticmethod
-    def set_explorer_src(explorer_focused, win):
+    def set_explorer_to_focused(explorer_to_focused, win):
         """
         Gestión de qué explorador tiene el foco
         """
@@ -103,30 +102,16 @@ class Actions:
         explorer_right = win.explorer_2
 
         try:
-            if explorer_focused == explorer_left:   
+            if explorer_to_focused == explorer_left:   
                 explorer_left.focused = True
                 explorer_right.focused = False
                 explorer_right.selection.unselect_all()
-                win.set_explorers_types(explorer_left, explorer_right)
+                win.set_explorer_focused(explorer_left, explorer_right)
 
             else:
                 explorer_right.focused = True
                 explorer_left.focused = False
                 explorer_left.selection.unselect_all()
-                win.set_explorers_types(explorer_right, explorer_left)
+                win.set_explorer_focused(explorer_right, explorer_left)
         except AttributeError as e:
             print(f"Error inicialización: {e}")
-
-    def get_selected_items_from_explorer(self, explorer):
-        """
-        Obtiene la lista de selection de un explorer
-        """
-        selection = explorer.get_selection()
-        selected_items = []
-        for index in range(selection.get_n_items()):
-            if selection.is_selected(index):
-                item = selection.get_item(index).path_file
-                if not str(item) == "..":
-                    selected_items.append(selection.get_item(index).path_file)
-
-        return selected_items

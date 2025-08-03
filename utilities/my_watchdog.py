@@ -36,21 +36,23 @@ class MiHandler(FileSystemEventHandler):
         self.path = Path(path)
 
     def on_created(self, event):
-        print(f"Archivo creado: {event.src_path}")
+        # print(f"Archivo creado: {event.src_path}")
         self.load_new_path(self.path)
 
     def on_deleted(self, event):
-        print(f"Archivo eliminado: {event.src_path}")
+        # print(f"Archivo eliminado: {event.src_path}")
         self.load_new_path(self.path)
 
     def on_modified(self, event):
-        print(f"Archivo modificado: {event.src_path}")
+        # print(f"Archivo modificado: {event.src_path}")
         self.load_new_path(self.path)
 
     def on_moved(self, event):
-        print(f"Archivo movido: {event.src_path} → {event.dest_path}")
+        # print(f"Archivo movido: {event.src_path} → {event.dest_path}")
         self.load_new_path(self.path)
 
     def load_new_path(self, path):
         path = Path(path)
-        GLib.idle_add(self.explorer.load_new_data_path, path)
+        if path.exists():
+            print(path)
+            GLib.idle_add(self.explorer.load_new_data_path, path)

@@ -55,7 +55,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         | Gtk.ListScrollFlags.NONE
         | Gtk.ListScrollFlags.FOCUS
     )
-    # print(f"Key pressed: {key_pressed_name}, state: {state},  keyval: {keyval}")
+    print(f"Key pressed: {key_pressed_name}, state: {state},  keyval: {keyval}")
 
     if key_pressed_name == _F2_KEY:
         # Copy
@@ -104,8 +104,6 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
             # EXPLORER 2 FOCUSED
             n_row_dst = explorer_dst.n_row
             explorer_dst.set_can_focus(True)
-            explorer_dst.focused = True
-            explorer_src.focused = False
             explorer_dst.grab_focus()
             explorer_dst.scroll_to(n_row_dst, None, flags)
 
@@ -113,8 +111,6 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
             # EXPLORER 1 FOCUSED
             n_row_src = explorer_src.n_row
             explorer_src.set_can_focus(True)
-            explorer_src.focused = True
-            explorer_dst.focused = False
             explorer_src.grab_focus()
             explorer_src.scroll_to(n_row_src, None, flags)
 
@@ -132,7 +128,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
             return True
 
         parent_path = explorer_src.actual_path.parent
-        explorer_src.load_new_path(parent_path, 0)
+        explorer_src.load_new_path(parent_path)
 
         return True
 

@@ -45,7 +45,6 @@ class Create:
 
         os.mkdir(dst_dir)
         explorer_dst.load_new_data_path(explorer_dst.actual_path)
-        # explorer_dst.set_explorer_focus(parent)
         row_number = 0
         for index, item in enumerate(explorer_dst.store):
             if dst_dir == item.path_file:

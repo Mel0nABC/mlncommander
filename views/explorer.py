@@ -13,12 +13,12 @@ from icons.icon_manager import IconManager
 
 
 class Explorer(Gtk.ColumnView):
-    def __init__(self, name, entry, win):
+    def __init__(self, name, entry, win, initial_path):
         super().__init__()
 
         self.name = name
         self.focused = False
-        self.actual_path = Path("/home/mel0n/Downloads/pruebas_copiar")
+        self.actual_path = Path(initial_path)
         self.actual_path_old = None
         self.entry = entry
         self.my_watchdog = None
@@ -87,30 +87,24 @@ class Explorer(Gtk.ColumnView):
             column.set_expand(True)
             column.set_resizable(True)
 
-            if property_name == "type":
-                column.set_fixed_width(1)
-            else:
-                column.set_fixed_width(100)
-
             self.append_column(column)
 
         self.set_enable_rubberband(True)
 
         # CONFIGURE COLUMNVIEW
         self.set_show_column_separators(True)
-        self.set_vexpand(True)
         self.set_can_focus(True)
         self.set_focusable(True)
+        self.set_vexpand(True)
         self.set_hexpand(False)
 
-        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
-
-    def load_controller(self):
         self.focus_explorer = Gtk.EventControllerFocus()
         self.focus_explorer.connect(
             "enter", lambda controller: self.set_explorer_focus(self.win)
         )
         self.add_controller(self.focus_explorer)
+
+        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
     def load_css(self):
 
@@ -134,34 +128,33 @@ class Explorer(Gtk.ColumnView):
         if self.count_rst_int > 0:
             self.count_rst_int = self.COUNT_RST_TIME
         else:
-            self.on_columnview_click()
-            self.action.set_explorer_src(self, self.win)
+            self.action.set_explorer_to_focused(self, self.win)
 
-    def on_columnview_click(self):
-        selected_item = list(self.action.get_selected_items_from_explorer(self))
+    def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
+        selected = self.get_selected_items_from_explorer()
+        selected_item = list(selected[1])
         selected_size = len(selected_item)
         if selected_size == 1:
-            self.n_row = self.get_index_in_store(self.store, selected_item[0])
+            self.n_row = selected[0]
 
-    def get_index_in_store(self, store, target_item):
-        for i in range(store.get_n_items()):
-            if store.get_item(i).path_file == target_item:
-                return i
-        return -1  # No encontrado
+    def get_selected_items_from_explorer(self):
+        """
+        Obtiene la lista de selection de un explorer
+        """
+        selected_items = []
+        item = None
+        index_return = 0
+        for index in range(self.selection.get_n_items()):
+            item = self.selection.get_item(index).path_file
+            if self.selection.is_selected(index):
+                item = self.selection.get_item(index).path_file
+                if not str(item) == "..":
+                    index_return = index
+                    selected_items.append(item)
 
-    def get_column_view(self):
-        return self.column_view
+        return index_return, selected_items
 
-    def get_selection(self):
-        return self.selection
-
-    def get_actual_path(self):
-        return str(self.actual_path)
-
-    def get_store(self):
-        return self.store
-
-    def load_new_path(self, path: Path, row_file):
+    def load_new_path(self, path: Path):
 
         # Gestión para guardar el nº de fila cuando se avanza un directorio
         if self.actual_path_old:
@@ -176,8 +169,9 @@ class Explorer(Gtk.ColumnView):
         # Volvemos a realizar el connect si estaba desconectado al entrar en nuevo folder
         if not self.selection.handler_is_connected(self.handler_id_connect):
             self.handler_id_connect = self.selection.connect(
-                "selection-changed", self.set_explorer_focus, self.win
+                "selection-changed", self.on_item_change, self.win
             )
+
         # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
         # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
         if self.actual_path_old.is_relative_to(path):
@@ -202,6 +196,8 @@ class Explorer(Gtk.ColumnView):
         self.apply_model_changes(self.store)
         self.actual_path = path
         self.entry.set_text(str(path))
+        if len(list(self.store)) > 1:
+            self.n_row = 1
 
     def remove_actual_store(self):
         self.set_model(None)
@@ -219,7 +215,7 @@ class Explorer(Gtk.ColumnView):
         self.sort_model = Gtk.SortListModel.new(store, self.sorter)
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
-        self.n_row = 1
+        self.n_row = 0
 
     def update_watchdog_path(self, path, explorer):
         asyncio.ensure_future(self.control_watchdog(path, explorer))
@@ -287,7 +283,7 @@ class Explorer(Gtk.ColumnView):
             self.count_rst_int += 1
         self.search_str = ""
         self.search_str_entry.set_text("")
-        GLib.idle_add(self.load_new_path, self.actual_path, 0)
+        GLib.idle_add(self.load_new_path, self.actual_path)
         self.count_rst_int = 0
 
     def set_background_search(self):
@@ -308,9 +304,19 @@ class Explorer(Gtk.ColumnView):
 
         if not self.selection.handler_is_connected(self.handler_id_connect):
             self.handler_id_connect = self.selection.connect(
-                "selection-changed", self.set_explorer_focus, self.win
+                "selection-changed", self.on_item_change, self.win
             )
         self.background_list.get_style_context().remove_class("background-search")
 
     def reset_count_rst_int(self, obj=None, n_press=None, x=None, y=None):
         self.count_rst_int = 0
+
+    def update_columns(self, explorer):
+        for column in explorer.get_columns():
+            title = column.get_title()
+            if title == "TYPE":
+                column.set_fixed_width(30)
+            else:
+                column.set_fixed_width(150)
+
+        return False

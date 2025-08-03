@@ -17,17 +17,25 @@ from utilities.move import Move
 from utilities.rename import Rename_Logic
 from pathlib import Path
 
+
 class Window(Gtk.ApplicationWindow):
 
-    def __init__(self, app, actions):
+    def __init__(self, app, action):
         super().__init__(application=app)
 
+        self.action = action
         self.explorer_src = None
         self.explorer_dst = None
         self.my_watchdog = None
         self.entry_margin = 6
         self.horizontal_button_list_margin = 8
         self.scroll_1_margin = 10
+        self.CONFIG_FILE = Path("./config.conf")
+        self.EXP_1_PATH = ""
+        self.EXP_2_PATH = ""
+
+        # Cargamos la configuración, para ir enviando variables necesarias
+        self.load_config_file()
 
         # Obtenemos información de la pantalla
 
@@ -90,11 +98,15 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_2.append(self.vertical_entry_2)
 
         # Exploradores de archivos
-        self.explorer_1 = Explorer("explorer_1", self.vertical_entry_1, self)
-        self.vertical_entry_1.set_text(self.explorer_1.get_actual_path())
+        self.explorer_1 = Explorer(
+            "explorer_1", self.vertical_entry_1, self, self.EXP_1_PATH
+        )
+        self.vertical_entry_1.set_text(str(self.explorer_1.actual_path))
 
-        self.explorer_2 = Explorer("explorer_2", self.vertical_entry_2, self)
-        self.vertical_entry_2.set_text(self.explorer_2.get_actual_path())
+        self.explorer_2 = Explorer(
+            "explorer_2", self.vertical_entry_2, self, self.EXP_2_PATH
+        )
+        self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
 
         # Para tener scroll en los  navegadores al obtener lista largas de archivos.
         self.scroll_1 = Gtk.ScrolledWindow()
@@ -161,17 +173,23 @@ class Window(Gtk.ApplicationWindow):
         # ZONA DE SEÑALES(EVENTOS)
 
         self.vertical_entry_1.connect(
-            "activate", actions.entry_on_enter_change_path, self.explorer_1
+            "activate", self.action.entry_on_enter_change_path, self.explorer_1
         )
         self.vertical_entry_2.connect(
-            "activate", actions.entry_on_enter_change_path, self.explorer_2
+            "activate", self.action.entry_on_enter_change_path, self.explorer_2
         )
 
         self.explorer_1.connect(
-            "activate", actions.on_doble_click, self.explorer_1, self.vertical_entry_1
+            "activate",
+            self.action.on_doble_click,
+            self.explorer_1,
+            self.vertical_entry_1,
         )
         self.explorer_2.connect(
-            "activate", actions.on_doble_click, self.explorer_2, self.vertical_entry_2
+            "activate",
+            self.action.on_doble_click,
+            self.explorer_2,
+            self.vertical_entry_2,
         )
 
         rename_logic = Rename_Logic()
@@ -210,7 +228,9 @@ class Window(Gtk.ApplicationWindow):
 
         # Crear un EventControllerKey y conectarlo
         key_controller = Gtk.EventControllerKey.new()
-        key_controller.connect("key-pressed", Action_keys.on_key_press, self, actions)
+        key_controller.connect(
+            "key-pressed", Action_keys.on_key_press, self, self.action
+        )
 
         self.add_controller(key_controller)
 
@@ -220,29 +240,54 @@ class Window(Gtk.ApplicationWindow):
     def get_windows():
         return self
 
+    def set_explorer_focused(self, explorer_focused, explorer_unfocused):
+        self.explorer_src = explorer_focused
+        self.explorer_src.grab_focus()
+        self.explorer_src.scroll_to(
+            self.explorer_src.n_row, None, self.explorer_src.flags
+        )
+        self.explorer_dst = explorer_unfocused
+
     def exit(self, win=None):
         self.close()
         mwdog1 = self.explorer_1.get_watchdog()
         mwdog2 = self.explorer_2.get_watchdog()
         mwdog1.stop()
         mwdog2.stop()
-
-    def set_explorers_types(self, explorer_src, explorer_dst):
-        self.explorer_src = explorer_src
-        self.explorer_dst = explorer_dst
+        self.save_config_file()
 
     def set_explorer_initial(self):
         # LOAD DATA DIRECTORY
-        self.explorer_1.load_new_path(
-            self.explorer_1.actual_path, self.explorer_1.n_row
-        )
-        self.explorer_2.load_new_path(
-            self.explorer_2.actual_path, self.explorer_2.n_row
-        )
+        self.explorer_1.load_new_path(self.explorer_1.actual_path)
+        self.explorer_2.load_new_path(self.explorer_2.actual_path)
         # Configuramos el foco inicial en explorer_1, izquierdo
-        self.explorer_1.focused = True
-        self.explorer_1.grab_focus()
-        # self.set_explorers_types(self.explorer_1, self.explorer_2)
-        self.explorer_1.scroll_to(1, None, Gtk.ListScrollFlags.SELECT)
-        self.explorer_1.load_controller()
-        self.explorer_2.load_controller()
+        self.action.set_explorer_to_focused(self.explorer_1, self)
+        self.explorer_src = self.explorer_1
+        self.explorer_dst = self.explorer_2
+
+    def load_config_file(self):
+        # Si no existe configuración, la crea, con opciones predeterminadas
+        if not self.CONFIG_FILE.exists():
+            with open(self.CONFIG_FILE, "a") as conf:
+                conf.write("EXP_1_PATH=/\n")
+                conf.write("EXP_2_PATH=/\n")
+
+        # Abrimos configuración y cargamos en variables.
+        with open(self.CONFIG_FILE, "r+") as conf:
+            for row in conf:
+                if row:
+                    split = row.strip().split("=")
+                    if split[0] == "EXP_1_PATH":
+                        self.EXP_1_PATH = split[1]
+
+                    if split[0] == "EXP_2_PATH":
+                        self.EXP_2_PATH = split[1]
+
+    def save_config_file(self):
+        # Se borra config y salvamos toda la configuración entera
+        print("Salvando config")
+        with open(self.CONFIG_FILE, "a") as conf:
+            conf.seek(0)
+            conf.truncate()
+            conf.write(f"EXP_1_PATH={self.explorer_1.actual_path}\n")
+            conf.write(f"EXP_2_PATH={self.explorer_2.actual_path}\n")
