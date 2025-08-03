@@ -186,8 +186,10 @@ class Explorer(Gtk.ColumnView):
                 file = 1
             self.scroll_to(file, None, self.flags)
 
-        self.stop_background_search()
-        self.update_columns()
+        if self.count_rst_int > 0:
+            self.stop_background_search()
+            self.stop_search_mode()
+        # self.update_columns()
 
     def load_new_data_path(self, path: Path):
         # Cargamos la data del nuevo directorio

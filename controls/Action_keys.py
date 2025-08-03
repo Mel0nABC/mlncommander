@@ -156,29 +156,38 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
 
 def stop_search_mode(explorer_src):
-    # PARA CANCELAR CUANDO HAY FILAS SELECCIONADAS EN BÚSQUEDA DE ARCHIVOS
+    """
+    Finalizar el sistema de filtrado de archivos y carpetas
+    """
     if explorer_src.count_rst_int > 0:
         explorer_src.stop_search_mode()
     explorer_src.stop_background_search()
 
 
 def find_name_path(explorer_src, key_pressed_name):
+    """
+    Búsqueda de nombres de archivos y carpetas que comiencen por search_word.
+    """
     search_word = f"{explorer_src.search_str}{key_pressed_name}"
     explorer_src.set_str_search(search_word)
 
     store = explorer_src.store
-
     for index in reversed(range(len(store))):
         index_row = index
         item = store[index]
         if item != None:
             name = item.name
-            # if not search_word.lower() in name.lower() and name != "..":
-            #     store.remove(index)
+
+            # El nombre que no comience por search_word, se borra del store.
             if not name.lower().startswith(search_word.lower()) and name != "..":
                 store.remove(index)
 
         sorter_model = explorer_src.sort_model.get_sorter()
         sorter_model.changed(0)
         explorer_src.set_background_search()
+
+    # Cuando no hay resultados en el filtrado
+    if len(list(store)) == 1:
+        return
+
     GLib.idle_add(explorer_src.scroll_to, 1, None, explorer_src.flags)
