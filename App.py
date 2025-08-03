@@ -25,5 +25,11 @@ class App(Gtk.Application):
     def get_application(self):
         return self.win
 
+
+# print(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
+# print(hasattr(Gtk, "PropertySorter"))
+# print(Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION)
+
+
 app = App()
 app.run()
