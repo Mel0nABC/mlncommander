@@ -1,6 +1,24 @@
-pyvenv.cfg
-bin/*
-include/*
-lib/*
-lib64
-config.conf
+# Created by venv; see https://docs.python.org/3/library/venv.html
+*
+# Entornos virtuales
+venv/
+.venv/
+env/
+.env/
+ENV/
+**/venv/
+**/.venv/
+**/env/
+**/.env/
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos del sistema o editor
+*.swp
+*.swo
+.DS_Store
+.idea/
+.vscode/
