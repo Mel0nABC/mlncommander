@@ -175,15 +175,17 @@ class Explorer(Gtk.ColumnView):
         lista_path = list(path.iterdir())
         if len(lista_path) == 0:
             GLib.idle_add(self.scroll_to, 0, None, self.flags)
-            return
+            # return
 
         # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
         # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
         if self.actual_path_old.is_relative_to(path):
             # Retrocede
+            print("retrocede")
             self.scroll_to(self.n_row_old, None, self.flags)
         else:
             # Avanza
+            print("AVANZAMOS")
             size = len(list(self.store))
             if size == 1:
                 file = 0
