@@ -52,7 +52,7 @@ Eliminar de uno a multiples opciones
 
 TECLAS RÁPIDAS:
 
-F2 > renombrar\n
+F2 > renombrar
 F5 > copiar
 F6 > mover
 F7 > Crear directorio
