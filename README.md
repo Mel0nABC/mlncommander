@@ -1,18 +1,20 @@
 
 MLNCommander es un explorador de archivos con doble venta.a
 
-![alt text](image-1.png)
+<img width="1715" height="1400" alt="image-1" src="https://github.com/user-attachments/assets/179de60b-d177-4747-b163-8b75a970cad1" />
 
 
 FILTRADO POR NOMBRE:
 
 Dispone de filtrado para buscar el inicio de ficheros y directorios, sólo hay que teclear.
 
-![alt text](image-2.png)
+<img width="887" height="291" alt="image-2" src="https://github.com/user-attachments/assets/348ffcef-68b9-4dca-9301-3b081b048a30" />
+
 
 Abajo indica qué está buscando
 
-![alt text](image-3.png)
+<img width="418" height="166" alt="image-3" src="https://github.com/user-attachments/assets/1a080b4b-b646-4729-9957-36f7b3ea2342" />
+
 
 Pasados 5 segundos, pulsando escape o cambiando el foco al otro explocador, se cancela la búsqueda y vuelve a su ventana normal.
 
@@ -21,28 +23,32 @@ COPIA:
 
 Puedes copiar ficheros y directorios completos, discriminará si existe o no.
 
-![alt text](image-4.png)
 
-![alt text](image-5.png)
+<img width="536" height="277" alt="image-4" src="https://github.com/user-attachments/assets/f368eda0-d983-4052-a1d6-fc7c8e29cb85" />
 
+<img width="697" height="602" alt="image-5" src="https://github.com/user-attachments/assets/d896680e-3898-48ce-acb4-95fa682400a5" />
 
 
 MOVER:
 
 Mover uno o varias ubicaciones, también saldrá el diálogo si encuentra un archivo ya existe para solicitar qué hacer.
 
-![alt text](image-6.png)
+<img width="697" height="602" alt="image-6" src="https://github.com/user-attachments/assets/f58f7d50-61e3-4891-99fd-38de07f8bac2" />
+
 
 CREA DIRECTORIOS:
 
-![alt text](image-7.png)
+<img width="714" height="229" alt="image-7" src="https://github.com/user-attachments/assets/e87085ce-5715-40a0-a16e-afc372188c35" />
 
 
 ELIMINAR:
 
 Eliminar de uno a multiples opciones
 
-![alt text](image-8.png)
+
+<img width="696" height="586" alt="image-8" src="https://github.com/user-attachments/assets/b94f4c74-a0cd-49b1-9c81-9c591c010c71" />
+
+
 
 
 
