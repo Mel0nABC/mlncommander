@@ -1,7 +1,8 @@
 
 MLNCommander es un explorador de archivos con doble venta.a
 
-<img width="1715" height="1400" alt="image-1" src="https://github.com/user-attachments/assets/179de60b-d177-4747-b163-8b75a970cad1" />
+<img width="1743" height="1429" alt="image" src="https://github.com/user-attachments/assets/9fdc75f6-8f12-45d3-8a1d-f11fe3414d97" />
+
 
 
 FILTRADO POR NOMBRE:
