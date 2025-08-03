@@ -84,5 +84,6 @@ INSTALACIÓN:
 REQUISITOS:
 
 - python
+- tk
 
 
