@@ -181,11 +181,9 @@ class Explorer(Gtk.ColumnView):
         # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
         if self.actual_path_old.is_relative_to(path):
             # Retrocede
-            print("retrocede")
             self.scroll_to(self.n_row_old, None, self.flags)
         else:
             # Avanza
-            print("AVANZAMOS")
             size = len(list(self.store))
             if size == 1:
                 file = 0
@@ -262,7 +260,8 @@ class Explorer(Gtk.ColumnView):
                     if item.type == "DIR":
                         pintable = self.icon_manager.get_folder_icon()
                     elif item.type == "FILE":
-                        pintable = self.icon_manager.get_file_icon()
+                        path = item.path_file
+                        pintable = self.icon_manager.get_icon_for_file(path)
                     else:
                         pintable = self.icon_manager.get_back_icon()
                     output_column.set_from_paintable(pintable)

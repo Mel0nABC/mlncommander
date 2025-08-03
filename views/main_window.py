@@ -16,7 +16,7 @@ from utilities.remove import Remove
 from utilities.move import Move
 from utilities.rename import Rename_Logic
 from pathlib import Path
-
+from icons.icon_manager import IconManager
 
 class Window(Gtk.ApplicationWindow):
 
@@ -236,6 +236,15 @@ class Window(Gtk.ApplicationWindow):
         self.add_controller(key_controller)
 
         self.connect("close-request", self.exit)
+
+
+        # icon_manager = IconManager(self)
+        # path = Path("/media/Almacenamiento/Download/mlncommander_transparente.mp3")
+        # ico = icon_manager.get_icon_for_file(path)
+        # print(ico)
+        # image = Gtk.Image()
+        # image.set_from_paintable(ico)
+        # horizontal_boton_menu.append(image)
 
     @staticmethod
     def get_windows():
