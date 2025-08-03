@@ -40,7 +40,6 @@ class Window(Gtk.ApplicationWindow):
         # Obtenemos información de la pantalla
 
         display = Gdk.Display.get_default()
-        # monitor = display.get_primary_monitor()
         monitors = display.get_monitors()
         monitor = monitors[0]
         geometry = monitor.get_geometry()

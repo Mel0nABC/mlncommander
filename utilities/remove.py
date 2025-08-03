@@ -66,7 +66,14 @@ class Remove:
     def delete_now(self, selected_items, explorer_src, explorer_dst, parent):
 
         for item in selected_items:
+            # Cuando un explorador está dentro de un subdirectorio de lo que se va a eliminar
+            if item.is_dir():
+                folder = item.resolve()
+                subfolder = explorer_dst.actual_path.resolve()
+                if subfolder.is_relative_to(folder):
+                    explorer_dst.load_new_path(folder.parent)
 
+            # Para parar el thread si se cancela el borrado
             if self.stop_deleting:
                 return
 
@@ -77,14 +84,10 @@ class Remove:
                     try:
                         contents = list(item.iterdir())
                         if contents:
-                            self.delete_now(contents, explorer_src, parent)
-                        if item == explorer_dst.actual_path:
-                            GLib.idle_add(
-                                explorer_dst.load_new_path,
-                                explorer_dst.actual_path.parent,
+                            self.delete_now(
+                                contents, explorer_src, explorer_dst, parent
                             )
                         item.rmdir()
-
                     except Exception as e:
                         print(f"❌ Error al eliminar directorio {item}: {e}")
 
@@ -94,13 +97,9 @@ class Remove:
                     except Exception as e:
                         print(f"❌ Error al eliminar archivo {item}: {e}")
 
-
-            GLib.idle_add(explorer_src.load_new_path, item.parent)
-            GLib.idle_add(explorer_src.scroll_to, explorer_src.n_row, None, explorer_src.flags)
-
-            if explorer_src.actual_path == explorer_dst.actual_path:
-                GLib.idle_add(explorer_dst.load_new_data_path, explorer_dst.actual_path)
-
+        GLib.idle_add(explorer_src.load_new_data_path, explorer_src.actual_path)
+        GLib.idle_add(explorer_dst.load_new_data_path, explorer_dst.actual_path)
+        GLib.idle_add(self.action.set_explorer_to_focused, explorer_src, parent)
         GLib.idle_add(self.dialog_deleting.finish_deleting)
 
     async def create_dialog_deleting(self, parent, src_info):

@@ -77,7 +77,7 @@ class Actions:
             explorer.update_watchdog_path(path, explorer)
         except FileNotFoundError:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
-            self.show_msg_alert(text)
+            GLib.idle_add(self.show_msg_alert,self.parent, text)
 
     def show_msg_alert(self, parent, text_input: str):
         """

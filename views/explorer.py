@@ -172,6 +172,11 @@ class Explorer(Gtk.ColumnView):
                 "selection-changed", self.on_item_change, self.win
             )
 
+        lista_path = list(path.iterdir())
+        if len(lista_path) == 0:
+            GLib.idle_add(self.scroll_to, 0, None, self.flags)
+            return
+
         # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
         # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
         if self.actual_path_old.is_relative_to(path):
