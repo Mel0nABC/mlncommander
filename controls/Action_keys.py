@@ -179,7 +179,8 @@ def find_name_path(explorer_src, key_pressed_name):
             name = item.name
 
             # El nombre que no comience por search_word, se borra del store.
-            if not name.lower().startswith(search_word.lower()) and name != "..":
+            # if not name.lower().startswith(search_word.lower()) and name != "..":
+            if not search_word.lower() in name.lower() and name != "..":
                 store.remove(index)
 
         sorter_model = explorer_src.sort_model.get_sorter()
