@@ -231,7 +231,6 @@ class Explorer(Gtk.ColumnView):
     async def control_watchdog(self, path, explorer):
         if self.my_watchdog:
             self.my_watchdog.stop()
-            # self.watchdog_thread.join()
         self.my_watchdog = My_watchdog(str(path), explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()

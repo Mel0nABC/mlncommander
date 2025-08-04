@@ -20,7 +20,6 @@ from icons.icon_manager import IconManager
 import tkinter as tk
 
 
-
 class Window(Gtk.ApplicationWindow):
 
     def __init__(self, app, action):
@@ -37,13 +36,13 @@ class Window(Gtk.ApplicationWindow):
         self.EXP_1_PATH = ""
         self.EXP_2_PATH = ""
 
-        # Cargamos la configuración, para ir enviando variables necesarias
+        # We load the configuration, to send necessary variables
         self.load_config_file()
 
-        # Obtenemos información de la pantalla
+        # We get information from the screen
 
         root = tk.Tk()
-        root.withdraw()  # Oculta la ventana principal
+        root.withdraw()
         self.horizontal = root.winfo_screenwidth()
         self.vertical = root.winfo_screenheight()
         root.destroy()
@@ -53,17 +52,14 @@ class Window(Gtk.ApplicationWindow):
         self.set_default_size(self.horizontal / 2, self.vertical)
         self.set_titlebar(header().get_new_header())
 
-        # Box, con orientación vertical y separación de 6 entre objetos
         main_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         menu_bar = Menu_bar(self)
 
         main_vertical_box.append(menu_bar.get_new_menu_bar())
 
-        # Box horizontal para los exploradores, dos ventanas iguales.
         horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         horizontal_box.set_vexpand(True)
 
-        # Pantalla con lista de archivos y directorios
         self.vertical_screen_1 = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
@@ -75,7 +71,6 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_2.set_hexpand(True)
         self.vertical_screen_2.set_vexpand(True)
 
-        # Campos entry, con la ruta actual o para cambiar.
         self.vertical_entry_1 = Gtk.Entry()
         self.vertical_entry_2 = Gtk.Entry()
         self.search_str_entry = Gtk.Entry()
@@ -96,11 +91,9 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_entry_2.set_margin_start(self.entry_margin / 2)
         self.vertical_entry_2.set_hexpand(True)
 
-        # Añadimos entrys a su respectiva pantalla
         self.vertical_screen_1.append(self.vertical_entry_1)
         self.vertical_screen_2.append(self.vertical_entry_2)
 
-        # Exploradores de archivos
         self.explorer_1 = Explorer(
             "explorer_1", self.vertical_entry_1, self, self.EXP_1_PATH
         )
@@ -111,7 +104,6 @@ class Window(Gtk.ApplicationWindow):
         )
         self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
 
-        # Para tener scroll en los  navegadores al obtener lista largas de archivos.
         self.scroll_1 = Gtk.ScrolledWindow()
         self.scroll_1.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.scroll_1.set_child(self.explorer_1)
@@ -129,14 +121,10 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_1.append(self.scroll_1)
         self.vertical_screen_2.append(self.scroll_2)
 
-        # Añadimos pantallas verticales a la horizontal
         horizontal_box.append(self.vertical_screen_1)
         horizontal_box.append(self.vertical_screen_2)
 
-        # Añadimos horizontal que contiene Entry y Explorer a la vertical primaria
         main_vertical_box.append(horizontal_box)
-
-        # Añadimos box horizontal para menú inferior
 
         horizontal_boton_menu = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
@@ -173,7 +161,7 @@ class Window(Gtk.ApplicationWindow):
 
         self.set_child(main_vertical_box)
 
-        # ZONA DE SEÑALES(EVENTOS)
+        # Signals and events area
 
         self.vertical_entry_1.connect(
             "activate", self.action.entry_on_enter_change_path, self.explorer_1
@@ -231,7 +219,6 @@ class Window(Gtk.ApplicationWindow):
             lambda btn: self.exit(self),
         )
 
-        # Crear un EventControllerKey y conectarlo
         key_controller = Gtk.EventControllerKey.new()
         key_controller.connect(
             "key-pressed", Action_keys.on_key_press, self, self.action
@@ -240,7 +227,6 @@ class Window(Gtk.ApplicationWindow):
         self.add_controller(key_controller)
 
         self.connect("close-request", self.exit)
-
 
     @staticmethod
     def get_windows():
@@ -266,19 +252,19 @@ class Window(Gtk.ApplicationWindow):
         # LOAD DATA DIRECTORY
         self.explorer_1.load_new_path(self.explorer_1.actual_path)
         self.explorer_2.load_new_path(self.explorer_2.actual_path)
-        # Configuramos el foco inicial en explorer_1, izquierdo
+        # We set the initial focus to explorer_1, left
         self.action.set_explorer_to_focused(self.explorer_1, self)
         self.explorer_src = self.explorer_1
         self.explorer_dst = self.explorer_2
 
     def load_config_file(self):
-        # Si no existe configuración, la crea, con opciones predeterminadas
+        # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
             with open(self.CONFIG_FILE, "a") as conf:
                 conf.write("EXP_1_PATH=/\n")
                 conf.write("EXP_2_PATH=/\n")
 
-        # Abrimos configuración y cargamos en variables.
+        # We open configuration and load in variables.
         with open(self.CONFIG_FILE, "r+") as conf:
             for row in conf:
                 if row:
@@ -290,7 +276,7 @@ class Window(Gtk.ApplicationWindow):
                         self.EXP_2_PATH = split[1]
 
     def save_config_file(self):
-        # Se borra config y salvamos toda la configuración entera
+        # Config is deleted and the entire configuration is saved.
         with open(self.CONFIG_FILE, "a") as conf:
             conf.seek(0)
             conf.truncate()

@@ -53,14 +53,13 @@ class Copying(Gtk.Dialog):
         self.dialog_response = False
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
-        # self.present()
 
     def set_labels(self, src_info, dst_info):
         self.src_info = src_info
         self.dst_info = dst_info
 
     def update_labels(self):
-        # ESTA función se ejecuta en el hilo principal (vía idle_add)
+        # This function is executed on the main thread (via idle_add)
 
         try:
             if self.src_info and self.dst_info:
@@ -76,9 +75,6 @@ class Copying(Gtk.Dialog):
                 dst_size = dst_size / 1024 / 1024
 
                 self.lbl_size.set_text(f"{src_size:.2f}/{dst_size:.2f} Mbytes")
-                # if src_size == dst_size:
-                #     self.dialog_response = True
-                #     GLib.idle_add(self.response, Gtk.ResponseType.OK)
 
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))

@@ -3,6 +3,9 @@
 !LICENCE
 !README.md
 todo.list
+!controls
+!utilities
+!views
 # Entornos virtuales
 venv/
 .env/

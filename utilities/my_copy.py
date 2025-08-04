@@ -127,7 +127,7 @@ class My_copy:
             else:
                 self.copying_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
-                    # Para poder detener una copia de un archivo, habrá que hacer copia manualmente por bloques.
+                    # To stop a file copy, you will need to manually copy it in blocks.
                     self.copy_file(src_info, dst_info)
                 else:
                     self.event_overwrite = threading.Event()
@@ -219,14 +219,13 @@ class My_copy:
                 )[1]
             )
 
-            # Evento para generar  pause en  el hilo
+            # Event to generate pause in the thread
             self.rename_event.wait()
 
-            # se salta de item si se cancela el renombrar un archivo o carpeta
+            # Skips item if renaming a file or folder is canceled
             if self.cancel_rename:
                 return
 
-            # if dst_info.name != self.rename_response:
             self.new_name = Path(f"{dst_info.parent}/{self.rename_response}")
 
             if self.new_name.exists():
@@ -256,7 +255,7 @@ class My_copy:
 
         if dst_old_file.exists():
             if src_info.is_dir():
-                # COPIA CON COPY TREE, YA NO SE USA
+                # TODO: COPY WITH COPY TREE, NO LONGER USED, NEED REFACTOR THIS SECTION
                 shutil.copytree(src_info, dst_info)
                 shutil.rmtree(dst_old_file)
             else:

@@ -14,14 +14,14 @@ from utilities.move import Move
 from views.explorer import Explorer
 import time, threading
 
-_F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Renombrar
-_F5_KEY = Gdk.keyval_name(Gdk.KEY_F5)  # Copiar, hecho
-_F6_KEY = Gdk.keyval_name(Gdk.KEY_F6)  # Mover
-_F7_KEY = Gdk.keyval_name(Gdk.KEY_F7)  # Crear directorio
-_F8_KEY = Gdk.keyval_name(Gdk.KEY_F8)  # Eliminar
-_F9_KEY = Gdk.keyval_name(Gdk.KEY_F9)  # Actualizar
-_F10_KEY = Gdk.keyval_name(Gdk.KEY_F10)  # Salir
-_TAB = Gdk.keyval_name(Gdk.KEY_Tab)  # Babulador
+_F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Rename
+_F5_KEY = Gdk.keyval_name(Gdk.KEY_F5)  # Copy
+_F6_KEY = Gdk.keyval_name(Gdk.KEY_F6)  # Move
+_F7_KEY = Gdk.keyval_name(Gdk.KEY_F7)  # Create directory
+_F8_KEY = Gdk.keyval_name(Gdk.KEY_F8)  # Delete
+_F9_KEY = Gdk.keyval_name(Gdk.KEY_F9)  # Update
+_F10_KEY = Gdk.keyval_name(Gdk.KEY_F10)  # Exit
+_TAB = Gdk.keyval_name(Gdk.KEY_Tab)  # Tabulator
 _BACKSPACE = Gdk.keyval_name(Gdk.KEY_BackSpace)  # Borrar
 _ESCAPE = Gdk.keyval_name(Gdk.KEY_Escape)  # Escape
 _PUNTO = Gdk.keyval_name(Gdk.KEY_period)  # Punto
@@ -39,8 +39,8 @@ KP_KEYVALS = {
     "KP_7": "7",
     "KP_8": "8",
     "KP_9": "9",
-    "KP_Subtract": "-",  # guion en teclado numérico
-    "KP_Decimal": ".",  # punto decimal en teclado numérico
+    "KP_Subtract": "-",  # hyphen on numeric keypad
+    "KP_Decimal": ".",  # period on numeric keypad
 }
 
 
@@ -99,14 +99,14 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
     if key_pressed_name == _TAB:
 
         if explorer_src.focused == True:
-            # EXPLORER 2 FOCUSED
+            # Explorer 2, focused
             n_row_dst = explorer_dst.n_row
             explorer_dst.set_can_focus(True)
             explorer_dst.grab_focus()
             explorer_dst.scroll_to(n_row_dst, None, flags)
 
         else:
-            # EXPLORER 1 FOCUSED
+            # Explorer 1, focused
             n_row_src = explorer_src.n_row
             explorer_src.set_can_focus(True)
             explorer_src.grab_focus()
@@ -116,7 +116,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
     if key_pressed_name == _BACKSPACE:
 
-        # SISTEMA DE BÚSQUEDA DE NOMBRE EN ARCHIVOS Y CARPETAS, BORRADO CARÁCTER
+        # File and folder name search system, character deletion
         text = explorer_src.search_str_entry.get_text()[:-1]
         if text != "":
             explorer_src.set_str_search_backspace(text)
@@ -130,7 +130,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
         return True
 
-    # CONDICIONAL PARA QUE PASE EL ABCDEARIO, MINÚSCULAS Y MAYÚSCULAS, AÑADE CARÁCTER
+    # Conditional to pass the alphabet, lowercase and uppercase, add character
     if (
         keyval in range(65, 91)
         or keyval in range(97, 123)
@@ -138,7 +138,7 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         or keyval in range(65453, 65466)
         or keyval == 46
     ):
-        # SISTEMA DE BÚSQUEDA DE NOMBRE EN ARCHIVOS Y CARPETAS
+        # File and folder name search system
 
         if keyval == 46:
             key_pressed_name = "."
@@ -178,8 +178,10 @@ def find_name_path(explorer_src, key_pressed_name):
         if item != None:
             name = item.name
 
-            # El nombre que no comience por search_word, se borra del store.
+            # Any name that does not begin with search_word is deleted from the store.
             # if not name.lower().startswith(search_word.lower()) and name != "..":
+
+            # The file or directory must have the word you are searching for.
             if not search_word.lower() in name.lower() and name != "..":
                 store.remove(index)
 
@@ -187,7 +189,7 @@ def find_name_path(explorer_src, key_pressed_name):
         sorter_model.changed(0)
         explorer_src.set_background_search()
 
-    # Cuando no hay resultados en el filtrado
+    # When there are no results in filtering
     if len(list(store)) == 1:
         return
 

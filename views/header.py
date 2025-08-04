@@ -4,7 +4,7 @@ from gi.repository import Gtk, Gio
 
 class header:
     """
-    Clase que crea el header de la ventana principal, así adquirimos los detalles del tema del sistema.
+    Class that creates the header of the main window, so we acquire the details of the system theme.
     """
 
     def __init__(self):

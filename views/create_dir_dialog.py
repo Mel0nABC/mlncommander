@@ -21,7 +21,6 @@ class Create_dir_dialog(Gtk.Dialog):
 
         self.set_default_size(horizontal / 5, vertical / 8)
 
-        # Área de contenido
         box = self.get_content_area()
 
         vertical_box_info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)

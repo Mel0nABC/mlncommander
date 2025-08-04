@@ -21,7 +21,6 @@ class Rename_dialog(Gtk.Dialog):
 
         self.set_default_size(horizontal / 5, vertical / 5)
 
-        # Área de contenido
         box = self.get_content_area()
 
         vertical_box_info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -53,7 +52,7 @@ class Rename_dialog(Gtk.Dialog):
         self.boton2 = Gtk.Button(label="CANCELAR")
 
         self.boton1.connect("clicked", self.get_opcion_seleccionada)
-        # self.boton2.connect("clicked", self.exit)
+
         self.boton2.connect(
             "clicked", lambda btn: self.response(Gtk.ResponseType.CANCEL)
         )

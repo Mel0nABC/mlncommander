@@ -64,7 +64,7 @@ class Moving(Gtk.Dialog):
         self.src_size = self.src_size / 1024 / 1024
 
     def update_labels(self):
-        # ESTA función se ejecuta en el hilo principal (vía idle_add)
+        # This function is executed on the main thread (via idle_add)
         try:
             if self.dst_info:
                 dst_size_text = f"{self.dst_info.stat().st_size}"

@@ -6,7 +6,7 @@ from gi.repository import Gtk, Gio
 
 class Menu_bar(Gio.Menu):
     """
-    Crea el menu bar de la aplicación.
+    Create the application menu bar.
     """
 
     def __init__(self, win):

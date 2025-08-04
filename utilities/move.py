@@ -161,11 +161,7 @@ class Move:
                 if self.response_type != "skip" and not self.all_files:
                     os.rmdir(src_info)
 
-        # GLib.idle_add(explorer_src.load_new_data_path, src_info.parent)
-        # GLib.idle_add(explorer_dst.load_new_data_path, dst_info.parent)
         GLib.idle_add(self.moving_dialog.close_moving)
-        # GLib.idle_add(self.action.set_explorer_to_focused, explorer_src)
-        # GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
 
     def overwrite_with_type(
         self, parent, src_info, dst_info, explorer_src, explorer_dst, response_type
@@ -205,15 +201,14 @@ class Move:
                 )[1]
             )
 
-            # Evento para generar  pause en  el hilo
+            # Pause thread event
 
             self.rename_event.wait()
 
-            # se salta de item si se cancela el renombrar un archivo o carpeta
+            # For if you choose to cancel rename
             if self.cancel_rename:
                 return
 
-            # if dst_info.name != self.rename_response:
             self.new_name = Path(f"{dst_info.parent}/{self.rename_response}")
 
             if self.new_name.exists():
@@ -267,5 +262,4 @@ class Move:
             else:
                 total_files += 1
                 total_size += ruta.stat().st_size
-        # total_size_float = f"{(total_size / 1024 / 1024):.2f}"
         return total_files, total_size

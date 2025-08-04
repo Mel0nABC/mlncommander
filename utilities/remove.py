@@ -66,14 +66,14 @@ class Remove:
     def delete_now(self, selected_items, explorer_src, explorer_dst, parent):
 
         for item in selected_items:
-            # Cuando un explorador está dentro de un subdirectorio de lo que se va a eliminar
+            # Validates When a browser is inside a subdirectory of what is to be deleted
             if item.is_dir():
                 folder = item.resolve()
                 subfolder = explorer_dst.actual_path.resolve()
                 if subfolder.is_relative_to(folder):
                     explorer_dst.load_new_path(folder.parent)
 
-            # Para parar el thread si se cancela el borrado
+            # To stop the thread if the delete is canceled
             if self.stop_deleting:
                 return
 
