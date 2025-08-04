@@ -71,6 +71,9 @@ Compatible:
 
 It's built with Gtk+Python, uses symbolic icons, and is compatible with AdWita or Gnome themes.
 
+<img width="138" height="245" alt="imagen" src="https://github.com/user-attachments/assets/9c1fa5bd-63ca-4ea9-80df-2e6d79638861" />
+
+
 Installation:
 
 1) git clone https://github.com/Mel0nABC/mlncommander
