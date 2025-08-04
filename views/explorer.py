@@ -1,7 +1,7 @@
 import gi, threading
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GObject, GLib
+from gi.repository import Gtk, Gdk, Gio, GObject, GLib, Pango
 from utilities.file_manager import File_manager
 from controls.Actions import Actions
 from pathlib import Path
@@ -10,6 +10,7 @@ import os, asyncio, time
 from entity.File_or_directory_info import File_or_directory_info
 from utilities.my_watchdog import My_watchdog
 from icons.icon_manager import IconManager
+from css.explorer_css import Css_explorer_manager
 
 
 class Explorer(Gtk.ColumnView):
@@ -23,6 +24,7 @@ class Explorer(Gtk.ColumnView):
         self.entry = entry
         self.my_watchdog = None
         self.action = Actions()
+        self.css_manager = Css_explorer_manager(win)
         self.selection = None
         self.n_row = 0
         self.n_row_old = 0
@@ -106,22 +108,7 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
-    def load_css(self):
-
-        css = b"""
-            .background-search {
-                color: yellow;
-                background-color: black;
-                font-weight:bold;
-            }
-            """
-
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css)
-
-        Gtk.StyleContext.add_provider_for_display(
-            self.win.get_display(), provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
-        )
+        self.css_manager.load_css_explorer_text()
 
     def set_explorer_focus(self, obj=None, n_press=None, x=None, y=None, win=None):
 
@@ -194,7 +181,6 @@ class Explorer(Gtk.ColumnView):
         if self.count_rst_int > 0:
             self.stop_background_search()
             self.stop_search_mode()
-        # self.update_columns()
 
     def load_new_data_path(self, path: Path):
         # Cargamos la data del nuevo directorio
@@ -245,6 +231,8 @@ class Explorer(Gtk.ColumnView):
                 cell.set_child(image)
             else:
                 label = Gtk.Label(xalign=0)
+                label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+                label.get_style_context().add_class("explorer_text_size")
                 cell.set_child(label)
 
         GLib.idle_add(setup_when_idle)
@@ -305,7 +293,7 @@ class Explorer(Gtk.ColumnView):
                 "selection-changed", self.reset_count_rst_int
             )
 
-        self.load_css()
+        self.css_manager.load_css_background_search()
         self.background_list.get_style_context().add_class("background-search")
         self.scroll_to(0, None, self.flags)
 
@@ -330,8 +318,8 @@ class Explorer(Gtk.ColumnView):
         for column in self.get_columns():
             title = column.get_title()
             if title == "TYPE":
-                column.set_fixed_width(30)
+                column.set_fixed_width(20)
             else:
-                column.set_fixed_width(150)
+                column.set_fixed_width(70)
 
         return False
