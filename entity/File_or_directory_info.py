@@ -1,7 +1,8 @@
 import stat
 from pathlib import Path
 from datetime import datetime
-import gi
+import gi, os
+
 gi.require_version("Gtk", "4.0")
 from gi.repository import GObject
 
@@ -27,16 +28,17 @@ class File_or_directory_info(GObject.Object):
         self.is_sys_link: bool = self.path_file.is_symlink()
         self.path_exist: bool = self.path_file.exists()
         self.selected = False
+        self.KBYTES = 1024
 
-        # Filtrado si es un syslink y si existe su destino.
+        # Filtered if it is a syslink and if its destination exists.
         if self.is_sys_link and not self.path_file.exists():
-            # Es un syslink pero su destino no está disponible o no existe.
+            # It is a syslink but its destination is not available or does not exist.
             self.type = "LN BREAK"
             self.size = "0 bytes"
             self.date_created_str = "01/01/1970 00:00"
             self.permissions = "l---------"
         else:
-            # Archivos o carpetas normales, incluye syslink que funcionan
+            # Normal files or folders, including working syslinks
             self.permissions: str = stat.filemode(self.path_file.stat().st_mode)
             _date_created = datetime.fromtimestamp(self.path_file.stat().st_ctime)
             self.date_created_str: str = _date_created.strftime("%d/%m/%Y %H:%M")
@@ -44,30 +46,10 @@ class File_or_directory_info(GObject.Object):
                 self.size = "DIR"
                 self.type = "DIR"
             else:
-                self.KBYTES = 1024
                 self.size = self.path_file.stat().st_size
                 self.type = "FILE"
 
-                int_size_bytes = int(self.size)
-
-                if int_size_bytes >= self.KBYTES:
-
-                    int_size_kbytes = int_size_bytes / self.KBYTES
-
-                    if int_size_kbytes > self.KBYTES:
-                        if int_size_kbytes % self.KBYTES == 0:
-                            self.size = (
-                                f"{str(int(int_size_kbytes/self.KBYTES))} Mbytes"
-                            )
-                        else:
-                            self.size = (
-                                f"{str(round(int_size_kbytes/self.KBYTES,2))} Mbytes"
-                            )
-                    else:
-                        self.size = f"{str(round(int_size_kbytes,2))} kbytes"
-
-                else:
-                    self.size = f"{str(self.size)} bytes"
+                self.size = self.get_size_and_unit(int(self.size))
 
     def get_absolute_path(self):
         return self.path
@@ -86,6 +68,42 @@ class File_or_directory_info(GObject.Object):
 
     def get_size(self):
         return self.size
+
+    def get_size_and_unit(self, bytes_int: int) -> str:
+        """
+        Transforms bytes to the unit immediately preceding having decimal type 0.9 and assigns the unit
+        """
+        start = True
+        count = 0
+        unit = ""
+        while start:
+
+            if not bytes_int > self.KBYTES:
+                start = False
+                continue
+
+            bytes_int = bytes_int / self.KBYTES
+            if bytes_int > 1:
+                count += 1
+            else:
+                start = False
+
+        if count == 0:
+            unit = "Bytes"
+
+        if count == 1:
+            unit = "KB"
+
+        if count == 2:
+            unit = "MB"
+
+        if count == 3:
+            unit = "GB"
+
+        if count == 4:
+            unit = "TB"
+
+        return f"{round(bytes_int, 2)}{unit}"
 
     def __str__(self):
         output: str = ""
