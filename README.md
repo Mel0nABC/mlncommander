@@ -1,6 +1,6 @@
 MLNCommander
 
-MLNCommander es un explorador de archivos con doble ventana
+MLNCommander is a dual-window file explorer
 
 <img width="128" height="128" alt="mlncommander_transparente" src="https://github.com/user-attachments/assets/0ddcce0e-50ec-4efe-8015-0984bc8e785e" />
 
@@ -9,24 +9,23 @@ MLNCommander es un explorador de archivos con doble ventana
 
 
 
-FILTRADO POR NOMBRE:
+Filtered by name:
 
-Dispone de filtrado para buscar el inicio de ficheros y directorios, sólo hay que teclear.
+It has filtering to search the beginning of files and directories, just type.
 
 <img width="887" height="291" alt="image-2" src="https://github.com/user-attachments/assets/348ffcef-68b9-4dca-9301-3b081b048a30" />
 
 
-Abajo indica qué está buscando
+Indicate below what you are looking for
 
 <img width="418" height="166" alt="image-3" src="https://github.com/user-attachments/assets/1a080b4b-b646-4729-9957-36f7b3ea2342" />
 
 
-Pasados 5 segundos, pulsando escape o cambiando el foco al otro explocador, se cancela la búsqueda y vuelve a su ventana normal.
+After 5 seconds, pressing Escape or switching focus to the other browser cancels the search and returns to the normal window.
 
+Copy:
 
-COPIA:
-
-Puedes copiar ficheros y directorios completos, discriminará si existe o no.
+You can copy files and entire directories; it will determine whether they exist or not.
 
 
 <img width="536" height="277" alt="image-4" src="https://github.com/user-attachments/assets/f368eda0-d983-4052-a1d6-fc7c8e29cb85" />
@@ -34,45 +33,45 @@ Puedes copiar ficheros y directorios completos, discriminará si existe o no.
 <img width="697" height="602" alt="image-5" src="https://github.com/user-attachments/assets/d896680e-3898-48ce-acb4-95fa682400a5" />
 
 
-MOVER:
+Move:
 
-Mover uno o varias ubicaciones, también saldrá el diálogo si encuentra un archivo ya existe para solicitar qué hacer.
+Move one or more locations. A dialog box will also appear if it finds a file that already exists, asking you what to do.
 
 <img width="697" height="602" alt="image-6" src="https://github.com/user-attachments/assets/f58f7d50-61e3-4891-99fd-38de07f8bac2" />
 
 
-CREA DIRECTORIOS:
+Create durectirues:
 
 <img width="714" height="229" alt="image-7" src="https://github.com/user-attachments/assets/e87085ce-5715-40a0-a16e-afc372188c35" />
 
 
-ELIMINAR:
+Delete:
 
-Eliminar de uno a multiples opciones
+Delete one or multiple options
 
 
 <img width="696" height="586" alt="image-8" src="https://github.com/user-attachments/assets/b94f4c74-a0cd-49b1-9c81-9c591c010c71" />
 
 
-TECLAS RÁPIDAS:
+Hotkeys:
 
-F2 > renombrar
-F5 > copiar
-F6 > mover
-F7 > Crear directorio
-F8 > eliminar
-F10 > abre menú Archivo, el botón sí cierra.
-Tabulador > cambio de explorador
+F2 > Rename
+F5 > Copy
+F6 > Move
+F7 > Create Directory
+F8 > Delete
+F10 > Opens File menu, the Yes button closes it.
+Tab > Switch Browser
 
-ACTIVAR BÚSQUEDA:
+Enable search:
 
-Sólo hay que escribir e irá buscando en el inicio de directorios e archivos.
+Just type and it will search the beginning of directories and files.
 
-COMPATIBLE:
+Compatible:
 
-Está realizado con Gtk+Python, usa los iconos symbolic, compatible con adwita o themes de gnome.
+It's built with Gtk+Python, uses symbolic icons, and is compatible with AdWita or Gnome themes.
 
-INSTALACIÓN:
+Installation:
 
 1) git clone https://github.com/Mel0nABC/mlncommander
 2) cd mlncommander
@@ -81,9 +80,13 @@ INSTALACIÓN:
 5) pip install -r requirements.txt
 6) ./venv/bin/python App.py
 
-REQUISITOS:
+Requirements:
 
 - python
 - tk
+
+Issues:
+
+If your screen is blank when using a theme in dark mode, add "GTK_THEME=Adwaita-dark" to /etc/environment
 
 
