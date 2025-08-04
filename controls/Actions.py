@@ -4,7 +4,7 @@ from views.overwrite_options import Overwrite_dialog
 from views.rename_dialog import Rename_dialog
 from views.selected_for_delete import Selected_for_delete
 from views.copying import Copying
-import gi, sys
+import gi, sys, subprocess
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, Gdk, GLib
@@ -39,13 +39,20 @@ class Actions:
         """
         Doble click en una fila de directorio y entra en él. Click en '..' y atrasamos un directorio en el path. No abre archivos actualmente
         """
-        type = explorer.store[position].type
-        if type == "FILE" or type == "LN BREAK":
-            text = "¡Advertencia! Esta intentando abrir un archivo, esta opción aún no esta disponible."
-            GLib.idle_add(self.show_msg_alert,self.parent, text)
-            return
 
-        path = explorer.store[position].path_file
+        file_or_directory = explorer.store[position]
+        path = file_or_directory.path_file
+        type_str = file_or_directory.type
+
+        if type_str == "FILE" or type_str == "LN BREAK":
+            try:
+                subprocess.run(["xdg-open", path])
+            except Exception as e:
+                self.show_msg_alert(
+                    self.parent,
+                    f"Ha ocurrido algun problema al intentar ejecutar el archivo:\n{path}",
+                )
+            return
 
         if path.name == "..":
             actual_path_str = str(explorer.actual_path)
@@ -77,7 +84,7 @@ class Actions:
             explorer.update_watchdog_path(path, explorer)
         except FileNotFoundError:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
-            GLib.idle_add(self.show_msg_alert,self.parent, text)
+            GLib.idle_add(self.show_msg_alert, self.parent, text)
 
     def show_msg_alert(self, parent, text_input: str):
         """
@@ -102,7 +109,7 @@ class Actions:
         explorer_right = win.explorer_2
 
         try:
-            if explorer_to_focused == explorer_left:   
+            if explorer_to_focused == explorer_left:
                 explorer_left.focused = True
                 explorer_right.focused = False
                 explorer_right.selection.unselect_all()
