@@ -117,12 +117,15 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
     if key_pressed_name == _BACKSPACE:
 
         # File and folder name search system, character deletion
-        text = explorer_src.search_str_entry.get_text()[:-1]
-        if text != "":
-            explorer_src.set_str_search_backspace(text)
+        search_word = explorer_src.search_str_entry.get_text()[:-1]
+        if search_word != "":
+            explorer_src.set_str_search_backspace(search_word)
+
+            find_name_path(explorer_src, search_word)
+
             return True
         else:
-            if len(text) == 0:
+            if len(search_word) == 0:
                 stop_search_mode(explorer_src)
 
         parent_path = explorer_src.actual_path.parent
@@ -146,7 +149,8 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         if key_pressed_name in KP_KEYVALS:
             key_pressed_name = KP_KEYVALS[key_pressed_name]
 
-        find_name_path(explorer_src, key_pressed_name)
+        search_word = f"{explorer_src.search_str}{key_pressed_name}"
+        find_name_path(explorer_src, search_word)
 
     if key_pressed_name == _ESCAPE:
         stop_search_mode(explorer_src)
@@ -157,40 +161,47 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
 
 def stop_search_mode(explorer_src):
     """
-    Finalizar el sistema de filtrado de archivos y carpetas
+    End the file and folder filtering system
     """
     if explorer_src.count_rst_int > 0:
         explorer_src.stop_search_mode()
     explorer_src.stop_background_search()
 
 
-def find_name_path(explorer_src, key_pressed_name):
+def find_name_path(explorer_src, search_word):
     """
-    Búsqueda de nombres de archivos y carpetas que comiencen por search_word.
+    Search for file and folder names beginning with search_word.
     """
-    search_word = f"{explorer_src.search_str}{key_pressed_name}"
+
     explorer_src.set_str_search(search_word)
 
+    # Reload store from actual dir
+    explorer_src.load_new_data_path(explorer_src.actual_path)
+    # We load actual dir store
     store = explorer_src.store
+    # We created a temporary store to delete the non-matches
+    output_store = store
+
     for index in reversed(range(len(store))):
         index_row = index
         item = store[index]
         if item != None:
             name = item.name
+            print(name)
 
             # Any name that does not begin with search_word is deleted from the store.
             # if not name.lower().startswith(search_word.lower()) and name != "..":
 
             # The file or directory must have the word you are searching for.
             if not search_word.lower() in name.lower() and name != "..":
-                store.remove(index)
+                output_store.remove(index)
 
         sorter_model = explorer_src.sort_model.get_sorter()
         sorter_model.changed(0)
         explorer_src.set_background_search()
 
     # When there are no results in filtering
-    if len(list(store)) == 1:
+    if len(list(output_store)) == 1:
         return
 
     GLib.idle_add(explorer_src.scroll_to, 1, None, explorer_src.flags)
