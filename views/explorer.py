@@ -142,20 +142,8 @@ class Explorer(Gtk.ColumnView):
         else:
             self.action.set_explorer_to_focused(self, self.win)
 
-    def load_data(self, path: Path):
-        self.store = File_manager.get_path_list(path)
-        self.sorter = Gtk.ColumnView.get_sorter(self)
-        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
-        self.selection = Gtk.MultiSelection.new(self.sort_model)
-        self.set_model(self.selection)
-        self.actual_path = path
-        self.entry.set_text(str(path))
-        if len(list(self.store)) > 1:
-            self.n_row = 1
-        else:
-            self.n_row = 0
-
     def load_new_path(self, path: Path):
+
         # Gestión para guardar el nº de fila cuando se avanza un directorio
         if self.actual_path_old:
             if not self.actual_path_old.is_relative_to(path):
@@ -168,6 +156,7 @@ class Explorer(Gtk.ColumnView):
 
         # Volvemos a realizar el connect si estaba desconectado al entrar en nuevo folder
         if not self.selection.handler_is_connected(self.handler_id_connect):
+            print("NO ACTIVADO")
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
@@ -194,6 +183,19 @@ class Explorer(Gtk.ColumnView):
         if self.count_rst_int > 0:
             self.stop_background_search()
             self.stop_search_mode()
+
+    def load_data(self, path: Path):
+        self.store = File_manager.get_path_list(path)
+        self.sorter = Gtk.ColumnView.get_sorter(self)
+        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
+        self.selection = Gtk.MultiSelection.new(self.sort_model)
+        self.set_model(self.selection)
+        self.actual_path = path
+        self.entry.set_text(str(path))
+        # if len(list(self.store)) > 1:
+        #     self.n_row = 1
+        # else:
+        #     self.n_row = 0
 
     def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
         selected = self.get_selected_items_from_explorer()
