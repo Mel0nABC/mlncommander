@@ -18,6 +18,8 @@ class File_manager:
             back_row.date_created_str = ".."
             back_row.permissions = ".."
 
+            list_content.append(back_row)
+
             # Sorted list with, .., directorys and files
             ordered_list = sorted(path.iterdir(), key=File_manager.custom_key)
 
@@ -39,5 +41,4 @@ class File_manager:
             group = 1
         else:
             group = 2
-        print((group, name.lower()))
         return (group, name.lower())

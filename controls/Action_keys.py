@@ -187,8 +187,6 @@ def find_name_path(explorer_src, search_word):
         item = store[index]
         if item != None:
             name = item.name
-            print(name)
-
             # Any name that does not begin with search_word is deleted from the store.
             # if not name.lower().startswith(search_word.lower()) and name != "..":
 
