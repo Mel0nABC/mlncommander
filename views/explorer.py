@@ -64,7 +64,7 @@ class Explorer(Gtk.ColumnView):
             property_expression = Gtk.PropertyExpression.new(
                 File_or_directory_info, None, property_name
             )
-            print(f"PROPERTY NAME: {property_name}")
+
             sorter = Gtk.StringSorter.new(property_expression)
             column.set_sorter(sorter)
             column.set_expand(True)
@@ -90,6 +90,8 @@ class Explorer(Gtk.ColumnView):
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
         self.css_manager.load_css_explorer_text()
+
+        # self.update_columns()
 
     def setup(self, signal, cell, property_name):
         def setup_when_idle():

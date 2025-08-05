@@ -250,8 +250,8 @@ class Window(Gtk.ApplicationWindow):
         self.save_config_file()
 
     def set_explorer_initial(self):
-        # LOAD DATA DIRECTORY
 
+        # LOAD DATA DIRECTORY
         self.explorer_1.load_new_path(self.explorer_1.actual_path)
         self.explorer_2.load_new_path(self.explorer_2.actual_path)
 

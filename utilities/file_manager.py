@@ -18,11 +18,8 @@ class File_manager:
             back_row.date_created_str = ".."
             back_row.permissions = ".."
 
-            list_content.append(back_row)
-
-            ordered_list = sorted(
-                path.iterdir(), key=lambda x: getattr(x, "name"), reverse=not True
-            )
+            # Sorted list with, .., directorys and files
+            ordered_list = sorted(path.iterdir(), key=File_manager.custom_key)
 
             for content in ordered_list:
                 new_info = File_or_directory_info(content.absolute())
@@ -32,3 +29,15 @@ class File_manager:
         except Exception as e:
             print(f"Excepción {e}")
         return list_content
+
+    @staticmethod
+    def custom_key(p: Path):
+        name = p.name
+        if name == "..":
+            group = 0
+        elif p.is_dir():
+            group = 1
+        else:
+            group = 2
+        print((group, name.lower()))
+        return (group, name.lower())
