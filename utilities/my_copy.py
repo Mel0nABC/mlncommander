@@ -34,7 +34,6 @@ class My_copy:
             )
             return
 
-
         if not explorer_dst:
             self.action.show_msg_alert(
                 parent,
@@ -48,7 +47,6 @@ class My_copy:
         if src_dir == dst_dir:
             self.action.show_msg_alert(parent, "Intentar copiar un archivo a él mismo")
             return
-
 
         if not selected_items:
             self.action.show_msg_alert(
@@ -158,7 +156,7 @@ class My_copy:
                         self.response_type,
                     )
 
-            GLib.idle_add(explorer_dst.load_new_data_path, dst_info.parent)
+            GLib.idle_add(explorer_dst.load_data, dst_info.parent)
 
         self.copying_dialog.close_copying()
 

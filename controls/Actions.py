@@ -79,7 +79,6 @@ class Actions:
         try:
             if not path.exists():
                 raise FileNotFoundError()
-            explorer.remove_actual_store()
             explorer.load_new_path(path)
             explorer.update_watchdog_path(path, explorer)
         except FileNotFoundError:

@@ -46,10 +46,10 @@ class Create:
             return
 
         os.mkdir(dst_dir)
-        explorer_dst.load_new_data_path(explorer_dst.actual_path)
+        explorer_dst.load_data(explorer_dst.actual_path)
 
         if other_explorer.actual_path == explorer_dst.actual_path:
-            other_explorer.load_new_data_path(explorer_dst.actual_path)
+            other_explorer.load_data(explorer_dst.actual_path)
 
         row_number = 0
         for index, item in enumerate(explorer_dst.store):

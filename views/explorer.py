@@ -43,7 +43,6 @@ class Explorer(Gtk.ColumnView):
             | Gtk.ListScrollFlags.NONE
             | Gtk.ListScrollFlags.FOCUS
         )
-
         type_list = [
             "type",
             "name",
@@ -62,26 +61,9 @@ class Explorer(Gtk.ColumnView):
 
             # Create a Gtk.Expression for the property
 
-            if property_name == "type":
-                property_expression = Gtk.PropertyExpression.new(
-                    File_or_directory_info, None, "type"
-                )
-            elif property_name == "name":
-                property_expression = Gtk.PropertyExpression.new(
-                    File_or_directory_info, None, "name"
-                )
-            elif property_name == "size":
-                property_expression = Gtk.PropertyExpression.new(
-                    File_or_directory_info, None, "size"
-                )
-            elif property_name == "date_created_str":
-                property_expression = Gtk.PropertyExpression.new(
-                    File_or_directory_info, None, "date_created_str"
-                )
-            elif property_name == "permissions":
-                property_expression = Gtk.PropertyExpression.new(
-                    File_or_directory_info, None, "permissions"
-                )
+            property_expression = Gtk.PropertyExpression.new(
+                File_or_directory_info, None, property_name
+            )
 
             sorter = Gtk.StringSorter.new(property_expression)
 
@@ -109,120 +91,6 @@ class Explorer(Gtk.ColumnView):
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
         self.css_manager.load_css_explorer_text()
-
-    def set_explorer_focus(self, obj=None, n_press=None, x=None, y=None, win=None):
-
-        if self.count_rst_int > 0:
-            self.count_rst_int = self.COUNT_RST_TIME
-        else:
-            self.action.set_explorer_to_focused(self, self.win)
-
-    def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
-        selected = self.get_selected_items_from_explorer()
-        selected_item = list(selected[1])
-        selected_size = len(selected_item)
-        if selected_size == 1:
-            self.n_row = selected[0]
-
-    def get_selected_items_from_explorer(self):
-        """
-        Obtiene la lista de selection de un explorer
-        """
-        selected_items = []
-        item = None
-        index_return = 0
-        for index in range(self.selection.get_n_items()):
-            item = self.selection.get_item(index).path_file
-            if self.selection.is_selected(index):
-                item = self.selection.get_item(index).path_file
-                if not str(item) == "..":
-                    index_return = index
-                    selected_items.append(item)
-
-        return index_return, selected_items
-
-    def load_new_path(self, path: Path):
-
-        # Gestión para guardar el nº de fila cuando se avanza un directorio
-        if self.actual_path_old:
-            if not self.actual_path_old.is_relative_to(path):
-                self.actual_path_old = self.actual_path
-                self.n_row_old = self.n_row
-        else:
-            self.actual_path_old = self.actual_path
-
-        self.load_new_data_path(path)
-
-        # Volvemos a realizar el connect si estaba desconectado al entrar en nuevo folder
-        if not self.selection.handler_is_connected(self.handler_id_connect):
-            self.handler_id_connect = self.selection.connect(
-                "selection-changed", self.on_item_change, self.win
-            )
-
-        lista_path = list(path.iterdir())
-        if len(lista_path) == 0:
-            GLib.idle_add(self.scroll_to, 0, None, self.flags)
-            # return
-
-        # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
-        # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
-        if self.actual_path_old.is_relative_to(path):
-            # Retrocede
-            self.scroll_to(self.n_row_old, None, self.flags)
-        else:
-            # Avanza
-            size = len(list(self.store))
-            if size == 1:
-                file = 0
-            else:
-                file = 1
-            self.scroll_to(file, None, self.flags)
-
-        if self.count_rst_int > 0:
-            self.stop_background_search()
-            self.stop_search_mode()
-
-    def load_new_data_path(self, path: Path):
-        # Cargamos la data del nuevo directorio
-        if self.store:
-            self.remove_actual_store()
-        self.store = File_manager.get_path_list(path)
-        self.apply_model_changes(self.store)
-        self.actual_path = path
-        self.entry.set_text(str(path))
-        if len(list(self.store)) > 1:
-            self.n_row = 1
-
-    def remove_actual_store(self):
-        self.set_model(None)
-        self.store.remove_all()
-
-    def set_new_store(self, item_list):
-        self.remove_actual_store()
-        self.store = Gio.ListStore.new(File_or_directory_info)
-        for item in item_list:
-            self.store.append(item)
-        self.apply_model_changes(self.store)
-
-    def apply_model_changes(self, store):
-        self.sorter = Gtk.ColumnView.get_sorter(self)
-        self.sort_model = Gtk.SortListModel.new(store, self.sorter)
-        self.selection = Gtk.MultiSelection.new(self.sort_model)
-        self.set_model(self.selection)
-        self.n_row = 0
-
-    def update_watchdog_path(self, path, explorer):
-        asyncio.ensure_future(self.control_watchdog(path, explorer))
-
-    async def control_watchdog(self, path, explorer):
-        if self.my_watchdog:
-            self.my_watchdog.stop()
-        self.my_watchdog = My_watchdog(str(path), explorer)
-        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
-        self.watchdog_thread.start()
-
-    def get_watchdog(self):
-        return self.my_watchdog
 
     def setup(self, signal, cell, property_name):
         def setup_when_idle():
@@ -257,6 +125,103 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(bind_when_idle)
 
+    def update_columns(self):
+        for column in self.get_columns():
+            title = column.get_title()
+            if title == "TYPE":
+                column.set_fixed_width(20)
+            else:
+                column.set_fixed_width(70)
+
+        return False
+
+    def set_explorer_focus(self, obj=None, n_press=None, x=None, y=None, win=None):
+
+        if self.count_rst_int > 0:
+            self.count_rst_int = self.COUNT_RST_TIME
+        else:
+            self.action.set_explorer_to_focused(self, self.win)
+
+    def load_data(self, path: Path):
+        self.store = File_manager.get_path_list(path)
+        self.sorter = Gtk.ColumnView.get_sorter(self)
+        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
+        self.selection = Gtk.MultiSelection.new(self.sort_model)
+        self.set_model(self.selection)
+        self.actual_path = path
+        self.entry.set_text(str(path))
+        if len(list(self.store)) > 1:
+            self.n_row = 1
+        else:
+            self.n_row = 0
+
+    def load_new_path(self, path: Path):
+        # Gestión para guardar el nº de fila cuando se avanza un directorio
+        if self.actual_path_old:
+            if not self.actual_path_old.is_relative_to(path):
+                self.actual_path_old = self.actual_path
+                self.n_row_old = self.n_row
+        else:
+            self.actual_path_old = self.actual_path
+
+        self.load_data(path)
+
+        # Volvemos a realizar el connect si estaba desconectado al entrar en nuevo folder
+        if not self.selection.handler_is_connected(self.handler_id_connect):
+            self.handler_id_connect = self.selection.connect(
+                "selection-changed", self.on_item_change, self.win
+            )
+
+        lista_path = list(path.iterdir())
+        if len(lista_path) == 0:
+            GLib.idle_add(self.scroll_to, 0, None, self.flags)
+            # return
+
+        # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
+        # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
+        if self.actual_path_old.is_relative_to(path):
+            # Retrocede
+            self.scroll_to(self.n_row_old, None, self.flags)
+        else:
+            # Avanza
+            size = len(list(self.store))
+            if size == 1:
+                file = 0
+            else:
+                file = 1
+            self.scroll_to(file, None, self.flags)
+
+        if self.count_rst_int > 0:
+            self.stop_background_search()
+            self.stop_search_mode()
+
+    def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
+        selected = self.get_selected_items_from_explorer()
+        selected_item = list(selected[1])
+        selected_size = len(selected_item)
+        if selected_size == 1:
+            self.n_row = selected[0]
+
+    def get_selected_items_from_explorer(self):
+        """
+        Obtiene la lista de selection de un explorer
+        """
+        selected_items = []
+        item = None
+        index_return = 0
+        for index in range(self.selection.get_n_items()):
+            item = self.selection.get_item(index).path_file
+            if self.selection.is_selected(index):
+                item = self.selection.get_item(index).path_file
+                if not str(item) == "..":
+                    index_return = index
+                    selected_items.append(item)
+
+        return index_return, selected_items
+
+    def update_watchdog_path(self, path, explorer):
+        asyncio.ensure_future(self.control_watchdog(path, explorer))
+
     def set_str_search(self, search_word):
         self.search_str = search_word
 
@@ -282,7 +247,7 @@ class Explorer(Gtk.ColumnView):
         self.search_str = ""
         self.search_str_entry.set_text("")
         self.count_rst_int = 0
-        GLib.idle_add(self.load_new_data_path, self.actual_path)
+        GLib.idle_add(self.load_data, self.actual_path)
         self.stop_background_search()
 
     def set_background_search(self):
@@ -314,12 +279,12 @@ class Explorer(Gtk.ColumnView):
     def stop_search_mode(self):
         self.count_rst_int = self.COUNT_RST_TIME
 
-    def update_columns(self):
-        for column in self.get_columns():
-            title = column.get_title()
-            if title == "TYPE":
-                column.set_fixed_width(20)
-            else:
-                column.set_fixed_width(70)
+    async def control_watchdog(self, path, explorer):
+        if self.my_watchdog:
+            self.my_watchdog.stop()
+        self.my_watchdog = My_watchdog(str(path), explorer)
+        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
+        self.watchdog_thread.start()
 
-        return False
+    def get_watchdog(self):
+        return self.my_watchdog

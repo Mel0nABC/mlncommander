@@ -6,6 +6,8 @@ todo.list
 !controls
 !utilities
 !views
+!css
+!entity
 # Entornos virtuales
 venv/
 .env/

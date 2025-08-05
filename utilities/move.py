@@ -154,8 +154,8 @@ class Move:
                         self.response_type,
                     )
 
-            GLib.idle_add(explorer_src.load_new_data_path, src_info.parent)
-            GLib.idle_add(explorer_dst.load_new_data_path, dst_info.parent)
+            GLib.idle_add(explorer_src.load_data, src_info.parent)
+            GLib.idle_add(explorer_dst.load_data, dst_info.parent)
 
             if src_info.exists() and src_info.is_dir():
                 if self.response_type != "skip" and not self.all_files:

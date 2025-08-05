@@ -176,7 +176,7 @@ def find_name_path(explorer_src, search_word):
     explorer_src.set_str_search(search_word)
 
     # Reload store from actual dir
-    explorer_src.load_new_data_path(explorer_src.actual_path)
+    explorer_src.load_data(explorer_src.actual_path)
     # We load actual dir store
     store = explorer_src.store
     # We created a temporary store to delete the non-matches
