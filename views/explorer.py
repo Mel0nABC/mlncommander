@@ -44,7 +44,7 @@ class Explorer(Gtk.ColumnView):
             | Gtk.ListScrollFlags.FOCUS
         )
         type_list = [
-            "type",
+            "type_str",
             "name",
             "size",
             "date_created_str",
@@ -57,16 +57,15 @@ class Explorer(Gtk.ColumnView):
             factory = Gtk.SignalListItemFactory()
             factory.connect("setup", self.setup, property_name)
             factory.connect("bind", self.bind, property_name)
-            column = Gtk.ColumnViewColumn.new(str.upper(property_name), factory)
+            column = Gtk.ColumnViewColumn.new(property_name, factory)
 
             # Create a Gtk.Expression for the property
 
             property_expression = Gtk.PropertyExpression.new(
                 File_or_directory_info, None, property_name
             )
-
+            print(f"PROPERTY NAME: {property_name}")
             sorter = Gtk.StringSorter.new(property_expression)
-
             column.set_sorter(sorter)
             column.set_expand(True)
             column.set_resizable(True)
@@ -94,7 +93,7 @@ class Explorer(Gtk.ColumnView):
 
     def setup(self, signal, cell, property_name):
         def setup_when_idle():
-            if property_name == "type":
+            if property_name == "type_str":
                 image = Gtk.Image()
                 cell.set_child(image)
             else:
@@ -111,7 +110,7 @@ class Explorer(Gtk.ColumnView):
             if item:
                 output_column = cell.get_child()
                 value = item.get_property(property_name)
-                if property_name == "type":
+                if property_name == "type_str":
                     if item.type == "DIR":
                         pintable = self.icon_manager.get_folder_icon()
                     elif item.type == "FILE":
@@ -128,7 +127,7 @@ class Explorer(Gtk.ColumnView):
     def update_columns(self):
         for column in self.get_columns():
             title = column.get_title()
-            if title == "TYPE":
+            if title == "TYPE_STR":
                 column.set_fixed_width(20)
             else:
                 column.set_fixed_width(70)
@@ -141,6 +140,15 @@ class Explorer(Gtk.ColumnView):
             self.count_rst_int = self.COUNT_RST_TIME
         else:
             self.action.set_explorer_to_focused(self, self.win)
+
+    def load_data(self, path: Path):
+        self.store = File_manager.get_path_list(path)
+        self.sorter = Gtk.ColumnView.get_sorter(self)
+        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
+        self.selection = Gtk.MultiSelection.new(self.sort_model)
+        self.set_model(self.selection)
+        self.actual_path = path
+        self.entry.set_text(str(path))
 
     def load_new_path(self, path: Path):
 
@@ -156,7 +164,6 @@ class Explorer(Gtk.ColumnView):
 
         # Volvemos a realizar el connect si estaba desconectado al entrar en nuevo folder
         if not self.selection.handler_is_connected(self.handler_id_connect):
-            print("NO ACTIVADO")
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
@@ -164,7 +171,6 @@ class Explorer(Gtk.ColumnView):
         lista_path = list(path.iterdir())
         if len(lista_path) == 0:
             GLib.idle_add(self.scroll_to, 0, None, self.flags)
-            # return
 
         # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
         # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
@@ -183,19 +189,6 @@ class Explorer(Gtk.ColumnView):
         if self.count_rst_int > 0:
             self.stop_background_search()
             self.stop_search_mode()
-
-    def load_data(self, path: Path):
-        self.store = File_manager.get_path_list(path)
-        self.sorter = Gtk.ColumnView.get_sorter(self)
-        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
-        self.selection = Gtk.MultiSelection.new(self.sort_model)
-        self.set_model(self.selection)
-        self.actual_path = path
-        self.entry.set_text(str(path))
-        # if len(list(self.store)) > 1:
-        #     self.n_row = 1
-        # else:
-        #     self.n_row = 0
 
     def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
         selected = self.get_selected_items_from_explorer()

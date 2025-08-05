@@ -165,21 +165,21 @@ class Window(Gtk.ApplicationWindow):
         # Signals and events area
 
         self.vertical_entry_1.connect(
-            "activate", self.action.entry_on_enter_change_path, self.explorer_1
+            "activate", self.action.entry_change_path, self.explorer_1
         )
         self.vertical_entry_2.connect(
-            "activate", self.action.entry_on_enter_change_path, self.explorer_2
+            "activate", self.action.entry_change_path, self.explorer_2
         )
 
         self.explorer_1.connect(
             "activate",
-            self.action.on_doble_click,
+            self.action.on_doble_click_or_enter,
             self.explorer_1,
             self.vertical_entry_1,
         )
         self.explorer_2.connect(
             "activate",
-            self.action.on_doble_click,
+            self.action.on_doble_click_or_enter,
             self.explorer_2,
             self.vertical_entry_2,
         )

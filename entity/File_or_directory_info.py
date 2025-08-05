@@ -9,15 +9,17 @@ from gi.repository import GObject
 
 class File_or_directory_info(GObject.Object):
 
-    path = GObject.Property(type=str)
-    name = GObject.Property(type=str)
-    is_directory = GObject.Property(type=bool, default=False)
-    permissions = GObject.Property(type=str)
-    date_created_str = GObject.Property(type=str)
-    size = GObject.Property(type=str)
-    type = GObject.Property(type=str)
-    is_sys_link = GObject.Property(type=bool, default=False)
-    path_exist = GObject.property(type=bool, default=True)
+    __gtype_name__ = "File_or_directory_info"
+
+    path = GObject.Property(type=GObject.TYPE_STRING, default="")
+    name = GObject.Property(type=GObject.TYPE_STRING, default="")
+    is_directory = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
+    permissions = GObject.Property(type=GObject.TYPE_STRING, default="")
+    date_created_str = GObject.Property(type=GObject.TYPE_STRING, default="")
+    size = GObject.Property(type=GObject.TYPE_STRING, default="")
+    type_str = GObject.Property(type=GObject.TYPE_STRING, default="")
+    is_sys_link = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
+    path_exist = GObject.property(type=GObject.TYPE_BOOLEAN, default=True)
 
     def __init__(self, path):
         super().__init__()
@@ -105,20 +107,27 @@ class File_or_directory_info(GObject.Object):
 
         return f"{round(bytes_int, 2)}{unit}"
 
-    def __str__(self):
-        output: str = ""
-        if self.is_directory:
-            output = "Directory"
-        else:
-            output = "File"
+    # def __str__(self):
+    #     output: str = ""
+    #     if self.is_directory:
+    #         output = "Directory"
+    #     else:
+    #         output = "File"
 
-        return f"File_or_directory_info(type={output},name={self.path_file.name},size={self.size},date={self.date_created_str},permissions={self.permissions})"
+    #     return f"File_or_directory_info(type={output},name={self.path_file.name},size={self.size},date={self.date_created_str},permissions={self.permissions})"
 
-    def __repr__(self):
-        file_or_directory = ""
-        if self.is_directory:
-            file_or_directory = "directory"
-        else:
-            file_or_directory = "file"
+    # def __repr__(self):
+    #     file_or_directory = ""
+    #     if self.is_directory:
+    #         file_or_directory = "directory"
+    #     else:
+    #         file_or_directory = "file"
 
-        return f"File_or_directory_info(type={file_or_directory!r},name={self.path_file.name!r},size={self.size!r},date={self.date_created_str!r},permissions={self.permissions!r})"
+    #     return f"File_or_directory_info(type={file_or_directory!r},name={self.path_file.name!r},size={self.size!r},date={self.date_created_str!r},permissions={self.permissions!r})"
+
+    def __eq__(self, other):
+        return isinstance(other, File_or_directory_info) and self.path == other.path
+
+    def __hash__(self):
+        print("HASH")
+        return hash(self.path)

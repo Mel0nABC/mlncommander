@@ -28,19 +28,33 @@ class Actions:
         """
         sys.exit(0)
 
-    def entry_on_enter_change_path(self, entry, explorer):
+    def change_path(self, explorer, path: Path):
+        """
+        Accedemos a otro directorio.
+        """
+        try:
+            if not path.exists():
+                raise FileNotFoundError()
+            explorer.load_new_path(path)
+            explorer.update_watchdog_path(path, explorer)
+        except FileNotFoundError:
+            text = "¡Advertencia! El fichero o directorio de destino no existe"
+            GLib.idle_add(self.show_msg_alert, self.parent, text)
+
+    def entry_change_path(self, entry, explorer):
         """
         Al cambiar de directorio escribiéndolo a mano en el entry
         """
         path = Path(entry.get_text())
         self.change_path(explorer, path)
 
-    def on_doble_click(self, column_view, position, explorer, entry):
+    def on_doble_click_or_enter(self, column_view, position, explorer, entry):
         """
         Doble click en una fila de directorio y entra en él. Click en '..' y atrasamos un directorio en el path. No abre archivos actualmente
         """
+        print("DOBLE CLICK")
+        file_or_directory = explorer.selection.get_item(position)
 
-        file_or_directory = explorer.store[position]
         path = file_or_directory.path_file
         type_str = file_or_directory.type
 
@@ -71,19 +85,6 @@ class Actions:
             path = Path(output_folder)
 
         self.change_path(explorer, path)
-
-    def change_path(self, explorer, path: Path):
-        """
-        Accedemos a otro directorio.
-        """
-        try:
-            if not path.exists():
-                raise FileNotFoundError()
-            explorer.load_new_path(path)
-            explorer.update_watchdog_path(path, explorer)
-        except FileNotFoundError:
-            text = "¡Advertencia! El fichero o directorio de destino no existe"
-            GLib.idle_add(self.show_msg_alert, self.parent, text)
 
     def show_msg_alert(self, parent, text_input: str):
         """
