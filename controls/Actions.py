@@ -52,7 +52,6 @@ class Actions:
         """
         Doble click en una fila de directorio y entra en él. Click en '..' y atrasamos un directorio en el path. No abre archivos actualmente
         """
-        print("DOBLE CLICK")
         file_or_directory = explorer.selection.get_item(position)
 
         path = file_or_directory.path_file

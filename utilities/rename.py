@@ -61,9 +61,10 @@ class Rename_Logic:
                     continue
                 os.rename(src_info, new_path)
 
-        GLib.idle_add(explorer_src.load_new_data_path, explorer_src.actual_path)
-        GLib.idle_add(self.action.set_explorer_to_focused, explorer_src, parent)
-        GLib.idle_add(explorer_src.scroll_to, explorer_src.n_row, None, explorer_src.flags)
+        GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
+        GLib.idle_add(
+            explorer_src.scroll_to, explorer_src.n_row, None, explorer_src.flags
+        )
 
     async def create_dialog_response(self, parent, src_info):
         self.response = await self.create_dialog_rename(parent, src_info)
