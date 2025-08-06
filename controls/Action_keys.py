@@ -25,7 +25,8 @@ _TAB = Gdk.keyval_name(Gdk.KEY_Tab)  # Tabulator
 _BACKSPACE = Gdk.keyval_name(Gdk.KEY_BackSpace)  # Borrar
 _ESCAPE = Gdk.keyval_name(Gdk.KEY_Escape)  # Escape
 _PUNTO = Gdk.keyval_name(Gdk.KEY_period)  # Punto
-_DELETE = Gdk.keyval_name(Gdk.KEY_Delete)
+_DELETE = Gdk.keyval_name(Gdk.KEY_Delete)  # supr
+_BACKSLASH = Gdk.keyval_name(Gdk.KEY_KP_Divide)  # /
 row_explorer = 1
 
 KP_KEYVALS = {
@@ -58,6 +59,10 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
     )
 
     # print(f"Key pressed: {key_pressed_name}, state: {state},  keyval: {keyval}")
+
+    if key_pressed_name == _BACKSLASH:
+        explorer_src.entry.grab_focus()
+        return True
 
     if key_pressed_name == _F2_KEY:
         # Copy
