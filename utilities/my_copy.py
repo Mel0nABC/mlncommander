@@ -8,6 +8,7 @@ from utilities.rename import Rename_Logic
 import gi, os, time, shutil, asyncio, threading, multiprocessing
 from threading import Event
 from gi.repository import GLib
+from multiprocessing import Process
 
 
 class My_copy:
@@ -89,11 +90,7 @@ class My_copy:
 
         result = await self.create_dialog_copying(parent)
 
-        if not result:
-            self.progress_on = False
-            self.action.show_msg_alert(
-                parent, "El último archivo debe finalizar su copia."
-            )
+        self.progress_on = False
 
     def iterate_folders(
         self, parent, selected_items, dst_dir, explorer_src, explorer_dst
@@ -127,6 +124,7 @@ class My_copy:
                 if not dst_info.exists():
                     # To stop a file copy, you will need to manually copy it in blocks.
                     self.copy_file(src_info, dst_info)
+
                 else:
                     self.event_overwrite = threading.Event()
                     if not self.all_files:
@@ -159,7 +157,6 @@ class My_copy:
             GLib.idle_add(explorer_dst.load_data, dst_info.parent)
 
         self.copying_dialog.close_copying()
-
         if self.thread_update_dialog.is_alive():
             self.progress_on = False
             self.thread_update_dialog.join()
@@ -181,7 +178,18 @@ class My_copy:
         """
         copia ficheros de un src a su dst, devuelve true  si se copió , false si no.
         """
-        shutil.copy(src_info, dst_info)
+        # Use multiprocessing to terminae on cancel copy
+        p = Process(target=shutil.copy, args=(src_info, dst_info))
+        p.start()
+
+        while self.progress_on:
+            time.sleep(0.2)
+
+        if not self.progress_on:
+            p.terminate()
+
+        p.join()
+
         if dst_info.exists():
             return True
         else:

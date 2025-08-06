@@ -15,6 +15,8 @@ class Copying(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
+        self.src_size = 0
+        self.dst_size = 0
         self.src_info = None
         self.dst_info = None
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -68,13 +70,18 @@ class Copying(Gtk.Dialog):
                 src_size_text = f"{self.src_info.stat().st_size}"
                 dst_size_text = f"{self.dst_info.stat().st_size}"
 
-                src_size = int(src_size_text)
-                dst_size = int(dst_size_text)
+                self.src_size = int(src_size_text)
+                self.dst_size = int(dst_size_text)
 
-                src_size = src_size / 1024 / 1024
-                dst_size = dst_size / 1024 / 1024
+                self.src_size = self.src_size / 1024 / 1024
+                self.dst_size = self.dst_size / 1024 / 1024
 
-                self.lbl_size.set_text(f"{src_size:.2f}/{dst_size:.2f} Mbytes")
+                self.lbl_size.set_text(
+                    f"{self.src_size:.2f}/{self.dst_size:.2f} Mbytes"
+                )
+
+                if self.src_size == self.dst_size:
+                    self.close_copying()
 
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))
