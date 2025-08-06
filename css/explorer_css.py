@@ -8,6 +8,7 @@ class Css_explorer_manager:
 
     def __init__(self, win):
         self.win = win
+        self.background_explorer_color = "#222226"
         self.font_size_explorer = 15
         self.background_search_text_color = "yellow"
         self.background_search_color = "black"
@@ -30,7 +31,7 @@ class Css_explorer_manager:
         """
 
         css = f"""
-            .background-search {{
+            .background_search {{
                 color: {self.background_search_text_color};
                 background-color: {self.background_search_color};
                 font-weight:bold;
@@ -48,6 +49,18 @@ class Css_explorer_manager:
             .explorer_text_size{{
                 font-size: {self.font_size_explorer}px;
                 font-weight:{self.font_bold_explorer};
+            }}
+        """.encode()
+
+        self.set_css_to_provider(css)
+
+    def load_css_explorer_background(self):
+        """
+        Sets the text color when using the search function for files or directories
+        """
+
+        css = f""".explorer_background{{
+                background-color: {self.background_explorer_color};
             }}
         """.encode()
 

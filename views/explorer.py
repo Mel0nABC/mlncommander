@@ -91,7 +91,8 @@ class Explorer(Gtk.ColumnView):
 
         self.css_manager.load_css_explorer_text()
 
-        # self.update_columns()
+        self.background_list.get_style_context().add_class("explorer_background")
+        self.css_manager.load_css_explorer_background()
 
     def setup(self, signal, cell, property_name):
         def setup_when_idle():
@@ -256,7 +257,7 @@ class Explorer(Gtk.ColumnView):
             )
 
         self.css_manager.load_css_background_search()
-        self.background_list.get_style_context().add_class("background-search")
+        self.background_list.get_style_context().add_class("background_search")
         self.scroll_to(0, None, self.flags)
 
     def stop_background_search(self):
@@ -268,7 +269,7 @@ class Explorer(Gtk.ColumnView):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
-        self.background_list.get_style_context().remove_class("background-search")
+        self.background_list.get_style_context().remove_class("background_search")
 
     def reset_count_rst_int(self, obj=None, n_press=None, x=None, y=None):
         self.count_rst_int = 0
