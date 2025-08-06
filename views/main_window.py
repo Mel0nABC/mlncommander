@@ -27,6 +27,7 @@ class Window(Gtk.ApplicationWindow):
         super().__init__(application=app)
 
         self.action = action
+        self.key_controller_id = 0
         self.explorer_src = None
         self.explorer_dst = None
         self.my_watchdog = None
@@ -220,13 +221,12 @@ class Window(Gtk.ApplicationWindow):
             lambda btn: self.exit(self),
         )
 
-        key_controller = Gtk.EventControllerKey.new()
-        key_controller.connect(
+        # Event controller to control keys
+        self.key_controller = Gtk.EventControllerKey.new()
+        self.key_controller_id = self.key_controller.connect(
             "key-pressed", Action_keys.on_key_press, self, self.action
         )
-
-        self.add_controller(key_controller)
-
+        self.add_controller(self.key_controller)
         self.connect("close-request", self.exit)
 
     @staticmethod
@@ -285,3 +285,13 @@ class Window(Gtk.ApplicationWindow):
             conf.truncate()
             conf.write(f"EXP_1_PATH={self.explorer_1.actual_path}\n")
             conf.write(f"EXP_2_PATH={self.explorer_2.actual_path}\n")
+
+    def get_other_explorer_with_name(self, name: str) -> Gtk.ColumnView:
+        """
+        Returns the browser that does not contain the passed name
+        """
+        for explorer in [self.explorer_1, self.explorer_2]:
+            if explorer.name != name:
+                return explorer
+
+        return None

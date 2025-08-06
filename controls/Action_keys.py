@@ -46,6 +46,7 @@ KP_KEYVALS = {
 
 @staticmethod
 def on_key_press(controller, keyval, keycode, state, win, actions):
+
     explorer_src = win.explorer_src
     explorer_dst = win.explorer_dst
     key_pressed_name = Gdk.keyval_name(keyval)

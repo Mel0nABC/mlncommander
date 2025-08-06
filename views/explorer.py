@@ -81,6 +81,13 @@ class Explorer(Gtk.ColumnView):
         self.set_vexpand(True)
         self.set_hexpand(False)
 
+        # Load css and set classes
+        self.css_manager.load_css_explorer_text()
+        self.css_manager.load_css_explorer_background()
+        self.get_style_context().add_class("column_view_borders")
+        self.background_list.get_style_context().add_class("explorer_background")
+
+        # Focus event
         self.focus_explorer = Gtk.EventControllerFocus()
         self.focus_explorer.connect(
             "enter", lambda controller: self.set_explorer_focus(self.win)
@@ -89,15 +96,43 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
-        self.css_manager.load_css_explorer_text()
-        self.css_manager.load_css_explorer_background()
-
-        self.get_style_context().add_class("column_view_borders")
-        self.background_list.get_style_context().add_class("explorer_background")
-
+        # Activate pressed on explorer event
         gesture = Gtk.GestureClick()
         gesture.connect("pressed", self.set_explorer_focus)
         self.add_controller(gesture)
+
+        # Activate shortcut Control+C
+        trigger = Gtk.ShortcutTrigger.parse_string("<Control>O")
+        action = Gtk.CallbackAction.new(self.shortcut_event)
+        self.shortcut = Gtk.Shortcut.new(trigger, action)
+        controller = Gtk.ShortcutController.new()
+        controller.add_shortcut(self.shortcut)
+        self.add_controller(controller)
+
+    def shortcut_event(self, *args):
+        # Disconnect key controller from main window
+        self.win.key_controller.disconnect(self.win.key_controller_id)
+
+        # Returns the browser that does not contain the passed name
+        other_explorer = self.win.get_other_explorer_with_name(self.name)
+
+        if not other_explorer:
+            return
+
+        selected_item = self.get_selected_items_from_explorer()[1]
+
+        if not selected_item:
+            other_explorer.load_data(self.actual_path.parent)
+
+        if selected_item:
+            other_explorer.load_data(selected_item[0])
+
+        GLib.idle_add(self._reeconnect_controller)
+
+    def _reeconnect_controller(self):
+        self.win.key_controller_id = self.win.key_controller.connect(
+            "key-pressed", Action_keys.on_key_press, self.win, self.win.action
+        )
 
     def setup(self, signal, cell, property_name):
         def setup_when_idle():
@@ -266,7 +301,6 @@ class Explorer(Gtk.ColumnView):
         self.scroll_to(0, None, self.flags)
 
     def stop_background_search(self):
-
         if self.selection.handler_is_connected(self.handler_id_connect):
             self.selection.disconnect(self.handler_id_connect)
 
