@@ -14,6 +14,18 @@ class Css_explorer_manager:
         self.background_search_color = "black"
         self.font_bold_explorer = "bold"
 
+    def load_css_explorer_background(self):
+        """
+        Sets the text color when using the search function for files or directories
+        """
+
+        css = f""".explorer_background{{
+                background-color: {self.background_explorer_color};
+            }}
+        """.encode()
+
+        self.set_css_to_provider(css)
+
     def set_css_to_provider(self, css_code: str):
         """
         Create a provider for CSS and load the provided CSS code.
@@ -49,18 +61,6 @@ class Css_explorer_manager:
             .explorer_text_size{{
                 font-size: {self.font_size_explorer}px;
                 font-weight:{self.font_bold_explorer};
-            }}
-        """.encode()
-
-        self.set_css_to_provider(css)
-
-    def load_css_explorer_background(self):
-        """
-        Sets the text color when using the search function for files or directories
-        """
-
-        css = f""".explorer_background{{
-                background-color: {self.background_explorer_color};
             }}
         """.encode()
 
