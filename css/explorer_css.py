@@ -18,10 +18,15 @@ class Css_explorer_manager:
         """
         Sets the text color when using the search function for files or directories
         """
+        css = f"""
+            .column_view_borders{{
+                border-radius:10px;
+            }}
 
-        css = f""".explorer_background{{
+            .explorer_background{{
                 background-color: {self.background_explorer_color};
             }}
+
         """.encode()
 
         self.set_css_to_provider(css)

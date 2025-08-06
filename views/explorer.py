@@ -90,9 +90,10 @@ class Explorer(Gtk.ColumnView):
         GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
         self.css_manager.load_css_explorer_text()
-
-        self.background_list.get_style_context().add_class("explorer_background")
         self.css_manager.load_css_explorer_background()
+
+        self.get_style_context().add_class("column_view_borders")
+        self.background_list.get_style_context().add_class("explorer_background")
 
     def setup(self, signal, cell, property_name):
         def setup_when_idle():
