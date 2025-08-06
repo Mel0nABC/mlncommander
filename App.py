@@ -12,15 +12,16 @@ gbulb.install()  # Esto integra asyncio con GTK
 
 
 class App(Gtk.Application):
+
     def __init__(self):
         super().__init__(application_id="com.mel0n.mlncommander")
 
     def do_activate(self):
         action = Actions()
-        self.win = Window(self, action)
-        action.set_parent(self.win)
-        self.win.present()
-        self.win.set_explorer_initial()
+        self.window = Window(self, action)
+        action.set_parent(self.window)
+        self.window.present()
+        self.window.set_explorer_initial()
 
     def get_application(self):
         return self.win

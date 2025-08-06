@@ -25,7 +25,7 @@ class Window(Gtk.ApplicationWindow):
 
     def __init__(self, app, action):
         super().__init__(application=app)
-
+        self.app = app
         self.action = action
         self.key_controller_id = 0
         self.explorer_src = None
@@ -39,7 +39,7 @@ class Window(Gtk.ApplicationWindow):
         self.EXP_2_PATH = ""
 
         # We load the configuration, to send necessary variables
-        self.load_config_file()
+        self.load_config_file(self.app)
 
         # We get information from the screen
 
@@ -260,7 +260,8 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_src = self.explorer_1
         self.explorer_dst = self.explorer_2
 
-    def load_config_file(self):
+    def load_config_file(self, app):
+
         # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
             with open(self.CONFIG_FILE, "a") as conf:
@@ -272,11 +273,13 @@ class Window(Gtk.ApplicationWindow):
             for row in conf:
                 if row:
                     split = row.strip().split("=")
-                    if split[0] == "EXP_1_PATH":
-                        self.EXP_1_PATH = split[1]
-
-                    if split[0] == "EXP_2_PATH":
-                        self.EXP_2_PATH = split[1]
+                    for VARIABLE_NAME in ["EXP_1_PATH", "EXP_2_PATH"]:
+                        if split[0] == VARIABLE_NAME:
+                            path = Path(split[1])
+                            if path.exists():
+                                setattr(self, VARIABLE_NAME, path)
+                            else:
+                                setattr(self, VARIABLE_NAME, "/")
 
     def save_config_file(self):
         # Config is deleted and the entire configuration is saved.
