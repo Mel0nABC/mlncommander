@@ -30,7 +30,7 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_src = None
         self.explorer_dst = None
         self.my_watchdog = None
-        self.entry_margin = 6
+        self.entry_margin = 10
         self.horizontal_button_list_margin = 8
         self.scroll_1_margin = 10
         self.CONFIG_FILE = Path("./config.conf")

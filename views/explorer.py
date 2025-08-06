@@ -95,6 +95,10 @@ class Explorer(Gtk.ColumnView):
         self.get_style_context().add_class("column_view_borders")
         self.background_list.get_style_context().add_class("explorer_background")
 
+        gesture = Gtk.GestureClick()
+        gesture.connect("pressed", self.set_explorer_focus)
+        self.add_controller(gesture)
+
     def setup(self, signal, cell, property_name):
         def setup_when_idle():
             if property_name == "type_str":
