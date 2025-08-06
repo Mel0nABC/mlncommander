@@ -50,8 +50,8 @@ class Rename_Logic:
             GLib.idle_add(run_dialog, parent, src_info)
             self.wait_event.wait()
 
-            if self.response == None:
-                continue
+            if self.response == None or self.response == src_info.name:
+                return
 
             if not self.response == src_info.name:
                 new_path = Path(f"{src_info.parent}/{self.response}")

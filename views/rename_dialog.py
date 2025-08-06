@@ -15,7 +15,6 @@ class Rename_dialog(Gtk.Dialog):
         )
         self.dst_info = File_or_directory_info(dst_info)
 
-
         horizontal = parent.horizontal
         vertical = parent.vertical
 
@@ -43,7 +42,7 @@ class Rename_dialog(Gtk.Dialog):
 
         self.entry_file_name = Gtk.Entry()
         self.entry_file_name.set_text(self.dst_info.name)
-        self.entry_file_name.connect("activate",self.get_opcion_seleccionada)
+        self.entry_file_name.connect("activate", self.get_opcion_seleccionada)
         vertical_box_info.append(self.entry_file_name)
 
         box.append(vertical_box_info)
@@ -72,6 +71,11 @@ class Rename_dialog(Gtk.Dialog):
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
         self.present()
+
+        dot_indext = self.dst_info.name.rfind(".")
+
+        if not dot_indext <= 0:
+            self.entry_file_name.select_region(0, dot_indext)
 
     def exit(self, button):
         self.destroy()
