@@ -21,6 +21,7 @@ class My_copy:
         self.cancel_rename = False
         self.new_name = None
         self.all_files = False
+        self.stop_all = False
 
     def on_copy(self, explorer_src, explorer_dst, parent):
         """
@@ -80,11 +81,18 @@ class My_copy:
 
         self.thread_iterater_folder = threading.Thread(
             target=self.iterate_folders,
-            args=(parent, selected_items, dst_dir, explorer_src, explorer_dst),
+            args=(
+                parent,
+                selected_items,
+                dst_dir,
+                explorer_src,
+                explorer_dst,
+            ),
         )
 
         self.thread_update_dialog = threading.Thread(
-            target=self.update_dialog_copying, args=(parent,)
+            target=self.update_dialog_copying,
+            args=(parent,),
         )
         self.thread_update_dialog.start()
 
@@ -92,11 +100,20 @@ class My_copy:
 
         self.progress_on = False
 
+        if not result:
+            self.stop_all = True
+            self.thread_copy.terminate()
+
     def iterate_folders(
         self, parent, selected_items, dst_dir, explorer_src, explorer_dst
     ):
 
         for src_info in selected_items:
+
+            # On push cancel, return all
+            if self.stop_all:
+                return
+
             dst_info = Path(f"{dst_dir}/{src_info.name}")
 
             bucle_src_error = Path(f"{src_info}/{src_info.name}")
@@ -117,14 +134,16 @@ class My_copy:
                 if dst_info.exists():
                     new_selected_items = list(src_info.iterdir())
                     self.iterate_folders(
-                        parent, new_selected_items, dst_info, explorer_src, explorer_dst
+                        parent,
+                        new_selected_items,
+                        dst_info,
+                        explorer_src,
+                        explorer_dst,
                     )
             else:
                 self.copying_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
-                    # To stop a file copy, you will need to manually copy it in blocks.
                     self.copy_file(src_info, dst_info)
-
                 else:
                     self.event_overwrite = threading.Event()
                     if not self.all_files:
@@ -178,17 +197,11 @@ class My_copy:
         """
         copia ficheros de un src a su dst, devuelve true  si se copió , false si no.
         """
+
         # Use multiprocessing to terminae on cancel copy
-        p = Process(target=shutil.copy, args=(src_info, dst_info))
-        p.start()
-
-        while self.progress_on:
-            time.sleep(0.2)
-
-        if not self.progress_on:
-            p.terminate()
-
-        p.join()
+        self.thread_copy = Process(target=shutil.copy, args=(src_info, dst_info))
+        self.thread_copy.start()
+        self.thread_copy.join()
 
         if dst_info.exists():
             return True

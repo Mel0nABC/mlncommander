@@ -10,11 +10,13 @@ import threading, asyncio, time
 class Copying(Gtk.Dialog):
 
     def __init__(self, parent):
+
         super().__init__(
             title="Copiando ..",
             transient_for=parent,
             modal=True,
         )
+        print("NEWE COPYING DIALOG")
         self.src_size = 0
         self.dst_size = 0
         self.src_info = None
@@ -62,7 +64,6 @@ class Copying(Gtk.Dialog):
 
     def update_labels(self):
         # This function is executed on the main thread (via idle_add)
-
         try:
             if self.src_info and self.dst_info:
                 self.lbl_src.set_text(str(self.src_info))
@@ -79,9 +80,6 @@ class Copying(Gtk.Dialog):
                 self.lbl_size.set_text(
                     f"{self.src_size:.2f}/{self.dst_size:.2f} Mbytes"
                 )
-
-                if self.src_size == self.dst_size:
-                    self.close_copying()
 
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))
