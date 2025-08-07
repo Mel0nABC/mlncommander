@@ -185,6 +185,8 @@ class Explorer(Gtk.ColumnView):
             self.action.set_explorer_to_focused(self, self.win)
 
     def load_data(self, path: Path):
+        if self.selection:
+            self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
         self.sorter = Gtk.ColumnView.get_sorter(self)
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)

@@ -15,7 +15,6 @@ class Create_dir_dialog(Gtk.Dialog):
         )
         self.dst_info = explorer_src.actual_path
 
-
         horizontal = parent.horizontal
         vertical = parent.vertical
 
@@ -28,7 +27,7 @@ class Create_dir_dialog(Gtk.Dialog):
         vertical_box_info.set_margin_start(20)
 
         self.entry_file_name = Gtk.Entry()
-        self.entry_file_name.connect("activate",self.get_opcion_seleccionada)
+        self.entry_file_name.connect("activate", self.get_opcion_seleccionada)
 
         vertical_box_info.append(self.entry_file_name)
 
@@ -58,7 +57,7 @@ class Create_dir_dialog(Gtk.Dialog):
         self.present()
 
     def exit(self, button):
-        self.destroy()
+        self.close()
 
     def get_opcion_seleccionada(self, botton):
         self.response_text = self.entry_file_name.get_text()
@@ -67,7 +66,7 @@ class Create_dir_dialog(Gtk.Dialog):
     def _on_response(self, dialog, response_id):
         if not self.future.done():
             self.future.set_result(self.response_text)
-        self.destroy()
+        self.close()
 
     async def wait_response_async(self):
         response = await self.future

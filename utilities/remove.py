@@ -98,8 +98,11 @@ class Remove:
                         print(f"❌ Error al eliminar archivo {item}: {e}")
 
         GLib.idle_add(explorer_src.load_data, explorer_src.actual_path)
-        GLib.idle_add(explorer_dst.load_data, explorer_dst.actual_path)
-        GLib.idle_add(self.action.set_explorer_to_focused, explorer_src, parent)
+        GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
+
+        if explorer_src.actual_path == explorer_dst.actual_path:
+            GLib.idle_add(explorer_dst.load_data, explorer_dst.actual_path)
+
         GLib.idle_add(self.dialog_deleting.finish_deleting)
 
     async def create_dialog_deleting(self, parent, src_info):
