@@ -16,7 +16,6 @@ class Copying(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
-        print("NEWE COPYING DIALOG")
         self.src_size = 0
         self.dst_size = 0
         self.src_info = None

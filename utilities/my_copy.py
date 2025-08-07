@@ -115,7 +115,6 @@ class My_copy:
                 return
 
             dst_info = Path(f"{dst_dir}/{src_info.name}")
-
             bucle_src_error = Path(f"{src_info}/{src_info.name}")
 
             if dst_info.resolve().is_relative_to(bucle_src_error.resolve()):
@@ -144,6 +143,11 @@ class My_copy:
                 self.copying_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
                     self.copy_file(src_info, dst_info)
+                    # On stop copy, delete the last file, posible corruption
+                    if self.stop_all:
+                        if dst_info.exists():
+                            dst_info.unlink()
+                            pass
                 else:
                     self.event_overwrite = threading.Event()
                     if not self.all_files:
