@@ -1,16 +1,18 @@
-import gi, threading
-
-gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GObject, GLib, Pango
+import threading
+import asyncio
+import time
+import gi
+from gi.repository import Gtk, GLib, Pango
 from utilities.file_manager import File_manager
 from controls.Actions import Actions
 from pathlib import Path
 from controls import Action_keys
-import os, asyncio, time
 from entity.File_or_directory_info import File_or_directory_info
 from utilities.my_watchdog import My_watchdog
 from icons.icon_manager import IconManager
 from css.explorer_css import Css_explorer_manager
+
+gi.require_version("Gtk", "4.0")
 
 
 class Explorer(Gtk.ColumnView):
@@ -29,7 +31,9 @@ class Explorer(Gtk.ColumnView):
         self.n_row = 0
         self.n_row_old = 0
         self.search_str = ""
-        self.thread_reset_str = threading.Thread(target=self.str_search_start)
+        self.thread_reset_str = threading.Thread(
+            target=self.str_search_start
+        )
         self.count_rst_int = 0
         self.COUNT_RST_TIME = 5000
         self.search_str_entry = win.search_str_entry
@@ -85,16 +89,20 @@ class Explorer(Gtk.ColumnView):
         self.css_manager.load_css_explorer_text()
         self.css_manager.load_css_explorer_background()
         self.get_style_context().add_class("column_view_borders")
-        self.background_list.get_style_context().add_class("explorer_background")
+        class_name = "explorer_background"
+        self.background_list.get_style_context().add_class(class_name)
 
         # Focus event
         self.focus_explorer = Gtk.EventControllerFocus()
         self.focus_explorer.connect(
-            "enter", lambda controller: self.set_explorer_focus(self.win)
+            "enter",
+            lambda controller: self.set_explorer_focus(self.win),
         )
         self.add_controller(self.focus_explorer)
 
-        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
+        GLib.idle_add(
+            self.update_watchdog_path, self.actual_path, self
+        )
 
         # Activate pressed on explorer event
         gesture = Gtk.GestureClick()
@@ -114,7 +122,9 @@ class Explorer(Gtk.ColumnView):
         self.win.key_controller.disconnect(self.win.key_controller_id)
 
         # Returns the browser that does not contain the passed name
-        other_explorer = self.win.get_other_explorer_with_name(self.name)
+        other_explorer = self.win.get_other_explorer_with_name(
+            self.name
+        )
 
         if not other_explorer:
             return
@@ -131,7 +141,10 @@ class Explorer(Gtk.ColumnView):
 
     def _reeconnect_controller(self):
         self.win.key_controller_id = self.win.key_controller.connect(
-            "key-pressed", Action_keys.on_key_press, self.win, self.win.action
+            "key-pressed",
+            Action_keys.on_key_press,
+            self.win,
+            self.win.action,
         )
 
     def setup(self, signal, cell, property_name):
@@ -142,7 +155,9 @@ class Explorer(Gtk.ColumnView):
             else:
                 label = Gtk.Label(xalign=0)
                 label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
-                label.get_style_context().add_class("explorer_text_size")
+                label.get_style_context().add_class(
+                    "explorer_text_size"
+                )
                 cell.set_child(label)
 
         GLib.idle_add(setup_when_idle)
@@ -158,7 +173,9 @@ class Explorer(Gtk.ColumnView):
                         pintable = self.icon_manager.get_folder_icon()
                     elif item.type == "FILE":
                         path = item.path_file
-                        pintable = self.icon_manager.get_icon_for_file(path)
+                        pintable = (
+                            self.icon_manager.get_icon_for_file(path)
+                        )
                     else:
                         pintable = self.icon_manager.get_back_icon()
                     output_column.set_from_paintable(pintable)
@@ -177,7 +194,9 @@ class Explorer(Gtk.ColumnView):
 
         return False
 
-    def set_explorer_focus(self, obj=None, n_press=None, x=None, y=None, win=None):
+    def set_explorer_focus(
+        self, obj=None, n_press=None, x=None, y=None, win=None
+    ):
 
         if self.count_rst_int > 0:
             self.count_rst_int = self.COUNT_RST_TIME
@@ -189,7 +208,9 @@ class Explorer(Gtk.ColumnView):
             self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
         self.sorter = Gtk.ColumnView.get_sorter(self)
-        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
+        self.sort_model = Gtk.SortListModel.new(
+            self.store, self.sorter
+        )
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
         self.actual_path = path
@@ -207,8 +228,11 @@ class Explorer(Gtk.ColumnView):
 
         self.load_data(path)
 
-        # Volvemos a realizar el connect si estaba desconectado al entrar en nuevo folder
-        if not self.selection.handler_is_connected(self.handler_id_connect):
+        # Volvemos a realizar el connect si estaba desconectado al entrar en
+        # nuevo folder
+        if not self.selection.handler_is_connected(
+            self.handler_id_connect
+        ):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
@@ -217,8 +241,10 @@ class Explorer(Gtk.ColumnView):
         if len(lista_path) == 0:
             GLib.idle_add(self.scroll_to, 0, None, self.flags)
 
-        # Gestión en qué nº de lista iniciar un directorio si se avanza o retrocede
-        # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA, DICCIONARIO O SIMILAR
+        # Gestión en qué nº de lista iniciar un directorio
+        # si se avanza o retrocede
+        # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA,
+        # DICCIONARIO O SIMILAR
         if self.actual_path_old.is_relative_to(path):
             # Retrocede
             self.scroll_to(self.n_row_old, None, self.flags)
@@ -235,7 +261,9 @@ class Explorer(Gtk.ColumnView):
             self.stop_background_search()
             self.stop_search_mode()
 
-    def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
+    def on_item_change(
+        self, obj=None, n_press=None, x=None, y=None, win=None
+    ):
         selected = self.get_selected_items_from_explorer()
         selected_item = list(selected[1])
         selected_size = len(selected_item)
@@ -266,7 +294,9 @@ class Explorer(Gtk.ColumnView):
         self.search_str = search_word
 
         if not self.thread_reset_str.is_alive():
-            self.thread_reset_str = threading.Thread(target=self.str_search_start)
+            self.thread_reset_str = threading.Thread(
+                target=self.str_search_start
+            )
             self.thread_reset_str.start()
         self.count_rst_int = 0
         self.search_str_entry.set_text(self.search_str)
@@ -291,7 +321,9 @@ class Explorer(Gtk.ColumnView):
         self.stop_background_search()
 
     def set_background_search(self):
-        if self.selection.handler_is_connected(self.handler_id_connect):
+        if self.selection.handler_is_connected(
+            self.handler_id_connect
+        ):
             self.selection.disconnect(self.handler_id_connect)
 
             self.handler_id_connect = self.selection.connect(
@@ -299,20 +331,30 @@ class Explorer(Gtk.ColumnView):
             )
 
         self.css_manager.load_css_background_search()
-        self.background_list.get_style_context().add_class("background_search")
+        self.background_list.get_style_context().add_class(
+            "background_search"
+        )
         self.scroll_to(0, None, self.flags)
 
     def stop_background_search(self):
-        if self.selection.handler_is_connected(self.handler_id_connect):
+        if self.selection.handler_is_connected(
+            self.handler_id_connect
+        ):
             self.selection.disconnect(self.handler_id_connect)
 
-        if not self.selection.handler_is_connected(self.handler_id_connect):
+        if not self.selection.handler_is_connected(
+            self.handler_id_connect
+        ):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
-        self.background_list.get_style_context().remove_class("background_search")
+        self.background_list.get_style_context().remove_class(
+            "background_search"
+        )
 
-    def reset_count_rst_int(self, obj=None, n_press=None, x=None, y=None):
+    def reset_count_rst_int(
+        self, obj=None, n_press=None, x=None, y=None
+    ):
         self.count_rst_int = 0
 
     def stop_search_mode(self):
@@ -322,7 +364,9 @@ class Explorer(Gtk.ColumnView):
         if self.my_watchdog:
             self.my_watchdog.stop()
         self.my_watchdog = My_watchdog(str(path), explorer)
-        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
+        self.watchdog_thread = threading.Thread(
+            target=self.my_watchdog.start
+        )
         self.watchdog_thread.start()
 
     def get_watchdog(self):

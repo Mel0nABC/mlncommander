@@ -1,14 +1,17 @@
 from entity.File_or_directory_info import File_or_directory_info
 import gi
 
-# gi.require_version("Gtk", "4.0")
+gi.require_version("Gtk", "4.0")
 from gi.repository import Gio, Gtk
 from pathlib import Path
 
 
 class File_manager:
 
-    def get_path_list(path: Path):
+    def get_path_list(path: Path) -> Gio.ListStore:
+        """
+        Returns list of files and directorys on Gio.ListStore
+        """
         list_content = Gio.ListStore.new(File_or_directory_info)
 
         try:
@@ -33,11 +36,14 @@ class File_manager:
         return list_content
 
     @staticmethod
-    def custom_key(p: Path):
-        name = p.name
+    def custom_key(path: Path) -> tuple[int, str]:
+        """
+        Sort first list_content, '..' first, directorys on midle and files last
+        """
+        name = path.name
         if name == "..":
             group = 0
-        elif p.is_dir():
+        elif path.is_dir():
             group = 1
         else:
             group = 2

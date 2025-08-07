@@ -1,16 +1,21 @@
 import gi
+from gi.repository import Gtk, Gio
+from entity.File_or_directory_info import File_or_directory_info
+import asyncio
 
 gi.require_version("Gtk", "4.0")
-
-from gi.repository import Gtk, Gdk, Gio, GObject
-from entity.File_or_directory_info import File_or_directory_info
-from views.copying import Copying
-import asyncio
 
 
 class Selected_for_copy_move(Gtk.Dialog):
 
-    def __init__(self, parent, explorer_src, explorer_dst, selected_items, btn_src):
+    def __init__(
+        self,
+        parent,
+        explorer_src,
+        explorer_dst,
+        selected_items,
+        btn_src,
+    ):
         super().__init__(
             title=f"Listo para {str.lower(btn_src)} ..",
             transient_for=parent,
@@ -32,7 +37,9 @@ class Selected_for_copy_move(Gtk.Dialog):
 
         self.box = self.get_content_area()
 
-        self.vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.vertical_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
         self.vertical_box.set_margin_top(20)
         self.vertical_box.set_margin_end(20)
         self.vertical_box.set_margin_bottom(20)
@@ -40,7 +47,7 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
-        lbl_dst = Gtk.Label(label=f"Destino:")
+        lbl_dst = Gtk.Label(label="Destino:")
         lbl_dst.set_halign(Gtk.Align.START)
 
         entry_dst = Gtk.Entry()
@@ -52,9 +59,13 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.vertical_box.append(lbl_dst)
         self.vertical_box.append(entry_dst)
 
-        horizonntal_box_btn = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        horizonntal_box_btn = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
 
-        btn_show_files = Gtk.Button(label=f"Archivos ({len(self.selected_items)})")
+        btn_show_files = Gtk.Button(
+            label=f"Archivos ({len(self.selected_items)})"
+        )
         horizonntal_box_btn.append(btn_show_files)
         horizonntal_box_btn.set_halign(Gtk.Align.START)
 
@@ -69,7 +80,9 @@ class Selected_for_copy_move(Gtk.Dialog):
         horizontal_box_btn_sec.append(btn_copy)
         horizontal_box_btn_sec.append(btn_cancel)
 
-        horizonntal_btns = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        horizonntal_btns = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
         horizonntal_btns.set_margin_top(20)
         horizonntal_btns.set_margin_end(20)
         horizonntal_btns.set_margin_bottom(20)
@@ -101,7 +114,10 @@ class Selected_for_copy_move(Gtk.Dialog):
             factory = Gtk.SignalListItemFactory()
 
             factory.connect(
-                "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
+                "setup",
+                lambda factory, item: item.set_child(
+                    Gtk.Label(xalign=0)
+                ),
             )
             factory.connect(
                 "bind",
@@ -112,7 +128,9 @@ class Selected_for_copy_move(Gtk.Dialog):
 
             selection = Gtk.NoSelection.new(model=items)
 
-            list_view = Gtk.ListView.new(model=selection, factory=factory)
+            list_view = Gtk.ListView.new(
+                model=selection, factory=factory
+            )
 
             self.scroll = Gtk.ScrolledWindow()
             self.scroll.set_child(list_view)
@@ -123,7 +141,9 @@ class Selected_for_copy_move(Gtk.Dialog):
             self.scroll.set_margin_start(20)
 
             self.vertical_box.append(self.scroll)
-            self.set_default_size(self.horizontal_size, self.vertical_size * 3)
+            self.set_default_size(
+                self.horizontal_size, self.vertical_size * 3
+            )
             self.list_files_show = True
         else:
             self.list_files_show = False
@@ -148,4 +168,6 @@ class Selected_for_copy_move(Gtk.Dialog):
         return response
 
     def on_default_size(self):
-        self.set_default_size(self.horizontal_size, self.vertical_size)
+        self.set_default_size(
+            self.horizontal_size, self.vertical_size
+        )

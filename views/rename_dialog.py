@@ -47,8 +47,8 @@ class Rename_dialog(Gtk.Dialog):
 
         box.append(vertical_box_info)
 
-        self.boton1 = Gtk.Button(label="ACEPTAR")
-        self.boton2 = Gtk.Button(label="CANCELAR")
+        self.boton1 = Gtk.Button(label="Aceptar")
+        self.boton2 = Gtk.Button(label="Cancelar")
 
         self.boton1.connect("clicked", self.get_opcion_seleccionada)
 

@@ -1,11 +1,9 @@
 import gi
+import asyncio
+from gi.repository import Gtk, Gio
+from entity.File_or_directory_info import File_or_directory_info
 
 gi.require_version("Gtk", "4.0")
-
-from gi.repository import Gtk, Gdk, Gio, GObject
-from entity.File_or_directory_info import File_or_directory_info
-from views.copying import Copying
-import asyncio
 
 
 class Selected_for_delete(Gtk.Dialog):
@@ -20,18 +18,21 @@ class Selected_for_delete(Gtk.Dialog):
         self.selected_items = selected_items
         self.explorer_src = explorer_src
 
-
         horizontal = parent.horizontal
         vertical = parent.vertical
-        
+
         self.horizontal_size = horizontal / 5
         self.vertical_size = vertical / 8
 
-        self.set_default_size(self.horizontal_size, self.vertical_size)
+        self.set_default_size(
+            self.horizontal_size, self.vertical_size
+        )
 
         self.box = self.get_content_area()
 
-        self.vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.vertical_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
         self.vertical_box.set_margin_top(20)
         self.vertical_box.set_margin_end(20)
         self.vertical_box.set_margin_bottom(20)
@@ -40,7 +41,9 @@ class Selected_for_delete(Gtk.Dialog):
         self.vertical_box.set_vexpand(True)
 
         lbl_src = Gtk.Label(
-            label="¿Eliminar permanentemente el/los archivo(s) e directorio(s) seleccionado(s)?\n\nEsta operación no puede deshacerse."
+            label="¿Eliminar permanentemente el/los archivo(s) e "
+            + "directorio(s) seleccionado(s)?\n\nEsta operación no "
+            + "puede deshacerse."
         )
         lbl_src.set_halign(Gtk.Align.START)
 
@@ -48,7 +51,9 @@ class Selected_for_delete(Gtk.Dialog):
 
         self.show_delete_list()
 
-        horizonntal_box_btn = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        horizonntal_box_btn = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
         horizonntal_box_btn.set_halign(Gtk.Align.START)
 
         horizontal_box_btn_sec = Gtk.Box(
@@ -62,7 +67,9 @@ class Selected_for_delete(Gtk.Dialog):
         horizontal_box_btn_sec.append(btn_accept)
         horizontal_box_btn_sec.append(btn_cancel)
 
-        horizonntal_btns = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        horizonntal_btns = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
         horizonntal_btns.set_margin_top(20)
         horizonntal_btns.set_margin_end(20)
         horizonntal_btns.set_margin_bottom(20)
@@ -93,7 +100,8 @@ class Selected_for_delete(Gtk.Dialog):
         factory = Gtk.SignalListItemFactory()
 
         factory.connect(
-            "setup", lambda factory, item: item.set_child(Gtk.Label(xalign=0))
+            "setup",
+            lambda factory, item: item.set_child(Gtk.Label(xalign=0)),
         )
         factory.connect(
             "bind",
@@ -115,9 +123,9 @@ class Selected_for_delete(Gtk.Dialog):
         scroll.set_margin_start(20)
 
         self.vertical_box.append(scroll)
-        self.set_default_size(self.horizontal_size, self.vertical_size * 3)
-
-
+        self.set_default_size(
+            self.horizontal_size, self.vertical_size * 3
+        )
 
     def on_exit(self, button, window):
         self.response = False

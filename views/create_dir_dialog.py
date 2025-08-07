@@ -1,9 +1,9 @@
-from entity.File_or_directory_info import File_or_directory_info
 import gi
+from gi.repository import Gtk
+import asyncio
+
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk, GLib
-import asyncio
 
 
 class Create_dir_dialog(Gtk.Dialog):
@@ -22,32 +22,40 @@ class Create_dir_dialog(Gtk.Dialog):
 
         box = self.get_content_area()
 
-        vertical_box_info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        vertical_box_info = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
         vertical_box_info.set_margin_top(20)
         vertical_box_info.set_margin_start(20)
 
         self.entry_file_name = Gtk.Entry()
-        self.entry_file_name.connect("activate", self.get_opcion_seleccionada)
+        self.entry_file_name.connect(
+            "activate", self.get_opcion_seleccionada
+        )
 
         vertical_box_info.append(self.entry_file_name)
 
         box.append(vertical_box_info)
 
-        self.boton1 = Gtk.Button(label="ACEPTAR")
-        self.boton2 = Gtk.Button(label="CANCELAR")
+        self.btn_accept = Gtk.Button(label="Aceptar")
+        self.btn_cancel = Gtk.Button(label="Cancelar")
 
-        self.boton1.connect("clicked", self.get_opcion_seleccionada)
-        self.boton2.connect("clicked", self.exit)
+        self.btn_accept.connect(
+            "clicked", self.get_opcion_seleccionada
+        )
+        self.btn_cancel.connect("clicked", self.exit)
 
-        self.vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.vertical_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
 
         self.vertical_box.set_margin_top(20)
         self.vertical_box.set_margin_bottom(20)
         self.vertical_box.set_margin_start(20)
         self.vertical_box.set_margin_end(20)
 
-        self.vertical_box.append(self.boton1)
-        self.vertical_box.append(self.boton2)
+        self.vertical_box.append(self.btn_accept)
+        self.vertical_box.append(self.btn_cancel)
 
         box.append(self.vertical_box)
 

@@ -60,12 +60,12 @@ class Overwrite_dialog(Gtk.Dialog):
 
         box.append(vertical_box_info)
 
-        self.boton1 = Gtk.Button(label="CANCELAR")
-        self.boton2 = Gtk.Button(label="SALTAR")
-        self.boton3 = Gtk.Button(label="REEMPLAZAR SI ES MÁS ANTIGUO")
-        self.boton4 = Gtk.Button(label="REEMPLAZAR SI EL TAMAÑO ES DIFERENTE")
-        self.boton5 = Gtk.Button(label="RENOMBRAR")
-        self.boton6 = Gtk.Button(label="REEMPLAZAR")
+        self.boton1 = Gtk.Button(label="Cancelar")
+        self.boton2 = Gtk.Button(label="Omitir")
+        self.boton3 = Gtk.Button(label="Reemplazar si es más antiguo")
+        self.boton4 = Gtk.Button(label="Reemplazar si el tamaño es diferente")
+        self.boton5 = Gtk.Button(label="Renombrar")
+        self.boton6 = Gtk.Button(label="Reemplazar")
 
         self.boton1.set_name("cancel")
         self.boton2.set_name("skip")

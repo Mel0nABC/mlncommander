@@ -1,10 +1,8 @@
 import gi
+from gi.repository import Gtk, GLib
+import asyncio
 
 gi.require_version("Gtk", "4.0")
-
-from gi.repository import Gtk, GLib
-from pathlib import Path
-import threading, asyncio, time
 
 
 class Deleting(Gtk.Dialog):
@@ -45,7 +43,7 @@ class Deleting(Gtk.Dialog):
         # ESTA función se ejecuta en el hilo principal (vía idle_add)
         try:
             self.lbl_src.set_text(str(deleting_file))
-        except Exception as e:
+        except Exception:
             self.lbl_src.set_text(str(self.src_info))
 
     def cancel_deleting(self, button):

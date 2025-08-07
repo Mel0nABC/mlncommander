@@ -1,5 +1,5 @@
 import gi
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk
 
 
 class header:

@@ -1,11 +1,7 @@
-# gi, módulo que permite usar bibliotecas GTK en python.
-
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk, GLib
-
-from controls.Actions import Actions
+from gi.repository import Gtk
 from controls import Action_keys
 from views.menu_bar import Menu_bar
 from views.header import header
@@ -16,9 +12,7 @@ from utilities.remove import Remove
 from utilities.move import Move
 from utilities.rename import Rename_Logic
 from pathlib import Path
-from icons.icon_manager import IconManager
 import tkinter as tk
-import os
 
 
 class Window(Gtk.ApplicationWindow):
@@ -228,10 +222,6 @@ class Window(Gtk.ApplicationWindow):
         )
         self.add_controller(self.key_controller)
         self.connect("close-request", self.exit)
-
-    @staticmethod
-    def get_windows():
-        return self
 
     def set_explorer_focused(self, explorer_focused, explorer_unfocused):
         self.explorer_src = explorer_focused

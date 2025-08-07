@@ -1,8 +1,10 @@
+from __future__ import annotations
 from controls.Actions import Actions
 from pathlib import Path
 from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
 from views.create_dir_dialog import Create_dir_dialog
+from views.explorer import Explorer
 from views.copying import Copying
 import gi, os, time, shutil, asyncio, threading, multiprocessing
 from gi.repository import GLib
@@ -13,10 +15,15 @@ class Create:
     def __init__(self):
         self.action = Actions()
 
-    def on_create_dir(self, explorer_dst, other_explorer, parent, button=None):
+    def on_create_dir(
+        self,
+        explorer_dst: Explorer,
+        other_explorer: Explorer,
+        parent: Window,
+        button=None,
+    ) -> None:
         """
-        TODO, para crear un directorio:
-            - Si el directorio ya existe, que avise.
+        To create directory. if dir exist, warns
         """
 
         if not explorer_dst:
@@ -27,7 +34,9 @@ class Create:
             self.on_create_dir_async(explorer_dst, other_explorer, parent)
         )
 
-    async def on_create_dir_async(self, explorer_dst, other_explorer, parent):
+    async def on_create_dir_async(
+        self, explorer_dst: Explorer, other_explorer: Explorer, parent: Window
+    ) -> None:
         create_dir = Create_dir_dialog(parent, explorer_dst)
         response = await create_dir.wait_response_async()
         dst_dir = Path(f"{explorer_dst.actual_path}/{response}")

@@ -1,10 +1,8 @@
 import gi
+import asyncio
+from gi.repository import Gtk, GLib
 
 gi.require_version("Gtk", "4.0")
-
-from gi.repository import Gtk, GLib
-from pathlib import Path
-import threading, asyncio, time
 
 
 class Copying(Gtk.Dialog):
@@ -20,7 +18,9 @@ class Copying(Gtk.Dialog):
         self.dst_size = 0
         self.src_info = None
         self.dst_info = None
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=10
+        )
         self.set_child(self.box)
         self.set_default_size(500, 60)
 

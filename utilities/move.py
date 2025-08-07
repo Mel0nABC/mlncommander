@@ -1,3 +1,4 @@
+from __future__ import annotations
 from controls.Actions import Actions
 from pathlib import Path
 from datetime import datetime
@@ -10,7 +11,7 @@ from gi.repository import GLib
 
 
 class Move:
-    def __init__(self, parent):
+    def __init__(self, parent: Window):
         self.action = Actions()
         self.parent = parent
         self.progress_on = False
@@ -18,10 +19,9 @@ class Move:
         self.response_type = ""
         self.all_files = ""
 
-    def on_move(self, explorer_src, explorer_dst):
+    def on_move(self, explorer_src: Explorer, explorer_dst: Explorer) -> None:
         """
-        TODO, Mover archivos o directorios
-                - Si el fichero existe, pedir confirmación sobre escribir (sobrescribir, cancelar)
+        To move directory or files
         """
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
@@ -52,8 +52,12 @@ class Move:
         )
 
     async def create_dialog_moving(
-        self, parent, explorer_src, explorer_dst, selected_items
-    ):
+        self,
+        parent: Window,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        selected_items: list,
+    ) -> None:
         selected_for_moving = Selected_for_copy_move(
             parent,
             explorer_src,
@@ -77,15 +81,22 @@ class Move:
 
         self.progress_on = False
 
-    def update_dialog_moving(self):
+    def update_dialog_moving(self) -> None:
         while self.progress_on:
             time.sleep(0.1)
             if self.moving_dialog is not None:
                 GLib.idle_add(self.moving_dialog.update_labels)
 
-    def iterate_folders(self, selected_items, dst_dir, explorer_src, explorer_dst):
+    def iterate_folders(
+        self,
+        selected_items: list,
+        dst_dir: Path,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+    ) -> None:
 
         total_files, total_size = self.count_files_and_size(selected_items)
+
         self.all_files = False
         for item in selected_items:
 
@@ -164,10 +175,16 @@ class Move:
         GLib.idle_add(self.moving_dialog.close_moving)
 
     def overwrite_with_type(
-        self, parent, src_info, dst_info, explorer_src, explorer_dst, response_type
-    ):
+        self,
+        parent: Window,
+        src_info: Path,
+        dst_info: Path,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        response_type: str,
+    ) -> None:
         """
-        En base al valor de response_type, realiza una acción u otra
+        Based on the value of response_type, perform one action or another
         """
 
         self.cancel_rename = False
@@ -226,7 +243,7 @@ class Move:
                 self.moving_dialog.set_labels(src_info, self.new_name)
                 shutil.move(src_info, self.new_name)
 
-    async def create_dialog_rename(self, parent, dst_info):
+    async def create_dialog_rename(self, parent: Window, dst_info: Path) -> None:
         rename_logic = Rename_Logic()
         self.rename_response = await rename_logic.create_dialog_rename(
             self.parent, dst_info
@@ -235,7 +252,10 @@ class Move:
             self.cancel_rename = True
         self.rename_event.set()
 
-    async def overwrite_dialog(self, parent, src_info, dst_info):
+    async def overwrite_dialog(
+        self, parent: Window, src_info: Path, dst_info: Path
+    ) -> None:
+
         dialog_response = await self.create_response_overwrite(
             parent, src_info, dst_info
         )
@@ -243,12 +263,14 @@ class Move:
         self.response_dic["all_files"] = dialog_response["all_files"]
         self.event_overwrite.set()
 
-    async def create_response_overwrite(self, parent, src_info, dst_info):
+    async def create_response_overwrite(
+        self, parent: Window, src_info: Path, dst_info: Path
+    ) -> Future[Any]:
         dialog = Overwrite_dialog(parent, src_info, dst_info)
         response = await dialog.wait_response_async()
         return response
 
-    def count_files_and_size(self, selected_items):
+    def count_files_and_size(self, selected_items: list) -> tuple[int, int]:
         total_files = 0
         total_size = 0
 

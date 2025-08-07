@@ -1,7 +1,7 @@
 import gi
+from gi.repository import Gtk
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk
 
 
 class Css_explorer_manager:
@@ -16,7 +16,8 @@ class Css_explorer_manager:
 
     def load_css_explorer_background(self):
         """
-        Sets the text color when using the search function for files or directories
+        Sets the text color when using the search function for files
+        or directories
         """
         css = f"""
             .column_view_borders{{
@@ -39,12 +40,15 @@ class Css_explorer_manager:
         provider.load_from_data(css_code)
 
         Gtk.StyleContext.add_provider_for_display(
-            self.win.get_display(), provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
+            self.win.get_display(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_USER,
         )
 
     def load_css_background_search(self):
         """
-        Sets the background color when using the search function for files or directories
+        Sets the background color when using the search function for files
+         or directories
         """
 
         css = f"""
@@ -59,7 +63,8 @@ class Css_explorer_manager:
 
     def load_css_explorer_text(self):
         """
-        Sets the text color when using the search function for files or directories
+        Sets the text color when using the search function for files
+         or directories
         """
 
         css = f"""
