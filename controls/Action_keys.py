@@ -1,18 +1,16 @@
+from __future__ import annotations
 import gi
-
-gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib
-from entity.File_or_directory_info import File_or_directory_info
-from controls.Actions import Actions
-from pathlib import Path
-from utilities import create, move, remove, rename, update
 from utilities.my_copy import My_copy
 from utilities.create import Create
 from utilities.remove import Remove
 from utilities.rename import Rename_Logic
 from utilities.move import Move
+from controls.Actions import Actions
 from views.explorer import Explorer
-import time, threading
+
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, Gdk, GLib  # noqa: E402
 
 _F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Rename
 _F5_KEY = Gdk.keyval_name(Gdk.KEY_F5)  # Copy
@@ -27,8 +25,8 @@ _ESCAPE = Gdk.keyval_name(Gdk.KEY_Escape)  # Escape
 _PUNTO = Gdk.keyval_name(Gdk.KEY_period)  # Punto
 _DELETE = Gdk.keyval_name(Gdk.KEY_Delete)  # supr
 _BACKSLASH = Gdk.keyval_name(Gdk.KEY_KP_Divide)  # /
-row_explorer = 1
 
+# Dictionary for numeric keyboard
 KP_KEYVALS = {
     "KP_0": "0",
     "KP_1": "1",
@@ -45,25 +43,75 @@ KP_KEYVALS = {
 }
 
 
-@staticmethod
-def on_key_press(controller, keyval, keycode, state, win, actions):
+def on_key_press(
+    controller, keyval, keycode, state, win, actions: Actions
+) -> bool:
+    """
+    Manages the keys pressed
+    """
 
     explorer_src = win.explorer_src
     explorer_dst = win.explorer_dst
     key_pressed_name = Gdk.keyval_name(keyval)
-    background_list = explorer_src.get_last_child()
     flags = (
         Gtk.ListScrollFlags.SELECT
         | Gtk.ListScrollFlags.NONE
         | Gtk.ListScrollFlags.FOCUS
     )
 
-    # print(f"Key pressed: {key_pressed_name}, state: {state},  keyval: {keyval}")
+    return {
+        handle_navitation_keys(
+            explorer_src, explorer_dst, key_pressed_name, win, flags
+        )
+        or handle_file_operation(
+            explorer_src, explorer_dst, win, key_pressed_name
+        )
+        or handle_search_keys(
+            explorer_src, explorer_dst, win, key_pressed_name, keyval
+        )
+    }
+
+
+def handle_navitation_keys(
+    explorer_src: Explorer,
+    explorer_dst: Explorer,
+    key_pressed_name: str,
+    win,
+    flags: list,
+) -> bool:
+    """
+    Manage navigation keys, change explorer focus,
+    change focus to Entry path...
+    """
 
     if key_pressed_name == _BACKSLASH:
         explorer_src.entry.grab_focus()
         return True
 
+    if key_pressed_name == _TAB:
+        if explorer_src.focused:
+            # Explorer 2, focused
+            n_row_dst = explorer_dst.n_row
+            explorer_dst.set_can_focus(True)
+            explorer_dst.grab_focus()
+            explorer_dst.scroll_to(n_row_dst, None, flags)
+
+        else:
+            # Explorer 1, focused
+            n_row_src = explorer_src.n_row
+            explorer_src.set_can_focus(True)
+            explorer_src.grab_focus()
+            explorer_src.scroll_to(n_row_src, None, flags)
+
+        return True
+
+
+def handle_file_operation(
+    explorer_src: Explorer, explorer_dst: Explorer, win, key_pressed_name: str
+) -> bool:
+    """
+    Manage shortkeys, keyboard and GUI button actions
+    """
     if key_pressed_name == _F2_KEY:
         # Copy
         rename_logic = Rename_Logic()
@@ -102,24 +150,17 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         print("F10")
         return True
 
-    if key_pressed_name == _TAB:
 
-        if explorer_src.focused == True:
-            # Explorer 2, focused
-            n_row_dst = explorer_dst.n_row
-            explorer_dst.set_can_focus(True)
-            explorer_dst.grab_focus()
-            explorer_dst.scroll_to(n_row_dst, None, flags)
-
-        else:
-            # Explorer 1, focused
-            n_row_src = explorer_src.n_row
-            explorer_src.set_can_focus(True)
-            explorer_src.grab_focus()
-            explorer_src.scroll_to(n_row_src, None, flags)
-
-        return True
-
+def handle_search_keys(
+    explorer_src: Explorer,
+    explorer_dst: Explorer,
+    win,
+    key_pressed_name: str,
+    keyval: int,
+) -> bool:
+    """
+    Manages the search for files or folders
+    """
     if key_pressed_name == _BACKSPACE:
 
         # File and folder name search system, character deletion
@@ -130,12 +171,10 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
             find_name_path(explorer_src, search_word)
 
             return True
-        else:
-            if len(search_word) == 0:
-                stop_search_mode(explorer_src)
 
+        stop_search_mode(explorer_src)
         parent_path = explorer_src.actual_path.parent
-        explorer_src.load_new_path(parent_path)
+        explorer_src.load_data(parent_path)
 
         return True
 
@@ -162,21 +201,19 @@ def on_key_press(controller, keyval, keycode, state, win, actions):
         stop_search_mode(explorer_src)
         return True
 
-    return False
 
-
-def stop_search_mode(explorer_src):
+def stop_search_mode(explorer_src: Explorer) -> None:
     """
-    End the file and folder filtering system
+    End the file and folder search system
     """
     if explorer_src.count_rst_int > 0:
         explorer_src.stop_search_mode()
     explorer_src.stop_background_search()
 
 
-def find_name_path(explorer_src, search_word):
+def find_name_path(explorer_src: Explorer, search_word: Explorer) -> None:
     """
-    Search for file and folder names beginning with search_word.
+    Search for file and folder names containing with search_word.
     """
 
     explorer_src.set_str_search(search_word)
@@ -189,12 +226,12 @@ def find_name_path(explorer_src, search_word):
     output_store = store
 
     for index in reversed(range(len(store))):
-        index_row = index
         item = store[index]
-        if item != None:
+        if item:
             name = item.name
-            # Any name that does not begin with search_word is deleted from the store.
-            # if not name.lower().startswith(search_word.lower()) and name != "..":
+            # Any name that does not begin with search_word is deleted from
+            # the store. if not name.lower().startswith(search_word.lower())
+            # and name != "..":
 
             # The file or directory must have the word you are searching for.
             if not search_word.lower() in name.lower() and name != "..":
