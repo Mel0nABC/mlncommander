@@ -6,7 +6,6 @@ from utilities.remove import Remove
 from utilities.rename import Rename_Logic
 from utilities.move import Move
 from controls.Actions import Actions
-from views.explorer import Explorer
 
 
 gi.require_version("Gtk", "4.0")
@@ -44,7 +43,12 @@ KP_KEYVALS = {
 
 
 def on_key_press(
-    controller, keyval, keycode, state, win, actions: Actions
+    controller,
+    keyval,
+    keycode,
+    state,
+    win: Gtk.ApplicationWindow,
+    actions: Actions,
 ) -> bool:
     """
     Manages the keys pressed
@@ -73,10 +77,10 @@ def on_key_press(
 
 
 def handle_navitation_keys(
-    explorer_src: Explorer,
-    explorer_dst: Explorer,
+    explorer_src: Gtk.ColumnView,
+    explorer_dst: Gtk.ColumnView,
     key_pressed_name: str,
-    win,
+    win: Gtk.ApplicationWindow,
     flags: list,
 ) -> bool:
     """
@@ -109,7 +113,10 @@ def handle_navitation_keys(
 
 
 def handle_file_operation(
-    explorer_src: Explorer, explorer_dst: Explorer, win, key_pressed_name: str
+    explorer_src: Gtk.ColumnView,
+    explorer_dst: Gtk.ColumnView,
+    win: Gtk.ApplicationWindow,
+    key_pressed_name: str,
 ) -> bool:
     """
     Manage shortkeys, keyboard and GUI button actions
@@ -156,9 +163,9 @@ def handle_file_operation(
 
 
 def handle_search_keys(
-    explorer_src: Explorer,
-    explorer_dst: Explorer,
-    win,
+    explorer_src: Gtk.ColumnView,
+    explorer_dst: Gtk.ColumnView,
+    win: Gtk.ApplicationWindow,
     key_pressed_name: str,
     keyval: int,
 ) -> bool:
@@ -208,7 +215,7 @@ def handle_search_keys(
     return False
 
 
-def stop_search_mode(explorer_src: Explorer) -> None:
+def stop_search_mode(explorer_src: Gtk.ColumnView) -> None:
     """
     End the file and folder search system
     """
@@ -217,7 +224,7 @@ def stop_search_mode(explorer_src: Explorer) -> None:
     explorer_src.stop_background_search()
 
 
-def find_name_path(explorer_src: Explorer, search_word: Explorer) -> None:
+def find_name_path(explorer_src: Gtk.ColumnView, search_word: str) -> None:
     """
     Search for file and folder names containing with search_word.
     """
