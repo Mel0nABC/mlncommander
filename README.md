@@ -79,7 +79,7 @@ Installation:
 1) git clone https://github.com/Mel0nABC/mlncommander
 2) cd mlncommander
 3) python -m venv venv
-4) source venv/bin/activate.fish
+4) source venv/bin/activate.fish | source venv/bin/activate.csh | source venv/bin/activate
 5) pip install -r requirements.txt
 6) ./venv/bin/python App.py
 
