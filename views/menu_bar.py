@@ -1,7 +1,7 @@
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio  # noqa: E402
 
 
 class Menu_bar(Gio.Menu):
@@ -9,7 +9,7 @@ class Menu_bar(Gio.Menu):
     Create the application menu bar.
     """
 
-    def __init__(self, win):
+    def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__()
         self.win = win
 
@@ -23,9 +23,6 @@ class Menu_bar(Gio.Menu):
         action_exit = Gio.SimpleAction.new("exit", None)
         action_exit.connect("activate", self.exit)
         self.win.add_action(action_exit)
-
-    def get_new_menu_bar(self) -> Gtk.PopoverMenuBar:
-        return self.menubar
 
     def exit(self, action, parameter):
         self.win.exit()

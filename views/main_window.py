@@ -1,6 +1,7 @@
 import gi
 
 from controls import Action_keys
+from controls import Actions
 from views.menu_bar import Menu_bar
 from views.header import header
 from views.explorer import Explorer
@@ -18,7 +19,7 @@ from gi.repository import Gtk  # noqa E402
 
 class Window(Gtk.ApplicationWindow):
 
-    def __init__(self, app, action):
+    def __init__(self, app: Gtk.Application, action: Actions):
         super().__init__(application=app)
         self.app = app
         self.action = action
@@ -34,7 +35,7 @@ class Window(Gtk.ApplicationWindow):
         self.EXP_2_PATH = ""
 
         # We load the configuration, to send necessary variables
-        self.load_config_file(self.app)
+        self.load_config_file()
 
         # We get information from the screen
 
@@ -44,17 +45,17 @@ class Window(Gtk.ApplicationWindow):
         self.vertical = root.winfo_screenheight()
         root.destroy()
 
-        print(f"Resolución de pantalla: {self.horizontal}x{self.vertical}")
+        print(f"Screen resolution: {self.horizontal}x{self.vertical}")
 
         self.set_default_size(self.horizontal / 2, self.vertical)
-        self.set_titlebar(header().get_new_header())
+        self.set_titlebar(header().header)
 
         main_vertical_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
         menu_bar = Menu_bar(self)
 
-        main_vertical_box.append(menu_bar.get_new_menu_bar())
+        main_vertical_box.append(menu_bar.menubar)
 
         horizontal_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
@@ -131,46 +132,46 @@ class Window(Gtk.ApplicationWindow):
 
         main_vertical_box.append(horizontal_box)
 
-        horizontal_boton_menu = Gtk.Box(
+        horizontal_botton_menu = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        horizontal_boton_menu.set_margin_top(
+        horizontal_botton_menu.set_margin_top(
             self.horizontal_button_list_margin
         )
-        horizontal_boton_menu.set_margin_end(
+        horizontal_botton_menu.set_margin_end(
             self.horizontal_button_list_margin
         )
-        horizontal_boton_menu.set_margin_bottom(
+        horizontal_botton_menu.set_margin_bottom(
             self.horizontal_button_list_margin
         )
-        horizontal_boton_menu.set_margin_start(
+        horizontal_botton_menu.set_margin_start(
             self.horizontal_button_list_margin
         )
-        horizontal_boton_menu.set_hexpand(True)
+        horizontal_botton_menu.set_hexpand(True)
 
         btn_F2 = Gtk.Button(label="Renombrar < F2 >")
-        horizontal_boton_menu.append(btn_F2)
+        horizontal_botton_menu.append(btn_F2)
 
         btn_F5 = Gtk.Button(label="Copiar < F5 >")
-        horizontal_boton_menu.append(btn_F5)
+        horizontal_botton_menu.append(btn_F5)
 
         btn_F6 = Gtk.Button(label="Mover < F6 >")
-        horizontal_boton_menu.append(btn_F6)
+        horizontal_botton_menu.append(btn_F6)
 
         btn_F7 = Gtk.Button(label="Crear dir < F7 >")
-        horizontal_boton_menu.append(btn_F7)
+        horizontal_botton_menu.append(btn_F7)
 
         btn_F8 = Gtk.Button(label="Eliminar < F8 >")
-        horizontal_boton_menu.append(btn_F8)
+        horizontal_botton_menu.append(btn_F8)
 
         btn_F10 = Gtk.Button(label="Salir < F10 >")
-        horizontal_boton_menu.append(btn_F10)
+        horizontal_botton_menu.append(btn_F10)
 
-        horizontal_boton_menu.append(self.search_str_entry)
+        horizontal_botton_menu.append(self.search_str_entry)
 
-        horizontal_boton_menu.set_halign(Gtk.Align.CENTER)
+        horizontal_botton_menu.set_halign(Gtk.Align.CENTER)
 
-        main_vertical_box.append(horizontal_boton_menu)
+        main_vertical_box.append(horizontal_botton_menu)
 
         self.set_child(main_vertical_box)
 
@@ -244,7 +245,12 @@ class Window(Gtk.ApplicationWindow):
         self.add_controller(self.key_controller)
         self.connect("close-request", self.exit)
 
-    def set_explorer_focused(self, explorer_focused, explorer_unfocused):
+    def set_explorer_focused(
+        self, explorer_focused: Explorer, explorer_unfocused: Explorer
+    ) -> None:
+        """
+        Set focus on explorer
+        """
         self.explorer_src = explorer_focused
         self.explorer_src.grab_focus()
         self.explorer_src.scroll_to(
@@ -252,16 +258,19 @@ class Window(Gtk.ApplicationWindow):
         )
         self.explorer_dst = explorer_unfocused
 
-    def exit(self, win=None):
+    def exit(self, win: Gtk.ApplicationWindow = None) -> None:
+        """
+        Close services, save configuration and close application
+        """
         self.close()
-        mwdog1 = self.explorer_1.get_watchdog()
-        mwdog2 = self.explorer_2.get_watchdog()
-        mwdog1.stop()
-        mwdog2.stop()
+        self.explorer_1.my_watchdog.stop()
+        self.explorer_2.my_watchdog.stop()
         self.save_config_file()
 
-    def set_explorer_initial(self):
-
+    def set_explorer_initial(self) -> None:
+        """
+        Set browser 1 (left) as default when starting the application
+        """
         # LOAD DATA DIRECTORY
         self.explorer_1.load_new_path(self.explorer_1.actual_path)
         self.explorer_2.load_new_path(self.explorer_2.actual_path)
@@ -271,7 +280,10 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_src = self.explorer_1
         self.explorer_dst = self.explorer_2
 
-    def load_config_file(self, app):
+    def load_config_file(self) -> None:
+        """
+        load config file
+        """
 
         # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
@@ -292,7 +304,11 @@ class Window(Gtk.ApplicationWindow):
                             else:
                                 setattr(self, VARIABLE_NAME, "/")
 
-    def save_config_file(self):
+    def save_config_file(self) -> None:
+        """
+        Saves the settings to the current location
+        where the browsers are located
+        """
         # Config is deleted and the entire configuration is saved.
         with open(self.CONFIG_FILE, "a") as conf:
             conf.seek(0)
@@ -300,7 +316,7 @@ class Window(Gtk.ApplicationWindow):
             conf.write(f"EXP_1_PATH={self.explorer_1.actual_path}\n")
             conf.write(f"EXP_2_PATH={self.explorer_2.actual_path}\n")
 
-    def get_other_explorer_with_name(self, name: str) -> Gtk.ColumnView:
+    def get_other_explorer_with_name(self, name: str) -> Explorer:
         """
         Returns the browser that does not contain the passed name
         """

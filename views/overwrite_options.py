@@ -1,14 +1,19 @@
 from entity.File_or_directory_info import File_or_directory_info
+from views.explorer import Explorer
+import asyncio
 import gi
 
-
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk, GLib
-import asyncio
+from gi.repository import Gtk  # noqa: E402
 
 
 class Overwrite_dialog(Gtk.Dialog):
-    def __init__(self, parent, src_info, dst_info):
+    def __init__(
+        self,
+        parent: Gtk.ApplicationWindow,
+        src_info: Explorer,
+        dst_info: Explorer,
+    ):
         super().__init__(
             title="Elige una opción para sobre escribir",
             transient_for=parent,
@@ -25,7 +30,9 @@ class Overwrite_dialog(Gtk.Dialog):
 
         box = self.get_content_area()
 
-        vertical_box_info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        vertical_box_info = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
         vertical_box_info.set_margin_top(20)
         vertical_box_info.set_margin_start(20)
 
@@ -33,7 +40,9 @@ class Overwrite_dialog(Gtk.Dialog):
         src_label.set_halign(Gtk.Align.START)
         size_src_label = Gtk.Label.new(f"Tamaño: {self.src_info.size}")
         size_src_label.set_halign(Gtk.Align.START)
-        date_src_label = Gtk.Label.new(f"Fecha: {self.src_info.date_created_str}")
+        date_src_label = Gtk.Label.new(
+            f"Fecha: {self.src_info.date_created_str}"
+        )
         date_src_label.set_halign(Gtk.Align.START)
         perm_src_labe = Gtk.Label.new(f"Permisos: {self.src_info.permissions}")
         perm_src_labe.set_halign(Gtk.Align.START)
@@ -43,7 +52,9 @@ class Overwrite_dialog(Gtk.Dialog):
         dst_label.set_halign(Gtk.Align.START)
         size_dst_label = Gtk.Label.new(f"Tamaño: {self.dst_info.size}")
         size_dst_label.set_halign(Gtk.Align.START)
-        date_dst_label = Gtk.Label.new(f"Fecha: {self.dst_info.date_created_str}")
+        date_dst_label = Gtk.Label.new(
+            f"Fecha: {self.dst_info.date_created_str}"
+        )
         date_dst_label.set_halign(Gtk.Align.START)
         perm_dst_labe = Gtk.Label.new(f"Permisos: {self.dst_info.permissions}")
         perm_dst_labe.set_halign(Gtk.Align.START)
@@ -60,44 +71,48 @@ class Overwrite_dialog(Gtk.Dialog):
 
         box.append(vertical_box_info)
 
-        self.boton1 = Gtk.Button(label="Cancelar")
-        self.boton2 = Gtk.Button(label="Omitir")
-        self.boton3 = Gtk.Button(label="Reemplazar si es más antiguo")
-        self.boton4 = Gtk.Button(label="Reemplazar si el tamaño es diferente")
-        self.boton5 = Gtk.Button(label="Renombrar")
-        self.boton6 = Gtk.Button(label="Reemplazar")
+        self.btn_cancel = Gtk.Button(label="Cancelar")
+        self.btn_skip = Gtk.Button(label="Omitir")
+        self.btn_over_old = Gtk.Button(label="Reemplazar si es más antiguo")
+        self.btn_over_size = Gtk.Button(
+            label="Reemplazar si el tamaño es diferente"
+        )
+        self.btn_rename = Gtk.Button(label="Renombrar")
+        self.btn_overwrite = Gtk.Button(label="Reemplazar")
 
-        self.boton1.set_name("cancel")
-        self.boton2.set_name("skip")
-        self.boton3.set_name("overwrite_date")
-        self.boton4.set_name("overwrite_diff")
-        self.boton5.set_name("rename")
-        self.boton6.set_name("overwrite")
+        self.btn_cancel.set_name("cancel")
+        self.btn_skip.set_name("skip")
+        self.btn_over_old.set_name("overwrite_date")
+        self.btn_over_size.set_name("overwrite_diff")
+        self.btn_rename.set_name("rename")
+        self.btn_overwrite.set_name("overwrite")
 
-        self.boton1.connect("clicked", self.get_opcion_seleccionada)
-        self.boton2.connect("clicked", self.get_opcion_seleccionada)
-        self.boton3.connect("clicked", self.get_opcion_seleccionada)
-        self.boton4.connect("clicked", self.get_opcion_seleccionada)
-        self.boton5.connect("clicked", self.get_opcion_seleccionada)
-        self.boton6.connect("clicked", self.get_opcion_seleccionada)
+        self.btn_cancel.connect("clicked", self.set_opcion_seleccionada)
+        self.btn_skip.connect("clicked", self.set_opcion_seleccionada)
+        self.btn_over_old.connect("clicked", self.set_opcion_seleccionada)
+        self.btn_over_size.connect("clicked", self.set_opcion_seleccionada)
+        self.btn_rename.connect("clicked", self.set_opcion_seleccionada)
+        self.btn_overwrite.connect("clicked", self.set_opcion_seleccionada)
 
         self.check_all = Gtk.CheckButton.new_with_label("Aplicar a todo")
         self.check_all.set_margin_top(20)
         self.check_all.set_halign(Gtk.Align.END)
 
-        self.vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.vertical_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
 
         self.vertical_box.set_margin_top(20)
         self.vertical_box.set_margin_bottom(20)
         self.vertical_box.set_margin_start(20)
         self.vertical_box.set_margin_end(20)
 
-        self.vertical_box.append(self.boton2)
-        self.vertical_box.append(self.boton6)
-        self.vertical_box.append(self.boton3)
-        self.vertical_box.append(self.boton4)
-        self.vertical_box.append(self.boton5)
-        self.vertical_box.append(self.boton1)
+        self.vertical_box.append(self.botobtn_skip)
+        self.vertical_box.append(self.btn_overwrite)
+        self.vertical_box.append(self.btn_over_old)
+        self.vertical_box.append(self.btn_over_size)
+        self.vertical_box.append(self.btn_rename)
+        self.vertical_box.append(self.btn_cancel)
         self.vertical_box.append(self.check_all)
 
         box.append(self.vertical_box)
@@ -106,7 +121,7 @@ class Overwrite_dialog(Gtk.Dialog):
         self.connect("response", self._on_response)
         self.present()
 
-    def get_opcion_seleccionada(self, botton):
+    def set_opcion_seleccionada(self, botton: Gtk.Button) -> None:
 
         botton_pressed = botton.get_name()
 
@@ -148,11 +163,17 @@ class Overwrite_dialog(Gtk.Dialog):
 
         self.close()
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
+        """
+        Set response on close dialog
+        """
         if not self.future.done():
             self.future.set_result(self.response)
         self.destroy()
 
-    async def wait_response_async(self):
+    async def wait_response_async(self) -> None:
+        """
+        Set response on close dialog
+        """
         response = await self.future
         return response

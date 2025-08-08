@@ -7,7 +7,11 @@ gi.require_version("Gtk", "4.0")
 
 
 class Create_dir_dialog(Gtk.Dialog):
-    def __init__(self, parent, explorer_src):
+    def __init__(
+        self,
+        parent: Gtk.ApplicationWindow,
+        explorer_src: "Explorer",  # noqa: F821
+    ):
         super().__init__(
             title="Creando directorio",
             transient_for=parent,
@@ -29,9 +33,7 @@ class Create_dir_dialog(Gtk.Dialog):
         vertical_box_info.set_margin_start(20)
 
         self.entry_file_name = Gtk.Entry()
-        self.entry_file_name.connect(
-            "activate", self.get_opcion_seleccionada
-        )
+        self.entry_file_name.connect("activate", self.get_selected_option)
 
         vertical_box_info.append(self.entry_file_name)
 
@@ -40,9 +42,7 @@ class Create_dir_dialog(Gtk.Dialog):
         self.btn_accept = Gtk.Button(label="Aceptar")
         self.btn_cancel = Gtk.Button(label="Cancelar")
 
-        self.btn_accept.connect(
-            "clicked", self.get_opcion_seleccionada
-        )
+        self.btn_accept.connect("clicked", self.get_selected_option)
         self.btn_cancel.connect("clicked", self.exit)
 
         self.vertical_box = Gtk.Box(
@@ -64,18 +64,30 @@ class Create_dir_dialog(Gtk.Dialog):
         self.connect("response", self._on_response)
         self.present()
 
-    def exit(self, button):
+    def exit(self, button: Gtk.Button) -> None:
+        """
+        Close dialog on press cancel button
+        """
         self.close()
 
-    def get_opcion_seleccionada(self, botton):
+    def get_selected_option(self, botton: Gtk.Button) -> None:
+        """
+        Set on variable entry value
+        """
         self.response_text = self.entry_file_name.get_text()
         self.close()
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
+        """
+        Set response on close dialog
+        """
         if not self.future.done():
             self.future.set_result(self.response_text)
         self.close()
 
-    async def wait_response_async(self):
+    async def wait_response_async(self) -> None:
+        """
+        Response on close dialog
+        """
         response = await self.future
         return response

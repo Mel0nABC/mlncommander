@@ -48,6 +48,9 @@ class Create:
         response = await create_dir.wait_response_async()
         dst_dir = Path(f"{explorer_dst.actual_path}/{response}")
 
+        if not response:
+            return
+
         if explorer_dst.actual_path == dst_dir or not response.strip():
             self.action.show_msg_alert(
                 parent, "Debes introducir algún nombre válido."

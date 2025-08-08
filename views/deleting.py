@@ -1,13 +1,15 @@
+from pathlib import Path
 import gi
-from gi.repository import Gtk, GLib
 import asyncio
 
 gi.require_version("Gtk", "4.0")
 
+from gi.repository import Gtk, GLib  # noqa: E402
+
 
 class Deleting(Gtk.Dialog):
 
-    def __init__(self, parent, src_info):
+    def __init__(self, parent: Gtk.ApplicationWindow, src_info: Path):
         super().__init__(
             title="Eliminando  ..",
             transient_for=parent,
@@ -39,26 +41,40 @@ class Deleting(Gtk.Dialog):
         self.connect("response", self._on_response)
         self.present()
 
-    def update_labels(self, deleting_file):
-        # ESTA función se ejecuta en el hilo principal (vía idle_add)
+    def update_labels(self, deleting_file: Path) -> None:
+        """
+        Force update labels with real information
+        """
         try:
             self.lbl_src.set_text(str(deleting_file))
         except Exception:
             self.lbl_src.set_text(str(self.src_info))
 
-    def cancel_deleting(self, button):
+    def cancel_deleting(self, button: Gtk.Button) -> None:
+        """
+        Close dialog and return False
+        """
         self.dialog_response = False
         GLib.idle_add(self.response, Gtk.ResponseType.CANCEL)
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog, response_id) -> None:
+        """
+        Set response on close dialog
+        """
         if not self.future.done():
             self.future.set_result(self.dialog_response)
         self.destroy()
 
-    async def wait_response_async(self):
+    async def wait_response_async(self) -> bool:
+        """
+        Response on close dialog
+        """
         response = await self.future
         return response
 
-    def finish_deleting(self):
+    def finish_deleting(self) -> None:
+        """
+        Set response on close dialog
+        """
         self.dialog_response = True
         GLib.idle_add(self.response, Gtk.ResponseType.OK)

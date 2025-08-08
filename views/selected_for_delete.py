@@ -1,14 +1,21 @@
+from entity.File_or_directory_info import File_or_directory_info
+from views.explorer import Explorer
 import gi
 import asyncio
 from gi.repository import Gtk, Gio
-from entity.File_or_directory_info import File_or_directory_info
+
 
 gi.require_version("Gtk", "4.0")
 
 
 class Selected_for_delete(Gtk.Dialog):
 
-    def __init__(self, parent, explorer_src, selected_items):
+    def __init__(
+        self,
+        parent: Gtk.ApplicationWindow,
+        explorer_src: Explorer,
+        selected_items: list,
+    ):
         super().__init__(
             title="Lista para eliminar",
             transient_for=parent,
@@ -24,9 +31,7 @@ class Selected_for_delete(Gtk.Dialog):
         self.horizontal_size = horizontal / 5
         self.vertical_size = vertical / 8
 
-        self.set_default_size(
-            self.horizontal_size, self.vertical_size
-        )
+        self.set_default_size(self.horizontal_size, self.vertical_size)
 
         self.box = self.get_content_area()
 
@@ -92,7 +97,11 @@ class Selected_for_delete(Gtk.Dialog):
         self.present()
         btn_accept.grab_focus()
 
-    def show_delete_list(self, button=None):
+    def show_delete_list(self, button: Gtk.Button = None) -> None:
+        """
+        A new list is generated to show the
+        items selected for delete.
+        """
         items = Gio.ListStore.new(File_or_directory_info)
         for i in self.selected_items:
             items.append(File_or_directory_info(i))
@@ -123,23 +132,35 @@ class Selected_for_delete(Gtk.Dialog):
         scroll.set_margin_start(20)
 
         self.vertical_box.append(scroll)
-        self.set_default_size(
-            self.horizontal_size, self.vertical_size * 3
-        )
+        self.set_default_size(self.horizontal_size, self.vertical_size * 3)
 
-    def on_exit(self, button, window):
+    def on_exit(
+        self, button: Gtk.Button, window: Gtk.ApplicationWindow
+    ) -> None:
+        """
+        Set respose false
+        """
         self.response = False
         self.close()
 
-    def start_delete(self, button):
+    def start_delete(self, button: Gtk.Button) -> None:
+        """
+        Set respose True
+        """
         self.response = True
         self.close()
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
+        """
+        Set response on close dialog
+        """
         if not self.future.done():
             self.future.set_result(self.response)
         self.destroy()
 
-    async def wait_response_async(self):
+    async def wait_response_async(self) -> bool:
+        """
+        Response on close dialog
+        """
         response = await self.future
         return response

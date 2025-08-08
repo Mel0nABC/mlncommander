@@ -1,3 +1,4 @@
+from views.explorer import Explorer
 import gi
 from gi.repository import Gtk, Gio
 from entity.File_or_directory_info import File_or_directory_info
@@ -10,11 +11,11 @@ class Selected_for_copy_move(Gtk.Dialog):
 
     def __init__(
         self,
-        parent,
-        explorer_src,
-        explorer_dst,
-        selected_items,
-        btn_src,
+        parent: Gtk.ApplicationWindow,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        selected_items: list,
+        btn_src: Gtk.Button,
     ):
         super().__init__(
             title=f"Listo para {str.lower(btn_src)} ..",
@@ -95,7 +96,7 @@ class Selected_for_copy_move(Gtk.Dialog):
 
         self.box.append(self.vertical_box)
 
-        btn_show_files.connect("clicked", self.show_copy_list)
+        btn_show_files.connect("clicked", self.show_selected_list)
         btn_copy.connect("clicked", self.start_copy)
         btn_cancel.connect("clicked", self.on_exit, self)
 
@@ -105,7 +106,11 @@ class Selected_for_copy_move(Gtk.Dialog):
 
         self.present()
 
-    def show_copy_list(self, button):
+    def show_selected_list(self, button: Gtk.Button) -> None:
+        """
+        A new list is generated to show the
+        items selected for copying or moving.
+        """
         if not self.list_files_show:
             items = Gio.ListStore.new(File_or_directory_info)
             for i in self.selected_items:
@@ -115,9 +120,7 @@ class Selected_for_copy_move(Gtk.Dialog):
 
             factory.connect(
                 "setup",
-                lambda factory, item: item.set_child(
-                    Gtk.Label(xalign=0)
-                ),
+                lambda factory, item: item.set_child(Gtk.Label(xalign=0)),
             )
             factory.connect(
                 "bind",
@@ -128,9 +131,7 @@ class Selected_for_copy_move(Gtk.Dialog):
 
             selection = Gtk.NoSelection.new(model=items)
 
-            list_view = Gtk.ListView.new(
-                model=selection, factory=factory
-            )
+            list_view = Gtk.ListView.new(model=selection, factory=factory)
 
             self.scroll = Gtk.ScrolledWindow()
             self.scroll.set_child(list_view)
@@ -141,33 +142,47 @@ class Selected_for_copy_move(Gtk.Dialog):
             self.scroll.set_margin_start(20)
 
             self.vertical_box.append(self.scroll)
-            self.set_default_size(
-                self.horizontal_size, self.vertical_size * 3
-            )
+            self.set_default_size(self.horizontal_size, self.vertical_size * 3)
             self.list_files_show = True
         else:
             self.list_files_show = False
             self.vertical_box.remove(self.scroll)
             self.on_default_size()
 
-    def on_exit(self, button, window):
+    def on_exit(
+        self, button: Gtk.Button, window: Gtk.ApplicationWindow
+    ) -> None:
+        """
+        Set respose false
+        """
         self.response = False
         self.close()
 
-    def start_copy(self, button):
+    def start_copy(self, button: Gtk.Button) -> None:
+        """
+        Set respose True
+        """
         self.response = True
         self.close()
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
+        """
+        Set response on close dialog
+        """
         if not self.future.done():
             self.future.set_result(self.response)
         self.destroy()
 
-    async def wait_response_async(self):
+    async def wait_response_async(self) -> bool:
+        """
+        Response on close dialog
+        """
         response = await self.future
         return response
 
-    def on_default_size(self):
-        self.set_default_size(
-            self.horizontal_size, self.vertical_size
-        )
+    def on_default_size(self) -> None:
+        """
+        When the selected list is closed,
+        the window size is reset to the initial size.
+        """
+        self.set_default_size(self.horizontal_size, self.vertical_size)

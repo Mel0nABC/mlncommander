@@ -1,15 +1,15 @@
+from pathlib import Path
+import asyncio
 import gi
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Gtk, GLib
-from pathlib import Path
-import threading, asyncio, time
+from gi.repository import Gtk, GLib  # noqa: E402
 
 
 class Moving(Gtk.Dialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent: Gtk.ApplicationWindow):
         super().__init__(
             title="Moviendo ..",
             transient_for=parent,
@@ -54,7 +54,10 @@ class Moving(Gtk.Dialog):
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
 
-    def set_labels(self, src_info: Path, dst_info: Path):
+    def set_labels(self, src_info: Path, dst_info: Path) -> None:
+        """
+        Set labels to show moving info
+        """
         self.src_info = src_info
         self.dst_info = dst_info
         self.lbl_src.set_text(str(self.src_info))
@@ -63,33 +66,50 @@ class Moving(Gtk.Dialog):
         self.src_size = int(self.src_size_text)
         self.src_size = self.src_size / 1024 / 1024
 
-    def update_labels(self):
+    def update_labels(self) -> None:
+        """
+        Force update labels with real information
+        """
         # This function is executed on the main thread (via idle_add)
         try:
             if self.dst_info:
                 dst_size_text = f"{self.dst_info.stat().st_size}"
                 dst_size = int(dst_size_text)
                 dst_size = dst_size / 1024 / 1024
-                self.lbl_size.set_text(f"{self.src_size:.2f}/{dst_size:.2f} Mbytes")
+                self.lbl_size.set_text(
+                    f"{self.src_size:.2f}/{dst_size:.2f} Mbytes"
+                )
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))
             self.lbl_dst.set_text("Obteniendo destino ..")
             self.lbl_size.set_text("Caldulando ...")
             print(e)
 
-    def cancel_moving(self, button):
+    def cancel_moving(self, button: Gtk.Button) -> None:
+        """
+        Stop dialog and send response False
+        """
         self.dialog_response = False
         GLib.idle_add(self.response, Gtk.ResponseType.OK)
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
+        """
+        Set response on close dialog
+        """
         if not self.future.done():
             self.future.set_result(self.dialog_response)
         self.destroy()
 
-    async def wait_response_async(self):
+    async def wait_response_async(self) -> bool:
+        """
+        Response on close dialog
+        """
         response = await self.future
         return response
 
-    def close_moving(self):
+    def close_moving(self) -> None:
+        """
+        Set response on close dialog
+        """
         self.dialog_response = True
         GLib.idle_add(self.response, Gtk.ResponseType.OK)

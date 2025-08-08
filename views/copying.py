@@ -1,5 +1,6 @@
 import gi
 import asyncio
+from pathlib import Path
 from gi.repository import Gtk, GLib
 
 gi.require_version("Gtk", "4.0")
@@ -7,7 +8,7 @@ gi.require_version("Gtk", "4.0")
 
 class Copying(Gtk.Dialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent: Gtk.ApplicationWindow):
 
         super().__init__(
             title="Copiando ..",
@@ -18,9 +19,7 @@ class Copying(Gtk.Dialog):
         self.dst_size = 0
         self.src_info = None
         self.dst_info = None
-        self.box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=10
-        )
+        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.set_child(self.box)
         self.set_default_size(500, 60)
 
@@ -57,12 +56,17 @@ class Copying(Gtk.Dialog):
         self.future = asyncio.get_event_loop().create_future()
         self.connect("response", self._on_response)
 
-    def set_labels(self, src_info, dst_info):
+    def set_labels(self, src_info: Path, dst_info: Path) -> None:
+        """
+        Set labels to show copying info
+        """
         self.src_info = src_info
         self.dst_info = dst_info
 
-    def update_labels(self):
-        # This function is executed on the main thread (via idle_add)
+    def update_labels(self) -> None:
+        """
+        Force update labels with real information
+        """
         try:
             if self.src_info and self.dst_info:
                 self.lbl_src.set_text(str(self.src_info))
@@ -86,19 +90,31 @@ class Copying(Gtk.Dialog):
             self.lbl_size.set_text("Caldulando ...")
             print(e)
 
-    def cancel_copying(self, button):
+    def cancel_copying(self, button: Gtk.Button) -> None:
+        """
+        Stop dialog and send response False
+        """
         self.dialog_response = False
         GLib.idle_add(self.response, Gtk.ResponseType.OK)
 
-    def _on_response(self, dialog, response_id):
+    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
+        """
+        Set response on close dialog
+        """
         if not self.future.done():
             self.future.set_result(self.dialog_response)
         self.destroy()
 
-    async def wait_response_async(self):
+    async def wait_response_async(self) -> bool:
+        """
+        Response on close dialog
+        """
         response = await self.future
         return response
 
-    def close_copying(self):
+    def close_copying(self) -> None:
+        """
+        Set response on close dialog
+        """
         self.dialog_response = True
         GLib.idle_add(self.response, Gtk.ResponseType.OK)

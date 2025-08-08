@@ -17,7 +17,13 @@ from gi.repository import Gtk, GLib, Pango  # noqa E402
 
 
 class Explorer(Gtk.ColumnView):
-    def __init__(self, name, entry, win, initial_path):
+    def __init__(
+        self,
+        name: str,
+        entry: Gtk.Entry,
+        win: Gtk.ApplicationWindow,
+        initial_path: Path,
+    ):
         super().__init__()
 
         self.name = name
@@ -69,12 +75,10 @@ class Explorer(Gtk.ColumnView):
                 File_or_directory_info, None, property_name
             )
 
-            # if property_name == "type_str":
-            #     column.set_fixed_width(5)
-            # else:
-            #     column.set_fixed_width(-1)
-
             sorter = Gtk.StringSorter.new(property_expression)
+
+            # Column visual configuration
+
             column.set_sorter(sorter)
             column.set_expand(True)
             column.set_resizable(True)
@@ -83,7 +87,7 @@ class Explorer(Gtk.ColumnView):
 
         self.set_enable_rubberband(True)
 
-        # CONFIGURE COLUMNVIEW
+        # Configure Gtk.ColumnView
         self.set_show_column_separators(True)
         self.set_can_focus(True)
         self.set_focusable(True)
@@ -122,7 +126,10 @@ class Explorer(Gtk.ColumnView):
         controller.add_shortcut(self.shortcut)
         self.add_controller(controller)
 
-    def shortcut_event(self, *args):
+    def shortcut_event(self, *args) -> None:
+        """
+        Actions when shortcuts is utilized
+        """
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
 
@@ -147,7 +154,10 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(self._reeconnect_controller)
 
-    def _reeconnect_controller(self):
+    def _reeconnect_controller(self) -> None:
+        """
+        After finish utilization shortcuts, reactivate key controller
+        """
         self.win.key_controller_id = self.win.key_controller.connect(
             "key-pressed",
             Action_keys.on_key_press,
@@ -155,8 +165,20 @@ class Explorer(Gtk.ColumnView):
             self.win.action,
         )
 
-    def setup(self, signal, cell, property_name):
+    def setup(
+        self,
+        signal: Gtk.SignalListItemFactory,
+        cell: Gtk.ColumnViewCell,
+        property_name: str,
+    ) -> None:
+        """
+        Configure type columnview Cell
+        """
+
         def setup_when_idle():
+            """
+            Depent of type, set Gtk.Image for icons or Gtk.Label for text
+            """
             if property_name == "type_str":
                 image = Gtk.Image()
                 cell.set_child(image)
@@ -168,8 +190,16 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(setup_when_idle)
 
-    def bind(self, signal, cell, property_name):
+    def bind(
+        self,
+        signal: Gtk.SignalListItemFactory,
+        cell: Gtk.ColumnViewCell,
+        property_name: str,
+    ) -> None:
         def bind_when_idle():
+            """
+            Set value for columnview cells
+            """
             item = cell.get_item()
             if item:
                 output_column = cell.get_child()
@@ -188,36 +218,28 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(bind_when_idle)
 
-    def update_columns(self):
-        for column in self.get_columns():
-            title = column.get_title()
-            if title == "TYPE_STR":
-                column.set_fixed_width(20)
-            else:
-                column.set_fixed_width(70)
-
-        return False
-
-    def update_column(self, column: Gtk.ColumnViewColumn):
-        title = column.get_title()
-        print(f"TITLE: {title}")
-        if title == "TYPE_STR":
-            column.set_fixed_width(20)
-        else:
-            column.set_fixed_width(100)
-
-        return False
-
     def set_explorer_focus(
-        self, obj=None, n_press=None, x=None, y=None, win=None
-    ):
+        self,
+        obj: Gtk.GestureClick = None,
+        n_press: int = None,
+        x: float = None,
+        y: float = None,
+        win: Gtk.ApplicationWindow = None,
+    ) -> None:
+        """
+        Bring focus to the browser when clicking
+        anywhere in it. Terminates the search engine if enabled.
+        """
 
         if self.count_rst_int > 0:
             self.count_rst_int = self.COUNT_RST_TIME
         else:
             self.action.set_explorer_to_focused(self, self.win)
 
-    def load_data(self, path: Path):
+    def load_data(self, path: Path) -> None:
+        """
+        Load information from the current directory
+        """
         if self.selection:
             self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
@@ -228,9 +250,12 @@ class Explorer(Gtk.ColumnView):
         self.actual_path = path
         self.entry.set_text(str(path))
 
-    def load_new_path(self, path: Path):
-
-        # Gestión para guardar el nº de fila cuando se avanza un directorio
+    def load_new_path(self, path: Path) -> None:
+        """
+        Load data and display the contents
+        of the current directory in the browser
+        """
+        # Management to save the row number when advancing a directory
         if self.actual_path_old:
             if not self.actual_path_old.is_relative_to(path):
                 self.actual_path_old = self.actual_path
@@ -240,8 +265,8 @@ class Explorer(Gtk.ColumnView):
 
         self.load_data(path)
 
-        # Volvemos a realizar el connect si estaba desconectado al entrar en
-        # nuevo folder
+        # We reconnect if it was disconnected when entering
+        # new folder
         if not self.selection.handler_is_connected(self.handler_id_connect):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
@@ -251,15 +276,15 @@ class Explorer(Gtk.ColumnView):
         if len(lista_path) == 0:
             GLib.idle_add(self.scroll_to, 0, None, self.flags)
 
-        # Gestión en qué nº de lista iniciar un directorio
-        # si se avanza o retrocede
-        # HAY QUE CAMBIAR LA FORMA DE GESTIONARLO, QUIZÁ CON UNA LISTA,
-        # DICCIONARIO O SIMILAR
+        # Managing which list number to start a directory at
+        # Whether to move forward or backward
+        # You need to change the way you manage it, perhaps with a list,
+        # Dictionary or similar
         if self.actual_path_old.is_relative_to(path):
-            # Retrocede
+            # Step back
             self.scroll_to(self.n_row_old, None, self.flags)
         else:
-            # Avanza
+            # Keep it up
             size = len(list(self.store))
             if size == 1:
                 file = 0
@@ -271,16 +296,26 @@ class Explorer(Gtk.ColumnView):
             self.stop_background_search()
             self.stop_search_mode()
 
-    def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
+    def on_item_change(
+        self,
+        obj: Gtk.MultiSelection = None,
+        n_press: int = None,
+        x: int = None,
+        win: Gtk.ApplicationWindow = None,
+    ) -> None:
+        """
+        Selecting another row in a browser changes
+        the value of the self.n_row variable.
+        """
         selected = self.get_selected_items_from_explorer()
         selected_item = list(selected[1])
         selected_size = len(selected_item)
         if selected_size == 1:
             self.n_row = selected[0]
 
-    def get_selected_items_from_explorer(self):
+    def get_selected_items_from_explorer(self) -> list:
         """
-        Obtiene la lista de selection de un explorer
+        Gets the selection list of an explorer
         """
         selected_items = []
         item = None
@@ -295,10 +330,17 @@ class Explorer(Gtk.ColumnView):
 
         return index_return, selected_items
 
-    def update_watchdog_path(self, path, explorer):
+    def update_watchdog_path(self, path: Path, explorer: "Explorer") -> None:
+        """
+        The watchdog route is changed
+        """
         asyncio.ensure_future(self.control_watchdog(path, explorer))
 
-    def set_str_search(self, search_word):
+    def set_str_search(self, search_word: str) -> str:
+        """
+        The search word is changed by
+        adding characters and the timer is reset.
+        """
         self.search_str = search_word
 
         if not self.thread_reset_str.is_alive():
@@ -310,12 +352,19 @@ class Explorer(Gtk.ColumnView):
         self.search_str_entry.set_text(self.search_str)
         return self.search_str
 
-    def set_str_search_backspace(self, text):
+    def set_str_search_backspace(self, text: str) -> None:
+        """
+        The search word is changed by deleting
+        characters and resetting the timer.
+        """
         self.count_rst_int = 0
         self.search_str = text
         self.search_str_entry.set_text(self.search_str)
 
-    def str_search_start(self):
+    def str_search_start(self) -> None:
+        """
+        Initialize proccess to search word in explorer list
+        """
         self.n_row_old = self.n_row
         while self.count_rst_int < self.COUNT_RST_TIME:
             time.sleep(0.001)
@@ -328,19 +377,25 @@ class Explorer(Gtk.ColumnView):
         GLib.idle_add(self.load_data, self.actual_path)
         self.stop_background_search()
 
-    def set_background_search(self):
+    def set_background_search(self) -> None:
+        """
+        Search colors are activated
+        """
         if self.selection.handler_is_connected(self.handler_id_connect):
             self.selection.disconnect(self.handler_id_connect)
 
-            self.handler_id_connect = self.selection.connect(
-                "selection-changed", self.reset_count_rst_int
-            )
+        self.handler_id_connect = self.selection.connect(
+            "selection-changed", self.reset_count_rst_int
+        )
 
         self.css_manager.load_css_background_search()
         self.background_list.get_style_context().add_class("background_search")
         self.scroll_to(0, None, self.flags)
 
     def stop_background_search(self):
+        """
+        Search colors are desactivated
+        """
         if self.selection.handler_is_connected(self.handler_id_connect):
             self.selection.disconnect(self.handler_id_connect)
 
@@ -352,18 +407,29 @@ class Explorer(Gtk.ColumnView):
             "background_search"
         )
 
-    def reset_count_rst_int(self, obj=None, n_press=None, x=None, y=None):
+    def reset_count_rst_int(
+        self,
+        obj: Gtk.MultiSelection = None,
+        n_press: int = None,
+        x: int = None,
+    ) -> None:
+        """
+        Restablecer la temporización al escribir y seleccionar otra fila
+        """
         self.count_rst_int = 0
 
-    def stop_search_mode(self):
+    def stop_search_mode(self) -> None:
+        """
+        Finish str_search_start(self) while loop
+        """
         self.count_rst_int = self.COUNT_RST_TIME
 
-    async def control_watchdog(self, path, explorer):
+    async def control_watchdog(self, path: Path, explorer: "Explorer") -> None:
+        """
+        Create another watchdog with other path
+        """
         if self.my_watchdog:
             self.my_watchdog.stop()
         self.my_watchdog = My_watchdog(str(path), explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
-
-    def get_watchdog(self):
-        return self.my_watchdog
