@@ -31,9 +31,7 @@ class Explorer(Gtk.ColumnView):
         self.n_row = 0
         self.n_row_old = 0
         self.search_str = ""
-        self.thread_reset_str = threading.Thread(
-            target=self.str_search_start
-        )
+        self.thread_reset_str = threading.Thread(target=self.str_search_start)
         self.count_rst_int = 0
         self.COUNT_RST_TIME = 5000
         self.search_str_entry = win.search_str_entry
@@ -47,6 +45,7 @@ class Explorer(Gtk.ColumnView):
             | Gtk.ListScrollFlags.NONE
             | Gtk.ListScrollFlags.FOCUS
         )
+        self.EXPLORER_MIRROR_KEY = "o"
         type_list = [
             "type_str",
             "name",
@@ -100,9 +99,7 @@ class Explorer(Gtk.ColumnView):
         )
         self.add_controller(self.focus_explorer)
 
-        GLib.idle_add(
-            self.update_watchdog_path, self.actual_path, self
-        )
+        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
         # Activate pressed on explorer event
         gesture = Gtk.GestureClick()
@@ -110,7 +107,9 @@ class Explorer(Gtk.ColumnView):
         self.add_controller(gesture)
 
         # Activate shortcut Control+C
-        trigger = Gtk.ShortcutTrigger.parse_string("<Control>O")
+        trigger = Gtk.ShortcutTrigger.parse_string(
+            f"<Control>{self.EXPLORER_MIRROR_KEY}"
+        )
         action = Gtk.CallbackAction.new(self.shortcut_event)
         self.shortcut = Gtk.Shortcut.new(trigger, action)
         controller = Gtk.ShortcutController.new()
@@ -122,9 +121,7 @@ class Explorer(Gtk.ColumnView):
         self.win.key_controller.disconnect(self.win.key_controller_id)
 
         # Returns the browser that does not contain the passed name
-        other_explorer = self.win.get_other_explorer_with_name(
-            self.name
-        )
+        other_explorer = self.win.get_other_explorer_with_name(self.name)
 
         if not other_explorer:
             return
@@ -134,8 +131,13 @@ class Explorer(Gtk.ColumnView):
         if not selected_item:
             other_explorer.load_data(self.actual_path.parent)
 
+        path = selected_item[0]
+
         if selected_item:
-            other_explorer.load_data(selected_item[0])
+            if not path.is_dir():
+                path = path.parent
+
+        other_explorer.load_data(path)
 
         GLib.idle_add(self._reeconnect_controller)
 
@@ -155,9 +157,7 @@ class Explorer(Gtk.ColumnView):
             else:
                 label = Gtk.Label(xalign=0)
                 label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
-                label.get_style_context().add_class(
-                    "explorer_text_size"
-                )
+                label.get_style_context().add_class("explorer_text_size")
                 cell.set_child(label)
 
         GLib.idle_add(setup_when_idle)
@@ -173,9 +173,7 @@ class Explorer(Gtk.ColumnView):
                         pintable = self.icon_manager.get_folder_icon()
                     elif item.type == "FILE":
                         path = item.path_file
-                        pintable = (
-                            self.icon_manager.get_icon_for_file(path)
-                        )
+                        pintable = self.icon_manager.get_icon_for_file(path)
                     else:
                         pintable = self.icon_manager.get_back_icon()
                     output_column.set_from_paintable(pintable)
@@ -208,9 +206,7 @@ class Explorer(Gtk.ColumnView):
             self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
         self.sorter = Gtk.ColumnView.get_sorter(self)
-        self.sort_model = Gtk.SortListModel.new(
-            self.store, self.sorter
-        )
+        self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
         self.actual_path = path
@@ -230,9 +226,7 @@ class Explorer(Gtk.ColumnView):
 
         # Volvemos a realizar el connect si estaba desconectado al entrar en
         # nuevo folder
-        if not self.selection.handler_is_connected(
-            self.handler_id_connect
-        ):
+        if not self.selection.handler_is_connected(self.handler_id_connect):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
@@ -261,9 +255,7 @@ class Explorer(Gtk.ColumnView):
             self.stop_background_search()
             self.stop_search_mode()
 
-    def on_item_change(
-        self, obj=None, n_press=None, x=None, y=None, win=None
-    ):
+    def on_item_change(self, obj=None, n_press=None, x=None, y=None, win=None):
         selected = self.get_selected_items_from_explorer()
         selected_item = list(selected[1])
         selected_size = len(selected_item)
@@ -321,9 +313,7 @@ class Explorer(Gtk.ColumnView):
         self.stop_background_search()
 
     def set_background_search(self):
-        if self.selection.handler_is_connected(
-            self.handler_id_connect
-        ):
+        if self.selection.handler_is_connected(self.handler_id_connect):
             self.selection.disconnect(self.handler_id_connect)
 
             self.handler_id_connect = self.selection.connect(
@@ -331,20 +321,14 @@ class Explorer(Gtk.ColumnView):
             )
 
         self.css_manager.load_css_background_search()
-        self.background_list.get_style_context().add_class(
-            "background_search"
-        )
+        self.background_list.get_style_context().add_class("background_search")
         self.scroll_to(0, None, self.flags)
 
     def stop_background_search(self):
-        if self.selection.handler_is_connected(
-            self.handler_id_connect
-        ):
+        if self.selection.handler_is_connected(self.handler_id_connect):
             self.selection.disconnect(self.handler_id_connect)
 
-        if not self.selection.handler_is_connected(
-            self.handler_id_connect
-        ):
+        if not self.selection.handler_is_connected(self.handler_id_connect):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
@@ -352,9 +336,7 @@ class Explorer(Gtk.ColumnView):
             "background_search"
         )
 
-    def reset_count_rst_int(
-        self, obj=None, n_press=None, x=None, y=None
-    ):
+    def reset_count_rst_int(self, obj=None, n_press=None, x=None, y=None):
         self.count_rst_int = 0
 
     def stop_search_mode(self):
@@ -364,9 +346,7 @@ class Explorer(Gtk.ColumnView):
         if self.my_watchdog:
             self.my_watchdog.stop()
         self.my_watchdog = My_watchdog(str(path), explorer)
-        self.watchdog_thread = threading.Thread(
-            target=self.my_watchdog.start
-        )
+        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
 
     def get_watchdog(self):

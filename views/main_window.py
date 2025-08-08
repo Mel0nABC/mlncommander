@@ -1,6 +1,4 @@
 import gi
-
-gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 from controls import Action_keys
 from views.menu_bar import Menu_bar
@@ -13,6 +11,8 @@ from utilities.move import Move
 from utilities.rename import Rename_Logic
 from pathlib import Path
 import tkinter as tk
+
+gi.require_version("Gtk", "4.0")
 
 
 class Window(Gtk.ApplicationWindow):
@@ -48,12 +48,16 @@ class Window(Gtk.ApplicationWindow):
         self.set_default_size(self.horizontal / 2, self.vertical)
         self.set_titlebar(header().get_new_header())
 
-        main_vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        main_vertical_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
         menu_bar = Menu_bar(self)
 
         main_vertical_box.append(menu_bar.get_new_menu_bar())
 
-        horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        horizontal_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
         horizontal_box.set_vexpand(True)
 
         self.vertical_screen_1 = Gtk.Box(
@@ -101,14 +105,18 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
 
         self.scroll_1 = Gtk.ScrolledWindow()
-        self.scroll_1.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scroll_1.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
+        )
         self.scroll_1.set_child(self.explorer_1)
         self.scroll_1.set_margin_end(self.scroll_1_margin / 2)
         self.scroll_1.set_margin_bottom(self.scroll_1_margin)
         self.scroll_1.set_margin_start(self.scroll_1_margin)
 
         self.scroll_2 = Gtk.ScrolledWindow()
-        self.scroll_2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scroll_2.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
+        )
         self.scroll_2.set_child(self.explorer_2)
         self.scroll_2.set_margin_end(self.scroll_1_margin)
         self.scroll_2.set_margin_bottom(self.scroll_1_margin)
@@ -125,10 +133,18 @@ class Window(Gtk.ApplicationWindow):
         horizontal_boton_menu = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        horizontal_boton_menu.set_margin_top(self.horizontal_button_list_margin)
-        horizontal_boton_menu.set_margin_end(self.horizontal_button_list_margin)
-        horizontal_boton_menu.set_margin_bottom(self.horizontal_button_list_margin)
-        horizontal_boton_menu.set_margin_start(self.horizontal_button_list_margin)
+        horizontal_boton_menu.set_margin_top(
+            self.horizontal_button_list_margin
+        )
+        horizontal_boton_menu.set_margin_end(
+            self.horizontal_button_list_margin
+        )
+        horizontal_boton_menu.set_margin_bottom(
+            self.horizontal_button_list_margin
+        )
+        horizontal_boton_menu.set_margin_start(
+            self.horizontal_button_list_margin
+        )
         horizontal_boton_menu.set_hexpand(True)
 
         btn_F2 = Gtk.Button(label="Renombrar < F2 >")
@@ -188,7 +204,9 @@ class Window(Gtk.ApplicationWindow):
         my_copy = My_copy()
         btn_F5.connect(
             "clicked",
-            lambda btn: my_copy.on_copy(self.explorer_src, self.explorer_dst, self),
+            lambda btn: my_copy.on_copy(
+                self.explorer_src, self.explorer_dst, self
+            ),
         )
 
         move = Move(self)
@@ -207,7 +225,9 @@ class Window(Gtk.ApplicationWindow):
         remove = Remove()
         btn_F8.connect(
             "clicked",
-            lambda btn: remove.on_delete(self.explorer_src, self.explorer_dst, self),
+            lambda btn: remove.on_delete(
+                self.explorer_src, self.explorer_dst, self
+            ),
         )
 
         btn_F10.connect(
