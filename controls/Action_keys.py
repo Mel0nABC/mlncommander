@@ -105,6 +105,8 @@ def handle_navitation_keys(
 
         return True
 
+    return False
+
 
 def handle_file_operation(
     explorer_src: Explorer, explorer_dst: Explorer, win, key_pressed_name: str
@@ -149,6 +151,8 @@ def handle_file_operation(
     if key_pressed_name == _F10_KEY:
         print("F10")
         return True
+
+    return False
 
 
 def handle_search_keys(
@@ -200,6 +204,8 @@ def handle_search_keys(
     if key_pressed_name == _ESCAPE:
         stop_search_mode(explorer_src)
         return True
+
+    return False
 
 
 def stop_search_mode(explorer_src: Explorer) -> None:
