@@ -1,4 +1,3 @@
-from __future__ import annotations
 import gi
 from utilities.my_copy import My_copy
 from utilities.create import Create
@@ -77,8 +76,8 @@ def on_key_press(
 
 
 def handle_navitation_keys(
-    explorer_src: Gtk.ColumnView,
-    explorer_dst: Gtk.ColumnView,
+    explorer_src: "Explorer",  # noqa: F821
+    explorer_dst: "Explorer",  # noqa: F821
     key_pressed_name: str,
     win: Gtk.ApplicationWindow,
     flags: list,
@@ -113,8 +112,8 @@ def handle_navitation_keys(
 
 
 def handle_file_operation(
-    explorer_src: Gtk.ColumnView,
-    explorer_dst: Gtk.ColumnView,
+    explorer_src: "Explorer",  # noqa: F821
+    explorer_dst: "Explorer",  # noqa: F821
     win: Gtk.ApplicationWindow,
     key_pressed_name: str,
 ) -> bool:
@@ -163,8 +162,8 @@ def handle_file_operation(
 
 
 def handle_search_keys(
-    explorer_src: Gtk.ColumnView,
-    explorer_dst: Gtk.ColumnView,
+    explorer_src: "Explorer",  # noqa: F821
+    explorer_dst: "Explorer",  # noqa: F821
     win: Gtk.ApplicationWindow,
     key_pressed_name: str,
     keyval: int,
@@ -215,7 +214,7 @@ def handle_search_keys(
     return False
 
 
-def stop_search_mode(explorer_src: Gtk.ColumnView) -> None:
+def stop_search_mode(explorer_src: "Explorer") -> None:  # noqa: F821
     """
     End the file and folder search system
     """
@@ -224,7 +223,9 @@ def stop_search_mode(explorer_src: Gtk.ColumnView) -> None:
     explorer_src.stop_background_search()
 
 
-def find_name_path(explorer_src: Gtk.ColumnView, search_word: str) -> None:
+def find_name_path(
+    explorer_src: "Explorer", search_word: str  # noqa: F821
+) -> None:
     """
     Search for file and folder names containing with search_word.
     """

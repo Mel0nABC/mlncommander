@@ -1,36 +1,31 @@
 from pathlib import Path
-
-from views.overwrite_options import Overwrite_dialog
-from views.rename_dialog import Rename_dialog
-from views.selected_for_delete import Selected_for_delete
-from views.copying import Copying
-import gi, sys, subprocess
+import gi
+import sys
+import subprocess
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk, GLib
+from gi.repository import Gtk, GLib  # noqa:")
 
 
 class Actions:
 
     def __init__(self):
-
         self.parent = None
 
-    def set_parent(self, parent):
+    def set_parent(self, parent: Gtk.ApplicationWindow) -> None:
         self.parent = parent
 
-    def get_parent(self, parent):
-        return self.parent
-
-    def on_exit(action, param):
+    def on_exit(self, action, param: Gtk.ApplicationWindow) -> None:
         """
-        Para salir desde el menú Archivo -> Exit.
+        To exis application from file menu
         """
         sys.exit(0)
 
-    def change_path(self, explorer, path: Path):
+    def change_path(
+        self, explorer: "Explorer", path: Path  # noqa: F821
+    ) -> None:
         """
-        Accedemos a otro directorio.
+        Access another directory.
         """
         try:
             if not path.exists():
@@ -41,16 +36,26 @@ class Actions:
             text = "¡Advertencia! El fichero o directorio de destino no existe"
             GLib.idle_add(self.show_msg_alert, self.parent, text)
 
-    def entry_change_path(self, entry, explorer):
+    def entry_change_path(
+        self, entry: Gtk.Entry, explorer: "Explorer"  # noqa: F821
+    ) -> None:
         """
-        Al cambiar de directorio escribiéndolo a mano en el entry
+        When changing directories by writing it by hand in the entry
         """
         path = Path(entry.get_text())
         self.change_path(explorer, path)
 
-    def on_doble_click_or_enter(self, column_view, position, explorer, entry):
+    def on_doble_click_or_enter(
+        self,
+        column_view: "Explorer",  # noqa: F821
+        position: int,
+        explorer: "Explorer",  # noqa: F821
+        entry: Gtk.Entry,
+    ) -> None:
         """
-        Doble click en una fila de directorio y entra en él. Click en '..' y atrasamos un directorio en el path. No abre archivos actualmente
+        Double-click a directory row and navigate to it. Click '..'
+        and move one directory forward in the path. It doesn't currently
+        open files.
         """
         file_or_directory = explorer.selection.get_item(position)
 
@@ -60,10 +65,11 @@ class Actions:
         if type_str == "FILE" or type_str == "LN BREAK":
             try:
                 subprocess.run(["xdg-open", path])
-            except Exception as e:
+            except Exception:
                 self.show_msg_alert(
                     self.parent,
-                    f"Ha ocurrido algun problema al intentar ejecutar el archivo:\n{path}",
+                    f"""Ha ocurrido algun problema al intentar ejecutar el
+                     archivo:\n{path}""",
                 )
             return
 
@@ -85,9 +91,11 @@ class Actions:
 
         self.change_path(explorer, path)
 
-    def show_msg_alert(self, parent, text_input: str):
+    def show_msg_alert(
+        self, parent: Gtk.ApplicationWindow, text_input: str
+    ) -> None:
         """
-        Mensaje de alerta genérico, se le pasa el texto deseado
+        Generic alert message, the desired text is passed to it
         """
         dialog = Gtk.MessageDialog(
             transient_for=parent,
@@ -99,10 +107,13 @@ class Actions:
         dialog.connect("response", lambda d, r: d.destroy())
         dialog.present()
 
-    @staticmethod
-    def set_explorer_to_focused(explorer_to_focused, win):
+    def set_explorer_to_focused(
+        self,
+        explorer_to_focused: "Explorer",  # noqa: F821
+        win: Gtk.ApplicationWindow,
+    ) -> None:
         """
-        Gestión de qué explorador tiene el foco
+        Managing which browser has focus
         """
         explorer_left = win.explorer_1
         explorer_right = win.explorer_2
