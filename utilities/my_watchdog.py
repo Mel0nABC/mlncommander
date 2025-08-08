@@ -1,9 +1,10 @@
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import time, gi
-from gi.repository import GLib
 from pathlib import Path
-from utilities.file_manager import File_manager
+import time
+import gi
+
+gi.require_version("Gtk", "4.0")
 
 
 class My_watchdog:
@@ -13,8 +14,13 @@ class My_watchdog:
         self.explorer = explorer
 
     def start(self):
+        """
+        Initialize watchdog
+        """
         self.observer.schedule(
-            MiHandler(self.path, self.explorer), path=self.path, recursive=False
+            MiHandler(self.path, self.explorer),
+            path=self.path,
+            recursive=False,
         )
         self.observer.start()
 
@@ -26,32 +32,40 @@ class My_watchdog:
             self.stop()
 
     def stop(self):
+        """
+        Stop watchdog
+        """
         self.observer.stop()
         self.observer.join()
 
 
 class MiHandler(FileSystemEventHandler):
+    """
+    Control diferent events handler
+    """
+
     def __init__(self, path, explorer):
         self.explorer = explorer
         self.path = Path(path)
 
-    def on_created(self, event):
+    def on_created(self, event) -> None:
         # print(f"Archivo creado: {event.src_path}")
         self.load_new_path(self.path)
 
-    def on_deleted(self, event):
+    def on_deleted(self, event) -> None:
         # print(f"Archivo eliminado: {event.src_path}")
         self.load_new_path(self.path)
 
-    def on_modified(self, event):
+    def on_modified(self, event) -> None:
         # print(f"Archivo modificado: {event.src_path}")
         self.load_new_path(self.path)
 
-    def on_moved(self, event):
+    def on_moved(self, event) -> None:
         # print(f"Archivo movido: {event.src_path} → {event.dest_path}")
         self.load_new_path(self.path)
 
     def load_new_path(self, path):
         path = Path(path)
-        if path.exists():
-            GLib.idle_add(self.explorer.load_data, path)
+        # if path.exists():
+        #     print("WATCHDOG")
+        # GLib.idle_add(self.explorer.load_data, path)

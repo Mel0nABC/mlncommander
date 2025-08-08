@@ -6,12 +6,19 @@ from views.overwrite_options import Overwrite_dialog
 from views.selected_for_copy_move import Selected_for_copy_move
 from views.moving import Moving
 from utilities.rename import Rename_Logic
-import gi, os, time, shutil, asyncio, threading, multiprocessing
-from gi.repository import GLib
+from views.explorer import Explorer
+import os
+import time
+import shutil
+import asyncio
+import threading
+from asyncio import Future
+from typing import Any
+from gi.repository import GLib, Gtk
 
 
 class Move:
-    def __init__(self, parent: Window):
+    def __init__(self, parent):
         self.action = Actions()
         self.parent = parent
         self.progress_on = False
@@ -35,7 +42,8 @@ class Move:
         if not explorer_dst:
             self.action.show_msg_alert(
                 self.parent,
-                "Ha ocurrido un problema con la ventana de destino,reinicie la aplicación.",
+                """Ha ocurrido un problema con la ventana de destino,
+                reinicie la aplicación.""",
             )
             return
 
@@ -53,11 +61,15 @@ class Move:
 
     async def create_dialog_moving(
         self,
-        parent: Window,
+        parent: Gtk.ApplicationWindow,
         explorer_src: Explorer,
         explorer_dst: Explorer,
         selected_items: list,
     ) -> None:
+        """
+        Create dialog, show files or directorys to move and need
+        response, accept or cancel
+        """
         selected_for_moving = Selected_for_copy_move(
             parent,
             explorer_src,
@@ -70,7 +82,9 @@ class Move:
         if not response:
             return
 
-        thread_update_dialog = threading.Thread(target=self.update_dialog_moving)
+        thread_update_dialog = threading.Thread(
+            target=self.update_dialog_moving
+        )
 
         self.moving_dialog = Moving(self.parent)
         self.moving_dialog.present()
@@ -82,6 +96,9 @@ class Move:
         self.progress_on = False
 
     def update_dialog_moving(self) -> None:
+        """
+        Updates information about transferred files and runs in a thread
+        """
         while self.progress_on:
             time.sleep(0.1)
             if self.moving_dialog is not None:
@@ -94,6 +111,9 @@ class Move:
         explorer_src: Explorer,
         explorer_dst: Explorer,
     ) -> None:
+        """
+        Traverse all subdirectories if required, all in a new thread
+        """
 
         total_files, total_size = self.count_files_and_size(selected_items)
 
@@ -128,7 +148,10 @@ class Move:
                 if dst_info.exists():
                     new_selected_items = list(src_info.iterdir())
                     self.iterate_folders(
-                        new_selected_items, dst_info, explorer_src, explorer_dst
+                        new_selected_items,
+                        dst_info,
+                        explorer_src,
+                        explorer_dst,
                     )
             else:
                 self.moving_dialog.set_labels(src_info, dst_info)
@@ -176,7 +199,7 @@ class Move:
 
     def overwrite_with_type(
         self,
-        parent: Window,
+        parent,
         src_info: Path,
         dst_info: Path,
         explorer_src: Explorer,
@@ -213,7 +236,9 @@ class Move:
 
             GLib.idle_add(
                 lambda: (
-                    asyncio.ensure_future(self.create_dialog_rename(parent, dst_info)),
+                    asyncio.ensure_future(
+                        self.create_dialog_rename(parent, dst_info)
+                    ),
                     False,
                 )[1]
             )
@@ -237,13 +262,21 @@ class Move:
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     parent,
-                    f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
+                    f"""El nombre del fichero ya existe\nDestino:"
+                    {self.new_name}\n"
+                    Se ha hecho  una copia con:\nSource: {self.emergency_name}
+                    """,
                 )
             else:
                 self.moving_dialog.set_labels(src_info, self.new_name)
                 shutil.move(src_info, self.new_name)
 
-    async def create_dialog_rename(self, parent: Window, dst_info: Path) -> None:
+    async def create_dialog_rename(
+        self, parent: Gtk.ApplicationWindow, dst_info: Path
+    ) -> None:
+        """
+        When file exist and select rename option, create dialog to set new name
+        """
         rename_logic = Rename_Logic()
         self.rename_response = await rename_logic.create_dialog_rename(
             self.parent, dst_info
@@ -253,7 +286,7 @@ class Move:
         self.rename_event.set()
 
     async def overwrite_dialog(
-        self, parent: Window, src_info: Path, dst_info: Path
+        self, parent, src_info: Path, dst_info: Path
     ) -> None:
 
         dialog_response = await self.create_response_overwrite(
@@ -264,13 +297,20 @@ class Move:
         self.event_overwrite.set()
 
     async def create_response_overwrite(
-        self, parent: Window, src_info: Path, dst_info: Path
+        self, parent, src_info: Path, dst_info: Path
     ) -> Future[Any]:
+        """
+        Overwrite dialog, show all options
+        """
         dialog = Overwrite_dialog(parent, src_info, dst_info)
         response = await dialog.wait_response_async()
         return response
 
     def count_files_and_size(self, selected_items: list) -> tuple[int, int]:
+        """
+        Counts files and adds up their size
+        """
+
         total_files = 0
         total_size = 0
 

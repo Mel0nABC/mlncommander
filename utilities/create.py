@@ -1,13 +1,13 @@
 from __future__ import annotations
 from controls.Actions import Actions
 from pathlib import Path
-from datetime import datetime
-from views.overwrite_options import Overwrite_dialog
 from views.create_dir_dialog import Create_dir_dialog
 from views.explorer import Explorer
-from views.copying import Copying
-import gi, os, time, shutil, asyncio, threading, multiprocessing
-from gi.repository import GLib
+import asyncio
+import gi
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import GLib, Gtk  # noqa:E402
 
 
 class Create:
@@ -19,7 +19,7 @@ class Create:
         self,
         explorer_dst: Explorer,
         other_explorer: Explorer,
-        parent: Window,
+        parent: Gtk.ApplicationWindow,
         button=None,
     ) -> None:
         """
@@ -35,14 +35,23 @@ class Create:
         )
 
     async def on_create_dir_async(
-        self, explorer_dst: Explorer, other_explorer: Explorer, parent: Window
+        self,
+        explorer_dst: Explorer,
+        other_explorer: Explorer,
+        parent: Gtk.ApplicationWindow,
     ) -> None:
+        """
+        Launches the dialog window to create a new directory
+        """
+
         create_dir = Create_dir_dialog(parent, explorer_dst)
         response = await create_dir.wait_response_async()
         dst_dir = Path(f"{explorer_dst.actual_path}/{response}")
 
         if explorer_dst.actual_path == dst_dir or not response.strip():
-            self.action.show_msg_alert(parent, "Debes introducir algún nombre válido.")
+            self.action.show_msg_alert(
+                parent, "Debes introducir algún nombre válido."
+            )
             return
 
         if dst_dir.exists():
@@ -54,15 +63,19 @@ class Create:
         if dst_dir.name == "None":
             return
 
-        os.mkdir(dst_dir)
+        dst_dir.mkdir()
         explorer_dst.load_data(explorer_dst.actual_path)
 
         if other_explorer.actual_path == explorer_dst.actual_path:
             other_explorer.load_data(explorer_dst.actual_path)
 
-        row_number = 0
-        for index, item in enumerate(explorer_dst.store):
-            if dst_dir == item.path_file:
-                row_number = index
-        explorer_dst.grab_focus()
-        explorer_dst.scroll_to(row_number, None, explorer_dst.flags)
+        self.action.set_explorer_to_focused(explorer_dst, parent)
+
+        new_n_row = 0
+        for i, item in enumerate(explorer_dst.store):
+            if dst_dir.name == item.name:
+                new_n_row = i
+
+        GLib.idle_add(
+            explorer_dst.scroll_to, new_n_row, None, explorer_dst.flags
+        )

@@ -1,11 +1,15 @@
 from controls.Actions import Actions
 from pathlib import Path
-from datetime import datetime
-from views.copying import Copying
+from asyncio import Future
+from views.explorer import Explorer
 from views.selected_for_delete import Selected_for_delete
 from views.deleting import Deleting
-import gi, os, time, shutil, asyncio, threading, multiprocessing, traceback, subprocess
-from gi.repository import GLib
+import gi
+import asyncio
+import threading
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import GLib, Gtk  # noqa: E402
 
 
 class Remove:
@@ -15,9 +19,14 @@ class Remove:
         self.dialog_deleting = None
         self.stop_deleting = False
 
-    def on_delete(self, explorer_src, explorer_dst, parent):
+    def on_delete(
+        self,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        parent: Gtk.ApplicationWindow,
+    ) -> None:
         """
-        Eliminar archivos y directorios, sin vuelta atrás.
+        Remove files or directory, no undo support
 
         """
         src_info = explorer_src.actual_path
@@ -25,7 +34,8 @@ class Remove:
         if not src_info.exists():
             self.action.show_msg_alert(
                 parent,
-                "Ha surgido algún problema al intentar eliminar la ubicacion seleccionada",
+                """Ha surgido algún problema al
+                 intentar eliminar la ubicacion seleccionada""",
             )
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
@@ -37,12 +47,21 @@ class Remove:
             return
 
         asyncio.ensure_future(
-            self.delete_select(parent, explorer_src, explorer_dst, selected_items)
+            self.delete_select(
+                parent, explorer_src, explorer_dst, selected_items
+            )
         )
 
-    async def delete_select(self, parent, explorer_src, explorer_dst, selected_items):
+    async def delete_select(
+        self,
+        parent: Gtk.ApplicationWindow,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        selected_items: list,
+    ) -> None:
         """
-        Pide  confirmación sobre que eliminar y lo realiza, borra el contenido de directorios.
+        It asks for confirmation about what to delete and does
+        so, deleting the contents of directories.
         """
         response = await self.create_dialog_selected_for_delete(
             parent, explorer_src, selected_items
@@ -55,7 +74,9 @@ class Remove:
             args=(selected_items, explorer_src, explorer_dst, parent),
         )
 
-        response = await self.create_dialog_deleting(parent, explorer_src.actual_path)
+        response = await self.create_dialog_deleting(
+            parent, explorer_src.actual_path
+        )
 
         if not response:
             self.stop_deleting = True
@@ -63,10 +84,20 @@ class Remove:
                 parent, "Se detubo el proceso de borrado antes de finalizar."
             )
 
-    def delete_now(self, selected_items, explorer_src, explorer_dst, parent):
+    def delete_now(
+        self,
+        selected_items: list,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        parent: Gtk.ApplicationWindow,
+    ) -> None:
+        """
+        Proccess to delete files or directorys, no undo option
+        """
 
         for item in selected_items:
-            # Validates When a browser is inside a subdirectory of what is to be deleted
+            # Validates When a browser is inside a subdirectory
+            # of what is to be deleted
             if item.is_dir():
                 folder = item.resolve()
                 subfolder = explorer_dst.actual_path.resolve()
@@ -97,30 +128,36 @@ class Remove:
                     except Exception as e:
                         print(f"❌ Error al eliminar archivo {item}: {e}")
 
-        GLib.idle_add(explorer_src.load_data, explorer_src.actual_path)
-        GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
-
         if explorer_src.actual_path == explorer_dst.actual_path:
             GLib.idle_add(explorer_dst.load_data, explorer_dst.actual_path)
 
         GLib.idle_add(self.dialog_deleting.finish_deleting)
+        GLib.idle_add(explorer_src.load_data, explorer_src.actual_path)
+        GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
 
-    async def create_dialog_deleting(self, parent, src_info):
+    async def create_dialog_selected_for_delete(
+        self,
+        parent: Gtk.ApplicationWindow,
+        explorer_src: Explorer,
+        selected_items: list,
+    ) -> Future[bool]:
         """
-        Crea dialog mostrando info del archivo que se está copiando
+        Displays the confirmation dialog before calling delete_now()
+        """
+        selected_for_delete = Selected_for_delete(
+            parent, explorer_src, selected_items
+        )
+        response = await selected_for_delete.wait_response_async()
+        return response
+
+    async def create_dialog_deleting(
+        self, parent: Gtk.ApplicationWindow, src_info: Path
+    ) -> Future[bool]:
+        """
+        Creates dialog showing information about the file being deleted
         """
         self.dialog_deleting = Deleting(parent, src_info)
         self.thread_update_deleting.start()
         self.dialog_deleting.update_labels(src_info)
         response = await self.dialog_deleting.wait_response_async()
-        return response
-
-    async def create_dialog_selected_for_delete(
-        self, parent, explorer_src, selected_items
-    ):
-        """
-        Muestra el dialog de confirmación antes de iniciar delete_now()
-        """
-        selected_for_delete = Selected_for_delete(parent, explorer_src, selected_items)
-        response = await selected_for_delete.wait_response_async()
         return response

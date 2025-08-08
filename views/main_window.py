@@ -1,5 +1,5 @@
 import gi
-from gi.repository import Gtk
+
 from controls import Action_keys
 from views.menu_bar import Menu_bar
 from views.header import header
@@ -13,6 +13,7 @@ from pathlib import Path
 import tkinter as tk
 
 gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk  # noqa E402
 
 
 class Window(Gtk.ApplicationWindow):

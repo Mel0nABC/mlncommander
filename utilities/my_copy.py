@@ -1,14 +1,22 @@
 from controls.Actions import Actions
 from pathlib import Path
+from multiprocessing import Process
 from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
 from views.selected_for_copy_move import Selected_for_copy_move
 from views.copying import Copying
+from views.explorer import Explorer
 from utilities.rename import Rename_Logic
-import gi, os, time, shutil, asyncio, threading, multiprocessing
-from threading import Event
-from gi.repository import GLib
-from multiprocessing import Process
+from asyncio import Future
+import gi
+import os
+import time
+import shutil
+import asyncio
+import threading
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import GLib, Gtk  # noqa: E402
 
 
 class My_copy:
@@ -23,9 +31,14 @@ class My_copy:
         self.all_files = False
         self.stop_all = False
 
-    def on_copy(self, explorer_src, explorer_dst, parent):
+    def on_copy(
+        self,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        parent: Gtk.ApplicationWindow,
+    ) -> None:
         """
-        Inicio para copiar ficheros o directorios.
+        Start to copy files or directories.
         """
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
@@ -39,7 +52,8 @@ class My_copy:
         if not explorer_dst:
             self.action.show_msg_alert(
                 parent,
-                "Ha ocurrido un problema con la ventana de destino,reinicie la aplicación.",
+                """Ha ocurrido un problema con la
+                 ventana de destino,reinicie la aplicación.""",
             )
             return
 
@@ -47,7 +61,9 @@ class My_copy:
         dst_dir = explorer_dst.actual_path
 
         if src_dir == dst_dir:
-            self.action.show_msg_alert(parent, "Intentar copiar un archivo a él mismo")
+            self.action.show_msg_alert(
+                parent, "Intentar copiar un archivo a él mismo"
+            )
             return
 
         if not selected_items:
@@ -62,13 +78,19 @@ class My_copy:
         )
 
     async def copy_proccess(
-        self, parent, selected_items, dst_dir, explorer_src, explorer_dst
-    ):
+        self,
+        parent: Gtk.ApplicationWindow,
+        selected_items: list,
+        dst_dir: Path,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+    ) -> None:
         """
-        Recorre los ficheros o directorios de la lista recibida (selected_items) y los filtra según que hay  en destino
+        It scans the files or directories in the received list
+        (selected_items) and filters them according to what is
+        in the destination.
         """
 
-        src_dir = explorer_src.actual_path
         dst_dir = explorer_dst.actual_path
 
         response = await self.create_dialog_selected_for_copy_move(
@@ -105,8 +127,19 @@ class My_copy:
             self.thread_copy.terminate()
 
     def iterate_folders(
-        self, parent, selected_items, dst_dir, explorer_src, explorer_dst
-    ):
+        self,
+        parent: Gtk.ApplicationWindow,
+        selected_items: list,
+        dst_dir: Path,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+    ) -> None:
+        """
+        It scans all directories and copies and creates them
+        if they don't exist.It copies files that don't exist,
+        and asks what to do if they do.
+
+        """
 
         for src_info in selected_items:
 
@@ -122,7 +155,8 @@ class My_copy:
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     parent,
-                    "No se puede copiar en esta ruta, se genera bucle infinito.",
+                    """No se puede copiar en esta ruta,
+                     se genera bucle infinito.""",
                 )
                 continue
 
@@ -154,7 +188,9 @@ class My_copy:
                         GLib.idle_add(
                             lambda: (
                                 asyncio.ensure_future(
-                                    self.overwrite_dialog(parent, src_info, dst_info)
+                                    self.overwrite_dialog(
+                                        parent, src_info, dst_info
+                                    )
                                 ),
                                 False,
                             )[1]
@@ -184,7 +220,12 @@ class My_copy:
             self.progress_on = False
             self.thread_update_dialog.join()
 
-    async def overwrite_dialog(self, parent, src_info, dst_info):
+    async def overwrite_dialog(
+        self, parent: Gtk.ApplicationWindow, src_info: Path, dst_info: Path
+    ) -> None:
+        """
+        Opens dialog to answer what to do if the file exists
+        """
         dialog_response = await self.create_response_overwrite(
             parent, src_info, dst_info
         )
@@ -197,13 +238,16 @@ class My_copy:
         response = await dialog.wait_response_async()
         return response
 
-    def copy_file(self, src_info, dst_info):
+    def copy_file(self, src_info: Path, dst_info: Path) -> bool:
         """
-        copia ficheros de un src a su dst, devuelve true  si se copió , false si no.
+        copies files from a src to its dst, returns true if
+        copied, false otherwise.
         """
 
         # Use multiprocessing to terminae on cancel copy
-        self.thread_copy = Process(target=shutil.copy, args=(src_info, dst_info))
+        self.thread_copy = Process(
+            target=shutil.copy, args=(src_info, dst_info)
+        )
         self.thread_copy.start()
         self.thread_copy.join()
 
@@ -213,10 +257,16 @@ class My_copy:
             return False
 
     def overwrite_with_type(
-        self, parent, src_info, dst_info, explorer_src, explorer_dst, response_type
-    ):
+        self,
+        parent: Gtk.ApplicationWindow,
+        src_info: Path,
+        dst_info: Path,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        response_type: str,
+    ) -> None:
         """
-        En base al valor de response_type, realiza una acción u otra
+        Based on the value of response_type, perform one action or another
         """
 
         if response_type == "overwrite":
@@ -237,7 +287,9 @@ class My_copy:
 
             GLib.idle_add(
                 lambda: (
-                    asyncio.ensure_future(self.create_dialog_rename(parent, dst_info)),
+                    asyncio.ensure_future(
+                        self.create_dialog_rename(parent, dst_info)
+                    ),
                     False,
                 )[1]
             )
@@ -260,15 +312,25 @@ class My_copy:
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     parent,
-                    f"El nombre del fichero ya existe\nDestino:{self.new_name}\nSe ha hecho  una copia con:\nSource: {self.emergency_name}",
+                    f"""El nombre del fichero ya existe\n
+                    Destino:{self.new_name}\n
+                    Se ha hecho  una copia con:\n
+                    Source: {self.emergency_name}""",
                 )
             else:
                 self.copying_dialog.set_labels(src_info, self.new_name)
                 self.copy_file(src_info, self.new_name)
 
-    def overwrite(self, parent, src_info, dst_info, explorer_dst):
+    def overwrite(
+        self,
+        parent: Gtk.ApplicationWindow,
+        src_info: Path,
+        dst_info: Path,
+        explorer_dst: Explorer,
+    ) -> None:
         """
-        Cuando va a sobre escribir, renombra  el archivo viejo hasta que se copie correctamente el nuevo
+        When you overwrite, it renames the old file until
+        the new one is copied successfully.
         """
         dst_old_name = f"{dst_info}.old"
         dst_old_file = Path(dst_old_name)
@@ -276,25 +338,23 @@ class My_copy:
             os.remove(dst_old_file)
         os.rename(dst_info, dst_old_name)
 
-        if dst_old_file.exists():
-            if src_info.is_dir():
-                # TODO: COPY WITH COPY TREE, NO LONGER USED, NEED REFACTOR THIS SECTION
-                shutil.copytree(src_info, dst_info)
-                shutil.rmtree(dst_old_file)
-            else:
-                result = self.copy_file(src_info, dst_info)
+        result = self.copy_file(src_info, dst_info)
 
-                if result:
-                    os.remove(dst_old_file)
-                else:
-                    os.remove(dst_info)
-                    os.rename(dst_old_file, dst_info)
+        if result:
+            os.remove(dst_old_file)
+        else:
+            os.remove(dst_info)
+            os.rename(dst_old_file, dst_info)
 
     async def create_dialog_selected_for_copy_move(
-        self, parent, explorer_src, explorer_dst, selected_items
-    ):
+        self,
+        parent: Gtk.ApplicationWindow,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        selected_items: list,
+    ) -> Future[bool]:
         """
-        Crea dialog de la lista seleccionada para copiar
+        Create dialog from the selected list to copy
         """
 
         selected_for_copy = Selected_for_copy_move(
@@ -307,9 +367,11 @@ class My_copy:
         response = await selected_for_copy.wait_response_async()
         return response
 
-    async def create_dialog_copying(self, parent):
+    async def create_dialog_copying(
+        self, parent: Gtk.ApplicationWindow
+    ) -> Future[bool]:
         """
-        Crea dialog mostrando info del archivo que se está copiando
+        Creates dialog showing information about the file being copied
         """
         self.copying_dialog = Copying(parent)
         self.copying_dialog.present()
@@ -317,14 +379,18 @@ class My_copy:
         response = await self.copying_dialog.wait_response_async()
         return response
 
-    async def create_dialog_rename(self, parent, dst_info):
+    async def create_dialog_rename(
+        self, parent: Gtk.ApplicationWindow, dst_info: Path
+    ) -> None:
         rename_logic = Rename_Logic()
-        self.rename_response = await rename_logic.create_dialog_rename(parent, dst_info)
+        self.rename_response = await rename_logic.create_dialog_rename(
+            parent, dst_info
+        )
         if not self.rename_response:
             self.cancel_rename = True
         self.rename_event.set()
 
-    def update_dialog_copying(self, parent):
+    def update_dialog_copying(self, parent: Gtk.ApplicationWindow) -> None:
         """
         Actualiza la  información que muestra el dialog Copying()
         """

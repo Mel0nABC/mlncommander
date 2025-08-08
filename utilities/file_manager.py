@@ -1,16 +1,16 @@
 from entity.File_or_directory_info import File_or_directory_info
+from pathlib import Path
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gio, Gtk
-from pathlib import Path
+from gi.repository import Gio  # noqa: E402
 
 
 class File_manager:
 
     def get_path_list(path: Path) -> Gio.ListStore:
         """
-        Returns list of files and directorys on Gio.ListStore
+        Returns io.ListStore of files and directorys from path "path"
         """
         list_content = Gio.ListStore.new(File_or_directory_info)
 
@@ -35,7 +35,6 @@ class File_manager:
             print(f"Excepción {e}")
         return list_content
 
-    @staticmethod
     def custom_key(path: Path) -> tuple[int, str]:
         """
         Sort first list_content, '..' first, directorys on midle and files last

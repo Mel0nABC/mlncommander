@@ -2,7 +2,7 @@ import threading
 import asyncio
 import time
 import gi
-from gi.repository import Gtk, GLib, Pango
+
 from utilities.file_manager import File_manager
 from controls.Actions import Actions
 from pathlib import Path
@@ -13,6 +13,7 @@ from icons.icon_manager import IconManager
 from css.explorer_css import Css_explorer_manager
 
 gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, GLib, Pango  # noqa E402
 
 
 class Explorer(Gtk.ColumnView):
@@ -67,6 +68,11 @@ class Explorer(Gtk.ColumnView):
             property_expression = Gtk.PropertyExpression.new(
                 File_or_directory_info, None, property_name
             )
+
+            # if property_name == "type_str":
+            #     column.set_fixed_width(5)
+            # else:
+            #     column.set_fixed_width(-1)
 
             sorter = Gtk.StringSorter.new(property_expression)
             column.set_sorter(sorter)
@@ -189,6 +195,16 @@ class Explorer(Gtk.ColumnView):
                 column.set_fixed_width(20)
             else:
                 column.set_fixed_width(70)
+
+        return False
+
+    def update_column(self, column: Gtk.ColumnViewColumn):
+        title = column.get_title()
+        print(f"TITLE: {title}")
+        if title == "TYPE_STR":
+            column.set_fixed_width(20)
+        else:
+            column.set_fixed_width(100)
 
         return False
 
