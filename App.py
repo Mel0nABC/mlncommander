@@ -1,35 +1,32 @@
 from views.main_window import Window
 from controls.Actions import Actions
-import sys, gi, os, time, asyncio
-from pathlib import Path
+import gbulb
+import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib
+from gi.repository import Gtk  # noqa: E402
 
-import gbulb
 
-gbulb.install()  # Esto integra asyncio con GTK
+gbulb.install()  # Integrate asyncio into Gtk
 
 
 class App(Gtk.Application):
 
     def __init__(self):
+        """
+        Constructor
+        """
         super().__init__(application_id="com.mel0n.mlncommander")
 
-    def do_activate(self):
+    def do_activate(self) -> None:
+        """
+        Initializes the application when the run() method is executed
+        """
         action = Actions()
         self.window = Window(self, action)
         action.set_parent(self.window)
         self.window.present()
         self.window.set_explorer_initial()
-
-    def get_application(self):
-        return self.win
-
-
-# print(Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
-# print(hasattr(Gtk, "PropertySorter"))
-# print(Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION)
 
 
 app = App()

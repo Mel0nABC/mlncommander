@@ -1,10 +1,10 @@
 import stat
 from pathlib import Path
 from datetime import datetime
-import gi, os
+import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import GObject
+from gi.repository import GObject  # noqa: E402
 
 
 class File_or_directory_info(GObject.Object):
@@ -21,7 +21,7 @@ class File_or_directory_info(GObject.Object):
     is_sys_link = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
     path_exist = GObject.property(type=GObject.TYPE_BOOLEAN, default=True)
 
-    def __init__(self, path):
+    def __init__(self, path: Path):
         super().__init__()
         self.path: str = path
         self.path_file = Path(path)
@@ -32,18 +32,32 @@ class File_or_directory_info(GObject.Object):
         self.selected = False
         self.KBYTES = 1024
 
+        self.filter_file_or_sys_link()
+
+    def filter_file_or_sys_link(self) -> None:
+        """
+        Filters whether the file is a working syslink or not
+        """
+
         # Filtered if it is a syslink and if its destination exists.
         if self.is_sys_link and not self.path_file.exists():
-            # It is a syslink but its destination is not available or does not exist.
+            # It is a syslink but its destination is not available or does
+            # not exist.
             self.type = "LN BREAK"
             self.size = "0 bytes"
             self.date_created_str = "01/01/1970 00:00"
             self.permissions = "l---------"
         else:
             # Normal files or folders, including working syslinks
-            self.permissions: str = stat.filemode(self.path_file.stat().st_mode)
-            _date_created = datetime.fromtimestamp(self.path_file.stat().st_ctime)
-            self.date_created_str: str = _date_created.strftime("%d/%m/%Y %H:%M")
+            self.permissions: str = stat.filemode(
+                self.path_file.stat().st_mode
+            )
+            _date_created = datetime.fromtimestamp(
+                self.path_file.stat().st_ctime
+            )
+            self.date_created_str: str = _date_created.strftime(
+                "%d/%m/%Y %H:%M"
+            )
             if self.is_directory:
                 self.size = "DIR"
                 self.type = "DIR"
@@ -53,27 +67,10 @@ class File_or_directory_info(GObject.Object):
 
                 self.size = self.get_size_and_unit(int(self.size))
 
-    def get_absolute_path(self):
-        return self.path
-
-    def get_name(self):
-        return self.name
-
-    def get_is_directory(self):
-        return self.is_directory
-
-    def get_permissions(self):
-        return self.permissions
-
-    def get_create_date(self):
-        return self.date_created_str
-
-    def get_size(self):
-        return self.size
-
     def get_size_and_unit(self, bytes_int: int) -> str:
         """
-        Transforms bytes to the unit immediately preceding having decimal type 0.9 and assigns the unit
+        Transforms bytes to the unit immediately preceding having decimal
+        type 0.9 and assigns the unit
         """
         start = True
         count = 0
@@ -106,28 +103,3 @@ class File_or_directory_info(GObject.Object):
             unit = "TB"
 
         return f"{round(bytes_int, 2)}{unit}"
-
-    # def __str__(self):
-    #     output: str = ""
-    #     if self.is_directory:
-    #         output = "Directory"
-    #     else:
-    #         output = "File"
-
-    #     return f"File_or_directory_info(type={output},name={self.path_file.name},size={self.size},date={self.date_created_str},permissions={self.permissions})"
-
-    # def __repr__(self):
-    #     file_or_directory = ""
-    #     if self.is_directory:
-    #         file_or_directory = "directory"
-    #     else:
-    #         file_or_directory = "file"
-
-    #     return f"File_or_directory_info(type={file_or_directory!r},name={self.path_file.name!r},size={self.size!r},date={self.date_created_str!r},permissions={self.permissions!r})"
-
-    def __eq__(self, other):
-        return isinstance(other, File_or_directory_info) and self.path == other.path
-
-    def __hash__(self):
-        print("HASH")
-        return hash(self.path)

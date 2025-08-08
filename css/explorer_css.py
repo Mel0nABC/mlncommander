@@ -6,7 +6,7 @@ gi.require_version("Gtk", "4.0")
 
 class Css_explorer_manager:
 
-    def __init__(self, win):
+    def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
         self.background_explorer_color = "#222226"
         self.font_size_explorer = 15
@@ -14,7 +14,7 @@ class Css_explorer_manager:
         self.background_search_color = "black"
         self.font_bold_explorer = "bold"
 
-    def load_css_explorer_background(self):
+    def load_css_explorer_background(self) -> None:
         """
         Sets the text color when using the search function for files
         or directories
@@ -32,7 +32,7 @@ class Css_explorer_manager:
 
         self.set_css_to_provider(css)
 
-    def set_css_to_provider(self, css_code: str):
+    def set_css_to_provider(self, css_code: str) -> None:
         """
         Create a provider for CSS and load the provided CSS code.
         """
@@ -45,7 +45,7 @@ class Css_explorer_manager:
             Gtk.STYLE_PROVIDER_PRIORITY_USER,
         )
 
-    def load_css_background_search(self):
+    def load_css_background_search(self) -> None:
         """
         Sets the background color when using the search function for files
          or directories
@@ -61,7 +61,7 @@ class Css_explorer_manager:
 
         self.set_css_to_provider(css)
 
-    def load_css_explorer_text(self):
+    def load_css_explorer_text(self) -> None:
         """
         Sets the text color when using the search function for files
          or directories
