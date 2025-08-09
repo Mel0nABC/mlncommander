@@ -2,7 +2,7 @@ MLNCommander
 
 MLNCommander is a dual-window file explorer
 
-<img width="128" height="128" alt="mlncommander_transparente" src="https://github.com/user-attachments/assets/0ddcce0e-50ec-4efe-8015-0984bc8e785e" />
+<img width="1743" height="1429" alt="imagen" src="https://github.com/user-attachments/assets/19d06aab-d435-408e-8b94-ba75cf28481b" />
 
 
 <img width="1743" height="1429" alt="image" src="https://github.com/user-attachments/assets/9fdc75f6-8f12-45d3-8a1d-f11fe3414d97" />
@@ -60,8 +60,10 @@ F5 > Copy
 F6 > Move
 F7 > Create Directory
 F8 > Delete
+F9 > Generate duplicate (copy)
 F10 > Opens File menu, the Yes button closes it.
 Tab > Switch Browser
+Ctrl+O > In the opposite explorer, open the selected folder or, if you are in a file, the same folder
 
 Enable search:
 
