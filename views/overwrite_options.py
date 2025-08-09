@@ -19,6 +19,7 @@ class Overwrite_dialog(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
+
         self.src_info = File_or_directory_info(src_info)
         self.dst_info = File_or_directory_info(dst_info)
         self.response = None
@@ -107,7 +108,7 @@ class Overwrite_dialog(Gtk.Dialog):
         self.vertical_box.set_margin_start(20)
         self.vertical_box.set_margin_end(20)
 
-        self.vertical_box.append(self.botobtn_skip)
+        self.vertical_box.append(self.btn_skip)
         self.vertical_box.append(self.btn_overwrite)
         self.vertical_box.append(self.btn_over_old)
         self.vertical_box.append(self.btn_over_size)
