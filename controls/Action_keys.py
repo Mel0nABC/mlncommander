@@ -186,6 +186,12 @@ def handle_search_keys(
 
         # File and folder name search system, character deletion
         search_word = explorer_src.search_str_entry.get_text()[:-1]
+        search_entry_text = f"Buscando: {search_word}"
+        if explorer_src.name == "explorer_1":
+            win.vertical_entry_1.set_text(search_entry_text)
+        else:
+            win.vertical_entry_2.set_text(search_entry_text)
+
         if search_word != "":
             explorer_src.set_str_search_backspace(search_word)
 
@@ -248,6 +254,11 @@ def find_name_path(
     """
 
     explorer_src.set_str_search(search_word)
+    search_entry_text = f"Buscando: {search_word}"
+    if explorer_src.name == "explorer_1":
+        win.vertical_entry_1.set_text(search_entry_text)
+    else:
+        win.vertical_entry_2.set_text(search_entry_text)
 
     # We load actual dir store
     store = explorer_src.store
