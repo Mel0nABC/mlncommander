@@ -2,11 +2,7 @@ MLNCommander
 
 MLNCommander is a dual-window file explorer
 
-<img width="1743" height="1429" alt="imagen" src="https://github.com/user-attachments/assets/19d06aab-d435-408e-8b94-ba75cf28481b" />
-
-
-<img width="1743" height="1429" alt="image" src="https://github.com/user-attachments/assets/9fdc75f6-8f12-45d3-8a1d-f11fe3414d97" />
-
+<img width="1743" height="1429" alt="imagen" src="https://github.com/user-attachments/assets/76f7277b-8d81-403b-97d8-02ed6074fdfb" />
 
 
 Filtered by name:
