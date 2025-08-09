@@ -9,12 +9,7 @@ Filtered by name:
 
 It has filtering to search the beginning of files and directories, just type.
 
-<img width="887" height="291" alt="image-2" src="https://github.com/user-attachments/assets/348ffcef-68b9-4dca-9301-3b081b048a30" />
-
-
-Indicate below what you are looking for
-
-<img width="418" height="166" alt="image-3" src="https://github.com/user-attachments/assets/1a080b4b-b646-4729-9957-36f7b3ea2342" />
+<img width="888" height="289" alt="imagen" src="https://github.com/user-attachments/assets/bd16cfec-100f-4f5d-ab7d-ecf853280d50" />
 
 
 After 5 seconds, pressing Escape or switching focus to the other browser cancels the search and returns to the normal window.
