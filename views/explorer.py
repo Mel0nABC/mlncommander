@@ -150,7 +150,7 @@ class Explorer(Gtk.ColumnView):
             if not path.is_dir():
                 path = path.parent
 
-        other_explorer.load_data(path)
+        other_explorer.load_new_path(path)
 
         GLib.idle_add(self._reeconnect_controller)
 
