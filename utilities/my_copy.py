@@ -66,14 +66,55 @@ class My_copy:
             )
             return
 
+        duplicate = False
+        asyncio.ensure_future(
+            self.copy_proccess(
+                parent,
+                selected_items,
+                dst_dir,
+                explorer_src,
+                explorer_dst,
+                duplicate,
+            )
+        )
+
+    def on_duplicate(
+        self,
+        explorer_src: Explorer,
+        explorer_dst: Explorer,
+        parent: Gtk.ApplicationWindow,
+    ) -> None:
+        """
+        Start to copy files or directories.
+        """
+
+        selected_items = explorer_src.get_selected_items_from_explorer()[1]
+
         if not selected_items:
             self.action.show_msg_alert(
                 parent, "Debe seleccionar algún archivo o directorio."
             )
             return
+
+        if not explorer_dst:
+            self.action.show_msg_alert(
+                parent,
+                """Ha ocurrido un problema con la
+                 ventana de destino,reinicie la aplicación.""",
+            )
+            return
+
+        dst_dir = explorer_dst.actual_path
+
+        duplicate = True
         asyncio.ensure_future(
             self.copy_proccess(
-                parent, selected_items, dst_dir, explorer_src, explorer_dst
+                parent,
+                selected_items,
+                dst_dir,
+                explorer_src,
+                explorer_dst,
+                duplicate,
             )
         )
 
@@ -84,6 +125,7 @@ class My_copy:
         dst_dir: Path,
         explorer_src: Explorer,
         explorer_dst: Explorer,
+        duplicate: bool,
     ) -> None:
         """
         It scans the files or directories in the received list
@@ -109,6 +151,7 @@ class My_copy:
                 dst_dir,
                 explorer_src,
                 explorer_dst,
+                duplicate,
             ),
         )
 
@@ -133,6 +176,7 @@ class My_copy:
         dst_dir: Path,
         explorer_src: Explorer,
         explorer_dst: Explorer,
+        duplicate: bool,
     ) -> None:
         """
         It scans all directories and copies and creates them
@@ -147,7 +191,20 @@ class My_copy:
             if self.stop_all:
                 return
 
-            dst_info = Path(f"{dst_dir}/{src_info.name}")
+            # Set name when use copy or duplicate option
+            if duplicate:
+                if src_info.is_dir():
+                    dst_info = Path(f"{dst_dir}/{src_info.name}_copy")
+                else:
+                    file_name = src_info.name
+                    split_name = list(file_name.rpartition("."))
+                    split_name[0] = f"{split_name[0]}_copy"
+                    return_name = "".join(split_name)
+                    print(return_name)
+                    dst_info = Path(f"{dst_dir}/{return_name}")
+            else:
+                dst_info = Path(f"{dst_dir}/{src_info.name}")
+
             bucle_src_error = Path(f"{src_info}/{src_info.name}")
 
             if dst_info.resolve().is_relative_to(bucle_src_error.resolve()):
@@ -166,12 +223,14 @@ class My_copy:
 
                 if dst_info.exists():
                     new_selected_items = list(src_info.iterdir())
+                    duplicate = False
                     self.iterate_folders(
                         parent,
                         new_selected_items,
                         dst_info,
                         explorer_src,
                         explorer_dst,
+                        duplicate,
                     )
             else:
                 self.copying_dialog.set_labels(src_info, dst_info)
@@ -226,9 +285,11 @@ class My_copy:
         """
         Opens dialog to answer what to do if the file exists
         """
+
         dialog_response = await self.create_response_overwrite(
             parent, src_info, dst_info
         )
+
         self.response_dic["response"] = dialog_response["response"]
         self.response_dic["all_files"] = dialog_response["all_files"]
         self.event_overwrite.set()

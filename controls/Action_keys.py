@@ -151,7 +151,9 @@ def handle_file_operation(
         return True
 
     if key_pressed_name == _F9_KEY:
-        print("F9")
+        # Copy
+        my_copy = My_copy()
+        my_copy.on_duplicate(explorer_src, explorer_dst, win)
         return True
 
     if key_pressed_name == _F10_KEY:

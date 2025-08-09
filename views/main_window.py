@@ -164,6 +164,9 @@ class Window(Gtk.ApplicationWindow):
         btn_F8 = Gtk.Button(label="Eliminar < F8 >")
         horizontal_botton_menu.append(btn_F8)
 
+        btn_F9 = Gtk.Button(label="Duplicar < F9 >")
+        horizontal_botton_menu.append(btn_F9)
+
         btn_F10 = Gtk.Button(label="Salir < F10 >")
         horizontal_botton_menu.append(btn_F10)
 
@@ -228,6 +231,14 @@ class Window(Gtk.ApplicationWindow):
         btn_F8.connect(
             "clicked",
             lambda btn: remove.on_delete(
+                self.explorer_src, self.explorer_dst, self
+            ),
+        )
+
+        my_copy = My_copy()
+        btn_F9.connect(
+            "clicked",
+            lambda btn: my_copy.on_duplicate(
                 self.explorer_src, self.explorer_dst, self
             ),
         )
