@@ -1,6 +1,6 @@
-import stat
 from pathlib import Path
 from datetime import datetime
+import os
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -46,12 +46,16 @@ class File_or_directory_info(GObject.Object):
             self.type = "LN BREAK"
             self.size = "0 bytes"
             self.date_created_str = "01/01/1970 00:00"
-            self.permissions = "l---------"
+            self.permissions = "l---"
         else:
-            # Normal files or folders, including working syslinks
-            self.permissions: str = stat.filemode(
-                self.path_file.stat().st_mode
-            )
+
+            t = "-" if os.path.isfile(self.path_file) else "d"
+            r = "r" if os.access(self.path_file, os.R_OK) else "-"
+            w = "w" if os.access(self.path_file, os.W_OK) else "-"
+            x = "x" if os.access(self.path_file, os.X_OK) else "-"
+
+            self.permissions = f"{t}{r}{w}{x}"
+
             _date_created = datetime.fromtimestamp(
                 self.path_file.stat().st_ctime
             )
