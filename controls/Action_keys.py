@@ -241,6 +241,7 @@ def find_name_path(
     # We created a temporary store to delete the non-matches
     output_store = store
 
+    # TODO: Insert multithread search
     for index in reversed(range(len(store))):
         item = store[index]
         if item:

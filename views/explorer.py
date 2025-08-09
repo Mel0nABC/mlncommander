@@ -319,7 +319,8 @@ class Explorer(Gtk.ColumnView):
         total_size_items = 0
         for item in selected_items:
             if not item.is_dir():
-                total_size_items += item.stat().st_size
+                if not item.is_symlink():
+                    total_size_items += item.stat().st_size
 
         temp_file_or_directory = File_or_directory_info("/")
         total_size_items_reduced = temp_file_or_directory.get_size_and_unit(
