@@ -3,11 +3,12 @@
 !LICENCE
 !README.md
 todo.list
-!controls
-!utilities
-!views
-!css
-!entity
+!controls/**
+!utilities/**
+!views/**
+!css/**
+!entity/**
+!.gitignore
 # Entornos virtuales
 venv/
 .env/

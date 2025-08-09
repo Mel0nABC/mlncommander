@@ -99,7 +99,7 @@ class Remove:
 
         for item in selected_items:
 
-            if not self.access_control.validate_dst_write(
+            if not self.access_control.validate_src_write(
                 selected_items,
                 explorer_src,
                 explorer_dst,
