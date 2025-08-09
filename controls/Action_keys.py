@@ -42,10 +42,10 @@ KP_KEYVALS = {
 
 
 def on_key_press(
-    controller,
-    keyval,
-    keycode,
-    state,
+    controller: Gtk.EventControllerKey,
+    keyval: int,
+    keycode: int,
+    state: Gdk.ModifierType,
     win: Gtk.ApplicationWindow,
     actions: Actions,
 ) -> bool:
@@ -186,11 +186,8 @@ def handle_search_keys(
 
         # File and folder name search system, character deletion
         search_word = explorer_src.search_str_entry.get_text()[:-1]
-        search_entry_text = f"Buscando: {search_word}"
-        if explorer_src.name == "explorer_1":
-            win.vertical_entry_1.set_text(search_entry_text)
-        else:
-            win.vertical_entry_2.set_text(search_entry_text)
+
+        set_search_word(search_word, explorer_src, win)
 
         if search_word != "":
             explorer_src.set_str_search_backspace(search_word)
@@ -254,11 +251,8 @@ def find_name_path(
     """
 
     explorer_src.set_str_search(search_word)
-    search_entry_text = f"Buscando: {search_word}"
-    if explorer_src.name == "explorer_1":
-        win.vertical_entry_1.set_text(search_entry_text)
-    else:
-        win.vertical_entry_2.set_text(search_entry_text)
+
+    set_search_word(search_word, explorer_src, win)
 
     # We load actual dir store
     store = explorer_src.store
@@ -285,3 +279,15 @@ def find_name_path(
         return
 
     GLib.idle_add(explorer_src.scroll_to, 1, None, explorer_src.flags)
+
+
+def set_search_word(
+    search_word: str,
+    explorer_src: "Explorer",  # noqa: F821
+    win: Gtk.ApplicationWindow,
+) -> None:
+    search_entry_text = f"Buscando: {search_word}"
+    if explorer_src.name == "explorer_1":
+        win.vertical_entry_1.set_text(search_entry_text)
+    else:
+        win.vertical_entry_2.set_text(search_entry_text)
