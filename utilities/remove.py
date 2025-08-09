@@ -1,12 +1,13 @@
 from controls.Actions import Actions
 from pathlib import Path
 from asyncio import Future
+from utilities.access_control import AccessControl
 from views.explorer import Explorer
 from views.selected_for_delete import Selected_for_delete
 from views.deleting import Deleting
-import gi
 import asyncio
 import threading
+import gi
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import GLib, Gtk  # noqa: E402
@@ -16,6 +17,7 @@ class Remove:
 
     def __init__(self):
         self.action = Actions()
+        self.access_control = AccessControl()
         self.dialog_deleting = None
         self.stop_deleting = False
 
@@ -96,6 +98,18 @@ class Remove:
         """
 
         for item in selected_items:
+
+            if not self.access_control.validate_dst_write(
+                selected_items,
+                explorer_src,
+                explorer_dst,
+                item.parent,
+                parent,
+            ):
+
+                self.stop_remove_dialog(explorer_src, explorer_dst)
+                return
+
             # Validates When a browser is inside a subdirectory
             # of what is to be deleted
             if item.is_dir():
@@ -131,8 +145,13 @@ class Remove:
         if explorer_src.actual_path == explorer_dst.actual_path:
             GLib.idle_add(explorer_dst.load_data, explorer_dst.actual_path)
 
+        self.stop_remove_dialog(explorer_src, explorer_dst)
+
+    def stop_remove_dialog(
+        self, explorer_src: Explorer, explorer_dst: Explorer
+    ) -> None:
         GLib.idle_add(self.dialog_deleting.finish_deleting)
-        GLib.idle_add(explorer_src.load_data, explorer_src.actual_path)
+        GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
         GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
 
     async def create_dialog_selected_for_delete(

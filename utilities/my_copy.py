@@ -7,6 +7,7 @@ from views.selected_for_copy_move import Selected_for_copy_move
 from views.copying import Copying
 from views.explorer import Explorer
 from utilities.rename import Rename_Logic
+from utilities.access_control import AccessControl
 from asyncio import Future
 import gi
 import os
@@ -30,6 +31,7 @@ class My_copy:
         self.new_name = None
         self.all_files = False
         self.stop_all = False
+        self.access_control = AccessControl()
 
     def on_copy(
         self,
@@ -43,22 +45,17 @@ class My_copy:
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
-        if not selected_items:
-            self.action.show_msg_alert(
-                parent, "Debe seleccionar algún archivo o directorio."
-            )
-            return
-
-        if not explorer_dst:
-            self.action.show_msg_alert(
-                parent,
-                """Ha ocurrido un problema con la
-                 ventana de destino,reinicie la aplicación.""",
-            )
-            return
-
         src_dir = explorer_src.actual_path
         dst_dir = explorer_dst.actual_path
+
+        if not self.access_control.validate_dst_write(
+            selected_items,
+            explorer_src,
+            explorer_dst,
+            dst_dir,
+            parent,
+        ):
+            return
 
         if src_dir == dst_dir:
             self.action.show_msg_alert(
@@ -90,21 +87,16 @@ class My_copy:
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
-        if not selected_items:
-            self.action.show_msg_alert(
-                parent, "Debe seleccionar algún archivo o directorio."
-            )
-            return
-
-        if not explorer_dst:
-            self.action.show_msg_alert(
-                parent,
-                """Ha ocurrido un problema con la
-                 ventana de destino,reinicie la aplicación.""",
-            )
-            return
-
         dst_dir = explorer_dst.actual_path
+
+        if not self.access_control.validate_dst_write(
+            selected_items,
+            explorer_src,
+            explorer_dst,
+            dst_dir,
+            parent,
+        ):
+            return
 
         duplicate = True
         asyncio.ensure_future(
@@ -186,6 +178,13 @@ class My_copy:
         """
 
         for src_info in selected_items:
+
+            if not self.access_control.validate_src_read(
+                src_info,
+                parent,
+            ):
+                self.close_dialog_copying_proccess()
+                return
 
             # On push cancel, return all
             if self.stop_all:
@@ -274,6 +273,9 @@ class My_copy:
 
             GLib.idle_add(explorer_dst.load_data, dst_info.parent)
 
+        self.close_dialog_copying_proccess()
+
+    def close_dialog_copying_proccess(self):
         self.copying_dialog.close_copying()
         if self.thread_update_dialog.is_alive():
             self.progress_on = False

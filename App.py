@@ -31,3 +31,15 @@ class App(Gtk.Application):
 
 app = App()
 app.run()
+
+# import os, shutil
+# from pathlib import Path
+
+# path = Path("/home/mel0n/Downloads/pruebas_copiar/estructura/test.lalala")
+# print(os.access(path, os.F_OK))
+# print(os.access(path, os.R_OK))
+# print(os.access(path, os.W_OK))
+# print(os.access(path, os.X_OK))
+# path2 = Path("/media/Almacenamiento/Download")
+# path.unlink()
+# shutil.copy(path, path2)

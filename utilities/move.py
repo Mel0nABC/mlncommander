@@ -2,6 +2,7 @@ from __future__ import annotations
 from controls.Actions import Actions
 from pathlib import Path
 from datetime import datetime
+from utilities.access_control import AccessControl
 from views.overwrite_options import Overwrite_dialog
 from views.selected_for_copy_move import Selected_for_copy_move
 from views.moving import Moving
@@ -21,6 +22,7 @@ class Move:
     def __init__(self, parent):
         self.action = Actions()
         self.parent = parent
+        self.access_control = AccessControl()
         self.progress_on = False
         self.response_dic = {}
         self.response_type = ""
@@ -32,22 +34,17 @@ class Move:
         """
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
-
-        if not selected_items:
-            self.action.show_msg_alert(
-                self.parent, "Debe seleccionar algún archivo o directorio."
-            )
-            return
-
-        if not explorer_dst:
-            self.action.show_msg_alert(
-                self.parent,
-                """Ha ocurrido un problema con la ventana de destino,
-                reinicie la aplicación.""",
-            )
-            return
-
         dst_dir = explorer_dst.actual_path
+
+        if not self.access_control.validate_dst_write(
+            selected_items,
+            explorer_src,
+            explorer_dst,
+            dst_dir,
+            self.parent,
+        ):
+            return
+
         self.thread_iterater_folder = threading.Thread(
             target=self.iterate_folders,
             args=(selected_items, dst_dir, explorer_src, explorer_dst),
@@ -119,6 +116,13 @@ class Move:
 
         self.all_files = False
         for item in selected_items:
+
+            if not self.access_control.validate_src_read(
+                item,
+                self.parent,
+            ):
+                GLib.idle_add(self.moving_dialog.close_moving)
+                return
 
             if not self.progress_on:
                 return
