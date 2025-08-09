@@ -6,7 +6,6 @@ from utilities.rename import Rename_Logic
 from utilities.move import Move
 from controls.Actions import Actions
 
-
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib  # noqa: E402
 
@@ -23,6 +22,7 @@ _ESCAPE = Gdk.keyval_name(Gdk.KEY_Escape)  # Escape
 _PUNTO = Gdk.keyval_name(Gdk.KEY_period)  # Punto
 _DELETE = Gdk.keyval_name(Gdk.KEY_Delete)  # supr
 _BACKSLASH = Gdk.keyval_name(Gdk.KEY_KP_Divide)  # /
+
 
 # Dictionary for numeric keyboard
 KP_KEYVALS = {
@@ -52,7 +52,6 @@ def on_key_press(
     """
     Manages the keys pressed
     """
-
     explorer_src = win.explorer_src
     explorer_dst = win.explorer_dst
     key_pressed_name = Gdk.keyval_name(keyval)
@@ -61,6 +60,13 @@ def on_key_press(
         | Gtk.ListScrollFlags.NONE
         | Gtk.ListScrollFlags.FOCUS
     )
+
+    # print(
+    #     (
+    #         f"Keyval: {keyval}  - keycode: {keycode}"
+    #         f"- keypressed: {key_pressed_name}"
+    #     )
+    # )
 
     return {
         handle_navitation_keys(
@@ -175,12 +181,15 @@ def handle_search_keys(
     """
     if key_pressed_name == _BACKSPACE:
 
+        # Reload store from actual dir
+        explorer_src.load_data(explorer_src.actual_path)
+
         # File and folder name search system, character deletion
         search_word = explorer_src.search_str_entry.get_text()[:-1]
         if search_word != "":
             explorer_src.set_str_search_backspace(search_word)
 
-            find_name_path(explorer_src, search_word)
+            find_name_path(explorer_src, search_word, win)
 
             return True
 
@@ -196,9 +205,13 @@ def handle_search_keys(
         or keyval in range(97, 123)
         or keyval in range(48, 58)
         or keyval in range(65453, 65466)
+        or keyval == 45
         or keyval == 46
     ):
         # File and folder name search system
+
+        if keyval == 45:
+            key_pressed_name = "-"
 
         if keyval == 46:
             key_pressed_name = "."
@@ -207,7 +220,7 @@ def handle_search_keys(
             key_pressed_name = KP_KEYVALS[key_pressed_name]
 
         search_word = f"{explorer_src.search_str}{key_pressed_name}"
-        find_name_path(explorer_src, search_word)
+        find_name_path(explorer_src, search_word, win)
 
     if key_pressed_name == _ESCAPE:
         stop_search_mode(explorer_src)
@@ -226,7 +239,9 @@ def stop_search_mode(explorer_src: "Explorer") -> None:  # noqa: F821
 
 
 def find_name_path(
-    explorer_src: "Explorer", search_word: str  # noqa: F821
+    explorer_src: "Explorer",  # noqa: F821
+    search_word: str,
+    win: Gtk.ApplicationWindow,
 ) -> None:
     """
     Search for file and folder names containing with search_word.
@@ -234,12 +249,8 @@ def find_name_path(
 
     explorer_src.set_str_search(search_word)
 
-    # Reload store from actual dir
-    explorer_src.load_data(explorer_src.actual_path)
     # We load actual dir store
     store = explorer_src.store
-    # We created a temporary store to delete the non-matches
-    output_store = store
 
     # TODO: Insert multithread search
     for index in reversed(range(len(store))):
@@ -252,14 +263,14 @@ def find_name_path(
 
             # The file or directory must have the word you are searching for.
             if not search_word.lower() in name.lower() and name != "..":
-                output_store.remove(index)
+                store.remove(index)
 
-        sorter_model = explorer_src.sort_model.get_sorter()
-        sorter_model.changed(0)
-        explorer_src.set_background_search()
+    sorter_model = explorer_src.sort_model.get_sorter()
+    sorter_model.changed(0)
+    explorer_src.set_background_search()
 
     # When there are no results in filtering
-    if len(list(output_store)) == 1:
+    if len(list(store)) == 1:
         return
 
     GLib.idle_add(explorer_src.scroll_to, 1, None, explorer_src.flags)
