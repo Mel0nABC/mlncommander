@@ -28,8 +28,10 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_dst = None
         self.my_watchdog = None
         self.entry_margin = 10
-        self.horizontal_button_list_margin = 8
-        self.scroll_1_margin = 10
+        self.horizontal_button_list_margin = 10
+        self.scroll_margin = 10
+        self.label_left_selected_files = None
+        self.label_right_selected_files = None
         self.CONFIG_FILE = Path("./config.conf")
         self.EXP_1_PATH = ""
         self.EXP_2_PATH = ""
@@ -111,18 +113,16 @@ class Window(Gtk.ApplicationWindow):
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
         self.scroll_1.set_child(self.explorer_1)
-        self.scroll_1.set_margin_end(self.scroll_1_margin / 2)
-        self.scroll_1.set_margin_bottom(self.scroll_1_margin)
-        self.scroll_1.set_margin_start(self.scroll_1_margin)
+        self.scroll_1.set_margin_end(self.scroll_margin / 2)
+        self.scroll_1.set_margin_start(self.scroll_margin)
 
         self.scroll_2 = Gtk.ScrolledWindow()
         self.scroll_2.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
         self.scroll_2.set_child(self.explorer_2)
-        self.scroll_2.set_margin_end(self.scroll_1_margin)
-        self.scroll_2.set_margin_bottom(self.scroll_1_margin)
-        self.scroll_2.set_margin_start(self.scroll_1_margin / 2)
+        self.scroll_2.set_margin_end(self.scroll_margin)
+        self.scroll_2.set_margin_start(self.scroll_margin / 2)
 
         self.vertical_screen_1.append(self.scroll_1)
         self.vertical_screen_2.append(self.scroll_2)
@@ -170,11 +170,40 @@ class Window(Gtk.ApplicationWindow):
         btn_F10 = Gtk.Button(label="Salir < F10 >")
         horizontal_botton_menu.append(btn_F10)
 
-        horizontal_botton_menu.append(self.search_str_entry)
+        # Left label show selection info
+        label_box_left = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.label_left_selected_files = Gtk.Label(label="--")
+        label_box_left.set_hexpand(True)
+        label_box_left.append(self.label_left_selected_files)
+
+        # Right label show selection info
+        label_box_right = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.label_right_selected_files = Gtk.Label(label="--")
+
+        label_box_right.set_hexpand(True)
+        label_box_right.append(self.label_right_selected_files)
+
+        label_box_right.set_halign(Gtk.Align.END)
 
         horizontal_botton_menu.set_halign(Gtk.Align.CENTER)
 
-        main_vertical_box.append(horizontal_botton_menu)
+        horizontal_bottom = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        horizontal_bottom.append(label_box_left)
+        horizontal_bottom.append(horizontal_botton_menu)
+        horizontal_bottom.append(label_box_right)
+
+        horizontal_bottom.set_hexpand(True)
+        horizontal_bottom.set_margin_start(self.scroll_margin + 20)
+        horizontal_bottom.set_margin_end(self.scroll_margin + 20)
+
+        main_vertical_box.append(horizontal_bottom)
 
         self.set_child(main_vertical_box)
 

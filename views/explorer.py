@@ -306,12 +306,35 @@ class Explorer(Gtk.ColumnView):
         """
         Selecting another row in a browser changes
         the value of the self.n_row variable.
+        Update bottom information, selected files and size
         """
         selected = self.get_selected_items_from_explorer()
-        selected_item = list(selected[1])
-        selected_size = len(selected_item)
+        selected_items = list(selected[1])
+        selected_size = len(selected_items)
         if selected_size == 1:
             self.n_row = selected[0]
+
+        items_list_size = len(list(self.store)) - 1
+
+        total_size_items = 0
+        for item in selected_items:
+            if not item.is_dir():
+                total_size_items += item.stat().st_size
+
+        temp_file_or_directory = File_or_directory_info("/")
+        total_size_items_reduced = temp_file_or_directory.get_size_and_unit(
+            total_size_items
+        )
+        info_selected_files = (
+            f"{selected_size} de {items_list_size} "
+            f"seleccionados, {total_size_items_reduced}"
+        )
+
+        if self.name == "explorer_1":
+            win.label_left_selected_files.set_text(info_selected_files)
+
+        if self.name == "explorer_2":
+            win.label_right_selected_files.set_text(info_selected_files)
 
     def get_selected_items_from_explorer(self) -> list:
         """

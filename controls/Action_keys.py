@@ -186,7 +186,7 @@ def handle_search_keys(
 
         stop_search_mode(explorer_src)
         parent_path = explorer_src.actual_path.parent
-        explorer_src.load_data(parent_path)
+        explorer_src.load_new_path(parent_path)
 
         return True
 
