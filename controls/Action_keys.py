@@ -4,12 +4,14 @@ from utilities.create import Create
 from utilities.remove import Remove
 from utilities.rename import Rename_Logic
 from utilities.move import Move
+from utilities.new_file import NewFile
 from controls.Actions import Actions
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib  # noqa: E402
 
 _F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Rename
+_F3_KEY = Gdk.keyval_name(Gdk.KEY_F3)  # New file
 _F5_KEY = Gdk.keyval_name(Gdk.KEY_F5)  # Copy
 _F6_KEY = Gdk.keyval_name(Gdk.KEY_F6)  # Move
 _F7_KEY = Gdk.keyval_name(Gdk.KEY_F7)  # Create directory
@@ -130,6 +132,12 @@ def handle_file_operation(
         # Copy
         rename_logic = Rename_Logic()
         rename_logic.on_rename(explorer_src, win)
+        return True
+
+    if key_pressed_name == _F3_KEY:
+        # Copy
+        new_file = NewFile()
+        new_file.on_new_file(explorer_src, win)
         return True
 
     if key_pressed_name == _F5_KEY:

@@ -10,6 +10,7 @@ from utilities.create import Create
 from utilities.remove import Remove
 from utilities.move import Move
 from utilities.rename import Rename_Logic
+from utilities.new_file import NewFile
 from pathlib import Path
 import tkinter as tk
 
@@ -152,6 +153,9 @@ class Window(Gtk.ApplicationWindow):
         btn_F2 = Gtk.Button(label="Renombrar < F2 >")
         horizontal_botton_menu.append(btn_F2)
 
+        btn_F3 = Gtk.Button(label="Nuevo Fichero < F3 >")
+        horizontal_botton_menu.append(btn_F3)
+
         btn_F5 = Gtk.Button(label="Copiar < F5 >")
         horizontal_botton_menu.append(btn_F5)
 
@@ -233,6 +237,12 @@ class Window(Gtk.ApplicationWindow):
         btn_F2.connect(
             "clicked",
             lambda btn: rename_logic.on_rename(self.explorer_src, self),
+        )
+
+        new_file = NewFile()
+        btn_F3.connect(
+            "clicked",
+            lambda btn: new_file.on_new_file(self.explorer_src, self),
         )
 
         my_copy = My_copy()
