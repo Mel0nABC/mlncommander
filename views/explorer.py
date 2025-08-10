@@ -324,6 +324,15 @@ class Explorer(Gtk.ColumnView):
         if selected_size == 1:
             self.n_row = selected[0]
 
+        self.update_info_explorer(selected_items, selected_size, win)
+
+    def update_info_explorer(
+        self,
+        selected_items: list,
+        selected_size: int,
+        win: Gtk.ApplicationWindow,
+    ) -> None:
+
         items_list_size = len(list(self.store)) - 1
 
         total_size_items = 0
