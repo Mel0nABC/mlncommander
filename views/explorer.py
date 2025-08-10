@@ -13,8 +13,10 @@ from controls.Actions import Actions
 from utilities.my_watchdog import My_watchdog
 from controls import Action_keys
 
+# from utilities.my_copy import My_copy
+
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib, Pango  # noqa E402
+from gi.repository import Gtk, Gdk, Gio, GLib, Pango  # noqa E402
 
 
 class Explorer(Gtk.ColumnView):
@@ -87,14 +89,14 @@ class Explorer(Gtk.ColumnView):
 
             self.append_column(column)
 
-        self.set_enable_rubberband(True)
-
         # Configure Gtk.ColumnView
         self.set_show_column_separators(True)
         self.set_can_focus(True)
         self.set_focusable(True)
         self.set_vexpand(True)
         self.set_hexpand(False)
+        # self.set_enable_rubberband(True) # Mouse selection
+        self.activate_drop_source()
 
         # Load css and set classes
         self.css_manager.load_css_explorer_text()
@@ -192,6 +194,7 @@ class Explorer(Gtk.ColumnView):
                 label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
                 label.get_style_context().add_class("explorer_text_size")
                 cell.set_child(label)
+                self.activate_drag_source(label)
 
         GLib.idle_add(setup_when_idle)
 
@@ -339,7 +342,8 @@ class Explorer(Gtk.ColumnView):
         for item in selected_items:
             if not item.is_dir():
                 if not item.is_symlink():
-                    total_size_items += item.stat().st_size
+                    if item.exists():
+                        total_size_items += item.stat().st_size
 
         temp_file_or_directory = File_or_directory_info("/")
         total_size_items_reduced = temp_file_or_directory.get_size_and_unit(
@@ -476,3 +480,65 @@ class Explorer(Gtk.ColumnView):
         self.my_watchdog = My_watchdog(str(path), explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
+
+    def activate_drag_source(self, item: Gtk.Widget) -> None:
+        """
+        Prepare drag method
+        """
+        self.drag_source = Gtk.DragSource.new()
+        self.drag_source.set_actions(Gdk.DragAction.COPY)
+        self.drag_source.connect("prepare", self.on_drag_prepare)
+        item.add_controller(self.drag_source)
+
+    def on_drag_prepare(
+        self, source: Gtk.DragSource, x: float, y: float
+    ) -> Gdk.ContentProvider:
+        """
+        How the file is returned
+        """
+
+        widget = source.get_widget()
+        explorer_src = widget.get_ancestor(Explorer)
+
+        if isinstance(widget, Gtk.Label):
+            item_name = widget.get_label()
+            path = Path(f"{explorer_src.actual_path}/{item_name}")
+            uris_text = path.as_uri()
+
+            return Gdk.ContentProvider.new_for_bytes(
+                "text/uri-list", GLib.Bytes.new(uris_text.encode("utf-8"))
+            )
+
+    def activate_drop_source(self) -> None:
+        """
+        Prepare drop method
+        """
+        drop_target = Gtk.DropTarget.new(Gdk.FileList, Gdk.DragAction.COPY)
+        drop_target.connect("drop", self.on_drop_files)
+        self.add_controller(drop_target)
+
+    def on_drop_files(
+        self, target: Gtk.DropTarget, value: Gdk.FileList, x: float, y: float
+    ) -> bool:
+        """
+        Obtain file from source
+        """
+        from utilities.my_copy import My_copy
+
+        files = value.get_files()
+        selected_items = []
+
+        for file in files:
+            selected_items.append(Path(file.get_path()))
+
+        src_info = Path(files[0].get_path())
+        src_dir = Path(src_info.parent.as_posix())
+
+        explorer_dst = self
+        explorer_src = self.win.get_other_explorer_with_name(self.name)
+        explorer_src.load_new_path(src_dir)
+
+        my_copy = My_copy()
+        my_copy.on_copy(explorer_src, explorer_dst, selected_items, self.win)
+
+        return True

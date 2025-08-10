@@ -143,7 +143,7 @@ def handle_file_operation(
     if key_pressed_name == _F5_KEY:
         # Copy
         my_copy = My_copy()
-        my_copy.on_copy(explorer_src, explorer_dst, win)
+        my_copy.on_copy(explorer_src, explorer_dst, None, win)
         return True
 
     if key_pressed_name == _F6_KEY:

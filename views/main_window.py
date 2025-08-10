@@ -249,7 +249,7 @@ class Window(Gtk.ApplicationWindow):
         btn_F5.connect(
             "clicked",
             lambda btn: my_copy.on_copy(
-                self.explorer_src, self.explorer_dst, self
+                self.explorer_src, self.explorer_dst, None, self
             ),
         )
 
@@ -329,6 +329,8 @@ class Window(Gtk.ApplicationWindow):
         self.action.set_explorer_to_focused(self.explorer_1, self)
         self.explorer_src = self.explorer_1
         self.explorer_dst = self.explorer_2
+
+        # self.explorer_1.activate_drag_source()
 
     def load_config_file(self) -> None:
         """

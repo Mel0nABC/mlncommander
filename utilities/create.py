@@ -80,10 +80,10 @@ class Create:
             return
 
         dst_dir.mkdir()
-        explorer_dst.load_data(explorer_dst.actual_path)
+        explorer_dst.load_new_path(explorer_dst.actual_path)
 
         if other_explorer.actual_path == explorer_dst.actual_path:
-            other_explorer.load_data(explorer_dst.actual_path)
+            other_explorer.load_new_path(explorer_dst.actual_path)
 
         self.action.set_explorer_to_focused(explorer_dst, parent)
 

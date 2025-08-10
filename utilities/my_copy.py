@@ -39,13 +39,14 @@ class My_copy:
         self,
         explorer_src: Explorer,
         explorer_dst: Explorer,
-        parent: Gtk.ApplicationWindow,
+        selected_items: list = None,
+        parent: Gtk.ApplicationWindow = None,
     ) -> None:
         """
         Start to copy files or directories.
         """
-
-        selected_items = explorer_src.get_selected_items_from_explorer()[1]
+        if not selected_items:
+            selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
         src_dir = explorer_src.actual_path
         dst_dir = explorer_dst.actual_path
