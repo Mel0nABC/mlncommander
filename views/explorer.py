@@ -285,6 +285,7 @@ class Explorer(Gtk.ColumnView):
         # Dictionary or similar
         if self.actual_path_old.is_relative_to(path):
             # Step back
+            self.grab_focus()
             self.scroll_to(self.n_row_old, None, self.flags)
         else:
             # Keep it up
