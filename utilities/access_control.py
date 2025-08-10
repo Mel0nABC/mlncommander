@@ -82,6 +82,28 @@ class AccessControl:
 
         return True
 
+    def validate_src_write_unit(
+        self,
+        dst_dir: Path,
+        parent: Gtk.ApplicationWindow,
+    ) -> bool:
+        """
+        Validate if copy continue
+        """
+        if not os.access(dst_dir, os.W_OK):
+            GLib.idle_add(
+                self.action.show_msg_alert,
+                parent,
+                (
+                    f"No tienes permiso de escritura en el directorio de"
+                    f" origen:\n\n{dst_dir}\n\n"
+                    f"La acción no puede realizarse"
+                ),
+            )
+            return False
+
+        return True
+
     def validate_src_read(
         self,
         src_dir_file: Path,

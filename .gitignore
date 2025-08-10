@@ -1,14 +1,11 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
-*
-!LICENCE
-!README.md
+
+
 todo.list
-!controls/**
-!utilities/**
-!views/**
-!css/**
-!entity/**
-!.gitignore
+config.config
+pyproject.toml
+
+
 # Entornos virtuales
 venv/
 .env/
