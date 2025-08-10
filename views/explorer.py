@@ -1,7 +1,9 @@
 from pathlib import Path
+import shutil
 import threading
 import asyncio
 import time
+import os
 import gi
 
 from utilities.file_manager import File_manager
@@ -16,7 +18,7 @@ from controls import Action_keys
 # from utilities.my_copy import My_copy
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib, Pango  # noqa E402
+from gi.repository import Gtk, Gdk, Gio, GLib, Pango, GObject  # noqa E402
 
 
 class Explorer(Gtk.ColumnView):
@@ -517,12 +519,75 @@ class Explorer(Gtk.ColumnView):
         drop_target.connect("drop", self.on_drop_files)
         self.add_controller(drop_target)
 
+        # DropTarget para "text/uri-list"
+        drop_target = Gtk.DropTarget.new(
+            GObject.TYPE_STRING, Gdk.DragAction.COPY
+        )
+        drop_target.connect("drop", self.on_drop_files)
+        self.add_controller(drop_target)
+
     def on_drop_files(
         self, target: Gtk.DropTarget, value: Gdk.FileList, x: float, y: float
     ) -> bool:
         """
         Obtain file from source
         """
+        try:
+            # Drag&drop from web files
+            # TODO: Add download progress for big files
+            self.drop_from_url(value)
+
+        except Exception:
+            try:
+                # Drag&drop from local file section
+                self.drop_from_local_file(value)
+            except Exception:
+                self.action.show_msg_alert(
+                    self.win, "Ha surgido algún problema"
+                )
+                self.load_new_path(self.actual_path)
+
+    def drop_from_url(self, value: Gdk.FileList) -> None:
+        import urllib.request
+
+        url = value
+        file_name = os.path.basename(url)
+        dst_file = Path(f"{self.actual_path}/{file_name}")
+        dst_dir = dst_file.parent
+
+        if not file_name:
+            self.action.show_msg_alert(
+                self.win, "La url no llega a un archivo"
+            )
+            return
+
+        if dst_file.exists():
+            self.action.show_msg_alert(
+                self.win, "El fichero que intenta descarga ya existe"
+            )
+            return
+        req = urllib.request.Request(url, method="HEAD")
+
+        with urllib.request.urlopen(req) as resp:
+            headers = resp.headers
+            file_size = int(headers.get("Content-Length"))
+            # file_type = headers.get("Content-Type")
+
+        dst_free_size = shutil.disk_usage(dst_dir).free
+
+        if dst_free_size < file_size:
+            self.action.show_msg_alert(
+                self.win,
+                "No tiene espacio suficiente para descargar este fichero",
+            )
+            return
+
+        urllib.request.urlretrieve(url, dst_file)
+
+        if dst_file.exists():
+            self.load_new_path(dst_dir)
+
+    def drop_from_local_file(self, value: Gdk.FileList) -> None:
         from utilities.my_copy import My_copy
 
         files = value.get_files()
@@ -540,5 +605,3 @@ class Explorer(Gtk.ColumnView):
 
         my_copy = My_copy()
         my_copy.on_copy(explorer_src, explorer_dst, selected_items, self.win)
-
-        return True
