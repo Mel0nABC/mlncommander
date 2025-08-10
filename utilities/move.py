@@ -3,6 +3,7 @@ from controls.Actions import Actions
 from pathlib import Path
 from datetime import datetime
 from utilities.access_control import AccessControl
+from utilities.file_manager import File_manager
 from views.overwrite_options import Overwrite_dialog
 from views.selected_for_copy_move import Selected_for_copy_move
 from views.moving import Moving
@@ -21,6 +22,7 @@ from gi.repository import GLib, Gtk
 class Move:
     def __init__(self, parent):
         self.action = Actions()
+        self.file_manager = File_manager()
         self.parent = parent
         self.access_control = AccessControl()
         self.progress_on = False
@@ -35,6 +37,12 @@ class Move:
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
         dst_dir = explorer_dst.actual_path
+
+        if not self.file_manager.check_free_space(selected_items, dst_dir):
+            self.action.show_msg_alert(
+                self.parent, "No hay suficiente espacio en destino"
+            )
+            return
 
         if not self.access_control.validate_dst_write(
             selected_items,

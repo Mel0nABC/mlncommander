@@ -1,6 +1,7 @@
 from entity.File_or_directory_info import File_or_directory_info
 from pathlib import Path
 import gi
+import shutil
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gio  # noqa: E402
@@ -47,3 +48,24 @@ class File_manager:
         else:
             group = 2
         return (group, name.lower())
+
+    def check_free_space(self, item_list: list, dst_dir: Path) -> bool:
+        """
+        Check if have space on destination location
+        for copy or move all files and directorys
+        """
+        total_size = 0
+
+        for item in item_list:
+            if item.is_dir():
+                for archivo in item.rglob("*"):
+                    total_size += archivo.stat().st_size
+            else:
+                total_size += item.stat().st_size
+
+        dst_free_size = shutil.disk_usage(dst_dir).free
+
+        if dst_free_size < total_size:
+            return False
+
+        return True

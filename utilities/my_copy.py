@@ -8,6 +8,7 @@ from views.copying import Copying
 from views.explorer import Explorer
 from utilities.rename import Rename_Logic
 from utilities.access_control import AccessControl
+from utilities.file_manager import File_manager
 from asyncio import Future
 import gi
 import os
@@ -32,6 +33,7 @@ class My_copy:
         self.all_files = False
         self.stop_all = False
         self.access_control = AccessControl()
+        self.file_manager = File_manager()
 
     def on_copy(
         self,
@@ -47,6 +49,12 @@ class My_copy:
 
         src_dir = explorer_src.actual_path
         dst_dir = explorer_dst.actual_path
+
+        if not self.file_manager.check_free_space(selected_items, dst_dir):
+            self.action.show_msg_alert(
+                parent, "No hay suficiente espacio en destino"
+            )
+            return
 
         if not self.access_control.validate_dst_write(
             selected_items,
@@ -88,6 +96,12 @@ class My_copy:
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
         dst_dir = explorer_dst.actual_path
+
+        if not self.file_manager.check_free_space(selected_items, dst_dir):
+            self.action.show_msg_alert(
+                parent, "No hay suficiente espacio en destino"
+            )
+            return
 
         if not self.access_control.validate_dst_write(
             selected_items,
