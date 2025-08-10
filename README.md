@@ -14,6 +14,19 @@ It has filtering to search the beginning of files and directories, just type.
 
 After 5 seconds, pressing Escape or switching focus to the other browser cancels the search and returns to the normal window.
 
+Rename:
+
+Rename files or directorys.
+
+<img width="712" height="341" alt="imagen" src="https://github.com/user-attachments/assets/636761c2-1e84-4f27-abb9-8a3a7a968b84" />
+
+
+New file:
+
+Create office application files
+
+<img width="440" height="428" alt="imagen" src="https://github.com/user-attachments/assets/760c48a8-66f9-415b-8c10-49d3da4ec2b5" />
+
 Copy:
 
 You can copy files and entire directories; it will determine whether they exist or not.
