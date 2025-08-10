@@ -120,13 +120,13 @@ class Explorer(Gtk.ColumnView):
         trigger = Gtk.ShortcutTrigger.parse_string(
             f"<Control>{self.EXPLORER_MIRROR_KEY}"
         )
-        action = Gtk.CallbackAction.new(self.shortcut_event)
+        action = Gtk.CallbackAction.new(self.shortcut_mirroring_folder)
         self.shortcut = Gtk.Shortcut.new(trigger, action)
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(self.shortcut)
         self.add_controller(controller)
 
-    def shortcut_event(self, *args) -> None:
+    def shortcut_mirroring_folder(self, *args) -> None:
         """
         Actions when shortcuts is utilized
         """
@@ -144,7 +144,10 @@ class Explorer(Gtk.ColumnView):
         if not selected_item:
             other_explorer.load_data(self.actual_path.parent)
 
-        path = selected_item[0]
+        if not selected_item:
+            path = self.actual_path.parent
+        else:
+            path = selected_item[0]
 
         if selected_item:
             if not path.is_dir():
