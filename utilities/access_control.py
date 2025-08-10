@@ -1,5 +1,5 @@
 from controls.Actions import Actions
-from views.explorer import Explorer
+
 from pathlib import Path
 import os
 import gi
@@ -16,8 +16,8 @@ class AccessControl:
     def validate_dst_write(
         self,
         selected_items: list,
-        explorer_src: Explorer,
-        explorer_dst: Explorer,
+        explorer_src: "Explorer",  # noqa: F821
+        explorer_dst: "Explorer",  # noqa: F821
         dst_dir: Path,
         parent: Gtk.ApplicationWindow,
     ) -> bool:
@@ -60,8 +60,8 @@ class AccessControl:
     def validate_src_write(
         self,
         selected_items: list,
-        explorer_src: Explorer,
-        explorer_dst: Explorer,
+        explorer_src: "Explorer",  # noqa: F821
+        explorer_dst: "Explorer",  # noqa: F821
         dst_dir: Path,
         parent: Gtk.ApplicationWindow,
     ) -> bool:

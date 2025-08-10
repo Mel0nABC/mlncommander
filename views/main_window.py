@@ -312,8 +312,8 @@ class Window(Gtk.ApplicationWindow):
         Set browser 1 (left) as default when starting the application
         """
         # LOAD DATA DIRECTORY
-        self.explorer_1.load_new_path(self.explorer_1.actual_path)
-        self.explorer_2.load_new_path(self.explorer_2.actual_path)
+        self.explorer_1.load_data(self.explorer_1.actual_path)
+        self.explorer_2.load_data(self.explorer_2.actual_path)
 
         # We set the initial focus to explorer_1, left
         self.action.set_explorer_to_focused(self.explorer_1, self)

@@ -1,16 +1,17 @@
+from pathlib import Path
 import threading
 import asyncio
 import time
 import gi
 
 from utilities.file_manager import File_manager
-from controls.Actions import Actions
-from pathlib import Path
-from controls import Action_keys
 from entity.File_or_directory_info import File_or_directory_info
-from utilities.my_watchdog import My_watchdog
 from icons.icon_manager import IconManager
 from css.explorer_css import Css_explorer_manager
+from utilities.access_control import AccessControl
+from controls.Actions import Actions
+from utilities.my_watchdog import My_watchdog
+from controls import Action_keys
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GLib, Pango  # noqa E402
@@ -52,6 +53,7 @@ class Explorer(Gtk.ColumnView):
             | Gtk.ListScrollFlags.NONE
             | Gtk.ListScrollFlags.FOCUS
         )
+        self.access_control = AccessControl()
         self.EXPLORER_MIRROR_KEY = "o"
         type_list = [
             "type_str",
@@ -259,6 +261,10 @@ class Explorer(Gtk.ColumnView):
         of the current directory in the browser
         """
         # Management to save the row number when advancing a directory
+
+        if not self.access_control.validate_src_read(path, self.win):
+            return
+
         if self.actual_path_old:
             if not self.actual_path_old.is_relative_to(path):
                 self.actual_path_old = self.actual_path
