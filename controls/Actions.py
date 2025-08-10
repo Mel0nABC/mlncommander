@@ -122,13 +122,17 @@ class Actions:
             if explorer_to_focused == explorer_left:
                 explorer_left.focused = True
                 explorer_right.focused = False
-                explorer_right.selection.unselect_all()
+                selection = explorer_right.selection
+                if selection:
+                    selection.unselect_all()
                 win.set_explorer_focused(explorer_left, explorer_right)
 
             else:
                 explorer_right.focused = True
                 explorer_left.focused = False
-                explorer_left.selection.unselect_all()
+                selection = explorer_left.selection
+                if selection:
+                    selection.unselect_all()
                 win.set_explorer_focused(explorer_right, explorer_left)
         except AttributeError as e:
             print(f"Error inicialización: {e}")
