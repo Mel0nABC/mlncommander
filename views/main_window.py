@@ -36,6 +36,7 @@ class Window(Gtk.ApplicationWindow):
         self.CONFIG_FILE = Path("./config.conf")
         self.EXP_1_PATH = ""
         self.EXP_2_PATH = ""
+        self.SHOW_DIR_LAST = True
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
@@ -342,19 +343,28 @@ class Window(Gtk.ApplicationWindow):
             with open(self.CONFIG_FILE, "a") as conf:
                 conf.write("EXP_1_PATH=/\n")
                 conf.write("EXP_2_PATH=/\n")
+                conf.write("SHOW_DIR_LAST=True\n")
 
         # We open configuration and load in variables.
         with open(self.CONFIG_FILE, "r+") as conf:
             for row in conf:
                 if row:
                     split = row.strip().split("=")
-                    for VARIABLE_NAME in ["EXP_1_PATH", "EXP_2_PATH"]:
-                        if split[0] == VARIABLE_NAME:
-                            path = Path(split[1])
-                            if path.exists():
-                                setattr(self, VARIABLE_NAME, path)
-                            else:
-                                setattr(self, VARIABLE_NAME, "/")
+
+                    variable_name = split[0]
+                    if (
+                        variable_name == "EXP_1_PATH"
+                        or variable_name == "EXP_2_PATH"
+                    ):
+                        path = Path(split[1])
+                        if path.exists():
+                            setattr(self, variable_name, path)
+                        else:
+                            setattr(self, variable_name, "/")
+
+                    elif variable_name == "SHOW_DIR_LAST":
+                        result = True if split[1] == "True" else False
+                        setattr(self, variable_name, result)
 
     def save_config_file(self) -> None:
         """
@@ -365,8 +375,14 @@ class Window(Gtk.ApplicationWindow):
         with open(self.CONFIG_FILE, "a") as conf:
             conf.seek(0)
             conf.truncate()
-            conf.write(f"EXP_1_PATH={self.explorer_1.actual_path}\n")
-            conf.write(f"EXP_2_PATH={self.explorer_2.actual_path}\n")
+            if self.SHOW_DIR_LAST:
+                conf.write(f"EXP_1_PATH={self.explorer_1.actual_path}\n")
+                conf.write(f"EXP_2_PATH={self.explorer_2.actual_path}\n")
+            else:
+                conf.write(f"EXP_1_PATH={self.EXP_1_PATH}\n")
+                conf.write(f"EXP_2_PATH={self.EXP_2_PATH}\n")
+
+            conf.write(f"SHOW_DIR_LAST={self.SHOW_DIR_LAST}\n")
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """

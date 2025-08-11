@@ -16,13 +16,26 @@ class Menu_bar(Gio.Menu):
         file_menu = Gio.Menu()
         file_menu.append("Archivo", "app.file")
         file_menu.append("Exit", "win.exit")
+        file_menu.append("Preferencias", "win.peferencias")
 
         self.append_submenu("Archivo", file_menu)
+
         self.menubar = Gtk.PopoverMenuBar.new_from_model(self)
 
         action_exit = Gio.SimpleAction.new("exit", None)
         action_exit.connect("activate", self.exit)
+
+        action_preferences = Gio.SimpleAction.new("peferencias", None)
+        action_preferences.connect("activate", self.open_preferences)
+
         self.win.add_action(action_exit)
+        self.win.add_action(action_preferences)
 
     def exit(self, action, parameter):
+        print("SALIR")
         self.win.exit()
+
+    def open_preferences(self, action, parameter):
+        from views.preferences_options import Preferences
+
+        Preferences(self.win)

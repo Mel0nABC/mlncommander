@@ -6,6 +6,8 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 
+from gi.repository import GLib  # noqa: E402
+
 
 class My_watchdog:
     def __init__(self, path, explorer):
@@ -66,6 +68,6 @@ class MiHandler(FileSystemEventHandler):
 
     def load_new_path(self, path):
         path = Path(path)
-        # if path.exists():
-        #     print("WATCHDOG")
-        # GLib.idle_add(self.explorer.load_data, path)
+        if path.exists():
+            print("WATCHDOG")
+        GLib.idle_add(self.explorer.load_new_path, path)
