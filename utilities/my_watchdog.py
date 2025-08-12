@@ -69,5 +69,4 @@ class MiHandler(FileSystemEventHandler):
     def load_new_path(self, path):
         path = Path(path)
         if path.exists():
-            print("WATCHDOG")
-        GLib.idle_add(self.explorer.load_new_path, path)
+            GLib.idle_add(self.explorer.load_new_path, path)

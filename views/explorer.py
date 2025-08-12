@@ -115,8 +115,6 @@ class Explorer(Gtk.ColumnView):
         )
         self.add_controller(self.focus_explorer)
 
-        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
-
         # Activate pressed on explorer event
         gesture = Gtk.GestureClick()
         gesture.connect("pressed", self.set_explorer_focus)
@@ -310,6 +308,8 @@ class Explorer(Gtk.ColumnView):
         if self.count_rst_int > 0:
             self.stop_background_search()
             self.stop_search_mode()
+
+        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
     def on_item_change(
         self,
@@ -583,9 +583,10 @@ class Explorer(Gtk.ColumnView):
             return
 
         urllib.request.urlretrieve(url, dst_file)
+        print("DOWNLOAD FILE")
 
-        if dst_file.exists():
-            self.load_new_path(dst_dir)
+        # if dst_file.exists():
+        #     self.load_new_path(dst_dir)
 
     def drop_from_local_file(self, value: Gdk.FileList) -> None:
         from utilities.my_copy import My_copy
@@ -596,12 +597,12 @@ class Explorer(Gtk.ColumnView):
         for file in files:
             selected_items.append(Path(file.get_path()))
 
-        src_info = Path(files[0].get_path())
-        src_dir = Path(src_info.parent.as_posix())
+        # src_info = Path(files[0].get_path())
+        # src_dir = Path(src_info.parent.as_posix())
 
         explorer_dst = self
         explorer_src = self.win.get_other_explorer_with_name(self.name)
-        explorer_src.load_new_path(src_dir)
+        # explorer_src.load_new_path(src_dir)
 
         my_copy = My_copy()
         my_copy.on_copy(explorer_src, explorer_dst, selected_items, self.win)
