@@ -1,3 +1,5 @@
+from utilities.file_manager import File_manager
+from pathlib import Path
 import gi
 import os
 
@@ -12,18 +14,32 @@ class IconManager:
         self.icon_theme = Gtk.IconTheme.get_for_display(self.display)
         self.ext_to_mime = self.load_mime_types()
 
-    def get_folder_icon(self) -> Gtk.IconPaintable:
+    def get_folder_icon(self, path: Path) -> Gtk.IconPaintable:
         """
         Get especifit folder icon
         """
-        paintable_icon = self.icon_theme.lookup_icon(
-            "folder",
-            None,
-            256,
-            1,
-            Gtk.TextDirection.LTR,
-            Gtk.IconLookupFlags.FORCE_SYMBOLIC,
-        )
+        fm = File_manager()
+        result = fm.get_type_folder(path)
+        print(f"{path} ----> {result}")
+
+        if result == "local":
+            paintable_icon = self.icon_theme.lookup_icon(
+                "folder",
+                None,
+                256,
+                1,
+                Gtk.TextDirection.LTR,
+                Gtk.IconLookupFlags.FORCE_SYMBOLIC,
+            )
+        elif result == "network":
+            paintable_icon = self.icon_theme.lookup_icon(
+                "folder-remote",
+                None,
+                256,
+                1,
+                Gtk.TextDirection.LTR,
+                Gtk.IconLookupFlags.FORCE_SYMBOLIC,
+            )
         return paintable_icon
 
     def get_back_icon(self) -> Gtk.IconPaintable:

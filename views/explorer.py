@@ -214,7 +214,9 @@ class Explorer(Gtk.ColumnView):
                 value = item.get_property(property_name)
                 if property_name == "type_str":
                     if item.type == "DIR":
-                        pintable = self.icon_manager.get_folder_icon()
+                        pintable = self.icon_manager.get_folder_icon(
+                            item.path_file
+                        )
                     elif item.type == "FILE":
                         path = item.path_file
                         pintable = self.icon_manager.get_icon_for_file(path)

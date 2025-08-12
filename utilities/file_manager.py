@@ -70,3 +70,53 @@ class File_manager:
             return False
 
         return True
+
+    def get_type_folder(self, path: Path) -> str:
+        """
+        Go back through folders until you find what
+        type of folder it is, network, local, other
+        """
+        tmp = path
+        result = self.get_type_from_mounts(tmp)
+        while not result:
+            tmp = tmp.parent
+            if path.is_relative_to(tmp):
+                result = self.get_type_from_mounts(tmp)
+
+        return result
+
+    def get_type_from_mounts(self, path: Path) -> str:
+        """
+        Gets information from /proc/mount, to know what type of folder it is
+        """
+        with open("/proc/mounts") as f:
+            for line in f:
+                line_clean = line.strip()
+                dev, mp, fstype, *_ = line_clean.split()
+                if Path(mp) == path:
+                    if dev.startswith("/dev"):
+                        return "local"
+                    elif dev.startswith("//"):
+                        return "network"
+
+            return self.get_types_from_fstab(path)
+
+    def get_types_from_fstab(self, path: Path) -> str:
+        """
+        Gets information from /etc/fstab, to know what type of folder it is
+        """
+        with open("/etc/fstab") as f:
+            for line in f:
+                line_clean = line.strip()
+                if not line_clean.startswith("#"):
+                    if not line_clean == "":
+                        dev, mp, fstype, *_ = line_clean.split()
+                        if Path(mp) == path:
+                            if dev.startswith("/dev") or dev.startswith(
+                                "UUID"
+                            ):
+                                return "local"
+                            elif dev.startswith("//"):
+                                return "network"
+
+            return False
