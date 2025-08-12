@@ -519,39 +519,57 @@ class Explorer(Gtk.ColumnView):
         drop_target.connect("drop", self.on_drop_files)
         self.add_controller(drop_target)
 
-        # DropTarget para "text/uri-list"
-        drop_target = Gtk.DropTarget.new(
-            GObject.TYPE_STRING, Gdk.DragAction.COPY
-        )
-        drop_target.connect("drop", self.on_drop_files)
-        self.add_controller(drop_target)
-
     def on_drop_files(
         self, target: Gtk.DropTarget, value: Gdk.FileList, x: float, y: float
     ) -> bool:
         """
-        Obtain file from source
+        filter type of source to download url or file path
         """
-        try:
-            # Drag&drop from web files
-            # TODO: Add download progress for big files
-            self.drop_from_url(value)
+        files = value.get_files()
 
-        except Exception:
+        if GObject.type_name(files[0]) == "GLocalFile":
             try:
-                # Drag&drop from local file section
                 self.drop_from_local_file(value)
             except Exception:
                 self.action.show_msg_alert(
-                    self.win, "Ha surgido algún problema"
+                    self.win,
+                    ("Ha ocurrido un problema al intentar copiar el archivo"),
                 )
-                self.load_new_path(self.actual_path)
+
+        elif GObject.type_name(files[0]) == "GDaemonFile":
+            try:
+                self.drop_from_url(files[0])
+            except Exception:
+                self.action.show_msg_alert(
+                    self.win,
+                    (
+                        "Puede que tenga que avanzar más en"
+                        " la url para poder descargar este fichero"
+                    ),
+                )
 
     def drop_from_url(self, value: Gdk.FileList) -> None:
         import urllib.request
 
-        url = value
+        url = value.get_uri()
         file_name = os.path.basename(url)
+        req = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(req) as resp:
+            headers = resp.headers
+            content_disp = headers.get("Content-Disposition")
+            file_size = int(headers.get("Content-Length"))
+            # file_type = headers.get("Content-Type")
+            if content_disp and "filename=" in content_disp:
+                file_name = content_disp.split("filename=")[1].strip('"')
+                print(file_name)
+            else:
+                # Usar último segmento de la URL
+                from urllib.parse import urlparse
+
+                path = urlparse(resp.geturl()).path
+                file_name = path.split("/")[-1]
+                print("Nombre desde URL:", file_name)
+
         dst_file = Path(f"{self.actual_path}/{file_name}")
         dst_dir = dst_file.parent
 
@@ -566,12 +584,6 @@ class Explorer(Gtk.ColumnView):
                 self.win, "El fichero que intenta descarga ya existe"
             )
             return
-        req = urllib.request.Request(url, method="HEAD")
-
-        with urllib.request.urlopen(req) as resp:
-            headers = resp.headers
-            file_size = int(headers.get("Content-Length"))
-            # file_type = headers.get("Content-Type")
 
         dst_free_size = shutil.disk_usage(dst_dir).free
 
@@ -583,10 +595,9 @@ class Explorer(Gtk.ColumnView):
             return
 
         urllib.request.urlretrieve(url, dst_file)
-        print("DOWNLOAD FILE")
 
-        # if dst_file.exists():
-        #     self.load_new_path(dst_dir)
+        if dst_file.exists():
+            self.load_new_path(dst_dir)
 
     def drop_from_local_file(self, value: Gdk.FileList) -> None:
         from utilities.my_copy import My_copy
@@ -597,12 +608,14 @@ class Explorer(Gtk.ColumnView):
         for file in files:
             selected_items.append(Path(file.get_path()))
 
-        # src_info = Path(files[0].get_path())
-        # src_dir = Path(src_info.parent.as_posix())
+        src_info = Path(files[0].get_path())
+        src_dir = Path(src_info.parent.as_posix())
 
         explorer_dst = self
         explorer_src = self.win.get_other_explorer_with_name(self.name)
-        # explorer_src.load_new_path(src_dir)
-
+        old_src_path = explorer_src.actual_path
+        explorer_src.load_new_path(src_dir)
         my_copy = My_copy()
         my_copy.on_copy(explorer_src, explorer_dst, selected_items, self.win)
+
+        GLib.idle_add(explorer_src.load_new_path, old_src_path)

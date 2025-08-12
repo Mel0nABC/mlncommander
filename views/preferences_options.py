@@ -122,10 +122,6 @@ class Preferences(Gtk.Window):
 
         self.change_box(Gtk.Button(), self.general_box)
 
-        vertical_button_box.get_style_context().add_class("bordes")
-        self.horizontal_option_box.get_style_context().add_class("bordes")
-        horizontal_option_btn.get_style_context().add_class("bordes")
-
     def on_exit(self, button: Gtk.Button) -> None:
         """
         Close preferencesc window
