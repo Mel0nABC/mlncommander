@@ -16,13 +16,14 @@ class File_manager:
         list_content = Gio.ListStore.new(File_or_directory_info)
 
         try:
-            back_row = File_or_directory_info(path="..")
-            back_row.type = "BACK"
-            back_row.size = ".."
-            back_row.date_created_str = ".."
-            back_row.permissions = ".."
+            if not path == Path("/"):
+                back_row = File_or_directory_info(path="..")
+                back_row.type = "BACK"
+                back_row.size = ".."
+                back_row.date_created_str = ".."
+                back_row.permissions = ".."
 
-            list_content.append(back_row)
+                list_content.append(back_row)
 
             # Sorted list with, .., directorys and files
             ordered_list = sorted(path.iterdir(), key=File_manager.custom_key)
