@@ -206,7 +206,8 @@ class Move:
             if src_info.exists() and src_info.is_dir():
                 if self.response_type != "skip" and not self.all_files:
                     os.rmdir(src_info)
-
+        GLib.idle_add(explorer_src.load_data, src_info.parent)
+        GLib.idle_add(explorer_dst.load_data, dst_info.parent)
         GLib.idle_add(self.moving_dialog.close_moving)
 
     def overwrite_with_type(

@@ -287,7 +287,7 @@ class My_copy:
                     )
 
             GLib.idle_add(explorer_dst.load_data, dst_info.parent)
-
+        GLib.idle_add(explorer_dst.load_new_path, dst_info.parent)
         self.close_dialog_copying_proccess()
 
     def close_dialog_copying_proccess(self):
