@@ -334,8 +334,11 @@ class Explorer(Gtk.ColumnView):
 
         self.update_info_explorer(selected_items, selected_size, win)
 
-        if len(list(selected_items)) == 1:
-            self.open_img_preview(selected_items[0])
+        if self.win.SWITCH_IMG_STATUS:
+            if len(list(selected_items)) <= 1:
+                self.open_img_preview(selected_items)
+        else:
+            self.disable_img_box()
 
     def update_info_explorer(
         self,
@@ -429,7 +432,7 @@ class Explorer(Gtk.ColumnView):
         self.search_str = ""
         self.search_str_entry.set_text("")
         self.count_rst_int = 0
-        GLib.idle_add(self.load_data, self.actual_path)
+        GLib.idle_add(self.load_new_path, self.actual_path)
         self.stop_background_search()
 
     def set_background_search(self) -> None:
@@ -567,14 +570,12 @@ class Explorer(Gtk.ColumnView):
             # file_type = headers.get("Content-Type")
             if content_disp and "filename=" in content_disp:
                 file_name = content_disp.split("filename=")[1].strip('"')
-                print(file_name)
             else:
                 # Usar último segmento de la URL
                 from urllib.parse import urlparse
 
                 path = urlparse(resp.geturl()).path
                 file_name = path.split("/")[-1]
-                print("Nombre desde URL:", file_name)
 
         dst_file = Path(f"{self.actual_path}/{file_name}")
         dst_dir = dst_file.parent
@@ -626,21 +627,24 @@ class Explorer(Gtk.ColumnView):
 
         GLib.idle_add(explorer_src.load_new_path, old_src_path)
 
-    def open_img_preview(self, path: Path) -> None:
+    def open_img_preview(self, selected_items: list) -> None:
         """
         When show preview image is True,
         insert Gtk.Imgage in other explorer
         """
+        if not selected_items:
+            self.disable_img_box()
+            return
+
+        path = selected_items[0]
 
         if self.name == "explorer_1":
             self.vert_screen_preview = self.win.vertical_screen_2
         else:
             self.vert_screen_preview = self.win.vertical_screen_1
 
-        if path.is_dir():
-            if self.img_box:
-                self.vert_screen_preview.remove(self.img_box)
-                self.img_box = None
+        if path.is_dir() or not selected_items:
+            self.disable_img_box()
             return
 
         if not self.filter_image_type(path.suffix):
@@ -659,6 +663,11 @@ class Explorer(Gtk.ColumnView):
             self.vert_screen_preview.append(self.img_box)
 
         self.img_preview.set_from_file(str(path))
+
+    def disable_img_box(self):
+        if self.img_box:
+            self.vert_screen_preview.remove(self.img_box)
+            self.img_box = None
 
     def filter_image_type(self, ext: str) -> bool:
         """

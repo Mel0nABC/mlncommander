@@ -22,11 +22,14 @@ class Preferences(Gtk.Window):
     EXP_1_PATH = ""
     EXP_2_PATH = ""
     SHOW_DIR_LAST = None
+    SHOW_IMAGE_PREVIEW_LABEL = "Mostrar preview de la imagen al seleccionar:"
+    SWITCH_IMG_STATUS = None
 
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(title="Preferencias", transient_for=win)
 
         Preferences.SHOW_DIR_LAST = win.SHOW_DIR_LAST
+        Preferences.SWITCH_IMG_STATUS = win.SWITCH_IMG_STATUS
 
         self.win = win
         self.select_directory_box_1 = None
@@ -135,6 +138,8 @@ class Preferences(Gtk.Window):
         self.win.SHOW_DIR_LAST = Preferences.SHOW_DIR_LAST
         self.win.EXP_1_PATH = Preferences.EXP_1_PATH
         self.win.EXP_2_PATH = Preferences.EXP_2_PATH
+        self.win.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
+
         self.win.save_config_file()
         self.destroy()
 
@@ -252,6 +257,43 @@ class Preferences(Gtk.Window):
             check_button_last_dir.set_active(True)
         else:
             check_button_set_dir.set_active(True)
+
+        img_preview_label = Gtk.Label(
+            label=Preferences.SHOW_IMAGE_PREVIEW_LABEL
+        )
+
+        image_preview_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        image_preview_box.set_margin_top(20)
+        image_preview_box.append(img_preview_label)
+
+        switch_img = Gtk.Switch.new()
+        switch_img.set_active(Preferences.SWITCH_IMG_STATUS)
+        switch_img.connect("state-set", self.on_press_switch)
+
+        image_preview_box.append(switch_img)
+        self.directory_box.append(image_preview_box)
+
+    def on_press_switch(self, switch: Gtk.Switch, pspec: bool) -> None:
+        """
+        When change switch status, update visual on explorers
+        """
+        Preferences.SWITCH_IMG_STATUS = pspec
+        self.win.SWITCH_IMG_STATUS = pspec
+
+        explorer_1 = self.win.explorer_1
+        explorer_2 = self.win.explorer_2
+
+        if explorer_1.focused:
+            index = explorer_1.get_selected_items_from_explorer()[0]
+            explorer_1.scroll_to(0, None, explorer_1.flags)
+            explorer_1.scroll_to(index, None, explorer_1.flags)
+
+        if explorer_2.focused:
+            index = explorer_2.get_selected_items_from_explorer()[0]
+            explorer_2.scroll_to(0, None, explorer_1.flags)
+            explorer_2.scroll_to(index, None, explorer_1.flags)
 
     def click_select_path_dialog(
         self, button: Gtk.Button, entry: Gtk.Entry

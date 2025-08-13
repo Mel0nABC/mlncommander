@@ -37,6 +37,7 @@ class Window(Gtk.ApplicationWindow):
         self.EXP_1_PATH = ""
         self.EXP_2_PATH = ""
         self.SHOW_DIR_LAST = True
+        self.SWITCH_IMG_STATUS = None
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
@@ -344,6 +345,7 @@ class Window(Gtk.ApplicationWindow):
                 conf.write("EXP_1_PATH=/\n")
                 conf.write("EXP_2_PATH=/\n")
                 conf.write("SHOW_DIR_LAST=True\n")
+                conf.write("SWITCH_IMG_STATUS=True\n")
 
         # We open configuration and load in variables.
         with open(self.CONFIG_FILE, "r+") as conf:
@@ -365,6 +367,9 @@ class Window(Gtk.ApplicationWindow):
                     elif variable_name == "SHOW_DIR_LAST":
                         result = True if split[1] == "True" else False
                         setattr(self, variable_name, result)
+                    elif variable_name == "SWITCH_IMG_STATUS":
+                        result = True if split[1] == "True" else False
+                        setattr(self, variable_name, result)
 
     def save_config_file(self) -> None:
         """
@@ -383,6 +388,7 @@ class Window(Gtk.ApplicationWindow):
                 conf.write(f"EXP_2_PATH={self.EXP_2_PATH}\n")
 
             conf.write(f"SHOW_DIR_LAST={self.SHOW_DIR_LAST}\n")
+            conf.write(f"SWITCH_IMG_STATUS={self.SWITCH_IMG_STATUS}\n")
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """
