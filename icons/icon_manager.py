@@ -20,7 +20,6 @@ class IconManager:
         """
         fm = File_manager()
         result = fm.get_type_folder(path)
-        print(f"{path} ----> {result}")
 
         if result == "local":
             paintable_icon = self.icon_theme.lookup_icon(

@@ -49,6 +49,7 @@ class Explorer(Gtk.ColumnView):
         self.search_str_entry = win.search_str_entry
         self.store = None
         self.win = win
+        self.img_box = None
         self.click_handler = 0
         self.background_list = self.get_last_child()
         self.handler_id_connect = 0
@@ -332,6 +333,9 @@ class Explorer(Gtk.ColumnView):
             self.n_row = selected[0]
 
         self.update_info_explorer(selected_items, selected_size, win)
+
+        if len(list(selected_items)) == 1:
+            self.open_img_preview(selected_items[0])
 
     def update_info_explorer(
         self,
@@ -621,3 +625,50 @@ class Explorer(Gtk.ColumnView):
         my_copy.on_copy(explorer_src, explorer_dst, selected_items, self.win)
 
         GLib.idle_add(explorer_src.load_new_path, old_src_path)
+
+    def open_img_preview(self, path: Path) -> None:
+        """
+        When show preview image is True,
+        insert Gtk.Imgage in other explorer
+        """
+
+        if self.name == "explorer_1":
+            self.vert_screen_preview = self.win.vertical_screen_2
+        else:
+            self.vert_screen_preview = self.win.vertical_screen_1
+
+        if path.is_dir():
+            if self.img_box:
+                self.vert_screen_preview.remove(self.img_box)
+                self.img_box = None
+            return
+
+        if not self.filter_image_type(path.suffix):
+            return
+
+        if not self.img_box:
+            self.img_preview = Gtk.Image.new()
+            self.img_preview.set_size_request(-1, 720)
+            self.img_preview.set_hexpand(True)
+            self.img_box = Gtk.Box(
+                orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+            )
+            self.img_box.set_vexpand(True)
+            self.img_box.set_hexpand(True)
+            self.img_box.append(self.img_preview)
+            self.vert_screen_preview.append(self.img_box)
+
+        self.img_preview.set_from_file(str(path))
+
+    def filter_image_type(self, ext: str) -> bool:
+        """
+        Filter if ext is a image extension
+        """
+        ext = ext.lstrip(".")
+        dictionari = self.icon_manager.load_mime_types()
+        for key, value in dictionari.items():
+            if "image/" in value:
+                if ext == key:
+                    return True
+
+        return False

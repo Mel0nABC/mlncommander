@@ -265,7 +265,6 @@ def find_name_path(
     # We load actual dir store
     store = explorer_src.store
 
-    # TODO: Insert multithread search
     for index in reversed(range(len(store))):
         item = store[index]
         if item:
