@@ -299,7 +299,6 @@ class Explorer(Gtk.ColumnView):
             # Step back
             if self.focused:
                 self.grab_focus()
-                print("GRAB  FOCUS")
                 GLib.idle_add(self.scroll_to, self.n_row_old, None, self.flags)
         else:
             # Keep it up
@@ -650,6 +649,7 @@ class Explorer(Gtk.ColumnView):
             return
 
         if not self.filter_image_type(path.suffix):
+            self.disable_img_box()
             return
 
         if not self.img_box:
