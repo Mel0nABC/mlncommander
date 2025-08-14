@@ -105,7 +105,12 @@ class Explorer(Gtk.ColumnView):
         self.css_manager.load_css_explorer_text()
         self.css_manager.load_css_explorer_background()
         self.get_style_context().add_class("column_view_borders")
-        class_name = "explorer_background"
+
+        if name == "explorer_1":
+            class_name = "explorer_background_left"
+        else:
+            class_name = "explorer_background_right"
+
         self.background_list.get_style_context().add_class(class_name)
 
         # Focus event
@@ -654,13 +659,13 @@ class Explorer(Gtk.ColumnView):
 
         if not self.img_box:
             self.img_preview = Gtk.Image.new()
-            self.img_preview.set_size_request(-1, 720)
+            self.img_preview.set_size_request(-1, self.win.vertical / 2)
+
             self.img_preview.set_hexpand(True)
             self.img_box = Gtk.Box(
                 orientation=Gtk.Orientation.HORIZONTAL, spacing=6
             )
-            self.img_box.set_vexpand(True)
-            self.img_box.set_hexpand(True)
+
             self.img_box.append(self.img_preview)
             self.vert_screen_preview.append(self.img_box)
 
