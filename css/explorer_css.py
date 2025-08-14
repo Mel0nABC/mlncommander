@@ -8,26 +8,61 @@ class Css_explorer_manager:
 
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
-        self.background_explorer_color = "#222226"
-        self.font_size_explorer = 15
-        self.background_search_text_color = "yellow"
-        self.background_search_color = "black"
-        self.font_bold_explorer = "bold"
 
-    def load_css_explorer_background(self) -> None:
+    def load_css_explorer_background(
+        self, color_explorer_left: str, color_explorer_right: str
+    ) -> None:
         """
         Sets the text color when using the search function for files
         or directories
         """
+
         css = f"""
+
+            .bordes{{
+
+                border: solid 1px black;
+            }}
+
             .column_view_borders{{
                 border-radius:10px;
             }}
 
-            .explorer_background{{
-                background-color: {self.background_explorer_color};
+            .explorer_background_left{{
+                background-color: {color_explorer_left};
             }}
 
+            .explorer_background_right{{
+                background-color: {color_explorer_right};
+            }}
+
+        """.encode()
+
+        self.set_css_to_provider(css)
+
+    def load_css_search(
+        self,
+        color_background_search: str,
+        color_search_text: str,
+        font_size_explorer: str,
+        font_bold_explorer: str,
+    ) -> None:
+        """
+        Sets the background color when using the search function for files
+         or directories
+        """
+
+        css = f"""
+            .background_search {{
+                background-color: {color_background_search};
+                color: {color_search_text};
+                font-weight:bold;
+                }}
+
+            .explorer_text_size{{
+                font-size: {font_size_explorer}px;
+                font-weight:{font_bold_explorer};
+            }}
         """.encode()
 
         self.set_css_to_provider(css)
@@ -44,37 +79,6 @@ class Css_explorer_manager:
             provider,
             Gtk.STYLE_PROVIDER_PRIORITY_USER,
         )
-
-    def load_css_background_search(self) -> None:
-        """
-        Sets the background color when using the search function for files
-         or directories
-        """
-
-        css = f"""
-            .background_search {{
-                color: {self.background_search_text_color};
-                background-color: {self.background_search_color};
-                font-weight:bold;
-            }}
-        """.encode()
-
-        self.set_css_to_provider(css)
-
-    def load_css_explorer_text(self) -> None:
-        """
-        Sets the text color when using the search function for files
-         or directories
-        """
-
-        css = f"""
-            .explorer_text_size{{
-                font-size: {self.font_size_explorer}px;
-                font-weight:{self.font_bold_explorer};
-            }}
-        """.encode()
-
-        self.set_css_to_provider(css)
 
     def set_font_size_explorer(self, size: int) -> bool:
         """
@@ -97,13 +101,13 @@ class Css_explorer_manager:
         Change the text color of the file and directory search engine
         """
 
-        if self.background_search_text_color == color:
+        if self.COLOR_SEARCH_TEXT == color:
             return True
 
-        old_color = self.background_search_text_color
-        self.background_search_text_color = color
+        old_color = self.COLOR_SEARCH_TEXT
+        self.COLOR_SEARCH_TEXT = color
 
-        if old_color != self.background_search_text_color:
+        if old_color != self.COLOR_SEARCH_TEXT:
             return True
 
         return False
@@ -112,13 +116,13 @@ class Css_explorer_manager:
         """
         Change the background color of the file and directory search engine
         """
-        if self.background_search_color == color:
+        if self.COLOR_BACKGROUND_SEARCH == color:
             return True
 
-        old_color = self.background_search_color
-        self.background_search_color = color
+        old_color = self.COLOR_BACKGROUND_SEARCH
+        self.COLOR_BACKGROUND_SEARCH = color
 
-        if old_color != self.background_search_color:
+        if old_color != self.COLOR_BACKGROUND_SEARCH:
             return True
 
         return False

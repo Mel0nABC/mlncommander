@@ -279,7 +279,7 @@ def find_name_path(
 
     sorter_model = explorer_src.sort_model.get_sorter()
     sorter_model.changed(0)
-    explorer_src.set_background_search()
+    # explorer_src.set_background_search()
 
     # When there are no results in filtering
     if len(list(store)) == 1:

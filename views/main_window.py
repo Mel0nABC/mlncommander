@@ -38,6 +38,12 @@ class Window(Gtk.ApplicationWindow):
         self.EXP_2_PATH = ""
         self.SHOW_DIR_LAST = True
         self.SWITCH_IMG_STATUS = None
+        self.COLOR_EXPLORER_LEFT = None
+        self.COLOR_EXPLORER_RIGHT = None
+        self.COLOR_BACKGROUND_SEARCH = None
+        self.COLOR_SEARCH_TEXT = None
+        self.FONT_SIZE_EXPLORER = 15
+        self.FONT_BOLD_EXPLORER = "bold"
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
@@ -341,11 +347,20 @@ class Window(Gtk.ApplicationWindow):
 
         # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
+            explorer_back_ground_prede = "#222226"
             with open(self.CONFIG_FILE, "a") as conf:
                 conf.write("EXP_1_PATH=/\n")
                 conf.write("EXP_2_PATH=/\n")
                 conf.write("SHOW_DIR_LAST=True\n")
                 conf.write("SWITCH_IMG_STATUS=True\n")
+                conf.write(
+                    f"COLOR_EXPLORER_LEFT={explorer_back_ground_prede}\n"
+                )
+                conf.write(
+                    f"COLOR_EXPLORER_RIGHT={explorer_back_ground_prede}\n"
+                )
+                conf.write("COLOR_BACKGROUND_SEARCH=rgb(0,0,0)\n")
+                conf.write("COLOR_SEARCH_TEXT=rgb(246,211,45)\n")
 
         # We open configuration and load in variables.
         with open(self.CONFIG_FILE, "r+") as conf:
@@ -371,6 +386,19 @@ class Window(Gtk.ApplicationWindow):
                         result = True if split[1] == "True" else False
                         setattr(self, variable_name, result)
 
+                    elif variable_name == "COLOR_EXPLORER_LEFT":
+                        result = split[1]
+                        setattr(self, variable_name, result)
+                    elif variable_name == "COLOR_EXPLORER_RIGHT":
+                        result = split[1]
+                        setattr(self, variable_name, result)
+                    elif variable_name == "COLOR_BACKGROUND_SEARCH":
+                        result = split[1]
+                        setattr(self, variable_name, result)
+                    elif variable_name == "COLOR_SEARCH_TEXT":
+                        result = split[1]
+                        setattr(self, variable_name, result)
+
     def save_config_file(self) -> None:
         """
         Saves the settings to the current location
@@ -389,6 +417,13 @@ class Window(Gtk.ApplicationWindow):
 
             conf.write(f"SHOW_DIR_LAST={self.SHOW_DIR_LAST}\n")
             conf.write(f"SWITCH_IMG_STATUS={self.SWITCH_IMG_STATUS}\n")
+
+            conf.write(f"COLOR_EXPLORER_LEFT={self.COLOR_EXPLORER_LEFT}\n")
+            conf.write(f"COLOR_EXPLORER_RIGHT={self.COLOR_EXPLORER_RIGHT}\n")
+            conf.write(
+                f"COLOR_BACKGROUND_SEARCH={self.COLOR_BACKGROUND_SEARCH}\n"
+            )
+            conf.write(f"COLOR_SEARCH_TEXT={self.COLOR_SEARCH_TEXT}\n")
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """

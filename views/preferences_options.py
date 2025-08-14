@@ -1,8 +1,9 @@
 import gi
 
+from css.explorer_css import Css_explorer_manager
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio  # noqa: E402
+from gi.repository import Gtk, Gio, Gdk, GObject  # noqa: E402
 
 
 class Preferences(Gtk.Window):
@@ -25,13 +26,40 @@ class Preferences(Gtk.Window):
     SHOW_IMAGE_PREVIEW_LABEL = "Mostrar preview de la imagen al seleccionar:"
     SWITCH_IMG_STATUS = None
 
+    APARENCE_TITLE_COLOR = "Colores"
+
+    # Background colors text
+    BACKGROUND_EXPLORER_LEFT = "Fondo explorador izquierdo:"
+    BACKGROUND_EXPLORER_RIGHT = "Fondo explorador derecho:"
+
+    # Search colors text
+    SEARCH_COLORS_TITLE = "Colores del sistema de búsqueda"
+    SEARCH_BACKGROUND = "Color de fondo:"
+    SEARCH_FONT_COLOR = "Color texto:"
+
+    # Colors
+    COLOR_EXPLORER_LEFT = None
+    COLOR_EXPLORER_RIGHT = None
+    COLOR_BACKGROUND_SEARCH = None
+    COLOR_SEARCH_TEXT = None
+
+    FONT_SIZE_EXPLORER = None
+    FONT_BOLD_EXPLORER = None
+
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(title="Preferencias", transient_for=win)
 
         Preferences.SHOW_DIR_LAST = win.SHOW_DIR_LAST
         Preferences.SWITCH_IMG_STATUS = win.SWITCH_IMG_STATUS
+        Preferences.COLOR_EXPLORER_LEFT = win.COLOR_EXPLORER_LEFT
+        Preferences.COLOR_EXPLORER_RIGHT = win.COLOR_EXPLORER_RIGHT
+        Preferences.COLOR_BACKGROUND_SEARCH = win.COLOR_BACKGROUND_SEARCH
+        Preferences.COLOR_SEARCH_TEXT = win.COLOR_SEARCH_TEXT
+        Preferences.FONT_SIZE_EXPLORER = win.FONT_SIZE_EXPLORER
+        Preferences.FONT_BOLD_EXPLORER = win.FONT_BOLD_EXPLORER
 
         self.win = win
+        self.css_manager = Css_explorer_manager(self.win)
         self.select_directory_box_1 = None
         self.select_directory_box_2 = None
 
@@ -50,9 +78,10 @@ class Preferences(Gtk.Window):
         self.create_directory()
 
         self.appearance_box = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
         self.appearance_box.set_name("appearance_box")
+        self.appearance_box.set_halign(Gtk.Align.START)
         self.create_appearance()
 
         self.set_default_size(900, 700)
@@ -129,6 +158,9 @@ class Preferences(Gtk.Window):
         """
         Close preferencesc window
         """
+        self.css_manager.load_css_explorer_background(
+            self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
+        )
         self.destroy()
 
     def on_accept(self, button: Gtk.Button) -> None:
@@ -139,9 +171,29 @@ class Preferences(Gtk.Window):
         self.win.EXP_1_PATH = Preferences.EXP_1_PATH
         self.win.EXP_2_PATH = Preferences.EXP_2_PATH
         self.win.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
+        self.win.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT
+        self.win.COLOR_EXPLORER_RIGHT = Preferences.COLOR_EXPLORER_RIGHT
+        self.win.COLOR_BACKGROUND_SEARCH = Preferences.COLOR_BACKGROUND_SEARCH
+        self.win.COLOR_SEARCH_TEXT = Preferences.COLOR_SEARCH_TEXT
 
         self.win.save_config_file()
         self.destroy()
+
+    def change_box(self, button: Gtk.Button, actual_box: Gtk.Box) -> None:
+        """
+        Method to change visible option
+        """
+
+        old_child = self.horizontal_option_box.get_first_child()
+
+        if old_child:
+
+            if old_child.get_name() == actual_box.get_name():
+                return
+
+            self.horizontal_option_box.remove(old_child)
+
+        self.horizontal_option_box.append(actual_box)
 
     def create_general(self) -> None:
         """
@@ -196,9 +248,11 @@ class Preferences(Gtk.Window):
 
         dir_label_left = Gtk.Label(label=Preferences.LABEL_DIR_SELECT_LEFT)
         dir_label_left.set_size_request(150, -1)
+        dir_label_left.set_xalign(0.0)
 
         dir_label_right = Gtk.Label(label=Preferences.LABEL_DIR_SELECT_RIGHT)
         dir_label_right.set_size_request(150, -1)
+        dir_label_right.set_xalign(0.0)
 
         entry_path_1 = Gtk.Entry()
         entry_path_1.set_hexpand(True)
@@ -231,12 +285,10 @@ class Preferences(Gtk.Window):
         self.select_directory_box_1.append(dir_label_left)
         self.select_directory_box_1.append(entry_path_1)
         self.select_directory_box_1.append(sel_path_1_btn)
-        # select_directory_box_1.set_halign(Gtk.Align.END)
 
         self.select_directory_box_2.append(dir_label_right)
         self.select_directory_box_2.append(entry_path_2)
         self.select_directory_box_2.append(sel_path_2_btn)
-        # select_directory_box_2.set_halign(Gtk.Align.END)
 
         self.directory_box.append(self.select_directory_box_1)
         self.directory_box.append(self.select_directory_box_2)
@@ -346,20 +398,154 @@ class Preferences(Gtk.Window):
         self.appearance_box.set_margin_bottom(20)
         self.appearance_box.set_margin_start(20)
 
-        self.appearance_box.append(Gtk.Label(label="APPEARANCE"))
+        # Background explorers
 
-    def change_box(self, button: Gtk.Button, actual_box: Gtk.Box) -> None:
-        """
-        Method to change visible option
-        """
+        self.background_horizontal_box_0 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
 
-        old_child = self.horizontal_option_box.get_first_child()
+        self.background_horizontal_box_0.append(
+            Gtk.Label(label=Preferences.APARENCE_TITLE_COLOR)
+        )
 
-        if old_child:
+        self.appearance_box.append(self.background_horizontal_box_0)
 
-            if old_child.get_name() == actual_box.get_name():
-                return
+        self.background_horizontal_box_1 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
 
-            self.horizontal_option_box.remove(old_child)
+        self.background_horizontal_box_1.set_margin_top(20)
 
-        self.horizontal_option_box.append(actual_box)
+        label_explorer_back_left = Gtk.Label(
+            label=Preferences.BACKGROUND_EXPLORER_LEFT
+        )
+        label_explorer_back_left.set_margin_start(100)
+        label_explorer_back_left.set_size_request(200, -1)
+        label_explorer_back_left.set_xalign(0.0)
+
+        color_dialog = Gtk.ColorDialog()
+        btn_color_explorer_left = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color_explorer_left.set_name("btn_color_explorer_left")
+        btn_color_explorer_left.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color_explorer_left)
+
+        self.background_horizontal_box_1.append(label_explorer_back_left)
+        self.background_horizontal_box_1.append(btn_color_explorer_left)
+
+        self.background_horizontal_box_2 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        self.background_horizontal_box_2.set_margin_top(20)
+
+        label_explorer_back_right = Gtk.Label(
+            label=Preferences.BACKGROUND_EXPLORER_RIGHT
+        )
+        label_explorer_back_right.set_margin_start(100)
+        label_explorer_back_right.set_size_request(200, -1)
+        label_explorer_back_right.set_xalign(0.0)
+
+        btn_color_explorer_right = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color_explorer_right.set_name("btn_color_explorer_right")
+        btn_color_explorer_right.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color_explorer_right)
+
+        self.background_horizontal_box_2.append(label_explorer_back_right)
+        self.background_horizontal_box_2.append(btn_color_explorer_right)
+
+        self.appearance_box.append(self.background_horizontal_box_1)
+        self.appearance_box.append(self.background_horizontal_box_2)
+
+        # Search colors
+
+        label_search_colors_title = Gtk.Label(
+            label=Preferences.SEARCH_COLORS_TITLE
+        )
+        label_search_colors_title.set_halign(Gtk.Align.START)
+        label_search_colors_title.set_margin_top(20)
+
+        self.appearance_box.append(label_search_colors_title)
+
+        self.background_horizontal_box_3 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        self.background_horizontal_box_3.set_margin_top(20)
+
+        btn_color_background_search = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color_background_search.set_name("btn_color_background_search")
+        btn_color_background_search.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color_background_search)
+
+        label_search_background = Gtk.Label(
+            label=Preferences.SEARCH_BACKGROUND
+        )
+        label_search_background.set_margin_start(100)
+        label_search_background.set_size_request(200, -1)
+        label_search_background.set_xalign(0.0)
+
+        self.background_horizontal_box_3.append(label_search_background)
+        self.background_horizontal_box_3.append(btn_color_background_search)
+
+        self.background_horizontal_box_4 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        self.background_horizontal_box_4.set_margin_top(20)
+
+        label_search_font = Gtk.Label(label=Preferences.SEARCH_FONT_COLOR)
+        label_search_font.set_margin_start(100)
+        label_search_font.set_size_request(200, -1)
+        label_search_font.set_xalign(0.0)
+
+        btn_color_search_text = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color_search_text.set_name("btn_color_search_text")
+        btn_color_search_text.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color_search_text)
+
+        self.background_horizontal_box_4.append(label_search_font)
+        self.background_horizontal_box_4.append(btn_color_search_text)
+
+        self.appearance_box.append(self.background_horizontal_box_3)
+        self.appearance_box.append(self.background_horizontal_box_4)
+        self.background_horizontal_box_3.set_halign(Gtk.Align.END)
+        self.background_horizontal_box_4.set_halign(Gtk.Align.END)
+
+    def set_color(
+        self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
+    ) -> None:
+        color = button.get_rgba().to_string()
+        name = button.get_name()
+
+        if name == "btn_color_explorer_left":
+            Preferences.COLOR_EXPLORER_LEFT = color
+        elif name == "btn_color_explorer_right":
+            Preferences.COLOR_EXPLORER_RIGHT = color
+        elif name == "btn_color_background_search":
+            Preferences.COLOR_BACKGROUND_SEARCH = color
+        elif name == "btn_color_search_text":
+            Preferences.COLOR_SEARCH_TEXT = color
+
+        self.css_manager.load_css_explorer_background(
+            Preferences.COLOR_EXPLORER_LEFT, Preferences.COLOR_EXPLORER_RIGHT
+        )
+
+    def set_color_dialog_button(self, button: Gtk.ColorDialogButton) -> None:
+        color = Gdk.RGBA()
+        name = button.get_name()
+        if name == "btn_color_explorer_left":
+            Preferences.COLOR_EXPLORER_LEFT = self.win.COLOR_EXPLORER_LEFT
+            color.parse(Preferences.COLOR_EXPLORER_LEFT)
+        elif name == "btn_color_explorer_right":
+            Preferences.COLOR_EXPLORER_RIGHT = self.win.COLOR_EXPLORER_RIGHT
+            color.parse(Preferences.COLOR_EXPLORER_RIGHT)
+        elif name == "btn_color_background_search":
+            Preferences.COLOR_BACKGROUND_SEARCH = (
+                self.win.COLOR_BACKGROUND_SEARCH
+            )
+            color.parse(Preferences.COLOR_BACKGROUND_SEARCH)
+        elif name == "btn_color_search_text":
+            Preferences.COLOR_SEARCH_TEXT = self.win.COLOR_SEARCH_TEXT
+            color.parse(Preferences.COLOR_SEARCH_TEXT)
+
+        button.set_rgba(color)

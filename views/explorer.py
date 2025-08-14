@@ -102,16 +102,7 @@ class Explorer(Gtk.ColumnView):
         self.activate_drop_source()
 
         # Load css and set classes
-        self.css_manager.load_css_explorer_text()
-        self.css_manager.load_css_explorer_background()
-        self.get_style_context().add_class("column_view_borders")
-
-        if name == "explorer_1":
-            class_name = "explorer_background_left"
-        else:
-            class_name = "explorer_background_right"
-
-        self.background_list.get_style_context().add_class(class_name)
+        self.load_css_background()
 
         # Focus event
         self.focus_explorer = Gtk.EventControllerFocus()
@@ -429,7 +420,9 @@ class Explorer(Gtk.ColumnView):
         """
         Initialize proccess to search word in explorer list
         """
+        self.set_background_search()
         self.n_row_old = self.n_row
+
         while self.count_rst_int < self.COUNT_RST_TIME:
             time.sleep(0.001)
             self.count_rst_int += 1
@@ -452,8 +445,8 @@ class Explorer(Gtk.ColumnView):
             "selection-changed", self.reset_count_rst_int
         )
 
-        self.css_manager.load_css_background_search()
-        self.background_list.get_style_context().add_class("background_search")
+        self.load_css_search()
+
         self.scroll_to(0, None, self.flags)
 
     def stop_background_search(self):
@@ -688,3 +681,34 @@ class Explorer(Gtk.ColumnView):
                     return True
 
         return False
+
+    def load_css_background(self) -> None:
+        """
+        Load background explorers color
+        """
+        self.css_manager.load_css_explorer_background(
+            self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
+        )
+
+        if self.name == "explorer_1":
+            class_name = "explorer_background_left"
+        else:
+            class_name = "explorer_background_right"
+
+        self.background_list.get_style_context().add_class(class_name)
+        self.get_style_context().add_class("column_view_borders")
+
+    def load_css_search(self) -> None:
+        """
+        Load css search
+        """
+        # tempòral values.
+
+        self.css_manager.load_css_search(
+            self.win.COLOR_BACKGROUND_SEARCH,
+            self.win.COLOR_SEARCH_TEXT,
+            self.win.FONT_SIZE_EXPLORER,
+            self.win.FONT_BOLD_EXPLORER,
+        )
+
+        self.background_list.get_style_context().add_class("background_search")
