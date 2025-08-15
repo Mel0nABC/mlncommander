@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from pathlib import Path
 import gi
 import asyncio
@@ -11,7 +12,7 @@ class Deleting(Gtk.Dialog):
 
     def __init__(self, parent: Gtk.ApplicationWindow, src_info: Path):
         super().__init__(
-            title="Eliminando  ..",
+            title=_("Eliminando  .."),
             transient_for=parent,
             modal=True,
         )
@@ -26,7 +27,7 @@ class Deleting(Gtk.Dialog):
         self.lbl_src.set_margin_end(20)
         self.lbl_src.set_margin_start(20)
 
-        self.btn_cancel = Gtk.Button(label="Cancelar")
+        self.btn_cancel = Gtk.Button(label=_("Cancelar"))
         self.btn_cancel.connect("clicked", self.cancel_deleting)
         self.btn_cancel.set_margin_top(20)
         self.btn_cancel.set_margin_end(20)

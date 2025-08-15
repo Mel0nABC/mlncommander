@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from pathlib import Path
 import asyncio
 import gi
@@ -11,7 +12,7 @@ class Moving(Gtk.Dialog):
 
     def __init__(self, parent: Gtk.ApplicationWindow):
         super().__init__(
-            title="Moviendo ..",
+            title=_("Moviendo .."),
             transient_for=parent,
             modal=True,
         )
@@ -38,7 +39,7 @@ class Moving(Gtk.Dialog):
         self.lbl_size.set_margin_end(20)
         self.lbl_size.set_margin_start(20)
 
-        self.btn_cancel = Gtk.Button(label="Cancelar")
+        self.btn_cancel = Gtk.Button(label=_("Cancelar"))
         self.btn_cancel.connect("clicked", self.cancel_moving)
         self.btn_cancel.set_margin_top(20)
         self.btn_cancel.set_margin_end(20)
@@ -81,8 +82,8 @@ class Moving(Gtk.Dialog):
                 )
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))
-            self.lbl_dst.set_text("Obteniendo destino ..")
-            self.lbl_size.set_text("Caldulando ...")
+            self.lbl_dst.set_text(_("Obteniendo destino .."))
+            self.lbl_size.set_text(_("Caldulando ..."))
             print(e)
 
     def cancel_moving(self, button: Gtk.Button) -> None:

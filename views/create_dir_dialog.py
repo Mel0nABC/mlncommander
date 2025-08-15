@@ -1,3 +1,4 @@
+from utilities.i18n import _
 import gi
 from gi.repository import Gtk
 import asyncio
@@ -13,7 +14,7 @@ class Create_dir_dialog(Gtk.Dialog):
         explorer_src: "Explorer",  # noqa: F821
     ):
         super().__init__(
-            title="Creando directorio",
+            title=_("Creando directorio"),
             transient_for=parent,
             modal=True,
         )
@@ -39,8 +40,8 @@ class Create_dir_dialog(Gtk.Dialog):
 
         box.append(vertical_box_info)
 
-        self.btn_accept = Gtk.Button(label="Aceptar")
-        self.btn_cancel = Gtk.Button(label="Cancelar")
+        self.btn_accept = Gtk.Button(label=_("Aceptar"))
+        self.btn_cancel = Gtk.Button(label=_("Cancelar"))
 
         self.btn_accept.connect("clicked", self.get_selected_option)
         self.btn_cancel.connect("clicked", self.exit)

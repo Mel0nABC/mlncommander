@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from controls.Actions import Actions
 from pathlib import Path
 from views.rename_dialog import Rename_dialog
@@ -76,7 +77,7 @@ class Rename_Logic:
                 new_path = Path(f"{src_info.parent}/{self.response}")
                 if new_path.exists():
                     text = f"El archivo con nombre {new_path.name}, ya existe."
-                    GLib.idle_add(self.action.show_msg_alert, parent, text)
+                    GLib.idle_add(self.action.show_msg_alert, parent, _(text))
                     continue
                 os.rename(src_info, new_path)
 

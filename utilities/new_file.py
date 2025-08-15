@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from controls.Actions import Actions
 from pathlib import Path
 from views.new_file_dialog import NewFileDialog
@@ -37,8 +38,10 @@ class NewFile:
             self.action.show_msg_alert(
                 win,
                 (
-                    "Debe estar en un explorador antes"
-                    " de poder crear el archivo"
+                    _(
+                        "Debe estar en un explorador antes"
+                        " de poder crear el archivo"
+                    )
                 ),
             )
             return

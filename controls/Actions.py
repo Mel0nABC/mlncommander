@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from pathlib import Path
 import gi
 import sys
@@ -32,7 +33,9 @@ class Actions:
                 raise FileNotFoundError()
             explorer.load_new_path(path)
         except FileNotFoundError:
-            text = "¡Advertencia! El fichero o directorio de destino no existe"
+            text = _(
+                "¡Advertencia! El fichero o directorio de destino no existe"
+            )
             GLib.idle_add(self.show_msg_alert, self.parent, text)
 
     def entry_change_path(
@@ -67,8 +70,10 @@ class Actions:
             except Exception:
                 self.show_msg_alert(
                     self.parent,
-                    f"""Ha ocurrido algun problema al intentar ejecutar el
-                     archivo:\n{path}""",
+                    _(
+                        f"""Ha ocurrido algun problema al intentar ejecutar el
+                     archivo:\n{path}"""
+                    ),
                 )
             return
 

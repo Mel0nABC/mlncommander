@@ -1,12 +1,8 @@
+# from utilities.i18n import _
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from pathlib import Path
 import time
-import gi
-
-gi.require_version("Gtk", "4.0")
-
-from gi.repository import GLib  # noqa: E402
 
 
 class My_watchdog:

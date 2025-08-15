@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from controls.Actions import Actions
 from pathlib import Path
 from multiprocessing import Process
@@ -53,7 +54,7 @@ class My_copy:
 
         if not self.file_manager.check_free_space(selected_items, dst_dir):
             self.action.show_msg_alert(
-                parent, "No hay suficiente espacio en destino"
+                parent, _("No hay suficiente espacio en destino")
             )
             return
 
@@ -68,7 +69,7 @@ class My_copy:
 
         if src_dir == dst_dir:
             self.action.show_msg_alert(
-                parent, "Intentar copiar un archivo a él mismo"
+                parent, _("Intentar copiar un archivo a él mismo")
             )
             return
 
@@ -100,7 +101,7 @@ class My_copy:
 
         if not self.file_manager.check_free_space(selected_items, dst_dir):
             self.action.show_msg_alert(
-                parent, "No hay suficiente espacio en destino"
+                parent, _("No hay suficiente espacio en destino")
             )
             return
 
@@ -226,8 +227,10 @@ class My_copy:
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     parent,
-                    """No se puede copiar en esta ruta,
-                     se genera bucle infinito.""",
+                    _(
+                        "No se puede copiar en esta ruta,"
+                        " se genera bucle infinito."
+                    ),
                 )
                 continue
 
@@ -391,10 +394,12 @@ class My_copy:
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     parent,
-                    f"""El nombre del fichero ya existe\n
+                    _(
+                        f"""El nombre del fichero ya existe\n
                     Destino:{self.new_name}\n
                     Se ha hecho  una copia con:\n
-                    Source: {self.emergency_name}""",
+                    Source: {self.emergency_name}"""
+                    ),
                 )
             else:
                 self.copying_dialog.set_labels(src_info, self.new_name)
@@ -441,7 +446,7 @@ class My_copy:
             explorer_src,
             explorer_dst,
             selected_items,
-            "Copiar",
+            _("Copiar"),
         )
         response = await selected_for_copy.wait_response_async()
         return response

@@ -1,3 +1,4 @@
+from utilities.i18n import _
 import gi
 
 from css.explorer_css import Css_explorer_manager
@@ -8,34 +9,36 @@ from gi.repository import Gtk, Gio, Gdk, GObject  # noqa: E402
 
 class Preferences(Gtk.Window):
 
-    GENERAL_LABEL_BTN = "General"
-    DIRECTORY_LABEL_BTN = "Directorios"
-    APPEARANCE_LABEL_BTN = "Apariencia"
+    GENERAL_LABEL_BTN = _("General")
+    DIRECTORY_LABEL_BTN = _("Directorios")
+    APPEARANCE_LABEL_BTN = _("Apariencia")
 
-    DIRECTORY_TITLE = "Directorios de inicio"
-    UTILIZATION_LAST_DIR = "Utilizar últimos directorios usados."
-    UTILIZATION_SET_DIR = "Utilizar siempre los mismos al iniciar."
-    SELECT_FILE_TITLE = "Seleccionar archivo"
-    LABEL_DIR_SELECT_LEFT = "Directorio izquierdo:"
-    LABEL_DIR_SELECT_RIGHT = "Directorio derecho:"
-    BTN_ACCEPT_LABEL = "Aceptar"
-    BTN_CANCEL_LABEL = "Cancel"
+    DIRECTORY_TITLE = _("Directorios de inicio")
+    UTILIZATION_LAST_DIR = _("Utilizar últimos directorios usados.")
+    UTILIZATION_SET_DIR = _("Utilizar siempre los mismos al iniciar.")
+    SELECT_FILE_TITLE = _("Seleccionar archivo")
+    LABEL_DIR_SELECT_LEFT = _("Directorio izquierdo:")
+    LABEL_DIR_SELECT_RIGHT = _("Directorio derecho:")
+    BTN_ACCEPT_LABEL = _("Aceptar")
+    BTN_CANCEL_LABEL = _("Cancel")
     EXP_1_PATH = ""
     EXP_2_PATH = ""
     SHOW_DIR_LAST = None
-    SHOW_IMAGE_PREVIEW_LABEL = "Mostrar preview de la imagen al seleccionar:"
+    SHOW_IMAGE_PREVIEW_LABEL = _(
+        "Mostrar preview de la imagen al seleccionar:"
+    )
     SWITCH_IMG_STATUS = None
 
-    APARENCE_TITLE_COLOR = "Colores"
+    APARENCE_TITLE_COLOR = _("Colores")
 
     # Background colors text
-    BACKGROUND_EXPLORER_LEFT = "Fondo explorador izquierdo:"
-    BACKGROUND_EXPLORER_RIGHT = "Fondo explorador derecho:"
+    BACKGROUND_EXPLORER_LEFT = _("Fondo explorador izquierdo:")
+    BACKGROUND_EXPLORER_RIGHT = _("Fondo explorador derecho:")
 
     # Search colors text
-    SEARCH_COLORS_TITLE = "Colores del sistema de búsqueda"
-    SEARCH_BACKGROUND = "Color de fondo:"
-    SEARCH_FONT_COLOR = "Color texto:"
+    SEARCH_COLORS_TITLE = _("Colores del sistema de búsqueda")
+    SEARCH_BACKGROUND = _("Color de fondo:")
+    SEARCH_FONT_COLOR = _("Color texto:")
 
     # Colors
     COLOR_EXPLORER_LEFT = None
@@ -47,7 +50,7 @@ class Preferences(Gtk.Window):
     FONT_BOLD_EXPLORER = None
 
     def __init__(self, win: Gtk.ApplicationWindow):
-        super().__init__(title="Preferencias", transient_for=win)
+        super().__init__(title=_("Preferencias"), transient_for=win)
 
         Preferences.SHOW_DIR_LAST = win.SHOW_DIR_LAST
         Preferences.SWITCH_IMG_STATUS = win.SWITCH_IMG_STATUS
@@ -204,7 +207,7 @@ class Preferences(Gtk.Window):
         self.general_box.set_margin_bottom(20)
         self.general_box.set_margin_start(20)
 
-        self.general_box.append(Gtk.Label(label="GENERAL"))
+        self.general_box.append(Gtk.Label(label=_("GENERAL")))
 
     def create_directory(self) -> None:
         """

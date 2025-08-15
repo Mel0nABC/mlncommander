@@ -1,4 +1,5 @@
 from __future__ import annotations
+from utilities.i18n import _
 from controls.Actions import Actions
 from pathlib import Path
 from views.create_dir_dialog import Create_dir_dialog
@@ -28,7 +29,9 @@ class Create:
         """
 
         if not explorer_dst:
-            self.action.show_msg_alert(parent, "Debe seleccionar explorador.")
+            self.action.show_msg_alert(
+                parent, _("Debe seleccionar explorador.")
+            )
             return
 
         dst_dir = explorer_dst.actual_path
@@ -37,8 +40,10 @@ class Create:
             self.action.show_msg_alert(
                 parent,
                 (
-                    f"No tienes permiso de escritura en el directorio de"
-                    f" destino:\n\n{dst_dir}"
+                    _(
+                        f"No tienes permiso de escritura en el directorio de"
+                        f" destino:\n\n{dst_dir}"
+                    )
                 ),
             )
             return False
@@ -66,13 +71,13 @@ class Create:
 
         if explorer_dst.actual_path == dst_dir or not response.strip():
             self.action.show_msg_alert(
-                parent, "Debes introducir algún nombre válido."
+                parent, _("Debes introducir algún nombre válido.")
             )
             return
 
         if dst_dir.exists():
             self.action.show_msg_alert(
-                parent, "El directorio que quiere crear, ya existe."
+                parent, _("El directorio que quiere crear, ya existe.")
             )
             return
 

@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from views.explorer import Explorer
 import gi
 from gi.repository import Gtk, Gio
@@ -17,8 +18,9 @@ class Selected_for_copy_move(Gtk.Dialog):
         selected_items: list,
         btn_src: Gtk.Button,
     ):
+        title_text = f"Listo para {str.lower(btn_src)} .."
         super().__init__(
-            title=f"Listo para {str.lower(btn_src)} ..",
+            title=_(title_text),
             transient_for=parent,
             modal=True,
         )
@@ -48,7 +50,7 @@ class Selected_for_copy_move(Gtk.Dialog):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
-        lbl_dst = Gtk.Label(label="Destino:")
+        lbl_dst = Gtk.Label(label=_("Destino:"))
         lbl_dst.set_halign(Gtk.Align.START)
 
         entry_dst = Gtk.Entry()
@@ -64,9 +66,9 @@ class Selected_for_copy_move(Gtk.Dialog):
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        btn_show_files = Gtk.Button(
-            label=f"Archivos ({len(self.selected_items)})"
-        )
+        btn_show_files_text = f"Archivos ({len(self.selected_items)})"
+
+        btn_show_files = Gtk.Button(label=_(btn_show_files_text))
         horizonntal_box_btn.append(btn_show_files)
         horizonntal_box_btn.set_halign(Gtk.Align.START)
 
@@ -75,8 +77,8 @@ class Selected_for_copy_move(Gtk.Dialog):
         )
         horizontal_box_btn_sec.set_halign(Gtk.Align.END)
 
-        btn_copy = Gtk.Button(label=btn_src)
-        btn_cancel = Gtk.Button(label="Cancelar")
+        btn_copy = Gtk.Button(label=_(btn_src))
+        btn_cancel = Gtk.Button(label=_("Cancelar"))
 
         horizontal_box_btn_sec.append(btn_copy)
         horizontal_box_btn_sec.append(btn_cancel)

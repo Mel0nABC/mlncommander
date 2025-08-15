@@ -1,5 +1,5 @@
+from utilities.i18n import _
 import gi
-
 from controls import Action_keys
 from controls import Actions
 from views.menu_bar import Menu_bar
@@ -158,28 +158,28 @@ class Window(Gtk.ApplicationWindow):
         )
         horizontal_botton_menu.set_hexpand(True)
 
-        btn_F2 = Gtk.Button(label="Renombrar < F2 >")
+        btn_F2 = Gtk.Button(label=_("Renombrar < F2 >"))
         horizontal_botton_menu.append(btn_F2)
 
-        btn_F3 = Gtk.Button(label="Nuevo Fichero < F3 >")
+        btn_F3 = Gtk.Button(label=_("Nuevo Fichero < F3 >"))
         horizontal_botton_menu.append(btn_F3)
 
-        btn_F5 = Gtk.Button(label="Copiar < F5 >")
+        btn_F5 = Gtk.Button(label=_("Copiar < F5 >"))
         horizontal_botton_menu.append(btn_F5)
 
-        btn_F6 = Gtk.Button(label="Mover < F6 >")
+        btn_F6 = Gtk.Button(label=_("Mover < F6 >"))
         horizontal_botton_menu.append(btn_F6)
 
-        btn_F7 = Gtk.Button(label="Crear dir < F7 >")
+        btn_F7 = Gtk.Button(label=_("Crear dir < F7 >"))
         horizontal_botton_menu.append(btn_F7)
 
-        btn_F8 = Gtk.Button(label="Eliminar < F8 >")
+        btn_F8 = Gtk.Button(label=_("Eliminar < F8 >"))
         horizontal_botton_menu.append(btn_F8)
 
-        btn_F9 = Gtk.Button(label="Duplicar < F9 >")
+        btn_F9 = Gtk.Button(label=_("Duplicar < F9 >"))
         horizontal_botton_menu.append(btn_F9)
 
-        btn_F10 = Gtk.Button(label="Salir < F10 >")
+        btn_F10 = Gtk.Button(label=_("Salir < F10 >"))
         horizontal_botton_menu.append(btn_F10)
 
         # Left label show selection info

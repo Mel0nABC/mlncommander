@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from controls.Actions import Actions
 
 from pathlib import Path
@@ -28,7 +29,7 @@ class AccessControl:
             GLib.idle_add(
                 self.action.show_msg_alert,
                 parent,
-                "Debe seleccionar algún archivo o directorio.",
+                _("Debe seleccionar algún archivo o directorio."),
             )
             return False
 
@@ -37,8 +38,10 @@ class AccessControl:
                 self.action.show_msg_alert,
                 parent,
                 (
-                    "Ha ocurrido un problema con la"
-                    " ventana de destino,reinicie la aplicación."
+                    _(
+                        "Ha ocurrido un problema con la"
+                        " ventana de destino,reinicie la aplicación."
+                    )
                 ),
             )
             return False
@@ -48,9 +51,11 @@ class AccessControl:
                 self.action.show_msg_alert,
                 parent,
                 (
-                    f"No tienes permiso de escritura en el directorio de"
-                    f" destino:\n\n{dst_dir}\n\n"
-                    f"La acción no puede realizarse"
+                    _(
+                        f"No tienes permiso de escritura en el directorio de"
+                        f" destino:\n\n{dst_dir}\n\n"
+                        f"La acción no puede realizarse"
+                    )
                 ),
             )
             return False
@@ -73,9 +78,11 @@ class AccessControl:
                 self.action.show_msg_alert,
                 parent,
                 (
-                    f"No tienes permiso de escritura en el directorio de"
-                    f" origen:\n\n{dst_dir}\n\n"
-                    f"La acción no puede realizarse"
+                    _(
+                        f"No tienes permiso de escritura en el directorio de"
+                        f" origen:\n\n{dst_dir}\n\n"
+                        f"La acción no puede realizarse"
+                    )
                 ),
             )
             return False
@@ -95,9 +102,11 @@ class AccessControl:
                 self.action.show_msg_alert,
                 parent,
                 (
-                    f"No tienes permiso de escritura en el directorio de"
-                    f" origen:\n\n{dst_dir}\n\n"
-                    f"La acción no puede realizarse"
+                    _(
+                        f"No tienes permiso de escritura en el directorio de"
+                        f" origen:\n\n{dst_dir}\n\n"
+                        f"La acción no puede realizarse"
+                    )
                 ),
             )
             return False
@@ -114,9 +123,11 @@ class AccessControl:
                 self.action.show_msg_alert,
                 parent,
                 (
-                    f"No tienes permiso de lectura sobre el origen:\n\n"
-                    f"{src_dir_file}\n\n"
-                    f"Se detiene el proceso."
+                    _(
+                        f"No tienes permiso de lectura sobre el origen:\n\n"
+                        f"{src_dir_file}\n\n"
+                        f"Se detiene el proceso."
+                    )
                 ),
             )
             return False

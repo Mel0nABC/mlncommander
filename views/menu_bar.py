@@ -1,3 +1,4 @@
+from utilities.i18n import _
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -14,9 +15,9 @@ class Menu_bar(Gio.Menu):
         self.win = win
 
         file_menu = Gio.Menu()
-        file_menu.append("Archivo", "app.file")
-        file_menu.append("Exit", "win.exit")
-        file_menu.append("Preferencias", "win.peferencias")
+        file_menu.append(_("Archivo"), "app.file")
+        file_menu.append(_("Salir"), "win.exit")
+        file_menu.append(_("Preferencias"), "win.peferencias")
 
         self.append_submenu("Archivo", file_menu)
 
@@ -32,7 +33,6 @@ class Menu_bar(Gio.Menu):
         self.win.add_action(action_preferences)
 
     def exit(self, action, parameter):
-        print("SALIR")
         self.win.exit()
 
     def open_preferences(self, action, parameter):

@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from controls.Actions import Actions
 from pathlib import Path
 import asyncio
@@ -14,7 +15,7 @@ class NewFileDialog(Gtk.Window):
         src_dir: "Explorer",  # noqa: F821
         new_file: "NewFile",  # noqa: F821
     ):
-        super().__init__(title="Crear fichero", transient_for=parent)
+        super().__init__(title=_("Crear fichero"), transient_for=parent)
 
         self.actions = Actions()
         self.win = parent
@@ -31,7 +32,7 @@ class NewFileDialog(Gtk.Window):
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        name_label = Gtk.Label.new("Nombre del nuevo archivo:")
+        name_label = Gtk.Label.new(_("Nombre del nuevo archivo:"))
         name_label.set_margin_top(20)
         name_label.set_halign(Gtk.Align.START)
 
@@ -59,8 +60,8 @@ class NewFileDialog(Gtk.Window):
 
         vertical_box_info.append(horizontal_box)
 
-        self.btn_accept = Gtk.Button(label="Aceptar")
-        self.btn_cancel = Gtk.Button(label="Cancelar")
+        self.btn_accept = Gtk.Button(label=_("Aceptar"))
+        self.btn_cancel = Gtk.Button(label=_("Cancelar"))
 
         self.btn_accept.connect("clicked", self.get_selected_option)
         self.btn_cancel.connect("clicked", self.exit)
@@ -107,14 +108,15 @@ class NewFileDialog(Gtk.Window):
         path = Path(f"{self.src_dir.actual_path}/{file_name}")
 
         if path.exists():
-            self.actions.show_msg_alert(self.win, "El archivo ya existe.")
+            self.actions.show_msg_alert(self.win, _("El archivo ya existe."))
             return
 
         response = self.new_file.create_new_file(path)
 
         if not response:
             self.actions.show_msg_alert(
-                self.win, "Ha surgido algún problema al crear el archivo."
+                self.win,
+                _("Ha surgido algún problema al crear el archivo."),
             )
             return
 

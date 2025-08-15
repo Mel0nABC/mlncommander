@@ -1,13 +1,28 @@
 from views.main_window import Window
 from controls.Actions import Actions
+from pathlib import Path
 import gbulb
+import subprocess
+import gettext
 import gi
+import os
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk  # noqa: E402
 
 
 gbulb.install()  # Integrate asyncio into Gtk
+
+
+# Configure gettext
+APP_NAME = "mlncommander"
+LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locales")
+
+
+# Initialice gettext
+gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
+gettext.textdomain(APP_NAME)
+_ = gettext.gettext
 
 
 class App(Gtk.Application):
@@ -27,6 +42,32 @@ class App(Gtk.Application):
         action.set_parent(self.window)
         self.window.present()
         self.window.set_explorer_initial()
+
+        # self.generate_project_file_list()
+
+    def generate_project_file_list(self):
+        py_files = []
+        project_path = Path(LOCALE_DIR).parent
+
+        def iter_dir(path: Path):
+            for item in path.iterdir():
+                if item.is_dir():
+                    if not item.name == "venv":
+                        iter_dir(item)
+                else:
+                    if item.suffix == ".py":
+                        py_files.append(str(item))
+
+        iter_dir(project_path)
+
+        file = [str(p) for p in py_files]
+        print(file)
+        print(py_files)
+
+        subprocess.run(
+            ["xgettext", "-o", "lenguaje_template.pot"] + py_files,
+            check=True,
+        )
 
 
 app = App()

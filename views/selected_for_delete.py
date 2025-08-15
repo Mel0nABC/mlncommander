@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from entity.File_or_directory_info import File_or_directory_info
 from views.explorer import Explorer
 import gi
@@ -17,7 +18,7 @@ class Selected_for_delete(Gtk.Dialog):
         selected_items: list,
     ):
         super().__init__(
-            title="Lista para eliminar",
+            title=_("Lista para eliminar"),
             transient_for=parent,
             modal=True,
         )
@@ -46,9 +47,11 @@ class Selected_for_delete(Gtk.Dialog):
         self.vertical_box.set_vexpand(True)
 
         lbl_src = Gtk.Label(
-            label="¿Eliminar permanentemente el/los archivo(s) e "
-            + "directorio(s) seleccionado(s)?\n\nEsta operación no "
-            + "puede deshacerse."
+            label=_(
+                "¿Eliminar permanentemente el/los archivo(s) e "
+                + "directorio(s) seleccionado(s)?\n\nEsta operación no "
+                + "puede deshacerse."
+            )
         )
         lbl_src.set_halign(Gtk.Align.START)
 
@@ -66,8 +69,8 @@ class Selected_for_delete(Gtk.Dialog):
         )
         horizontal_box_btn_sec.set_halign(Gtk.Align.END)
 
-        btn_accept = Gtk.Button(label="Eliminar")
-        btn_cancel = Gtk.Button(label="Cancelar")
+        btn_accept = Gtk.Button(label=_("Eliminar"))
+        btn_cancel = Gtk.Button(label=_("Cancelar"))
 
         horizontal_box_btn_sec.append(btn_accept)
         horizontal_box_btn_sec.append(btn_cancel)

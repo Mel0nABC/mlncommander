@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from controls.Actions import Actions
 from pathlib import Path
 from asyncio import Future
@@ -36,15 +37,17 @@ class Remove:
         if not src_info.exists():
             self.action.show_msg_alert(
                 parent,
-                """Ha surgido algún problema al
-                 intentar eliminar la ubicacion seleccionada""",
+                _(
+                    """Ha surgido algún problema al
+                 intentar eliminar la ubicacion seleccionada"""
+                ),
             )
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
         if not selected_items:
             self.action.show_msg_alert(
-                parent, "Debe seleccionar algún archivo o directorio."
+                parent, _("Debe seleccionar algún archivo o directorio.")
             )
             return
 
@@ -83,7 +86,8 @@ class Remove:
         if not response:
             self.stop_deleting = True
             self.action.show_msg_alert(
-                parent, "Se detubo el proceso de borrado antes de finalizar."
+                parent,
+                _("Se detubo el proceso de borrado antes de finalizar."),
             )
 
     def delete_now(

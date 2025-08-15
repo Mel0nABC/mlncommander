@@ -1,4 +1,5 @@
 from __future__ import annotations
+from utilities.i18n import _
 from controls.Actions import Actions
 from pathlib import Path
 from datetime import datetime
@@ -40,7 +41,7 @@ class Move:
 
         if not self.file_manager.check_free_space(selected_items, dst_dir):
             self.action.show_msg_alert(
-                self.parent, "No hay suficiente espacio en destino"
+                self.parent, _("No hay suficiente espacio en destino")
             )
             return
 
@@ -80,7 +81,7 @@ class Move:
             explorer_src,
             explorer_dst,
             selected_items,
-            "Mover",
+            _("Mover"),
         )
         response = await selected_for_moving.wait_response_async()
 
@@ -142,14 +143,20 @@ class Move:
             if str(parent) == str(dst_dir):
                 self.action.show_msg_alert(
                     self.parent,
-                    "Estás queriendo mover el contenido al mismo directorio",
+                    _(
+                        "Estás queriendo mover "
+                        "el contenido al mismo directorio"
+                    ),
                 )
                 continue
 
             if src_info == dst_dir:
                 self.action.show_msg_alert(
                     self.parent,
-                    "Estas intentando mover un directorio dentro de sí mismo",
+                    _(
+                        "Estas intentando mover "
+                        "un directorio dentro de sí mismo"
+                    ),
                 )
                 continue
 
@@ -275,10 +282,12 @@ class Move:
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     parent,
-                    f"""El nombre del fichero ya existe\nDestino:"
+                    _(
+                        f"""El nombre del fichero ya existe\nDestino:"
                     {self.new_name}\n"
                     Se ha hecho  una copia con:\nSource: {self.emergency_name}
-                    """,
+                    """
+                    ),
                 )
             else:
                 self.moving_dialog.set_labels(src_info, self.new_name)

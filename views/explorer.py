@@ -1,3 +1,4 @@
+from utilities.i18n import _
 from pathlib import Path
 import shutil
 import threading
@@ -586,7 +587,12 @@ class Explorer(Gtk.ColumnView):
             except Exception:
                 self.action.show_msg_alert(
                     self.win,
-                    ("Ha ocurrido un problema al intentar copiar el archivo"),
+                    (
+                        _(
+                            "Ha ocurrido un problema"
+                            " al intentar copiar el archivo"
+                        )
+                    ),
                 )
 
         elif GObject.type_name(files[0]) == "GDaemonFile":
@@ -596,8 +602,10 @@ class Explorer(Gtk.ColumnView):
                 self.action.show_msg_alert(
                     self.win,
                     (
-                        "Puede que tenga que avanzar más en"
-                        " la url para poder descargar este fichero"
+                        _(
+                            "Puede que tenga que avanzar más en"
+                            " la url para poder descargar este fichero"
+                        )
                     ),
                 )
 
@@ -626,13 +634,14 @@ class Explorer(Gtk.ColumnView):
 
         if not file_name:
             self.action.show_msg_alert(
-                self.win, "La url no llega a un archivo"
+                self.win, _("La url no llega a un archivo")
             )
             return
 
         if dst_file.exists():
             self.action.show_msg_alert(
-                self.win, "El fichero que intenta descarga ya existe"
+                self.win,
+                _("El fichero que intenta descarga ya existe"),
             )
             return
 
@@ -641,7 +650,7 @@ class Explorer(Gtk.ColumnView):
         if dst_free_size < file_size:
             self.action.show_msg_alert(
                 self.win,
-                "No tiene espacio suficiente para descargar este fichero",
+                _("No tiene espacio suficiente para descargar este fichero"),
             )
             return
 
