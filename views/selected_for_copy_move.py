@@ -18,9 +18,11 @@ class Selected_for_copy_move(Gtk.Dialog):
         selected_items: list,
         btn_src: Gtk.Button,
     ):
-        title_text = f"Listo para {str.lower(btn_src)} .."
+        btn_label = _(str.lower(btn_src))
+        title_text = _("Listo para ")
+        title_text_final = f"{title_text} {btn_label} .."
         super().__init__(
-            title=_(title_text),
+            title=title_text_final,
             transient_for=parent,
             modal=True,
         )
@@ -66,7 +68,8 @@ class Selected_for_copy_move(Gtk.Dialog):
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        btn_show_files_text = f"Archivos ({len(self.selected_items)})"
+        files_text = _("Archivos")
+        btn_show_files_text = f"{files_text} ({len(self.selected_items)})"
 
         btn_show_files = Gtk.Button(label=_(btn_show_files_text))
         horizonntal_box_btn.append(btn_show_files)

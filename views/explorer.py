@@ -404,9 +404,12 @@ class Explorer(Gtk.ColumnView):
         total_size_items_reduced = temp_file_or_directory.get_size_and_unit(
             total_size_items
         )
+
+        selecteds = _("Seleccionados")
+        of = _("de")
         info_selected_files = (
-            f"{selected_size} de {items_list_size} "
-            f"seleccionados, {total_size_items_reduced}"
+            f"{selected_size} {of} {items_list_size} "
+            f"{selecteds}, {total_size_items_reduced}"
         )
 
         if self.name == "explorer_1":

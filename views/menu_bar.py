@@ -14,13 +14,19 @@ class Menu_bar(Gio.Menu):
         super().__init__()
         self.win = win
 
-        file_menu = Gio.Menu()
-        file_menu.append(_("Archivo"), "app.file")
-        file_menu.append(_("Salir"), "win.exit")
-        file_menu.append(_("Preferencias"), "win.peferencias")
+        main_menu = Gio.Menu()
+        # main_menu.append(_("Archivo"), "app.file")
 
-        self.append_submenu("Archivo", file_menu)
+        pref_menu = Gio.Menu()
+        pref_menu.append(_("Preferencias"), "win.peferencias")
 
+        exit_menu = Gio.Menu()
+        exit_menu.append(_("Salir"), "win.exit")
+
+        main_menu.append_section(None, pref_menu)
+        main_menu.append_section(None, exit_menu)
+
+        self.append_submenu(_("Archivo"), main_menu)
         self.menubar = Gtk.PopoverMenuBar.new_from_model(self)
 
         action_exit = Gio.SimpleAction.new("exit", None)

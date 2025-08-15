@@ -13,7 +13,6 @@ from gi.repository import Gtk  # noqa: E402
 
 gbulb.install()  # Integrate asyncio into Gtk
 
-
 # Configure gettext
 APP_NAME = "mlncommander"
 LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locales")
@@ -43,7 +42,7 @@ class App(Gtk.Application):
         self.window.present()
         self.window.set_explorer_initial()
 
-        # self.generate_project_file_list()
+        self.generate_project_file_list()
 
     def generate_project_file_list(self):
         py_files = []
@@ -68,6 +67,9 @@ class App(Gtk.Application):
             ["xgettext", "-o", "lenguaje_template.pot"] + py_files,
             check=True,
         )
+
+        # Para actualizar el .po con el nunevo .pot
+        # msgmerge --update locales/chatgpt.po lenguaje_template.pot
 
 
 app = App()

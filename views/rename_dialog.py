@@ -30,17 +30,25 @@ class Rename_dialog(Gtk.Dialog):
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
 
-        dst_label_text = f"Destino: {self.dst_info.path_file}"
+        vertical_box_info.set_margin_top(20)
+        vertical_box_info.set_margin_start(20)
+        vertical_box_info.set_margin_end(20)
+
+        dst_text = _("Destino")
+        dst_label_text = f"{dst_text}: {self.dst_info.path_file}"
         dst_label = Gtk.Label.new(_(dst_label_text))
         dst_label.set_margin_top(20)
         dst_label.set_halign(Gtk.Align.START)
-        size_dst_label_text = f"Tamaño: {self.dst_info.size}"
+        size_text = _("Tamaño")
+        size_dst_label_text = f"{size_text}: {self.dst_info.size}"
         size_dst_label = Gtk.Label.new(_(size_dst_label_text))
         size_dst_label.set_halign(Gtk.Align.START)
-        date_dst_label_text = f"Fecha: {self.dst_info.date_created_str}"
+        date_dst = _("Fecha")
+        date_dst_label_text = f"{date_dst}: {self.dst_info.date_created_str}"
         date_dst_label = Gtk.Label.new(_(date_dst_label_text))
         date_dst_label.set_halign(Gtk.Align.START)
-        perm_dst_label_text = f"Permisos: {self.dst_info.permissions}"
+        perm_text = _("Permisos")
+        perm_dst_label_text = f"{perm_text}: {self.dst_info.permissions}"
         perm_dst_label = Gtk.Label.new(_(perm_dst_label_text))
         perm_dst_label.set_halign(Gtk.Align.START)
 
