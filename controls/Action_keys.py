@@ -24,7 +24,8 @@ _ESCAPE = Gdk.keyval_name(Gdk.KEY_Escape)  # Escape
 _PUNTO = Gdk.keyval_name(Gdk.KEY_period)  # Punto
 _DELETE = Gdk.keyval_name(Gdk.KEY_Delete)  # supr
 _BACKSLASH = Gdk.keyval_name(Gdk.KEY_KP_Divide)  # /
-
+_SHIFT_L = Gdk.keyval_name(Gdk.KEY_Shift_L)  # Left shift
+_CTRL_L = Gdk.keyval_name(Gdk.KEY_Control_L)  # Left shift
 
 # Dictionary for numeric keyboard
 KP_KEYVALS = {
@@ -63,12 +64,12 @@ def on_key_press(
         | Gtk.ListScrollFlags.FOCUS
     )
 
-    # print(
-    #     (
-    #         f"Keyval: {keyval}  - keycode: {keycode}"
-    #         f"- keypressed: {key_pressed_name}"
-    #     )
-    # )
+    print(
+        (
+            f"Keyval: {keyval}  - keycode: {keycode}"
+            f"- keypressed: {key_pressed_name}"
+        )
+    )
 
     return {
         handle_navitation_keys(
@@ -114,6 +115,14 @@ def handle_navitation_keys(
             explorer_src.grab_focus()
             explorer_src.scroll_to(n_row_src, None, flags)
 
+        return True
+
+    if key_pressed_name == _SHIFT_L:
+        explorer_src.stop_focus_pressed()
+        return True
+
+    if key_pressed_name == _CTRL_L:
+        explorer_src.stop_focus_pressed()
         return True
 
     return False

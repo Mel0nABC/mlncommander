@@ -338,8 +338,6 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_src = self.explorer_1
         self.explorer_dst = self.explorer_2
 
-        # self.explorer_1.activate_drag_source()
-
     def load_config_file(self) -> None:
         """
         load config file

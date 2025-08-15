@@ -68,6 +68,7 @@ class Explorer(Gtk.ColumnView):
             "permissions",
         ]
         self.icon_manager = IconManager(win)
+        self.label_gesture_list = {}
 
         for property_name in type_list:
 
@@ -98,7 +99,7 @@ class Explorer(Gtk.ColumnView):
         self.set_focusable(True)
         self.set_vexpand(True)
         self.set_hexpand(False)
-        # self.set_enable_rubberband(True) # Mouse selection
+        # self.set_enable_rubberband(True)  # Mouse selection
         self.activate_drop_source()
 
         # Load css and set classes
@@ -114,7 +115,9 @@ class Explorer(Gtk.ColumnView):
 
         # Activate pressed on explorer event
         gesture = Gtk.GestureClick()
-        gesture.connect("pressed", self.set_explorer_focus)
+        self.gesture_click_int = gesture.connect(
+            "pressed", self.set_explorer_focus, self.win
+        )
         self.add_controller(gesture)
 
         # Activate shortcut Control+C
@@ -126,6 +129,8 @@ class Explorer(Gtk.ColumnView):
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(self.shortcut)
         self.add_controller(controller)
+
+        self.activate_drag_source(self)
 
     def shortcut_mirroring_folder(self, *args) -> None:
         """
@@ -191,9 +196,45 @@ class Explorer(Gtk.ColumnView):
                 label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
                 label.get_style_context().add_class("explorer_text_size")
                 cell.set_child(label)
-                self.activate_drag_source(label)
+                gesture_int, gesture = self.activate_gesture_click_label(
+                    cell, label
+                )
+                self.label_gesture_list[gesture_int] = gesture
 
         GLib.idle_add(setup_when_idle)
+
+    def activate_gesture_click_label(
+        self, cell: Gtk.ColumnViewCell, label: Gtk.Label
+    ) -> dict:
+        """
+        Active gesture click on labels from columnview
+        """
+        gesture = Gtk.GestureClick()
+        gesture_int = gesture.connect("pressed", self.set_focus_pressed, cell)
+        label.add_controller(gesture)
+        return gesture_int, gesture
+
+    def set_focus_pressed(
+        self,
+        obj: Gtk.GestureClick,
+        n_press: int,
+        x: float,
+        y: float,
+        cell: Gtk.ColumnViewCell,
+    ) -> None:
+        selected_items = self.get_selected_items_from_explorer()[1]
+        list_size = len(selected_items)
+        if list_size <= 1:
+            self.scroll_to(
+                cell.get_position(), None, Gtk.ListScrollFlags.SELECT
+            )
+
+    def stop_focus_pressed(self) -> None:
+        """
+        Stop all connects on labels when push ctrl left or shift left
+        """
+        for key, gesture in self.label_gesture_list.items():
+            gesture.disconnect(key)
 
     def bind(
         self,
@@ -237,6 +278,11 @@ class Explorer(Gtk.ColumnView):
         Bring focus to the browser when clicking
         anywhere in it. Terminates the search engine if enabled.
         """
+        # Validation for detect is multiple
+        # selection, for drag multiple selection
+        selected = self.get_selected_items_from_explorer()[1]
+        if len(selected) > 1:
+            return
 
         if self.count_rst_int > 0:
             self.count_rst_int = self.COUNT_RST_TIME
@@ -498,6 +544,7 @@ class Explorer(Gtk.ColumnView):
         self.drag_source = Gtk.DragSource.new()
         self.drag_source.set_actions(Gdk.DragAction.COPY)
         self.drag_source.connect("prepare", self.on_drag_prepare)
+        self.drag_source.connect("drag-begin", self.on_drag_begin)
         item.add_controller(self.drag_source)
 
     def on_drag_prepare(
@@ -506,18 +553,16 @@ class Explorer(Gtk.ColumnView):
         """
         How the file is returned
         """
-
         widget = source.get_widget()
-        explorer_src = widget.get_ancestor(Explorer)
+        selected_items = widget.get_selected_items_from_explorer()[1]
+        uris_text = "\r\n".join(p.as_uri() for p in selected_items) + "\r\n"
 
-        if isinstance(widget, Gtk.Label):
-            item_name = widget.get_label()
-            path = Path(f"{explorer_src.actual_path}/{item_name}")
-            uris_text = path.as_uri()
+        return Gdk.ContentProvider.new_for_bytes(
+            "text/uri-list", GLib.Bytes.new(uris_text.encode("utf-8"))
+        )
 
-            return Gdk.ContentProvider.new_for_bytes(
-                "text/uri-list", GLib.Bytes.new(uris_text.encode("utf-8"))
-            )
+    def on_drag_begin(self, source: Gtk.DragSource, x: float):
+        source.set_icon(self.icon_manager.get_drag_and_drop_icon(), -15, -15)
 
     def activate_drop_source(self) -> None:
         """

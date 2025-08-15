@@ -106,3 +106,19 @@ class IconManager:
             )
         if paintable_icon:
             return paintable_icon
+
+    def get_drag_and_drop_icon(self) -> Gtk.IconPaintable:
+        """
+        Get the specific icon dor DND
+        """
+        paintable_icon = self.icon_theme.lookup_icon(
+            "document-save-symbolic",
+            None,
+            32,
+            1,
+            Gtk.TextDirection.LTR,
+            Gtk.IconLookupFlags.FORCE_SYMBOLIC,
+        )
+        return paintable_icon
+
+        # action-unavailable-symbolic  nombre del icono de prohibido
