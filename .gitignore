@@ -4,7 +4,8 @@
 todo.list
 config.conf
 pyproject.toml
-#log/mlncommander.log
+App.spec
+log/mlncommander.log
 
 # Entornos virtuales
 venv/
