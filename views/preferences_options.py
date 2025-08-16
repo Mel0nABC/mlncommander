@@ -29,18 +29,25 @@ class Preferences(Gtk.Window):
     )
     SWITCH_IMG_STATUS = None
 
-    APARENCE_TITLE_COLOR = _("Colores")
+    # Application colors
+
+    BACKGROUND_APP_TITLE = _("Aplicación")
+    BACKGROUND_APP_TITLE_COLOR = _("Fondo de la aplicación")
 
     # Background colors text
-    BACKGROUND_EXPLORER_LEFT = _("Fondo explorador izquierdo:")
-    BACKGROUND_EXPLORER_RIGHT = _("Fondo explorador derecho:")
+    BACKGROUND_EXPLORER_TITLE = _("Exploradores")
+    BACKGROUND_EXPLORER_LEFT = _("Fondo explorador izquierdo")
+    BACKGROUND_EXPLORER_RIGHT = _("Fondo explorador derecho")
 
     # Search colors text
     SEARCH_COLORS_TITLE = _("Colores del sistema de búsqueda")
-    SEARCH_BACKGROUND = _("Color de fondo:")
-    SEARCH_FONT_COLOR = _("Color texto:")
+    SEARCH_BACKGROUND = _("Color de fondo")
+    SEARCH_FONT_COLOR = _("Color texto")
 
     # Colors
+
+    COLOR_BACKGROUND_APP = None
+
     COLOR_EXPLORER_LEFT = None
     COLOR_EXPLORER_RIGHT = None
     COLOR_BACKGROUND_SEARCH = None
@@ -54,6 +61,7 @@ class Preferences(Gtk.Window):
 
         Preferences.SHOW_DIR_LAST = win.SHOW_DIR_LAST
         Preferences.SWITCH_IMG_STATUS = win.SWITCH_IMG_STATUS
+        Preferences.COLOR_BACKGROUND_APP = win.COLOR_BACKGROUND_APP
         Preferences.COLOR_EXPLORER_LEFT = win.COLOR_EXPLORER_LEFT
         Preferences.COLOR_EXPLORER_RIGHT = win.COLOR_EXPLORER_RIGHT
         Preferences.COLOR_BACKGROUND_SEARCH = win.COLOR_BACKGROUND_SEARCH
@@ -157,6 +165,8 @@ class Preferences(Gtk.Window):
 
         self.change_box(Gtk.Button(), self.general_box)
 
+        self.get_style_context().add_class("app_background")
+
     def on_exit(self, button: Gtk.Button) -> None:
         """
         Close preferencesc window
@@ -164,6 +174,7 @@ class Preferences(Gtk.Window):
         self.css_manager.load_css_explorer_background(
             self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
         )
+        self.css_manager.load_css_app_background(self.win.COLOR_BACKGROUND_APP)
         self.destroy()
 
     def on_accept(self, button: Gtk.Button) -> None:
@@ -174,6 +185,8 @@ class Preferences(Gtk.Window):
         self.win.EXP_1_PATH = Preferences.EXP_1_PATH
         self.win.EXP_2_PATH = Preferences.EXP_2_PATH
         self.win.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
+        self.win.COLOR_BACKGROUND_APP = Preferences.COLOR_BACKGROUND_APP
+        print(f"ON ACCEPT: {Preferences.COLOR_BACKGROUND_APP}")
         self.win.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT
         self.win.COLOR_EXPLORER_RIGHT = Preferences.COLOR_EXPLORER_RIGHT
         self.win.COLOR_BACKGROUND_SEARCH = Preferences.COLOR_BACKGROUND_SEARCH
@@ -401,15 +414,55 @@ class Preferences(Gtk.Window):
         self.appearance_box.set_margin_bottom(20)
         self.appearance_box.set_margin_start(20)
 
-        # Background explorers
+        # Background application
 
-        self.background_horizontal_box_0 = Gtk.Box(
+        self.background_horizontal_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.background_horizontal_box.set_halign(Gtk.Align.START)
+
+        self.background_horizontal_box.append(
+            Gtk.Label(label=Preferences.BACKGROUND_APP_TITLE)
+        )
+
+        self.appearance_box.append(self.background_horizontal_box)
+
+        self.background_horizontal_box_app = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        self.background_horizontal_box_0.append(
-            Gtk.Label(label=Preferences.APARENCE_TITLE_COLOR)
+        self.background_horizontal_box_app.set_margin_top(20)
+
+        self.appearance_box.append(self.background_horizontal_box_app)
+
+        # Explorer LEFT
+        label_app_back = Gtk.Label(
+            label=Preferences.BACKGROUND_APP_TITLE_COLOR
         )
+        label_app_back.set_margin_start(100)
+        label_app_back.set_size_request(200, -1)
+        label_app_back.set_xalign(0.0)
+
+        color_dialog = Gtk.ColorDialog()
+        btn_color_app = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color_app.set_name("btn_color_app")
+        btn_color_app.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color_app)
+
+        self.background_horizontal_box_app.append(label_app_back)
+        self.background_horizontal_box_app.append(btn_color_app)
+
+        # Background explorers
+        self.background_horizontal_box_0 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.background_horizontal_box_0.set_halign(Gtk.Align.START)
+
+        self.background_horizontal_box_0.append(
+            Gtk.Label(label=Preferences.BACKGROUND_EXPLORER_TITLE)
+        )
+
+        self.background_horizontal_box_0.append
 
         self.appearance_box.append(self.background_horizontal_box_0)
 
@@ -419,6 +472,7 @@ class Preferences(Gtk.Window):
 
         self.background_horizontal_box_1.set_margin_top(20)
 
+        # Explorer LEFT
         label_explorer_back_left = Gtk.Label(
             label=Preferences.BACKGROUND_EXPLORER_LEFT
         )
@@ -435,6 +489,7 @@ class Preferences(Gtk.Window):
         self.background_horizontal_box_1.append(label_explorer_back_left)
         self.background_horizontal_box_1.append(btn_color_explorer_left)
 
+        # Explorer RIGHT
         self.background_horizontal_box_2 = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
@@ -456,6 +511,7 @@ class Preferences(Gtk.Window):
         self.background_horizontal_box_2.append(label_explorer_back_right)
         self.background_horizontal_box_2.append(btn_color_explorer_right)
 
+        # Add explorers color section con main box.
         self.appearance_box.append(self.background_horizontal_box_1)
         self.appearance_box.append(self.background_horizontal_box_2)
 
@@ -528,9 +584,15 @@ class Preferences(Gtk.Window):
             Preferences.COLOR_BACKGROUND_SEARCH = color
         elif name == "btn_color_search_text":
             Preferences.COLOR_SEARCH_TEXT = color
+        elif name == "btn_color_app":
+            Preferences.COLOR_BACKGROUND_APP = color
 
         self.css_manager.load_css_explorer_background(
             Preferences.COLOR_EXPLORER_LEFT, Preferences.COLOR_EXPLORER_RIGHT
+        )
+
+        self.css_manager.load_css_app_background(
+            Preferences.COLOR_BACKGROUND_APP
         )
 
     def set_color_dialog_button(self, button: Gtk.ColorDialogButton) -> None:
@@ -550,5 +612,7 @@ class Preferences(Gtk.Window):
         elif name == "btn_color_search_text":
             Preferences.COLOR_SEARCH_TEXT = self.win.COLOR_SEARCH_TEXT
             color.parse(Preferences.COLOR_SEARCH_TEXT)
-
+        elif name == "btn_color_app":
+            Preferences.COLOR_BACKGROUND_APP = self.win.COLOR_BACKGROUND_APP
+            color.parse(Preferences.COLOR_BACKGROUND_APP)
         button.set_rgba(color)

@@ -10,6 +10,7 @@ from utilities.remove import Remove
 from utilities.move import Move
 from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
+from css.explorer_css import Css_explorer_manager
 from pathlib import Path
 import tkinter as tk
 import os
@@ -50,6 +51,7 @@ class Window(Gtk.ApplicationWindow):
         self.EXP_2_PATH = ""
         self.SHOW_DIR_LAST = True
         self.SWITCH_IMG_STATUS = None
+        self.COLOR_BACKGROUND_APP = None
         self.COLOR_EXPLORER_LEFT = None
         self.COLOR_EXPLORER_RIGHT = None
         self.COLOR_BACKGROUND_SEARCH = None
@@ -59,6 +61,12 @@ class Window(Gtk.ApplicationWindow):
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
+
+        # Load css
+        self.get_style_context().add_class("app_background")
+        self.css_manager = Css_explorer_manager(self)
+        print(self.COLOR_BACKGROUND_APP)
+        self.css_manager.load_css_app_background(self.COLOR_BACKGROUND_APP)
 
         # We get information from the screen
 
@@ -365,17 +373,20 @@ class Window(Gtk.ApplicationWindow):
 
         # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
-            explorer_back_ground_prede = "#222226"
+            app_background_prede = "#353535"
+            explorer_background_prede = "#222226"
             with open(self.CONFIG_FILE, "a") as conf:
                 conf.write("EXP_1_PATH=/\n")
                 conf.write("EXP_2_PATH=/\n")
                 conf.write("SHOW_DIR_LAST=True\n")
                 conf.write("SWITCH_IMG_STATUS=True\n")
+
+                conf.write(f"COLOR_BACKGROUND_APP={app_background_prede}\n")
                 conf.write(
-                    f"COLOR_EXPLORER_LEFT={explorer_back_ground_prede}\n"
+                    f"COLOR_EXPLORER_LEFT={explorer_background_prede}\n"
                 )
                 conf.write(
-                    f"COLOR_EXPLORER_RIGHT={explorer_back_ground_prede}\n"
+                    f"COLOR_EXPLORER_RIGHT={explorer_background_prede}\n"
                 )
                 conf.write("COLOR_BACKGROUND_SEARCH=rgb(0,0,0)\n")
                 conf.write("COLOR_SEARCH_TEXT=rgb(246,211,45)\n")
@@ -416,6 +427,9 @@ class Window(Gtk.ApplicationWindow):
                     elif variable_name == "COLOR_SEARCH_TEXT":
                         result = split[1]
                         setattr(self, variable_name, result)
+                    elif variable_name == "COLOR_BACKGROUND_APP":
+                        result = split[1]
+                        setattr(self, variable_name, result)
 
     def save_config_file(self) -> None:
         """
@@ -435,7 +449,8 @@ class Window(Gtk.ApplicationWindow):
 
             conf.write(f"SHOW_DIR_LAST={self.SHOW_DIR_LAST}\n")
             conf.write(f"SWITCH_IMG_STATUS={self.SWITCH_IMG_STATUS}\n")
-
+            conf.write(f"COLOR_BACKGROUND_APP={self.COLOR_BACKGROUND_APP}\n")
+            print(f"GUARDANDO: {self.COLOR_BACKGROUND_APP}")
             conf.write(f"COLOR_EXPLORER_LEFT={self.COLOR_EXPLORER_LEFT}\n")
             conf.write(f"COLOR_EXPLORER_RIGHT={self.COLOR_EXPLORER_RIGHT}\n")
             conf.write(

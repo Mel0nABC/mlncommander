@@ -18,12 +18,6 @@ class Css_explorer_manager:
         """
 
         css = f"""
-
-            .bordes{{
-
-                border: solid 1px black;
-            }}
-
             .column_view_borders{{
                 border-radius:10px;
             }}
@@ -34,6 +28,20 @@ class Css_explorer_manager:
 
             .explorer_background_right{{
                 background-color: {color_explorer_right};
+            }}
+
+        """.encode()
+
+        self.set_css_to_provider(css)
+
+    def load_css_app_background(self, app_background_color: str) -> None:
+        """
+        Sets the text color when using the search function for files
+        or directories
+        """
+        css = f"""
+            .app_background{{
+                background-color: {app_background_color};
             }}
 
         """.encode()
