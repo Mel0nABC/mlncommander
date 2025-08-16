@@ -77,10 +77,25 @@ class Explorer(Gtk.ColumnView):
             factory = Gtk.SignalListItemFactory()
             factory.connect("setup", self.setup, property_name)
             factory.connect("bind", self.bind, property_name)
-            column = Gtk.ColumnViewColumn.new(property_name, factory)
+
+            column_header_title = ""
+
+            if property_name == "type_str":
+                column_header_title = _("TIPO")
+            if property_name == "name":
+                column_header_title = _("NOMBRE")
+            if property_name == "size":
+                column_header_title = _("TAMAÑO")
+            if property_name == "date_created_str":
+                column_header_title = _("FECHA CREACIÓN")
+            if property_name == "permissions":
+                column_header_title = _("PERMISOS")
+
+            column = Gtk.ColumnViewColumn.new(column_header_title, factory)
+
+            # TODO: Center headers title
 
             # Create a Gtk.Expression for the property
-
             property_expression = Gtk.PropertyExpression.new(
                 File_or_directory_info, None, property_name
             )
@@ -94,6 +109,8 @@ class Explorer(Gtk.ColumnView):
             column.set_resizable(True)
 
             self.append_column(column)
+
+        self.get_style_context().add_class("header")
 
         # Configure Gtk.ColumnView
         self.set_show_column_separators(True)
