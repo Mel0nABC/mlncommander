@@ -18,6 +18,7 @@ class Preferences(Gtk.Window):
     SELECT_FILE_TITLE = _("Seleccionar archivo")
     LABEL_DIR_SELECT_LEFT = _("Directorio izquierdo:")
     LABEL_DIR_SELECT_RIGHT = _("Directorio derecho:")
+    BTN_RST_LABEL = _("Resetear")
     BTN_ACCEPT_LABEL = _("Aceptar")
     BTN_CANCEL_LABEL = _("Cancel")
     EXP_1_PATH = ""
@@ -174,6 +175,7 @@ class Preferences(Gtk.Window):
         btn_accept = Gtk.Button(label=Preferences.BTN_ACCEPT_LABEL)
         btn_accept.get_style_context().add_class("button")
         btn_accept.connect("clicked", self.on_accept)
+
         btn_cancel = Gtk.Button(label=Preferences.BTN_CANCEL_LABEL)
         btn_cancel.get_style_context().add_class("button")
         btn_cancel.connect("clicked", self.on_exit)
@@ -201,14 +203,17 @@ class Preferences(Gtk.Window):
         """
         Close preferencesc window
         """
+
         self.css_manager.load_css_app_background(self.win.COLOR_BACKGROUND_APP)
+        self.css_manager.load_css_buttons(self.win.COLOR_BUTTON)
         self.css_manager.load_css_entrys(self.win.COLOR_ENTRY)
+        font_desc = Pango.FontDescription.from_string(self.win.FONT_STYLE)
+        self.css_manager.load_css_font(font_desc, self.win.FONT_STYLE_COLOR)
+
         self.css_manager.load_css_explorer_background(
             self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
         )
-        self.css_manager.load_css_buttons(self.win.COLOR_BUTTON)
-        font_desc = Pango.FontDescription.from_string(self.win.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc, Preferences.FONT_STYLE_COLOR)
+
         self.destroy()
 
     def on_accept(self, button: Gtk.Button) -> None:
@@ -608,6 +613,14 @@ class Preferences(Gtk.Window):
 
         self.appearance_box.append(self.background_horizontal_box_font_color)
 
+        btn_rst = Gtk.Button(label=Preferences.BTN_RST_LABEL)
+        btn_rst.set_margin_top(20)
+        btn_rst.set_hexpand(True)
+        btn_rst.get_style_context().add_class("button")
+        btn_rst.connect("clicked", self.reset_css_values)
+
+        self.appearance_box.append(btn_rst)
+
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
     ) -> None:
@@ -725,3 +738,26 @@ class Preferences(Gtk.Window):
         )
         box_for_color_btn.set_margin_start(100)
         return box_for_color_btn
+
+    def reset_css_values(self, button: Gtk.Button):
+        Preferences.COLOR_BACKGROUND_APP = "#353535"
+        Preferences.COLOR_ENTRY = "#2d2d2d"
+        Preferences.COLOR_EXPLORER_LEFT = "#222226"
+        Preferences.COLOR_EXPLORER_RIGHT = "#222226"
+        Preferences.COLOR_BUTTON = "#393939"
+        Preferences.COLOR_BACKGROUND_SEARCH = "rgb(0,0,0)"
+        Preferences.COLOR_SEARCH_TEXT = "rgb(246,211,45)"
+        Preferences.FONT_STYLE = "Adwaita Mono 12"
+        Preferences.FONT_STYLE_COLOR = "white"
+
+        self.css_manager.load_css_app_background(
+            Preferences.COLOR_BACKGROUND_APP
+        )
+        self.css_manager.load_css_buttons(Preferences.COLOR_BUTTON)
+        self.css_manager.load_css_entrys(Preferences.COLOR_ENTRY)
+        font_desc = Pango.FontDescription.from_string(Preferences.FONT_STYLE)
+        self.css_manager.load_css_font(font_desc, Preferences.FONT_STYLE_COLOR)
+
+        self.css_manager.load_css_explorer_background(
+            Preferences.COLOR_EXPLORER_LEFT, Preferences.COLOR_EXPLORER_RIGHT
+        )
