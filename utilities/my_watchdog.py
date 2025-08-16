@@ -10,10 +10,14 @@ from gi.repository import GLib
 
 class My_watchdog:
     def __init__(
-        self, path: Path, explorer: "Explorer" = None  # noqa: F821
+        self,
+        path: Path,
+        APP_USER_PATH: Path,
+        explorer: "Explorer" = None,  # noqa: F821
     ) -> None:
         self.observer = Observer()
         self.path = Path(path)
+        self.APP_USER_PATH = APP_USER_PATH
         self.explorer = explorer
 
     def start(self):
@@ -21,7 +25,7 @@ class My_watchdog:
         Initialize watchdog
         """
         self.observer.schedule(
-            MiHandler(self.path, self.explorer),
+            MiHandler(self.path, self.explorer, self.APP_USER_PATH),
             path=self.path,
             recursive=False,
         )
@@ -50,12 +54,13 @@ class MiHandler(FileSystemEventHandler):
     def __init__(
         self,
         path: Path,
-        explorer: "Explorer" = None,  # noqa: F821
+        explorer: "Explorer",  # noqa: F821
+        APP_USER_PATH: Path,
     ):
 
         self.explorer = explorer
         self.path = Path(path)
-        self.log_file = Path("log/mlncommander.log")
+        self.log_file = Path(f"{APP_USER_PATH}/log/mlncommander.log")
         self.date_str = time.strftime("%A, %d/%m/%Y - %H:%M:%S")
 
         try:
@@ -76,6 +81,9 @@ class MiHandler(FileSystemEventHandler):
                 )
         except Exception as e:
             print(f"ERROR: {e}")
+
+        print(f"WATCH: {self.log_file}")
+        print(self.log_file.exists())
 
     # def dispatch(self, event):
     #     print(event)

@@ -29,9 +29,10 @@ class Explorer(Gtk.ColumnView):
         entry: Gtk.Entry,
         win: Gtk.ApplicationWindow,
         initial_path: Path,
+        APP_USER_PATH: Path,
     ):
         super().__init__()
-
+        self.APP_USER_PATH = APP_USER_PATH
         self.name = name
         self.focused = False
         self.actual_path = Path(initial_path)
@@ -537,7 +538,7 @@ class Explorer(Gtk.ColumnView):
         """
         if self.my_watchdog:
             self.my_watchdog.stop()
-        self.my_watchdog = My_watchdog(str(path), explorer)
+        self.my_watchdog = My_watchdog(str(path), self.APP_USER_PATH, explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
 

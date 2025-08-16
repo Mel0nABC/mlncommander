@@ -1,5 +1,4 @@
 from utilities.i18n import _
-import gi
 from controls import Action_keys
 from controls import Actions
 from views.menu_bar import Menu_bar
@@ -13,6 +12,9 @@ from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from pathlib import Path
 import tkinter as tk
+import os
+import gi
+
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk  # noqa E402
@@ -22,6 +24,16 @@ class Window(Gtk.ApplicationWindow):
 
     def __init__(self, app: Gtk.Application, action: Actions):
         super().__init__(application=app)
+
+        # check app folder on user dir exist
+
+        self.APP_USER_PATH = Path(f"{os.environ["HOME"]}/.mlncommander")
+
+        username = os.getlogin()
+
+        if username in str(self.APP_USER_PATH):
+            if not self.APP_USER_PATH.exists():
+                self.APP_USER_PATH.mkdir()
         self.app = app
         self.action = action
         self.key_controller_id = 0
@@ -33,7 +45,7 @@ class Window(Gtk.ApplicationWindow):
         self.scroll_margin = 10
         self.label_left_selected_files = None
         self.label_right_selected_files = None
-        self.CONFIG_FILE = Path("./config.conf")
+        self.CONFIG_FILE = Path(f"{self.APP_USER_PATH}/config.conf")
         self.EXP_1_PATH = ""
         self.EXP_2_PATH = ""
         self.SHOW_DIR_LAST = True
@@ -108,12 +120,20 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_2.append(self.vertical_entry_2)
 
         self.explorer_1 = Explorer(
-            "explorer_1", self.vertical_entry_1, self, self.EXP_1_PATH
+            "explorer_1",
+            self.vertical_entry_1,
+            self,
+            self.EXP_1_PATH,
+            self.APP_USER_PATH,
         )
         self.vertical_entry_1.set_text(str(self.explorer_1.actual_path))
 
         self.explorer_2 = Explorer(
-            "explorer_2", self.vertical_entry_2, self, self.EXP_2_PATH
+            "explorer_2",
+            self.vertical_entry_2,
+            self,
+            self.EXP_2_PATH,
+            self.APP_USER_PATH,
         )
         self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
 
