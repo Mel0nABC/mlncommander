@@ -108,7 +108,6 @@ class Preferences(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
         self.appearance_box.set_name("appearance_box")
-        self.appearance_box.set_halign(Gtk.Align.START)
         self.create_appearance()
 
         self.set_default_size(900, 700)
@@ -192,13 +191,12 @@ class Preferences(Gtk.Window):
         """
         Close preferencesc window
         """
+        self.css_manager.load_css_app_background(self.win.COLOR_BACKGROUND_APP)
+        self.css_manager.load_css_entrys(self.win.COLOR_ENTRY)
         self.css_manager.load_css_explorer_background(
             self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
         )
-
-        self.css_manager.load_css_entrys(self.win.COLOR_ENTRY)
-
-        self.css_manager.load_css_app_background(self.win.COLOR_BACKGROUND_APP)
+        self.css_manager.load_css_buttons(self.win.COLOR_BUTTON)
         font_desc = Pango.FontDescription.from_string(self.win.FONT_STYLE)
         self.css_manager.load_css_font(font_desc)
         self.destroy()
@@ -447,255 +445,148 @@ class Preferences(Gtk.Window):
         self.background_horizontal_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        self.background_horizontal_box.set_halign(Gtk.Align.START)
 
-        self.background_horizontal_box.append(
-            Gtk.Label(label=Preferences.BACKGROUND_APP_TITLE)
+        self.appearance_box.append(
+            self.create_box_for_title_section(Preferences.BACKGROUND_APP_TITLE)
         )
 
-        self.appearance_box.append(self.background_horizontal_box)
+        self.background_horizontal_box_app = self.create_box_for_color_btn()
 
-        self.background_horizontal_box_app = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        self.background_horizontal_box_app.append(
+            self.create_label(Preferences.BACKGROUND_APP_TITLE_COLOR)
         )
-
-        self.background_horizontal_box_app.set_margin_top(20)
+        self.background_horizontal_box_app.append(
+            self.create_btn_color("btn_color_app")
+        )
 
         self.appearance_box.append(self.background_horizontal_box_app)
 
-        label_app_back = Gtk.Label(
-            label=Preferences.BACKGROUND_APP_TITLE_COLOR
-        )
-        label_app_back.set_margin_start(100)
-        label_app_back.set_size_request(200, -1)
-        label_app_back.set_xalign(0.0)
-
-        color_dialog = Gtk.ColorDialog()
-        btn_color_app = Gtk.ColorDialogButton.new(color_dialog)
-        btn_color_app.set_name("btn_color_app")
-        btn_color_app.connect("notify::rgba", self.set_color)
-        self.set_color_dialog_button(btn_color_app)
-
-        self.background_horizontal_box_app.append(label_app_back)
-        self.background_horizontal_box_app.append(btn_color_app)
-
         # Background entrys
 
-        self.background_horizontal_box_entry = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
-        self.background_horizontal_box_entry.set_halign(Gtk.Align.START)
-
-        self.background_horizontal_box_entry.append(
-            Gtk.Label(label=Preferences.BACKGROUND_ENTRY_TITLE)
+        self.appearance_box.append(
+            self.create_box_for_title_section(
+                Preferences.BACKGROUND_ENTRY_TITLE
+            )
         )
 
-        self.appearance_box.append(self.background_horizontal_box_entry)
-
-        self.background_horizontal_box_entry_color = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        self.background_horizontal_box_entry_color = (
+            self.create_box_for_color_btn()
         )
 
-        self.background_horizontal_box_entry_color.set_margin_top(20)
+        self.background_horizontal_box_entry_color.append(
+            self.create_label(Preferences.BACKGROUND_ENTRY_TITLE_COLOR)
+        )
+        self.background_horizontal_box_entry_color.append(
+            self.create_btn_color("btn_color_entry")
+        )
 
         self.appearance_box.append(self.background_horizontal_box_entry_color)
 
-        label_entry = Gtk.Label(label=Preferences.BACKGROUND_ENTRY_TITLE_COLOR)
-        label_entry.set_margin_start(100)
-        label_entry.set_size_request(200, -1)
-        label_entry.set_xalign(0.0)
-
-        color_dialog = Gtk.ColorDialog()
-        btn_color_entry = Gtk.ColorDialogButton.new(color_dialog)
-        btn_color_entry.set_name("btn_color_entry")
-        btn_color_entry.connect("notify::rgba", self.set_color)
-        self.set_color_dialog_button(btn_color_entry)
-
-        self.background_horizontal_box_entry_color.append(label_entry)
-        self.background_horizontal_box_entry_color.append(btn_color_entry)
-
         # Background explorers
-        self.background_horizontal_box_0 = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
-        self.background_horizontal_box_0.set_halign(Gtk.Align.START)
 
-        self.background_horizontal_box_0.append(
-            Gtk.Label(label=Preferences.BACKGROUND_EXPLORER_TITLE)
+        self.appearance_box.append(
+            self.create_box_for_title_section(
+                Preferences.BACKGROUND_EXPLORER_TITLE
+            )
         )
 
-        self.background_horizontal_box_0.append
+        self.background_horizontal_box_1 = self.create_box_for_color_btn()
 
-        self.appearance_box.append(self.background_horizontal_box_0)
-
-        self.background_horizontal_box_1 = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        self.background_horizontal_box_1.append(
+            self.create_label(Preferences.BACKGROUND_EXPLORER_LEFT)
+        )
+        self.background_horizontal_box_1.append(
+            self.create_btn_color("btn_color_explorer_left")
         )
 
-        self.background_horizontal_box_1.set_margin_top(20)
-
-        # Explorer LEFT
-        label_explorer_back_left = Gtk.Label(
-            label=Preferences.BACKGROUND_EXPLORER_LEFT
-        )
-        label_explorer_back_left.set_margin_start(100)
-        label_explorer_back_left.set_size_request(200, -1)
-        label_explorer_back_left.set_xalign(0.0)
-
-        color_dialog = Gtk.ColorDialog()
-        btn_color_explorer_left = Gtk.ColorDialogButton.new(color_dialog)
-        btn_color_explorer_left.set_name("btn_color_explorer_left")
-        btn_color_explorer_left.connect("notify::rgba", self.set_color)
-        self.set_color_dialog_button(btn_color_explorer_left)
-
-        self.background_horizontal_box_1.append(label_explorer_back_left)
-        self.background_horizontal_box_1.append(btn_color_explorer_left)
-
-        # Explorer RIGHT
-        self.background_horizontal_box_2 = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
-
-        self.background_horizontal_box_2.set_margin_top(20)
-
-        label_explorer_back_right = Gtk.Label(
-            label=Preferences.BACKGROUND_EXPLORER_RIGHT
-        )
-        label_explorer_back_right.set_margin_start(100)
-        label_explorer_back_right.set_size_request(200, -1)
-        label_explorer_back_right.set_xalign(0.0)
-
-        btn_color_explorer_right = Gtk.ColorDialogButton.new(color_dialog)
-        btn_color_explorer_right.set_name("btn_color_explorer_right")
-        btn_color_explorer_right.connect("notify::rgba", self.set_color)
-        self.set_color_dialog_button(btn_color_explorer_right)
-
-        self.background_horizontal_box_2.append(label_explorer_back_right)
-        self.background_horizontal_box_2.append(btn_color_explorer_right)
-
-        # Add explorers color section con main box.
         self.appearance_box.append(self.background_horizontal_box_1)
+
+        self.background_horizontal_box_2 = self.create_box_for_color_btn()
+
+        self.background_horizontal_box_2.append(
+            self.create_label(Preferences.BACKGROUND_EXPLORER_RIGHT)
+        )
+        self.background_horizontal_box_2.append(
+            self.create_btn_color("btn_color_explorer_right")
+        )
+
         self.appearance_box.append(self.background_horizontal_box_2)
 
-        # Search colors
+        # Search section
 
-        label_search_colors_title = Gtk.Label(
-            label=Preferences.SEARCH_COLORS_TITLE
-        )
-        label_search_colors_title.set_halign(Gtk.Align.START)
-        label_search_colors_title.set_margin_top(20)
-
-        self.appearance_box.append(label_search_colors_title)
-
-        self.background_horizontal_box_3 = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        self.appearance_box.append(
+            self.create_box_for_title_section(Preferences.SEARCH_COLORS_TITLE)
         )
 
-        self.background_horizontal_box_3.set_margin_top(20)
+        self.background_horizontal_box_3 = self.create_box_for_color_btn()
 
-        btn_color_background_search = Gtk.ColorDialogButton.new(color_dialog)
-        btn_color_background_search.set_name("btn_color_background_search")
-        btn_color_background_search.connect("notify::rgba", self.set_color)
-        self.set_color_dialog_button(btn_color_background_search)
-
-        label_search_background = Gtk.Label(
-            label=Preferences.SEARCH_BACKGROUND
+        self.background_horizontal_box_3.append(
+            self.create_label(Preferences.SEARCH_BACKGROUND)
         )
-        label_search_background.set_margin_start(100)
-        label_search_background.set_size_request(200, -1)
-        label_search_background.set_xalign(0.0)
-
-        self.background_horizontal_box_3.append(label_search_background)
-        self.background_horizontal_box_3.append(btn_color_background_search)
-
-        self.background_horizontal_box_4 = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        self.background_horizontal_box_3.append(
+            self.create_btn_color("btn_color_background_search")
         )
-
-        self.background_horizontal_box_4.set_margin_top(20)
-
-        label_search_font = Gtk.Label(label=Preferences.SEARCH_FONT_COLOR)
-        label_search_font.set_margin_start(100)
-        label_search_font.set_size_request(200, -1)
-        label_search_font.set_xalign(0.0)
-
-        btn_color_search_text = Gtk.ColorDialogButton.new(color_dialog)
-        btn_color_search_text.set_name("btn_color_search_text")
-        btn_color_search_text.connect("notify::rgba", self.set_color)
-        self.set_color_dialog_button(btn_color_search_text)
-
-        self.background_horizontal_box_4.append(label_search_font)
-        self.background_horizontal_box_4.append(btn_color_search_text)
 
         self.appearance_box.append(self.background_horizontal_box_3)
+
+        self.background_horizontal_box_4 = self.create_box_for_color_btn()
+
+        self.background_horizontal_box_4.append(
+            self.create_label(Preferences.SEARCH_FONT_COLOR)
+        )
+        self.background_horizontal_box_4.append(
+            self.create_btn_color("btn_color_search_text")
+        )
+
         self.appearance_box.append(self.background_horizontal_box_4)
-        self.background_horizontal_box_3.set_halign(Gtk.Align.END)
-        self.background_horizontal_box_4.set_halign(Gtk.Align.END)
 
         # Set color button
 
-        label_buttons = Gtk.Label(label=Preferences.BACKGROUND_BUTTONS_TITLE)
-        label_buttons.set_halign(Gtk.Align.START)
-        label_buttons.set_margin_top(20)
-
-        self.appearance_box.append(label_buttons)
-
-        self.background_horizontal_box_4 = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        self.appearance_box.append(
+            self.create_box_for_title_section(
+                Preferences.BACKGROUND_BUTTONS_TITLE
+            )
         )
 
-        self.background_horizontal_box_4.set_margin_top(20)
+        self.background_horizontal_box_4 = self.create_box_for_color_btn()
 
-        btn_color_background_buttons = Gtk.ColorDialogButton.new(color_dialog)
-        btn_color_background_buttons.set_name("btn_color_background_buttons")
-        btn_color_background_buttons.connect("notify::rgba", self.set_color)
-        self.set_color_dialog_button(btn_color_background_buttons)
-
-        label_button_background = Gtk.Label(
-            label=Preferences.BACKGROUND_BUTTONS_LABEL
+        self.background_horizontal_box_4.append(
+            self.create_label(Preferences.BACKGROUND_BUTTONS_LABEL)
         )
-        label_button_background.set_margin_start(100)
-        label_button_background.set_size_request(200, -1)
-        label_button_background.set_xalign(0.0)
-
-        self.background_horizontal_box_4.append(label_button_background)
-        self.background_horizontal_box_4.append(btn_color_background_buttons)
+        self.background_horizontal_box_4.append(
+            self.create_btn_color("btn_color_background_buttons")
+        )
 
         self.appearance_box.append(self.background_horizontal_box_4)
 
         # Font selector
 
-        label_font = Gtk.Label(label=Preferences.FONT_SELECT_TITLE)
-        label_font.set_halign(Gtk.Align.START)
-        label_font.set_margin_top(20)
-
-        self.appearance_box.append(label_font)
-
-        self.background_horizontal_box_font = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        self.appearance_box.append(
+            self.create_box_for_title_section(Preferences.FONT_SELECT_TITLE)
         )
 
-        self.background_horizontal_box_font.set_margin_top(20)
+        self.background_horizontal_box_font_btn = (
+            self.create_box_for_color_btn()
+        )
 
-        font_diag = Gtk.FontDialog.new()
-        btn_font = Gtk.FontDialogButton.new(font_diag)
+        font_dialog = Gtk.FontDialog.new()
+        font_dialog.connect("notify::font-desc", self.set_font)
+        btn_font = Gtk.FontDialogButton.new(font_dialog)
         font_desc = Pango.FontDescription.from_string(Preferences.FONT_STYLE)
         btn_font.set_font_desc(font_desc)
         btn_font.connect("notify::font-desc", self.set_font)
 
-        label_font = Gtk.Label(label=Preferences.FONT_SELECT_LABEL)
-        label_font.set_margin_start(100)
-        label_font.set_size_request(200, -1)
-        label_font.set_xalign(0.0)
+        self.background_horizontal_box_font_btn.append(
+            self.create_label(Preferences.FONT_SELECT_LABEL)
+        )
+        self.background_horizontal_box_font_btn.append(btn_font)
 
-        self.background_horizontal_box_font.append(label_font)
-        self.background_horizontal_box_font.append(btn_font)
-
-        self.appearance_box.append(self.background_horizontal_box_font)
+        self.appearance_box.append(self.background_horizontal_box_font_btn)
 
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
     ) -> None:
+        print("CAMBIOS")
         font_desc = button.get_font_desc()
         if font_desc:
             Preferences.FONT_STYLE = font_desc.to_string()
@@ -761,4 +652,38 @@ class Preferences(Gtk.Window):
 
         button.set_rgba(color)
 
-    # TODO: Generate method to create buttons, laberls, etc
+    def create_box_for_title_section(self, text_label: str) -> Gtk.Box:
+        """
+        Create box and label for title section
+        """
+        box_for_title = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        label = Gtk.Label()
+        label.set_markup(f"<u>{text_label}</u>")
+        box_for_title.append(label)
+        box_for_title.set_margin_top(40)
+
+        return box_for_title
+
+    def create_label(self, label_text: str) -> Gtk.Label:
+        label = Gtk.Label(label=label_text)
+        # label.set_margin_start(100)
+        label.set_size_request(200, -1)
+        label.set_xalign(0.0)
+        return label
+
+    def create_btn_color(self, btn_name: str) -> Gtk.ColorDialogButton:
+        color_dialog = Gtk.ColorDialog()
+        btn_color = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color.set_name(btn_name)
+        btn_color.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color)
+        return btn_color
+
+    def create_box_for_color_btn(self) -> Gtk.Box:
+        box_for_color_btn = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        box_for_color_btn.set_margin_start(100)
+        return box_for_color_btn
