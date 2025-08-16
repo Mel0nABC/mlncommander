@@ -55,6 +55,7 @@ class Window(Gtk.ApplicationWindow):
         self.COLOR_EXPLORER_LEFT = None
         self.COLOR_EXPLORER_RIGHT = None
         self.COLOR_BACKGROUND_SEARCH = None
+        self.COLOR_ENTRY = None
         self.COLOR_SEARCH_TEXT = None
         self.COLOR_BUTTON = None
         self.FONT_SIZE_EXPLORER = 15
@@ -68,6 +69,7 @@ class Window(Gtk.ApplicationWindow):
         self.css_manager = Css_explorer_manager(self)
         self.css_manager.load_css_app_background(self.COLOR_BACKGROUND_APP)
         self.css_manager.load_css_buttons(self.COLOR_BUTTON)
+        self.css_manager.load_css_entrys(self.COLOR_ENTRY)
 
         # We get information from the screen
 
@@ -106,7 +108,9 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_2.set_vexpand(True)
 
         self.vertical_entry_1 = Gtk.Entry()
+        self.vertical_entry_1.get_style_context().add_class("entry")
         self.vertical_entry_2 = Gtk.Entry()
+        self.vertical_entry_2.get_style_context().add_class("entry")
         self.search_str_entry = Gtk.Entry()
         self.search_str_entry.set_editable(False)
 
@@ -391,6 +395,7 @@ class Window(Gtk.ApplicationWindow):
                 conf.write("SWITCH_IMG_STATUS=True\n")
 
                 conf.write(f"COLOR_BACKGROUND_APP={app_background_prede}\n")
+                conf.write("COLOR_ENTRY=#2d2d2d\n")
                 conf.write(
                     f"COLOR_EXPLORER_LEFT={explorer_background_prede}\n"
                 )
@@ -424,7 +429,9 @@ class Window(Gtk.ApplicationWindow):
                     elif variable_name == "SWITCH_IMG_STATUS":
                         result = True if split[1] == "True" else False
                         setattr(self, variable_name, result)
-
+                    elif variable_name == "COLOR_ENTRY":
+                        result = split[1]
+                        setattr(self, variable_name, result)
                     elif variable_name == "COLOR_EXPLORER_LEFT":
                         result = split[1]
                         setattr(self, variable_name, result)
@@ -463,6 +470,7 @@ class Window(Gtk.ApplicationWindow):
             conf.write(f"SHOW_DIR_LAST={self.SHOW_DIR_LAST}\n")
             conf.write(f"SWITCH_IMG_STATUS={self.SWITCH_IMG_STATUS}\n")
             conf.write(f"COLOR_BACKGROUND_APP={self.COLOR_BACKGROUND_APP}\n")
+            conf.write(f"COLOR_ENTRY={self.COLOR_ENTRY}\n")
             conf.write(f"COLOR_EXPLORER_LEFT={self.COLOR_EXPLORER_LEFT}\n")
             conf.write(f"COLOR_EXPLORER_RIGHT={self.COLOR_EXPLORER_RIGHT}\n")
             conf.write(f"COLOR_BUTTON={self.COLOR_BUTTON}\n")

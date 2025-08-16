@@ -9,6 +9,19 @@ class Css_explorer_manager:
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
 
+    def load_css_app_background(self, app_background_color: str) -> None:
+        """
+        Set application background color (all window)
+        """
+        css = f"""
+            .app_background{{
+                background-color: {app_background_color};
+            }}
+
+        """.encode()
+
+        self.set_css_to_provider(css)
+
     def load_css_explorer_background(
         self, color_explorer_left: str, color_explorer_right: str
     ) -> None:
@@ -18,6 +31,9 @@ class Css_explorer_manager:
         """
 
         css = f"""
+            .prueba{{
+                background-color: red;
+            }}
             .column_view_borders{{
                 border-radius:10px;
             }}
@@ -34,13 +50,13 @@ class Css_explorer_manager:
 
         self.set_css_to_provider(css)
 
-    def load_css_app_background(self, app_background_color: str) -> None:
+    def load_css_entrys(self, color_entry: str) -> None:
         """
-        Set application background color (all window)
+        Set color to all entrys
         """
         css = f"""
-            .app_background{{
-                background-color: {app_background_color};
+            .entry{{
+                background-color: {color_entry};
             }}
 
         """.encode()

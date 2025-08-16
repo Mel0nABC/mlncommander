@@ -34,6 +34,11 @@ class Preferences(Gtk.Window):
     BACKGROUND_APP_TITLE = _("Aplicación")
     BACKGROUND_APP_TITLE_COLOR = _("Fondo de la aplicación")
 
+    # background entrys text
+
+    BACKGROUND_ENTRY_TITLE = _("Entrada de ruta")
+    BACKGROUND_ENTRY_TITLE_COLOR = _("Fondo de la entrada")
+
     # Background colors text
     BACKGROUND_EXPLORER_TITLE = _("Exploradores")
     BACKGROUND_EXPLORER_LEFT = _("Fondo explorador izquierdo")
@@ -51,6 +56,8 @@ class Preferences(Gtk.Window):
     # Colors
 
     COLOR_BACKGROUND_APP = None
+
+    COLOR_ENTRY = None
 
     COLOR_EXPLORER_LEFT = None
     COLOR_EXPLORER_RIGHT = None
@@ -198,6 +205,7 @@ class Preferences(Gtk.Window):
         self.win.EXP_2_PATH = Preferences.EXP_2_PATH
         self.win.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
         self.win.COLOR_BACKGROUND_APP = Preferences.COLOR_BACKGROUND_APP
+        self.win.COLOR_ENTRY = Preferences.COLOR_ENTRY
         self.win.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT
         self.win.COLOR_EXPLORER_RIGHT = Preferences.COLOR_EXPLORER_RIGHT
         self.win.COLOR_BUTTON = Preferences.COLOR_BUTTON
@@ -447,7 +455,6 @@ class Preferences(Gtk.Window):
 
         self.appearance_box.append(self.background_horizontal_box_app)
 
-        # Explorer LEFT
         label_app_back = Gtk.Label(
             label=Preferences.BACKGROUND_APP_TITLE_COLOR
         )
@@ -463,6 +470,41 @@ class Preferences(Gtk.Window):
 
         self.background_horizontal_box_app.append(label_app_back)
         self.background_horizontal_box_app.append(btn_color_app)
+
+        # Background entrys
+
+        self.background_horizontal_box_entry = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.background_horizontal_box_entry.set_halign(Gtk.Align.START)
+
+        self.background_horizontal_box_entry.append(
+            Gtk.Label(label=Preferences.BACKGROUND_ENTRY_TITLE)
+        )
+
+        self.appearance_box.append(self.background_horizontal_box_entry)
+
+        self.background_horizontal_box_entry_color = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        self.background_horizontal_box_entry_color.set_margin_top(20)
+
+        self.appearance_box.append(self.background_horizontal_box_entry_color)
+
+        label_entry = Gtk.Label(label=Preferences.BACKGROUND_ENTRY_TITLE_COLOR)
+        label_entry.set_margin_start(100)
+        label_entry.set_size_request(200, -1)
+        label_entry.set_xalign(0.0)
+
+        color_dialog = Gtk.ColorDialog()
+        btn_color_entry = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color_entry.set_name("btn_color_entry")
+        btn_color_entry.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color_entry)
+
+        self.background_horizontal_box_entry_color.append(label_entry)
+        self.background_horizontal_box_entry_color.append(btn_color_entry)
 
         # Background explorers
         self.background_horizontal_box_0 = Gtk.Box(
@@ -631,10 +673,14 @@ class Preferences(Gtk.Window):
             Preferences.COLOR_BACKGROUND_APP = color
         elif name == "btn_color_background_buttons":
             Preferences.COLOR_BUTTON = color
+        elif name == "btn_color_entry":
+            Preferences.COLOR_ENTRY = color
 
         self.css_manager.load_css_app_background(
             Preferences.COLOR_BACKGROUND_APP
         )
+
+        self.css_manager.load_css_entrys(Preferences.COLOR_ENTRY)
 
         self.css_manager.load_css_explorer_background(
             Preferences.COLOR_EXPLORER_LEFT, Preferences.COLOR_EXPLORER_RIGHT
@@ -665,5 +711,8 @@ class Preferences(Gtk.Window):
         elif name == "btn_color_background_buttons":
             Preferences.COLOR_BUTTON = self.win.COLOR_BUTTON
             color.parse(Preferences.COLOR_BUTTON)
+        elif name == "btn_color_entry":
+            Preferences.COLOR_ENTRY = self.win.COLOR_ENTRY
+            color.parse(Preferences.COLOR_ENTRY)
 
         button.set_rgba(color)
