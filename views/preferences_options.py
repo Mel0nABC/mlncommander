@@ -44,14 +44,21 @@ class Preferences(Gtk.Window):
     SEARCH_BACKGROUND = _("Color de fondo")
     SEARCH_FONT_COLOR = _("Color texto")
 
+    # Buttons text
+    BACKGROUND_BUTTONS_TITLE = _("Color de los botones")
+    BACKGROUND_BUTTONS_LABEL = _("Fondo de los botones")
+
     # Colors
 
     COLOR_BACKGROUND_APP = None
 
     COLOR_EXPLORER_LEFT = None
     COLOR_EXPLORER_RIGHT = None
+
     COLOR_BACKGROUND_SEARCH = None
     COLOR_SEARCH_TEXT = None
+
+    COLOR_BUTTON = None
 
     FONT_SIZE_EXPLORER = None
     FONT_BOLD_EXPLORER = None
@@ -116,10 +123,13 @@ class Preferences(Gtk.Window):
         vertical_button_box.set_vexpand(True)
 
         general_btn = Gtk.Button(label=Preferences.GENERAL_LABEL_BTN)
+        general_btn.get_style_context().add_class("button")
         general_btn.connect("clicked", self.change_box, self.general_box)
         directory_btn = Gtk.Button(label=Preferences.DIRECTORY_LABEL_BTN)
+        directory_btn.get_style_context().add_class("button")
         directory_btn.connect("clicked", self.change_box, self.directory_box)
         appearance_btn = Gtk.Button(label=Preferences.APPEARANCE_LABEL_BTN)
+        appearance_btn.get_style_context().add_class("button")
         appearance_btn.connect("clicked", self.change_box, self.appearance_box)
 
         vertical_button_box.append(general_btn)
@@ -148,8 +158,10 @@ class Preferences(Gtk.Window):
         horizontal_option_btn.set_halign(Gtk.Align.END)
 
         btn_accept = Gtk.Button(label=Preferences.BTN_ACCEPT_LABEL)
+        btn_accept.get_style_context().add_class("button")
         btn_accept.connect("clicked", self.on_accept)
         btn_cancel = Gtk.Button(label=Preferences.BTN_CANCEL_LABEL)
+        btn_cancel.get_style_context().add_class("button")
         btn_cancel.connect("clicked", self.on_exit)
 
         horizontal_option_btn.append(btn_accept)
@@ -186,9 +198,9 @@ class Preferences(Gtk.Window):
         self.win.EXP_2_PATH = Preferences.EXP_2_PATH
         self.win.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
         self.win.COLOR_BACKGROUND_APP = Preferences.COLOR_BACKGROUND_APP
-        print(f"ON ACCEPT: {Preferences.COLOR_BACKGROUND_APP}")
         self.win.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT
         self.win.COLOR_EXPLORER_RIGHT = Preferences.COLOR_EXPLORER_RIGHT
+        self.win.COLOR_BUTTON = Preferences.COLOR_BUTTON
         self.win.COLOR_BACKGROUND_SEARCH = Preferences.COLOR_BACKGROUND_SEARCH
         self.win.COLOR_SEARCH_TEXT = Preferences.COLOR_SEARCH_TEXT
 
@@ -570,6 +582,37 @@ class Preferences(Gtk.Window):
         self.background_horizontal_box_3.set_halign(Gtk.Align.END)
         self.background_horizontal_box_4.set_halign(Gtk.Align.END)
 
+        # Set color button
+
+        label_buttons = Gtk.Label(label=Preferences.BACKGROUND_BUTTONS_TITLE)
+        label_buttons.set_halign(Gtk.Align.START)
+        label_buttons.set_margin_top(20)
+
+        self.appearance_box.append(label_buttons)
+
+        self.background_horizontal_box_4 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        self.background_horizontal_box_4.set_margin_top(20)
+
+        btn_color_background_buttons = Gtk.ColorDialogButton.new(color_dialog)
+        btn_color_background_buttons.set_name("btn_color_background_buttons")
+        btn_color_background_buttons.connect("notify::rgba", self.set_color)
+        self.set_color_dialog_button(btn_color_background_buttons)
+
+        label_button_background = Gtk.Label(
+            label=Preferences.BACKGROUND_BUTTONS_LABEL
+        )
+        label_button_background.set_margin_start(100)
+        label_button_background.set_size_request(200, -1)
+        label_button_background.set_xalign(0.0)
+
+        self.background_horizontal_box_4.append(label_button_background)
+        self.background_horizontal_box_4.append(btn_color_background_buttons)
+
+        self.appearance_box.append(self.background_horizontal_box_4)
+
     def set_color(
         self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
     ) -> None:
@@ -586,14 +629,18 @@ class Preferences(Gtk.Window):
             Preferences.COLOR_SEARCH_TEXT = color
         elif name == "btn_color_app":
             Preferences.COLOR_BACKGROUND_APP = color
+        elif name == "btn_color_background_buttons":
+            Preferences.COLOR_BUTTON = color
+
+        self.css_manager.load_css_app_background(
+            Preferences.COLOR_BACKGROUND_APP
+        )
 
         self.css_manager.load_css_explorer_background(
             Preferences.COLOR_EXPLORER_LEFT, Preferences.COLOR_EXPLORER_RIGHT
         )
 
-        self.css_manager.load_css_app_background(
-            Preferences.COLOR_BACKGROUND_APP
-        )
+        self.css_manager.load_css_buttons(Preferences.COLOR_BUTTON)
 
     def set_color_dialog_button(self, button: Gtk.ColorDialogButton) -> None:
         color = Gdk.RGBA()
@@ -615,4 +662,8 @@ class Preferences(Gtk.Window):
         elif name == "btn_color_app":
             Preferences.COLOR_BACKGROUND_APP = self.win.COLOR_BACKGROUND_APP
             color.parse(Preferences.COLOR_BACKGROUND_APP)
+        elif name == "btn_color_background_buttons":
+            Preferences.COLOR_BUTTON = self.win.COLOR_BUTTON
+            color.parse(Preferences.COLOR_BUTTON)
+
         button.set_rgba(color)

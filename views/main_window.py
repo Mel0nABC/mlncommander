@@ -56,6 +56,7 @@ class Window(Gtk.ApplicationWindow):
         self.COLOR_EXPLORER_RIGHT = None
         self.COLOR_BACKGROUND_SEARCH = None
         self.COLOR_SEARCH_TEXT = None
+        self.COLOR_BUTTON = None
         self.FONT_SIZE_EXPLORER = 15
         self.FONT_BOLD_EXPLORER = "bold"
 
@@ -65,8 +66,8 @@ class Window(Gtk.ApplicationWindow):
         # Load css
         self.get_style_context().add_class("app_background")
         self.css_manager = Css_explorer_manager(self)
-        print(self.COLOR_BACKGROUND_APP)
         self.css_manager.load_css_app_background(self.COLOR_BACKGROUND_APP)
+        self.css_manager.load_css_buttons(self.COLOR_BUTTON)
 
         # We get information from the screen
 
@@ -187,27 +188,35 @@ class Window(Gtk.ApplicationWindow):
         horizontal_botton_menu.set_hexpand(True)
 
         btn_F2 = Gtk.Button(label=_("Renombrar < F2 >"))
+        btn_F2.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F2)
 
         btn_F3 = Gtk.Button(label=_("Nuevo Fichero < F3 >"))
+        btn_F3.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F3)
 
         btn_F5 = Gtk.Button(label=_("Copiar < F5 >"))
+        btn_F5.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F5)
 
         btn_F6 = Gtk.Button(label=_("Mover < F6 >"))
+        btn_F6.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F6)
 
         btn_F7 = Gtk.Button(label=_("Crear dir < F7 >"))
+        btn_F7.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F7)
 
         btn_F8 = Gtk.Button(label=_("Eliminar < F8 >"))
+        btn_F8.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F8)
 
         btn_F9 = Gtk.Button(label=_("Duplicar < F9 >"))
+        btn_F9.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F9)
 
         btn_F10 = Gtk.Button(label=_("Salir < F10 >"))
+        btn_F10.get_style_context().add_class("button")
         horizontal_botton_menu.append(btn_F10)
 
         # Left label show selection info
@@ -388,6 +397,7 @@ class Window(Gtk.ApplicationWindow):
                 conf.write(
                     f"COLOR_EXPLORER_RIGHT={explorer_background_prede}\n"
                 )
+                conf.write("COLOR_BUTTON=#393939\n")
                 conf.write("COLOR_BACKGROUND_SEARCH=rgb(0,0,0)\n")
                 conf.write("COLOR_SEARCH_TEXT=rgb(246,211,45)\n")
 
@@ -421,6 +431,9 @@ class Window(Gtk.ApplicationWindow):
                     elif variable_name == "COLOR_EXPLORER_RIGHT":
                         result = split[1]
                         setattr(self, variable_name, result)
+                    elif variable_name == "COLOR_BUTTON":
+                        result = split[1]
+                        setattr(self, variable_name, result)
                     elif variable_name == "COLOR_BACKGROUND_SEARCH":
                         result = split[1]
                         setattr(self, variable_name, result)
@@ -450,9 +463,9 @@ class Window(Gtk.ApplicationWindow):
             conf.write(f"SHOW_DIR_LAST={self.SHOW_DIR_LAST}\n")
             conf.write(f"SWITCH_IMG_STATUS={self.SWITCH_IMG_STATUS}\n")
             conf.write(f"COLOR_BACKGROUND_APP={self.COLOR_BACKGROUND_APP}\n")
-            print(f"GUARDANDO: {self.COLOR_BACKGROUND_APP}")
             conf.write(f"COLOR_EXPLORER_LEFT={self.COLOR_EXPLORER_LEFT}\n")
             conf.write(f"COLOR_EXPLORER_RIGHT={self.COLOR_EXPLORER_RIGHT}\n")
+            conf.write(f"COLOR_BUTTON={self.COLOR_BUTTON}\n")
             conf.write(
                 f"COLOR_BACKGROUND_SEARCH={self.COLOR_BACKGROUND_SEARCH}\n"
             )

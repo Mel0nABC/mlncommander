@@ -36,12 +36,25 @@ class Css_explorer_manager:
 
     def load_css_app_background(self, app_background_color: str) -> None:
         """
-        Sets the text color when using the search function for files
-        or directories
+        Set application background color (all window)
         """
         css = f"""
             .app_background{{
                 background-color: {app_background_color};
+            }}
+
+        """.encode()
+
+        self.set_css_to_provider(css)
+
+    def load_css_buttons(self, color_button: str) -> None:
+        """
+        Set color to all button
+        """
+        css = f"""
+            .button{{
+                background-image: none;
+                background-color: {color_button};
             }}
 
         """.encode()
