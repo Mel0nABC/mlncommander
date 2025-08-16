@@ -76,7 +76,7 @@ class Preferences(Gtk.Window):
     FONT_STYLE = None
     FONT_STYLE_COLOR = None
 
-    def __init__(self, win: Gtk.ApplicationWindow):
+    def __init__(self, win: Gtk.ApplicationWindow, parent: Gtk.Widget):
         super().__init__(title=_("Preferencias"), transient_for=win)
 
         Preferences.SHOW_DIR_LAST = win.SHOW_DIR_LAST
@@ -89,6 +89,7 @@ class Preferences(Gtk.Window):
         Preferences.FONT_STYLE = win.FONT_STYLE
         Preferences.FONT_STYLE_COLOR = win.FONT_STYLE_COLOR
 
+        self.parent = parent
         self.win = win
         self.css_manager = Css_explorer_manager(self.win)
         self.select_directory_box_1 = None
@@ -214,7 +215,7 @@ class Preferences(Gtk.Window):
             self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
         )
 
-        self.destroy()
+        self.on_close()
 
     def on_accept(self, button: Gtk.Button) -> None:
         """
@@ -235,7 +236,11 @@ class Preferences(Gtk.Window):
         self.win.FONT_STYLE_COLOR = Preferences.FONT_STYLE_COLOR
 
         self.win.save_config_file()
+        self.on_close()
+
+    def on_close(self) -> None:
         self.destroy()
+        self.parent.preferences = None
 
     def change_box(self, button: Gtk.Button, actual_box: Gtk.Box) -> None:
         """

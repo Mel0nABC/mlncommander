@@ -13,9 +13,9 @@ class Menu_bar(Gio.Menu):
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__()
         self.win = win
+        self.preferences = None
 
         main_menu = Gio.Menu()
-        # main_menu.append(_("Archivo"), "app.file")
 
         pref_menu = Gio.Menu()
         pref_menu.append(_("Preferencias"), "win.peferencias")
@@ -44,4 +44,5 @@ class Menu_bar(Gio.Menu):
     def open_preferences(self, action, parameter):
         from views.preferences_options import Preferences
 
-        Preferences(self.win)
+        if not self.preferences:
+            self.preferences = Preferences(self.win, self)
