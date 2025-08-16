@@ -31,9 +31,6 @@ class Css_explorer_manager:
         """
 
         css = f"""
-            .prueba{{
-                background-color: red;
-            }}
             .column_view_borders{{
                 border-radius:10px;
             }}

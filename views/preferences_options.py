@@ -193,6 +193,9 @@ class Preferences(Gtk.Window):
         self.css_manager.load_css_explorer_background(
             self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
         )
+
+        self.css_manager.load_css_entrys(self.win.COLOR_ENTRY)
+
         self.css_manager.load_css_app_background(self.win.COLOR_BACKGROUND_APP)
         self.destroy()
 
@@ -716,3 +719,5 @@ class Preferences(Gtk.Window):
             color.parse(Preferences.COLOR_ENTRY)
 
         button.set_rgba(color)
+
+    # TODO: Generate method to create buttons, laberls, etc
