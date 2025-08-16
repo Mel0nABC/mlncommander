@@ -70,12 +70,17 @@ class App(Gtk.Application):
         print(py_files)
 
         subprocess.run(
-            ["xgettext", "-o", "lenguaje_template.pot"] + py_files,
+            [
+                "xgettext",
+                "-o",
+                f"{str(Path(LOCALE_DIR))}/lenguaje_template.pot",
+            ]
+            + py_files,
             check=True,
         )
 
         # Para actualizar el .po con el nunevo .pot
-        # msgmerge --update locales/english.po lenguaje_template.pot
+        # msgmerge --update en_US.po lenguaje_template.pot
 
 
 app = App()
