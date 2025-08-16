@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-15 23:35+0200\n"
+"POT-Creation-Date: 2025-08-16 08:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,6 +49,33 @@ msgstr ""
 
 #: /home/mel0n/Downloads/mlncommander/utilities/remove.py:90
 msgid "Se detubo el proceso de borrado antes de finalizar."
+msgstr ""
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:67
+msgid ""
+"##################################################\n"
+"########## INICIALIZANDO ARCHIVO  DE LOG #########\n"
+"##################################################\n"
+msgstr ""
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:82
+msgid "CREADO"
+msgstr ""
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:86
+msgid "BORRADO"
+msgstr ""
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:90
+msgid "MODIFICADO"
+msgstr ""
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:94
+msgid "MOVIDO"
+msgstr ""
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:107
+msgid "Algún problema ha ocurrido"
 msgstr ""
 
 #: /home/mel0n/Downloads/mlncommander/utilities/access_control.py:42

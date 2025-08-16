@@ -4,7 +4,7 @@
 todo.list
 config.conf
 pyproject.toml
-
+#log/mlncommander.log
 
 # Entornos virtuales
 venv/
@@ -70,3 +70,6 @@ Thumbs.db
 # Archivos de lock o dependencias (si los generas)
 Pipfile.lock
 
+locales/lenguaje_template.pot
+lenguaje_template.pot
+.gitignore

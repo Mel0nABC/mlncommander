@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mlncommander\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-15 23:20+0200\n"
-"PO-Revision-Date: 2025-08-15 23:25+0200\n"
+"POT-Creation-Date: 2025-08-16 08:48+0200\n"
+"PO-Revision-Date: 2025-08-16 08:50+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -52,6 +52,36 @@ msgstr "You must select a file or directory."
 #: /home/mel0n/Downloads/mlncommander/utilities/remove.py:90
 msgid "Se detubo el proceso de borrado antes de finalizar."
 msgstr "The deletion process was stopped before completion."
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:67
+msgid ""
+"##################################################\n"
+"########## INICIALIZANDO ARCHIVO  DE LOG #########\n"
+"##################################################\n"
+msgstr ""
+"#################################################\n"
+"################ INITIALIZING LOG FILE ###############\n"
+"#################################################\n"
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:82
+msgid "CREADO"
+msgstr "CREATED"
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:86
+msgid "BORRADO"
+msgstr "DELETED"
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:90
+msgid "MODIFICADO"
+msgstr "MODIFIED"
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:94
+msgid "MOVIDO"
+msgstr "MOVED"
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:107
+msgid "Algún problema ha ocurrido"
+msgstr "Some problem has occurred"
 
 #: /home/mel0n/Downloads/mlncommander/utilities/access_control.py:42
 msgid ""
@@ -272,19 +302,18 @@ msgstr "File"
 msgid "Moviendo .."
 msgstr "Moving .."
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar.py:18
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar.py:22
-msgid "Archivo"
-msgstr "File"
-
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar.py:19
-msgid "Salir"
-msgstr "Exit"
-
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar.py:20
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar.py:21
 #: /home/mel0n/Downloads/mlncommander/views/preferences_options.py:53
 msgid "Preferencias"
 msgstr "Preferences"
+
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar.py:24
+msgid "Salir"
+msgstr "Exit"
+
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar.py:29
+msgid "Archivo"
+msgstr "File"
 
 #: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:18
 msgid "Crear fichero"
