@@ -56,6 +56,7 @@ class Preferences(Gtk.Window):
 
     FONT_SELECT_TITLE = _("Seleccion de fuente")
     FONT_SELECT_LABEL = _("Fuente")
+    FONT_SELECT_COLOT = _("Color")
 
     # Colors
 
@@ -72,6 +73,7 @@ class Preferences(Gtk.Window):
     COLOR_BUTTON = None
 
     FONT_STYLE = None
+    FONT_STYLE_COLOR = None
 
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(title=_("Preferencias"), transient_for=win)
@@ -84,6 +86,7 @@ class Preferences(Gtk.Window):
         Preferences.COLOR_BACKGROUND_SEARCH = win.COLOR_BACKGROUND_SEARCH
         Preferences.COLOR_SEARCH_TEXT = win.COLOR_SEARCH_TEXT
         Preferences.FONT_STYLE = win.FONT_STYLE
+        Preferences.FONT_STYLE_COLOR = win.FONT_STYLE_COLOR
 
         self.win = win
         self.css_manager = Css_explorer_manager(self.win)
@@ -156,6 +159,9 @@ class Preferences(Gtk.Window):
         )
         self.horizontal_option_box.set_hexpand(True)
         self.horizontal_option_box.set_vexpand(True)
+        self.horizontal_option_box.get_style_context().add_class(
+            "border-style"
+        )
 
         # box for accept or cancel buttons
         horizontal_option_btn = Gtk.Box(
@@ -187,6 +193,10 @@ class Preferences(Gtk.Window):
 
         self.get_style_context().add_class("app_background")
 
+        # Load css
+
+        self.get_style_context().add_class("font-color")
+
     def on_exit(self, button: Gtk.Button) -> None:
         """
         Close preferencesc window
@@ -198,7 +208,7 @@ class Preferences(Gtk.Window):
         )
         self.css_manager.load_css_buttons(self.win.COLOR_BUTTON)
         font_desc = Pango.FontDescription.from_string(self.win.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc)
+        self.css_manager.load_css_font(font_desc, Preferences.FONT_STYLE_COLOR)
         self.destroy()
 
     def on_accept(self, button: Gtk.Button) -> None:
@@ -217,6 +227,7 @@ class Preferences(Gtk.Window):
         self.win.COLOR_BACKGROUND_SEARCH = Preferences.COLOR_BACKGROUND_SEARCH
         self.win.COLOR_SEARCH_TEXT = Preferences.COLOR_SEARCH_TEXT
         self.win.FONT_STYLE = Preferences.FONT_STYLE
+        self.win.FONT_STYLE_COLOR = Preferences.FONT_STYLE_COLOR
 
         self.win.save_config_file()
         self.destroy()
@@ -583,6 +594,20 @@ class Preferences(Gtk.Window):
 
         self.appearance_box.append(self.background_horizontal_box_font_btn)
 
+        # Font color selector
+        self.background_horizontal_box_font_color = (
+            self.create_box_for_color_btn()
+        )
+
+        self.background_horizontal_box_font_color.append(
+            self.create_label(Preferences.FONT_SELECT_COLOT)
+        )
+        self.background_horizontal_box_font_color.append(
+            self.create_btn_color("btn_color_font_color")
+        )
+
+        self.appearance_box.append(self.background_horizontal_box_font_color)
+
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
     ) -> None:
@@ -590,7 +615,9 @@ class Preferences(Gtk.Window):
         font_desc = button.get_font_desc()
         if font_desc:
             Preferences.FONT_STYLE = font_desc.to_string()
-            self.css_manager.load_css_font(font_desc)
+            self.css_manager.load_css_font(
+                font_desc, Preferences.FONT_STYLE_COLOR
+            )
 
     def set_color(
         self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
@@ -617,6 +644,14 @@ class Preferences(Gtk.Window):
         elif name == "btn_color_entry":
             Preferences.COLOR_ENTRY = color
             self.css_manager.load_css_entrys(Preferences.COLOR_ENTRY)
+        elif name == "btn_color_font_color":
+            Preferences.FONT_STYLE_COLOR = color
+            font_desc = Pango.FontDescription.from_string(
+                Preferences.FONT_STYLE
+            )
+            self.css_manager.load_css_font(
+                font_desc, Preferences.FONT_STYLE_COLOR
+            )
 
         self.css_manager.load_css_explorer_background(
             Preferences.COLOR_EXPLORER_LEFT, Preferences.COLOR_EXPLORER_RIGHT
@@ -649,6 +684,9 @@ class Preferences(Gtk.Window):
         elif name == "btn_color_entry":
             Preferences.COLOR_ENTRY = self.win.COLOR_ENTRY
             color.parse(Preferences.COLOR_ENTRY)
+        elif name == "btn_color_font_color":
+            Preferences.FONT_STYLE_COLOR = self.win.FONT_STYLE_COLOR
+            color.parse(Preferences.FONT_STYLE_COLOR)
 
         button.set_rgba(color)
 

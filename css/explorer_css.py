@@ -31,6 +31,7 @@ class Css_explorer_manager:
         """
 
         css = f"""
+
             .column_view_borders{{
                 border-radius:10px;
             }}
@@ -89,6 +90,8 @@ class Css_explorer_manager:
                 }}
         """.encode()
 
+        print(f"BACKGROUND SEARCH: {color_search_text}")
+
         self.set_css_to_provider(css)
 
     def pango_weight_to_css(self, weight: int) -> str:
@@ -108,10 +111,13 @@ class Css_explorer_manager:
         }
         return mapping.get(weight, "400")
 
-    def load_css_font(self, font_desc: Gtk.FontDialogButton) -> None:
+    def load_css_font(
+        self, font_desc: Gtk.FontDialogButton, font_style_color: str
+    ) -> None:
         """
         Sets app font
         """
+
         family = font_desc.get_family()
         size = font_desc.get_size() / Pango.SCALE
         weight = self.pango_weight_to_css(font_desc.get_weight())
@@ -121,15 +127,26 @@ class Css_explorer_manager:
             else "normal"
         )
         css = f"""
-        .font {{
-            font-family: "{family}";
-            font-size: {size}pt;
-            font-weight: {weight};
-            font-style: {style};
-        }}
-        """.encode()
-        self.set_css_to_provider(css)
+            .border-style{{
+                border: solid 1px {font_style_color};
+                border-radius: 20px;
+                margin: 20px;
+            }}
 
+            .font-color label,
+            .font-color button,
+            .font-color entry,
+            .font-color{{
+                color: {font_style_color};
+            }}
+
+            .font{{
+                font-family: "{family}";
+                font-size: {size}pt;
+                font-weight: {weight};
+                font-style: {style};
+            }}
+        """.encode()
         self.set_css_to_provider(css)
 
     def set_css_to_provider(self, css_code: str) -> None:

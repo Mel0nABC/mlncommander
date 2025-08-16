@@ -123,6 +123,7 @@ class Explorer(Gtk.ColumnView):
 
         # Load css and set classes
         self.load_css_background()
+        self.background_list.get_style_context().add_class("font-color")
 
         # Focus event
         self.focus_explorer = Gtk.EventControllerFocus()
@@ -282,6 +283,8 @@ class Explorer(Gtk.ColumnView):
                     output_column.set_from_paintable(pintable)
                 else:
                     output_column.set_text(str(value))
+
+                # output_column.get_style_context().add_class("font-color")
 
         GLib.idle_add(bind_when_idle)
 
@@ -783,5 +786,4 @@ class Explorer(Gtk.ColumnView):
             self.win.COLOR_BACKGROUND_SEARCH,
             self.win.COLOR_SEARCH_TEXT,
         )
-
         self.background_list.get_style_context().add_class("background_search")

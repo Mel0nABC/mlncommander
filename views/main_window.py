@@ -59,6 +59,7 @@ class Window(Gtk.ApplicationWindow):
         self.COLOR_SEARCH_TEXT = None
         self.COLOR_BUTTON = None
         self.FONT_STYLE = None
+        self.FONT_STYLE_COLOR = None
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
@@ -66,12 +67,13 @@ class Window(Gtk.ApplicationWindow):
         # Load css
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
         self.css_manager = Css_explorer_manager(self)
         self.css_manager.load_css_app_background(self.COLOR_BACKGROUND_APP)
         self.css_manager.load_css_buttons(self.COLOR_BUTTON)
         self.css_manager.load_css_entrys(self.COLOR_ENTRY)
         font_desc = Pango.FontDescription.from_string(self.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc)
+        self.css_manager.load_css_font(font_desc, self.FONT_STYLE_COLOR)
 
         # We get information from the screen
 
@@ -408,6 +410,7 @@ class Window(Gtk.ApplicationWindow):
                 conf.write("COLOR_BACKGROUND_SEARCH=rgb(0,0,0)\n")
                 conf.write("COLOR_SEARCH_TEXT=rgb(246,211,45)\n")
                 conf.write("FONT_STYLE=Adwaita Mono 12\n")
+                conf.write("FONT_STYLE_COLOR=white\n")
 
         # We open configuration and load in variables.
         with open(self.CONFIG_FILE, "r+") as conf:
@@ -456,6 +459,9 @@ class Window(Gtk.ApplicationWindow):
                     elif variable_name == "FONT_STYLE":
                         result = split[1]
                         setattr(self, variable_name, result)
+                    elif variable_name == "FONT_STYLE_COLOR":
+                        result = split[1]
+                        setattr(self, variable_name, result)
 
     def save_config_file(self) -> None:
         """
@@ -485,6 +491,8 @@ class Window(Gtk.ApplicationWindow):
             )
             conf.write(f"COLOR_SEARCH_TEXT={self.COLOR_SEARCH_TEXT}\n")
             conf.write(f"FONT_STYLE={self.FONT_STYLE}\n")
+            conf.write(f"FONT_STYLE_COLOR={self.FONT_STYLE_COLOR}\n")
+            print(f"SAVE COLOR: {self.FONT_STYLE_COLOR}")
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """
