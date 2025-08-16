@@ -82,9 +82,6 @@ class MiHandler(FileSystemEventHandler):
         except Exception as e:
             print(f"ERROR: {e}")
 
-        print(f"WATCH: {self.log_file}")
-        print(self.log_file.exists())
-
     # def dispatch(self, event):
     #     print(event)
     #     self.last_event = event
