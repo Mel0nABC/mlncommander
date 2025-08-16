@@ -1,5 +1,5 @@
 import gi
-from gi.repository import Gtk
+from gi.repository import Gtk, Pango
 
 gi.require_version("Gtk", "4.0")
 
@@ -75,11 +75,7 @@ class Css_explorer_manager:
         self.set_css_to_provider(css)
 
     def load_css_search(
-        self,
-        color_background_search: str,
-        color_search_text: str,
-        font_size_explorer: str,
-        font_bold_explorer: str,
+        self, color_background_search: str, color_search_text: str
     ) -> None:
         """
         Sets the background color when using the search function for files
@@ -88,16 +84,51 @@ class Css_explorer_manager:
 
         css = f"""
             .background_search {{
-                background-color: {color_background_search};
-                color: {color_search_text};
-                font-weight:bold;
+                    background-color: {color_background_search};
+                    color: {color_search_text};
                 }}
-
-            .explorer_text_size{{
-                font-size: {font_size_explorer}px;
-                font-weight:{font_bold_explorer};
-            }}
         """.encode()
+
+        self.set_css_to_provider(css)
+
+    def pango_weight_to_css(self, weight: int) -> str:
+        mapping = {
+            Pango.Weight.THIN: "100",
+            Pango.Weight.ULTRALIGHT: "200",
+            Pango.Weight.LIGHT: "300",
+            Pango.Weight.SEMILIGHT: "350",
+            Pango.Weight.BOOK: "380",
+            Pango.Weight.NORMAL: "400",
+            Pango.Weight.MEDIUM: "500",
+            Pango.Weight.SEMIBOLD: "600",
+            Pango.Weight.BOLD: "700",
+            Pango.Weight.ULTRABOLD: "800",
+            Pango.Weight.HEAVY: "900",
+            Pango.Weight.ULTRAHEAVY: "950",
+        }
+        return mapping.get(weight, "400")
+
+    def load_css_font(self, font_desc: Gtk.FontDialogButton) -> None:
+        """
+        Sets app font
+        """
+        family = font_desc.get_family()
+        size = font_desc.get_size() / Pango.SCALE
+        weight = self.pango_weight_to_css(font_desc.get_weight())
+        style = (
+            "italic"
+            if font_desc.get_style() == Pango.Style.ITALIC
+            else "normal"
+        )
+        css = f"""
+        .font {{
+            font-family: "{family}";
+            font-size: {size}pt;
+            font-weight: {weight};
+            font-style: {style};
+        }}
+        """.encode()
+        self.set_css_to_provider(css)
 
         self.set_css_to_provider(css)
 

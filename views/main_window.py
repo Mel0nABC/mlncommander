@@ -18,7 +18,7 @@ import gi
 
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk  # noqa E402
+from gi.repository import Gtk, Pango  # noqa E402
 
 
 class Window(Gtk.ApplicationWindow):
@@ -58,18 +58,20 @@ class Window(Gtk.ApplicationWindow):
         self.COLOR_ENTRY = None
         self.COLOR_SEARCH_TEXT = None
         self.COLOR_BUTTON = None
-        self.FONT_SIZE_EXPLORER = 15
-        self.FONT_BOLD_EXPLORER = "bold"
+        self.FONT_STYLE = None
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
 
         # Load css
         self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
         self.css_manager = Css_explorer_manager(self)
         self.css_manager.load_css_app_background(self.COLOR_BACKGROUND_APP)
         self.css_manager.load_css_buttons(self.COLOR_BUTTON)
         self.css_manager.load_css_entrys(self.COLOR_ENTRY)
+        font_desc = Pango.FontDescription.from_string(self.FONT_STYLE)
+        self.css_manager.load_css_font(font_desc)
 
         # We get information from the screen
 
@@ -405,13 +407,14 @@ class Window(Gtk.ApplicationWindow):
                 conf.write("COLOR_BUTTON=#393939\n")
                 conf.write("COLOR_BACKGROUND_SEARCH=rgb(0,0,0)\n")
                 conf.write("COLOR_SEARCH_TEXT=rgb(246,211,45)\n")
+                conf.write("FONT_STYLE=Adwaita Mono 12\n")
 
         # We open configuration and load in variables.
         with open(self.CONFIG_FILE, "r+") as conf:
             for row in conf:
                 if row:
                     split = row.strip().split("=")
-
+                    result = ""
                     variable_name = split[0]
                     if (
                         variable_name == "EXP_1_PATH"
@@ -450,6 +453,9 @@ class Window(Gtk.ApplicationWindow):
                     elif variable_name == "COLOR_BACKGROUND_APP":
                         result = split[1]
                         setattr(self, variable_name, result)
+                    elif variable_name == "FONT_STYLE":
+                        result = split[1]
+                        setattr(self, variable_name, result)
 
     def save_config_file(self) -> None:
         """
@@ -478,6 +484,7 @@ class Window(Gtk.ApplicationWindow):
                 f"COLOR_BACKGROUND_SEARCH={self.COLOR_BACKGROUND_SEARCH}\n"
             )
             conf.write(f"COLOR_SEARCH_TEXT={self.COLOR_SEARCH_TEXT}\n")
+            conf.write(f"FONT_STYLE={self.FONT_STYLE}\n")
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """

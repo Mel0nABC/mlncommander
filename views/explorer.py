@@ -782,8 +782,6 @@ class Explorer(Gtk.ColumnView):
         self.css_manager.load_css_search(
             self.win.COLOR_BACKGROUND_SEARCH,
             self.win.COLOR_SEARCH_TEXT,
-            self.win.FONT_SIZE_EXPLORER,
-            self.win.FONT_BOLD_EXPLORER,
         )
 
         self.background_list.get_style_context().add_class("background_search")
