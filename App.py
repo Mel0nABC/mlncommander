@@ -65,10 +65,6 @@ class App(Gtk.Application):
 
         iter_dir(project_path)
 
-        file = [str(p) for p in py_files]
-        print(file)
-        print(py_files)
-
         subprocess.run(
             [
                 "xgettext",

@@ -215,7 +215,6 @@ class My_copy:
                     split_name = list(file_name.rpartition("."))
                     split_name[0] = f"{split_name[0]}_copy"
                     return_name = "".join(split_name)
-                    print(return_name)
                     dst_info = Path(f"{dst_dir}/{return_name}")
             else:
                 dst_info = Path(f"{dst_dir}/{src_info.name}")

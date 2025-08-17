@@ -110,20 +110,20 @@ class Explorer(Gtk.ColumnView):
 
             self.append_column(column)
 
-        self.get_style_context().add_class("header")
+        # self.get_style_context().add_class("header")
 
         # Configure Gtk.ColumnView
-        self.set_show_column_separators(True)
-        self.set_can_focus(True)
-        self.set_focusable(True)
-        self.set_vexpand(True)
-        self.set_hexpand(False)
+        # self.set_show_column_separators(True)
+        # self.set_can_focus(True)
+        # self.set_focusable(True)
+        # self.set_vexpand(True)
+        # self.set_hexpand(True)
         # self.set_enable_rubberband(True)  # Mouse selection
+
         self.activate_drop_source()
 
         # Load css and set classes
         self.load_css_background()
-        self.background_list.get_style_context().add_class("font-color")
 
         # Focus event
         self.focus_explorer = Gtk.EventControllerFocus()
@@ -520,6 +520,19 @@ class Explorer(Gtk.ColumnView):
 
         self.scroll_to(0, None, self.flags)
 
+    def load_css_search(self) -> None:
+        """
+        Load css search
+        """
+        # tempòral values.
+
+        self.css_manager.load_css_search(
+            self.win.COLOR_BACKGROUND_SEARCH,
+            self.win.COLOR_SEARCH_TEXT,
+        )
+        self.win.get_style_context().remove_class("font-color")
+        self.background_list.get_style_context().add_class("background_search")
+
     def stop_background_search(self):
         """
         Search colors are desactivated
@@ -531,6 +544,8 @@ class Explorer(Gtk.ColumnView):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
+
+        self.win.get_style_context().add_class("font-color")
         self.background_list.get_style_context().remove_class(
             "background_search"
         )
@@ -775,15 +790,3 @@ class Explorer(Gtk.ColumnView):
 
         self.background_list.get_style_context().add_class(class_name)
         self.get_style_context().add_class("column_view_borders")
-
-    def load_css_search(self) -> None:
-        """
-        Load css search
-        """
-        # tempòral values.
-
-        self.css_manager.load_css_search(
-            self.win.COLOR_BACKGROUND_SEARCH,
-            self.win.COLOR_SEARCH_TEXT,
-        )
-        self.background_list.get_style_context().add_class("background_search")

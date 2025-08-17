@@ -84,8 +84,15 @@ class Window(Gtk.ApplicationWindow):
         root.destroy()
 
         print(f"Screen resolution: {self.horizontal}x{self.vertical}")
+        scale = self.get_scale_factor()
+        print(
+            "Factor de escala:", scale
+        )  # Ejemplo: 1 en normal, 2 en pantallas HiDPI
 
         self.set_default_size(self.horizontal / 2, self.vertical)
+        self.set_size_request(720, 576)
+        self.set_resizable(True)
+
         self.set_titlebar(header().header)
 
         main_vertical_box = Gtk.Box(
@@ -94,6 +101,8 @@ class Window(Gtk.ApplicationWindow):
         menu_bar = Menu_bar(self)
 
         main_vertical_box.append(menu_bar.menubar)
+
+        self.set_child(main_vertical_box)
 
         horizontal_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
@@ -115,6 +124,8 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_entry_1.get_style_context().add_class("entry")
         self.vertical_entry_2 = Gtk.Entry()
         self.vertical_entry_2.get_style_context().add_class("entry")
+
+        # Entry to show search text. Hiden
         self.search_str_entry = Gtk.Entry()
         self.search_str_entry.set_editable(False)
 
@@ -158,17 +169,21 @@ class Window(Gtk.ApplicationWindow):
         self.scroll_1.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
-        self.scroll_1.set_child(self.explorer_1)
+        self.scroll_1.set_hexpand(True)
+        self.scroll_1.set_vexpand(True)
         self.scroll_1.set_margin_end(self.scroll_margin / 2)
         self.scroll_1.set_margin_start(self.scroll_margin)
+        self.scroll_1.set_child(self.explorer_1)
 
         self.scroll_2 = Gtk.ScrolledWindow()
         self.scroll_2.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
-        self.scroll_2.set_child(self.explorer_2)
+        self.scroll_2.set_hexpand(True)
+        self.scroll_2.set_vexpand(True)
         self.scroll_2.set_margin_end(self.scroll_margin)
         self.scroll_2.set_margin_start(self.scroll_margin / 2)
+        self.scroll_2.set_child(self.explorer_2)
 
         self.vertical_screen_1.append(self.scroll_1)
         self.vertical_screen_2.append(self.scroll_2)
@@ -252,17 +267,15 @@ class Window(Gtk.ApplicationWindow):
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        horizontal_bottom.append(label_box_left)
-        horizontal_bottom.append(horizontal_botton_menu)
-        horizontal_bottom.append(label_box_right)
+        # horizontal_bottom.append(label_box_left)
+        # horizontal_bottom.append(horizontal_botton_menu)
+        # horizontal_bottom.append(label_box_right)
 
         horizontal_bottom.set_hexpand(True)
         horizontal_bottom.set_margin_start(self.scroll_margin + 20)
         horizontal_bottom.set_margin_end(self.scroll_margin + 20)
 
         main_vertical_box.append(horizontal_bottom)
-
-        self.set_child(main_vertical_box)
 
         # Signals and events area
 
@@ -390,27 +403,56 @@ class Window(Gtk.ApplicationWindow):
 
         # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
-            app_background_prede = "#353535"
-            explorer_background_prede = "#222226"
             with open(self.CONFIG_FILE, "a") as conf:
                 conf.write("EXP_1_PATH=/\n")
                 conf.write("EXP_2_PATH=/\n")
                 conf.write("SHOW_DIR_LAST=True\n")
                 conf.write("SWITCH_IMG_STATUS=True\n")
-
-                conf.write(f"COLOR_BACKGROUND_APP={app_background_prede}\n")
-                conf.write("COLOR_ENTRY=#2d2d2d\n")
                 conf.write(
-                    f"COLOR_EXPLORER_LEFT={explorer_background_prede}\n"
+                    (
+                        f"COLOR_BACKGROUND_APP="
+                        f"{Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP}\n"
+                    )
                 )
                 conf.write(
-                    f"COLOR_EXPLORER_RIGHT={explorer_background_prede}\n"
+                    f"COLOR_ENTRY={Css_explorer_manager.PREDE_COLOR_ENTRY}\n"
                 )
-                conf.write("COLOR_BUTTON=#393939\n")
-                conf.write("COLOR_BACKGROUND_SEARCH=rgb(0,0,0)\n")
-                conf.write("COLOR_SEARCH_TEXT=rgb(246,211,45)\n")
-                conf.write("FONT_STYLE=Adwaita Mono 12\n")
-                conf.write("FONT_STYLE_COLOR=white\n")
+                conf.write(
+                    (
+                        f"COLOR_EXPLORER_LEFT="
+                        f"{Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT}\n"
+                    )
+                )
+                conf.write(
+                    (
+                        f"COLOR_EXPLORER_RIGHT="
+                        f"{Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT}\n"
+                    )
+                )
+                conf.write(
+                    f"COLOR_BUTTON={Css_explorer_manager.PREDE_COLOR_BUTTON}\n"
+                )
+                conf.write(
+                    (
+                        f"COLOR_BACKGROUND_SEARCH="
+                        f"{Css_explorer_manager.PREDE_COLOR_BACKGROUND_SEARCH}\n"  # noqa: E501
+                    )
+                )
+                conf.write(
+                    (
+                        f"COLOR_SEARCH_TEXT="
+                        f"{Css_explorer_manager.PREDE_COLOR_SEARCH_TEXT}\n"
+                    )
+                )
+                conf.write(
+                    f"FONT_STYLE={Css_explorer_manager.PREDE_FONT_STYLE}\n"
+                )
+                conf.write(
+                    (
+                        f"FONT_STYLE_COLOR="
+                        f"{Css_explorer_manager.PREDE_FONT_STYLE_COLOR}\n"
+                    )
+                )
 
         # We open configuration and load in variables.
         with open(self.CONFIG_FILE, "r+") as conf:
@@ -492,7 +534,7 @@ class Window(Gtk.ApplicationWindow):
             conf.write(f"COLOR_SEARCH_TEXT={self.COLOR_SEARCH_TEXT}\n")
             conf.write(f"FONT_STYLE={self.FONT_STYLE}\n")
             conf.write(f"FONT_STYLE_COLOR={self.FONT_STYLE_COLOR}\n")
-            print(f"SAVE COLOR: {self.FONT_STYLE_COLOR}")
+            print("SAVE")
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """

@@ -6,8 +6,24 @@ gi.require_version("Gtk", "4.0")
 
 class Css_explorer_manager:
 
+    PREDE_COLOR_BACKGROUND_APP = "#353535"
+    PREDE_COLOR_ENTRY = "#2d2d2d"
+    PREDE_COLOR_EXPLORER_LEFT = "#222226"
+    PREDE_COLOR_EXPLORER_RIGHT = "#222226"
+    PREDE_COLOR_BUTTON = "#393939"
+    PREDE_COLOR_BACKGROUND_SEARCH = "rgb(0,0,0)"
+    PREDE_COLOR_SEARCH_TEXT = "rgb(246,211,45)"
+    PREDE_FONT_STYLE = "Adwaita Sans 12"
+    PREDE_FONT_STYLE_COLOR = "white"
+
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
+        css = b"""
+        * {
+            font-size: 10pt;
+        }
+        """
+        self.set_css_to_provider(css)
 
     def load_css_app_background(self, app_background_color: str) -> None:
         """
@@ -90,8 +106,6 @@ class Css_explorer_manager:
                 }}
         """.encode()
 
-        print(f"BACKGROUND SEARCH: {color_search_text}")
-
         self.set_css_to_provider(css)
 
     def pango_weight_to_css(self, weight: int) -> str:
@@ -128,15 +142,12 @@ class Css_explorer_manager:
         )
         css = f"""
             .border-style{{
-                border: solid 1px {font_style_color};
-                border-radius: 20px;
-                margin: 20px;
+                border: solid 1pt {font_style_color};
+                border-radius: 20pt;
+                margin: 20pt;
             }}
 
-            .font-color label,
-            .font-color button,
-            .font-color entry,
-            .font-color{{
+            .font-color *{{
                 color: {font_style_color};
             }}
 

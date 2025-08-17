@@ -81,9 +81,12 @@ class Preferences(Gtk.Window):
 
         Preferences.SHOW_DIR_LAST = win.SHOW_DIR_LAST
         Preferences.SWITCH_IMG_STATUS = win.SWITCH_IMG_STATUS
+
         Preferences.COLOR_BACKGROUND_APP = win.COLOR_BACKGROUND_APP
+        Preferences.COLOR_ENTRY = win.COLOR_ENTRY
         Preferences.COLOR_EXPLORER_LEFT = win.COLOR_EXPLORER_LEFT
         Preferences.COLOR_EXPLORER_RIGHT = win.COLOR_EXPLORER_RIGHT
+        Preferences.COLOR_BUTTON = win.COLOR_BUTTON
         Preferences.COLOR_BACKGROUND_SEARCH = win.COLOR_BACKGROUND_SEARCH
         Preferences.COLOR_SEARCH_TEXT = win.COLOR_SEARCH_TEXT
         Preferences.FONT_STYLE = win.FONT_STYLE
@@ -115,7 +118,7 @@ class Preferences(Gtk.Window):
         self.appearance_box.set_name("appearance_box")
         self.create_appearance()
 
-        self.set_default_size(900, 700)
+        self.set_default_size(self.win.horizontal / 4, self.win.vertical / 2)
 
         # Contain vertical button box and main option screen
         horizontal_main = Gtk.Box(
@@ -145,6 +148,7 @@ class Preferences(Gtk.Window):
         appearance_btn.get_style_context().add_class("button")
         appearance_btn.connect("clicked", self.change_box, self.appearance_box)
 
+        vertical_button_box.set_margin_top(40)
         vertical_button_box.append(general_btn)
         vertical_button_box.append(directory_btn)
         vertical_button_box.append(appearance_btn)
@@ -200,6 +204,10 @@ class Preferences(Gtk.Window):
 
         self.get_style_context().add_class("font-color")
 
+        # Signals
+
+        self.connect("close-request", self.on_close)
+
     def on_exit(self, button: Gtk.Button) -> None:
         """
         Close preferencesc window
@@ -238,7 +246,7 @@ class Preferences(Gtk.Window):
         self.win.save_config_file()
         self.on_close()
 
-    def on_close(self) -> None:
+    def on_close(self, widget: Gtk.Widget = None) -> None:
         self.destroy()
         self.parent.preferences = None
 
@@ -629,7 +637,6 @@ class Preferences(Gtk.Window):
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
     ) -> None:
-        print("CAMBIOS")
         font_desc = button.get_font_desc()
         if font_desc:
             Preferences.FONT_STYLE = font_desc.to_string()
@@ -724,7 +731,6 @@ class Preferences(Gtk.Window):
 
     def create_label(self, label_text: str) -> Gtk.Label:
         label = Gtk.Label(label=label_text)
-        # label.set_margin_start(100)
         label.set_size_request(200, -1)
         label.set_xalign(0.0)
         return label
@@ -745,24 +751,54 @@ class Preferences(Gtk.Window):
         return box_for_color_btn
 
     def reset_css_values(self, button: Gtk.Button):
-        Preferences.COLOR_BACKGROUND_APP = "#353535"
-        Preferences.COLOR_ENTRY = "#2d2d2d"
-        Preferences.COLOR_EXPLORER_LEFT = "#222226"
-        Preferences.COLOR_EXPLORER_RIGHT = "#222226"
-        Preferences.COLOR_BUTTON = "#393939"
-        Preferences.COLOR_BACKGROUND_SEARCH = "rgb(0,0,0)"
-        Preferences.COLOR_SEARCH_TEXT = "rgb(246,211,45)"
-        Preferences.FONT_STYLE = "Adwaita Mono 12"
-        Preferences.FONT_STYLE_COLOR = "white"
+
+        Preferences.COLOR_BACKGROUND_APP = (
+            Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
+        )
+
+        Preferences.COLOR_ENTRY = Css_explorer_manager.PREDE_COLOR_ENTRY
+
+        Preferences.COLOR_EXPLORER_LEFT = (
+            Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT
+        )
+        Preferences.COLOR_EXPLORER_RIGHT = (
+            Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT
+        )
+
+        Preferences.COLOR_BUTTON = Css_explorer_manager.PREDE_COLOR_BUTTON
+
+        Preferences.COLOR_BACKGROUND_SEARCH = (
+            Css_explorer_manager.PREDE_COLOR_BACKGROUND_SEARCH
+        )
+        Preferences.COLOR_SEARCH_TEXT = (
+            Css_explorer_manager.PREDE_COLOR_SEARCH_TEXT
+        )
+        Preferences.FONT_STYLE = Css_explorer_manager.PREDE_FONT_STYLE
+        Preferences.FONT_STYLE_COLOR = (
+            Css_explorer_manager.PREDE_FONT_STYLE_COLOR
+        )
 
         self.css_manager.load_css_app_background(
-            Preferences.COLOR_BACKGROUND_APP
+            Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
         )
-        self.css_manager.load_css_buttons(Preferences.COLOR_BUTTON)
-        self.css_manager.load_css_entrys(Preferences.COLOR_ENTRY)
-        font_desc = Pango.FontDescription.from_string(Preferences.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc, Preferences.FONT_STYLE_COLOR)
+
+        self.css_manager.load_css_entrys(
+            Css_explorer_manager.PREDE_COLOR_ENTRY
+        )
 
         self.css_manager.load_css_explorer_background(
-            Preferences.COLOR_EXPLORER_LEFT, Preferences.COLOR_EXPLORER_RIGHT
+            Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT,
+            Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT,
+        )
+
+        self.css_manager.load_css_buttons(
+            Css_explorer_manager.PREDE_COLOR_BUTTON
+        )
+
+        font_desc = Pango.FontDescription.from_string(
+            Css_explorer_manager.PREDE_FONT_STYLE
+        )
+
+        self.css_manager.load_css_font(
+            font_desc, Css_explorer_manager.PREDE_FONT_STYLE_COLOR
         )

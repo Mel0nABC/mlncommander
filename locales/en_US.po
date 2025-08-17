@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: mlncommander\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-16 21:55+0200\n"
-"PO-Revision-Date: 2025-08-16 21:58+0200\n"
+"PO-Revision-Date: 2025-08-17 10:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -433,7 +433,7 @@ msgstr "Text color"
 
 #: /home/mel0n/Downloads/mlncommander/views/preferences_options.py:53
 msgid "Color de los botones"
-msgstr "Background color"
+msgstr "Button color"
 
 #: /home/mel0n/Downloads/mlncommander/views/preferences_options.py:54
 msgid "Fondo de los botones"
