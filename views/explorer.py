@@ -110,20 +110,19 @@ class Explorer(Gtk.ColumnView):
 
             self.append_column(column)
 
-        # self.get_style_context().add_class("header")
-
         # Configure Gtk.ColumnView
-        # self.set_show_column_separators(True)
-        # self.set_can_focus(True)
-        # self.set_focusable(True)
-        # self.set_vexpand(True)
-        # self.set_hexpand(True)
+        self.set_show_column_separators(True)
+        self.set_can_focus(True)
+        self.set_focusable(True)
+        self.set_vexpand(True)
+        self.set_hexpand(True)
         # self.set_enable_rubberband(True)  # Mouse selection
 
         self.activate_drop_source()
 
         # Load css and set classes
         self.load_css_background()
+        self.get_style_context().add_class("font-color")
 
         # Focus event
         self.focus_explorer = Gtk.EventControllerFocus()
@@ -283,8 +282,6 @@ class Explorer(Gtk.ColumnView):
                     output_column.set_from_paintable(pintable)
                 else:
                     output_column.set_text(str(value))
-
-                # output_column.get_style_context().add_class("font-color")
 
         GLib.idle_add(bind_when_idle)
 
@@ -525,13 +522,13 @@ class Explorer(Gtk.ColumnView):
         Load css search
         """
         # tempòral values.
+        self.get_style_context().remove_class("font-color")
+        self.get_style_context().add_class("background_search")
 
         self.css_manager.load_css_search(
             self.win.COLOR_BACKGROUND_SEARCH,
             self.win.COLOR_SEARCH_TEXT,
         )
-        self.win.get_style_context().remove_class("font-color")
-        self.background_list.get_style_context().add_class("background_search")
 
     def stop_background_search(self):
         """
@@ -545,10 +542,8 @@ class Explorer(Gtk.ColumnView):
                 "selection-changed", self.on_item_change, self.win
             )
 
-        self.win.get_style_context().add_class("font-color")
-        self.background_list.get_style_context().remove_class(
-            "background_search"
-        )
+        self.get_style_context().remove_class("background_search")
+        self.get_style_context().add_class("font-color")
 
     def reset_count_rst_int(
         self,

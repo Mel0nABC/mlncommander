@@ -84,14 +84,11 @@ class Window(Gtk.ApplicationWindow):
         root.destroy()
 
         print(f"Screen resolution: {self.horizontal}x{self.vertical}")
-        scale = self.get_scale_factor()
-        print(
-            "Factor de escala:", scale
-        )  # Ejemplo: 1 en normal, 2 en pantallas HiDPI
 
         self.set_default_size(self.horizontal / 2, self.vertical)
-        self.set_size_request(720, 576)
-        self.set_resizable(True)
+        # self.set_default_size(720, 576)
+        # self.set_size_request(720, 576)
+        # self.set_resizable(True)
 
         self.set_titlebar(header().header)
 
@@ -267,9 +264,9 @@ class Window(Gtk.ApplicationWindow):
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        # horizontal_bottom.append(label_box_left)
-        # horizontal_bottom.append(horizontal_botton_menu)
-        # horizontal_bottom.append(label_box_right)
+        horizontal_bottom.append(label_box_left)
+        horizontal_bottom.append(horizontal_botton_menu)
+        horizontal_bottom.append(label_box_right)
 
         horizontal_bottom.set_hexpand(True)
         horizontal_bottom.set_margin_start(self.scroll_margin + 20)

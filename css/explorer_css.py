@@ -1,5 +1,5 @@
 import gi
-from gi.repository import Gtk, Pango
+from gi.repository import Gtk, Gdk, Pango  # noqa: F401
 
 gi.require_version("Gtk", "4.0")
 
@@ -18,12 +18,14 @@ class Css_explorer_manager:
 
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
-        css = b"""
-        * {
-            font-size: 10pt;
-        }
-        """
-        self.set_css_to_provider(css)
+
+        # css = b"""
+        # window{
+        #     font-size:0.3em;
+        # }
+
+        # """
+        # self.set_css_to_provider(css)
 
     def load_css_app_background(self, app_background_color: str) -> None:
         """
@@ -100,7 +102,7 @@ class Css_explorer_manager:
         """
 
         css = f"""
-            .background_search {{
+            .background_search *{{
                     background-color: {color_background_search};
                     color: {color_search_text};
                 }}
@@ -131,7 +133,6 @@ class Css_explorer_manager:
         """
         Sets app font
         """
-
         family = font_desc.get_family()
         size = font_desc.get_size() / Pango.SCALE
         weight = self.pango_weight_to_css(font_desc.get_weight())
