@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
+
 from utilities.i18n import _
 from pathlib import Path
 import gi

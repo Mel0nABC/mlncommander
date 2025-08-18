@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
 import gi
 from gi.repository import Gtk, Gdk, Pango  # noqa: F401
 

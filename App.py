@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
 from views.main_window import Window
 from controls.Actions import Actions
 from pathlib import Path

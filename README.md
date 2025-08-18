@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
 MLNCommander
 
 MLNCommander is a dual-window file explorer

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
 from __future__ import annotations
 from utilities.i18n import _
 from controls.Actions import Actions

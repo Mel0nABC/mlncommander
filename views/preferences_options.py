@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from css.explorer_css import Css_explorer_manager
 import gi
