@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from controls import Action_keys
-from controls import Actions
+from controls import action_keys
+from controls import actions
 from views.menu_bar import Menu_bar
 from views.header import header
 from views.explorer import Explorer
@@ -28,7 +28,7 @@ class Window(Gtk.ApplicationWindow):
 
     APP_USER_PATH = Path(f"{os.environ["HOME"]}/.mlncommander")
 
-    def __init__(self, app: Gtk.Application, action: Actions):
+    def __init__(self, app: Gtk.Application, action: actions):
         super().__init__(application=app)
 
         # check app folder on user dir exist
@@ -356,7 +356,7 @@ class Window(Gtk.ApplicationWindow):
         # Event controller to control keys
         self.key_controller = Gtk.EventControllerKey.new()
         self.key_controller_id = self.key_controller.connect(
-            "key-pressed", Action_keys.on_key_press, self, self.action
+            "key-pressed", action_keys.on_key_press, self, self.action
         )
         self.add_controller(self.key_controller)
 

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 from utilities.i18n import _
-from controls.Actions import Actions
+from controls.actions import Actions
 from pathlib import Path
 from datetime import datetime
 from utilities.access_control import AccessControl

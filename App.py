@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from views.main_window import Window
-from controls.Actions import Actions
+from controls.actions import Actions
 from pathlib import Path
 import gbulb
 import subprocess

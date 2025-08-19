@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from controls.Actions import Actions
+from controls.actions import Actions
 from pathlib import Path
 from asyncio import Future
 from utilities.access_control import AccessControl

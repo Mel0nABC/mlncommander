@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 from utilities.i18n import _
-from controls.Actions import Actions
+from controls.actions import Actions
 from pathlib import Path
 from views.create_dir_dialog import Create_dir_dialog
 from views.explorer import Explorer

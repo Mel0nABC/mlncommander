@@ -15,10 +15,10 @@ from entity.File_or_directory_info import File_or_directory_info
 from icons.icon_manager import IconManager
 from css.explorer_css import Css_explorer_manager
 from utilities.access_control import AccessControl
-from controls.Actions import Actions
+from controls.actions import Actions
 from controls.shortcuts import Shortcuts_keys
 from utilities.my_watchdog import My_watchdog
-from controls import Action_keys
+from controls import action_keys
 
 # from utilities.my_copy import My_copy
 
@@ -152,7 +152,7 @@ class Explorer(Gtk.ColumnView):
         """
         self.win.key_controller_id = self.win.key_controller.connect(
             "key-pressed",
-            Action_keys.on_key_press,
+            action_keys.on_key_press,
             self.win,
             self.win.action,
         )

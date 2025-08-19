@@ -8,7 +8,7 @@ from utilities.remove import Remove
 from utilities.rename import Rename_Logic
 from utilities.move import Move
 from utilities.new_file import NewFile
-from controls.Actions import Actions
+from controls.actions import Actions
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib  # noqa: E402
@@ -67,12 +67,12 @@ def on_key_press(
         | Gtk.ListScrollFlags.FOCUS
     )
 
-    # print(
-    #     (
-    #         f"Keyval: {keyval}  - keycode: {keycode}"
-    #         f"- keypressed: {key_pressed_name}"
-    #     )
-    # )
+    print(
+        (
+            f"Keyval: {keyval}  - keycode: {keycode}"
+            f"- keypressed: {key_pressed_name}"
+        )
+    )
 
     return {
         handle_navitation_keys(
