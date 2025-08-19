@@ -120,6 +120,7 @@ def handle_navitation_keys(
 
         return True
 
+    # Disable gestureClick on all table labers.
     if key_pressed_name == _SHIFT_L:
         explorer_src.stop_focus_pressed()
         return True

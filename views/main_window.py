@@ -26,18 +26,18 @@ from gi.repository import Gtk, Pango  # noqa E402
 
 class Window(Gtk.ApplicationWindow):
 
+    APP_USER_PATH = Path(f"{os.environ["HOME"]}/.mlncommander")
+
     def __init__(self, app: Gtk.Application, action: Actions):
         super().__init__(application=app)
 
         # check app folder on user dir exist
 
-        self.APP_USER_PATH = Path(f"{os.environ["HOME"]}/.mlncommander")
-
         username = os.getlogin()
 
-        if username in str(self.APP_USER_PATH):
-            if not self.APP_USER_PATH.exists():
-                self.APP_USER_PATH.mkdir()
+        if username in str(Window.APP_USER_PATH):
+            if not Window.APP_USER_PATH.exists():
+                Window.APP_USER_PATH.mkdir()
         self.app = app
         self.action = action
         self.key_controller_id = 0
@@ -49,7 +49,7 @@ class Window(Gtk.ApplicationWindow):
         self.scroll_margin = 10
         self.label_left_selected_files = None
         self.label_right_selected_files = None
-        self.CONFIG_FILE = Path(f"{self.APP_USER_PATH}/config.conf")
+        self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.conf")
         self.EXP_1_PATH = ""
         self.EXP_2_PATH = ""
         self.SHOW_DIR_LAST = True
@@ -152,7 +152,7 @@ class Window(Gtk.ApplicationWindow):
             self.vertical_entry_1,
             self,
             self.EXP_1_PATH,
-            self.APP_USER_PATH,
+            Window.APP_USER_PATH,
         )
         self.vertical_entry_1.set_text(str(self.explorer_1.actual_path))
 
@@ -161,7 +161,7 @@ class Window(Gtk.ApplicationWindow):
             self.vertical_entry_2,
             self,
             self.EXP_2_PATH,
-            self.APP_USER_PATH,
+            Window.APP_USER_PATH,
         )
         self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
 
@@ -359,6 +359,7 @@ class Window(Gtk.ApplicationWindow):
             "key-pressed", Action_keys.on_key_press, self, self.action
         )
         self.add_controller(self.key_controller)
+
         self.connect("close-request", self.exit)
 
     def set_explorer_focused(

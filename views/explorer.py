@@ -16,6 +16,7 @@ from icons.icon_manager import IconManager
 from css.explorer_css import Css_explorer_manager
 from utilities.access_control import AccessControl
 from controls.Actions import Actions
+from controls.shortcuts import Shortcuts_keys
 from utilities.my_watchdog import My_watchdog
 from controls import Action_keys
 
@@ -35,6 +36,7 @@ class Explorer(Gtk.ColumnView):
         APP_USER_PATH: Path,
     ):
         super().__init__()
+        self.win = win
         self.APP_USER_PATH = APP_USER_PATH
         self.name = name
         self.focused = False
@@ -44,6 +46,7 @@ class Explorer(Gtk.ColumnView):
         self.my_watchdog = None
         self.action = Actions()
         self.css_manager = Css_explorer_manager(win)
+        self.shortcuts = Shortcuts_keys(self.win, self)
         self.selection = None
         self.n_row = 0
         self.n_row_old = 0
@@ -53,7 +56,6 @@ class Explorer(Gtk.ColumnView):
         self.COUNT_RST_TIME = 5000
         self.search_str_entry = win.search_str_entry
         self.store = None
-        self.win = win
         self.img_box = None
         self.click_handler = 0
         self.background_list = self.get_last_child()
@@ -142,48 +144,7 @@ class Explorer(Gtk.ColumnView):
         )
         self.add_controller(gesture)
 
-        # Activate shortcut Control+C
-        trigger = Gtk.ShortcutTrigger.parse_string(
-            f"<Control>{self.EXPLORER_MIRROR_KEY}"
-        )
-        action = Gtk.CallbackAction.new(self.shortcut_mirroring_folder)
-        self.shortcut = Gtk.Shortcut.new(trigger, action)
-        controller = Gtk.ShortcutController.new()
-        controller.add_shortcut(self.shortcut)
-        self.add_controller(controller)
-
         self.activate_drag_source(self)
-
-    def shortcut_mirroring_folder(self, *args) -> None:
-        """
-        Actions when shortcuts is utilized
-        """
-        # Disconnect key controller from main window
-        self.win.key_controller.disconnect(self.win.key_controller_id)
-
-        # Returns the browser that does not contain the passed name
-        other_explorer = self.win.get_other_explorer_with_name(self.name)
-
-        if not other_explorer:
-            return
-
-        selected_item = self.get_selected_items_from_explorer()[1]
-
-        if not selected_item:
-            other_explorer.load_data(self.actual_path.parent)
-
-        if not selected_item:
-            path = self.actual_path.parent
-        else:
-            path = selected_item[0]
-
-        if selected_item:
-            if not path.is_dir():
-                path = path.parent
-
-        other_explorer.load_new_path(path)
-
-        GLib.idle_add(self._reeconnect_controller)
 
     def _reeconnect_controller(self) -> None:
         """
