@@ -1,0 +1,205 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
+# from utilities.i18n import _
+import gi
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, Gio  # noqa: E402
+
+
+class Directory(Gtk.Box):
+
+    def __init__(self, win: Gtk.ApplicationWindow):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        from views.preferences.preferences_options import Preferences
+
+        self.win = win
+        self.set_margin_top(20)
+        self.set_margin_end(20)
+        self.set_margin_bottom(20)
+        self.set_margin_start(20)
+
+        # title
+        label_title = Gtk.Label(label=Preferences.DIRECTORY_TITLE)
+        label_title.set_halign(Gtk.Align.START)
+
+        # Buttons to select the option to use in directories
+        check_button_last_dir = Gtk.CheckButton.new_with_label(
+            Preferences.UTILIZATION_LAST_DIR
+        )
+        check_button_last_dir.set_halign(Gtk.Align.START)
+
+        check_button_set_dir = Gtk.CheckButton.new_with_label(
+            Preferences.UTILIZATION_SET_DIR
+        )
+        check_button_set_dir.set_halign(Gtk.Align.START)
+
+        check_button_set_dir.set_group(check_button_last_dir)
+
+        self.append(label_title)
+        self.append(check_button_last_dir)
+        self.append(check_button_set_dir)
+
+        # Select directorys to show
+
+        self.select_directory_box_1 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        self.select_directory_box_2 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+
+        dir_label_left = Gtk.Label(label=Preferences.LABEL_DIR_SELECT_LEFT)
+        dir_label_left.set_size_request(150, -1)
+        dir_label_left.set_xalign(0.0)
+
+        dir_label_right = Gtk.Label(label=Preferences.LABEL_DIR_SELECT_RIGHT)
+        dir_label_right.set_size_request(150, -1)
+        dir_label_right.set_xalign(0.0)
+
+        entry_path_1 = Gtk.Entry()
+        entry_path_1.set_hexpand(True)
+        entry_path_1.set_margin_start(40)
+        entry_path_1.set_editable(False)
+        entry_path_1.set_sensitive(False)
+        Preferences.EXP_1_PATH = self.win.EXP_1_PATH
+        entry_path_1.set_text(str(Preferences.EXP_1_PATH))
+        entry_path_1.set_name("path_1")
+
+        entry_path_2 = Gtk.Entry()
+        entry_path_2.set_hexpand(True)
+        entry_path_2.set_margin_start(40)
+        entry_path_2.set_editable(False)
+        entry_path_2.set_sensitive(False)
+        Preferences.EXP_2_PATH = self.win.EXP_2_PATH
+        entry_path_2.set_text(str(Preferences.EXP_2_PATH))
+        entry_path_2.set_name("path_2")
+
+        sel_path_1_btn = Gtk.Button(label="...")
+        sel_path_1_btn.connect(
+            "clicked", self.click_select_path_dialog, entry_path_1
+        )
+
+        sel_path_2_btn = Gtk.Button(label="...")
+        sel_path_2_btn.connect(
+            "clicked", self.click_select_path_dialog, entry_path_2
+        )
+
+        self.select_directory_box_1.append(dir_label_left)
+        self.select_directory_box_1.append(entry_path_1)
+        self.select_directory_box_1.append(sel_path_1_btn)
+
+        self.select_directory_box_2.append(dir_label_right)
+        self.select_directory_box_2.append(entry_path_2)
+        self.select_directory_box_2.append(sel_path_2_btn)
+
+        self.append(self.select_directory_box_1)
+        self.append(self.select_directory_box_2)
+
+        # Signals for check buttons
+
+        check_button_last_dir.connect(
+            "toggled", self.directory_select_option_last_dir
+        )
+        check_button_set_dir.connect(
+            "toggled",
+            self.directory_select_option_set_dir,
+            entry_path_1,
+            entry_path_2,
+        )
+
+        if Preferences.SHOW_DIR_LAST:
+            check_button_last_dir.set_active(True)
+        else:
+            check_button_set_dir.set_active(True)
+
+        img_preview_label = Gtk.Label(
+            label=Preferences.SHOW_IMAGE_PREVIEW_LABEL
+        )
+
+        image_preview_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        image_preview_box.set_margin_top(20)
+        image_preview_box.append(img_preview_label)
+
+        switch_img = Gtk.Switch.new()
+        switch_img.set_active(Preferences.SWITCH_IMG_STATUS)
+        switch_img.connect("state-set", self.on_press_switch)
+
+        image_preview_box.append(switch_img)
+        self.append(image_preview_box)
+
+    def on_press_switch(self, switch: Gtk.Switch, pspec: bool) -> None:
+        """
+        When change switch status, update visual on explorers
+        """
+        from views.preferences.preferences_options import Preferences
+
+        Preferences.SWITCH_IMG_STATUS = pspec
+        self.win.SWITCH_IMG_STATUS = pspec
+
+        explorer_1 = self.win.explorer_1
+        explorer_2 = self.win.explorer_2
+
+        if explorer_1.focused:
+            index = explorer_1.get_selected_items_from_explorer()[0]
+            explorer_1.scroll_to(0, None, explorer_1.flags)
+            explorer_1.scroll_to(index, None, explorer_1.flags)
+
+        if explorer_2.focused:
+            index = explorer_2.get_selected_items_from_explorer()[0]
+            explorer_2.scroll_to(0, None, explorer_1.flags)
+            explorer_2.scroll_to(index, None, explorer_1.flags)
+
+    def click_select_path_dialog(
+        self, button: Gtk.Button, entry: Gtk.Entry
+    ) -> None:
+        """
+        Generate FileDialog to select folder
+        """
+        from views.preferences.preferences_options import Preferences
+
+        file_dialog = Gtk.FileDialog(title=Preferences.SELECT_FILE_TITLE)
+        file_dialog.select_folder(self, None, self.on_file_selected, entry)
+
+    def on_file_selected(
+        self, dialog: Gtk.FileDialog, result: Gio.Task, entry: Gtk.Entry
+    ) -> None:
+        from views.preferences.preferences_options import Preferences
+
+        folder = dialog.select_folder_finish(result)
+        if folder:
+            if isinstance(entry, Gtk.Entry):
+                value = folder.get_path()
+                entry.set_text(value)
+                if entry.get_name() == "path_1":
+                    Preferences.EXP_1_PATH = value
+                else:
+                    Preferences.EXP_2_PATH = value
+
+    def directory_select_option_last_dir(self, button: Gtk.Button) -> None:
+        """
+        Change on gui to select last dir option
+        """
+        from views.preferences.preferences_options import Preferences
+
+        self.select_directory_box_1.set_sensitive(False)
+        self.select_directory_box_2.set_sensitive(False)
+        Preferences.SHOW_DIR_LAST = True
+
+    def directory_select_option_set_dir(
+        self, button: Gtk.Button, entry_1: Gtk.Entry, entry_2: Gtk.Entry
+    ) -> None:
+        """
+        Change on gui to select set dir option
+        """
+        from views.preferences.preferences_options import Preferences
+
+        self.select_directory_box_1.set_sensitive(True)
+        self.select_directory_box_2.set_sensitive(True)
+        Preferences.SHOW_DIR_LAST = False
+        self.win.EXP_1_PATH = entry_1.get_text()
+        self.win.EXP_2_PATH = entry_2.get_text()

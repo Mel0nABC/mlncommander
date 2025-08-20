@@ -45,7 +45,7 @@ class Menu_bar(Gio.Menu):
         self.win.exit()
 
     def open_preferences(self, action, parameter):
-        from views.preferences_options import Preferences
+        from views.preferences.preferences_options import Preferences
 
         if not self.preferences:
             self.preferences = Preferences(self.win, self)
