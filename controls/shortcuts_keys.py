@@ -49,8 +49,7 @@ class Shortcuts_keys:
     def recharge_yaml_shortcuts(self):
 
         for controller in self.controller_list:
-            self.win.explorer_1.remove_controller(controller)
-            self.win.explorer_2.remove_controller(controller)
+            self.explorer.remove_controller(controller)
 
         self.charge_yrml_shortcuts()
 

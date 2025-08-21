@@ -4,6 +4,7 @@
 from utilities.i18n import _
 from controls import action_keys
 from controls import actions
+from entity.config import ConfigEntity
 from views.menu_bar import Menu_bar
 from views.header import header
 from views.explorer import Explorer
@@ -15,6 +16,7 @@ from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from css.explorer_css import Css_explorer_manager
 from pathlib import Path
+import yaml
 import tkinter as tk
 import os
 import gi
@@ -49,20 +51,8 @@ class Window(Gtk.ApplicationWindow):
         self.scroll_margin = 10
         self.label_left_selected_files = None
         self.label_right_selected_files = None
-        self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.conf")
-        self.EXP_1_PATH = ""
-        self.EXP_2_PATH = ""
-        self.SHOW_DIR_LAST = True
-        self.SWITCH_IMG_STATUS = None
-        self.COLOR_BACKGROUND_APP = None
-        self.COLOR_EXPLORER_LEFT = None
-        self.COLOR_EXPLORER_RIGHT = None
-        self.COLOR_BACKGROUND_SEARCH = None
-        self.COLOR_ENTRY = None
-        self.COLOR_SEARCH_TEXT = None
-        self.COLOR_BUTTON = None
-        self.FONT_STYLE = None
-        self.FONT_STYLE_COLOR = None
+        self.config = ConfigEntity()
+        self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
@@ -72,11 +62,13 @@ class Window(Gtk.ApplicationWindow):
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
         self.css_manager = Css_explorer_manager(self)
-        self.css_manager.load_css_app_background(self.COLOR_BACKGROUND_APP)
-        self.css_manager.load_css_buttons(self.COLOR_BUTTON)
-        self.css_manager.load_css_entrys(self.COLOR_ENTRY)
-        font_desc = Pango.FontDescription.from_string(self.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc, self.FONT_STYLE_COLOR)
+        self.css_manager.load_css_app_background(
+            self.config.COLOR_BACKGROUND_APP
+        )
+        self.css_manager.load_css_buttons(self.config.COLOR_BUTTON)
+        self.css_manager.load_css_entrys(self.config.COLOR_ENTRY)
+        font_desc = Pango.FontDescription.from_string(self.config.FONT_STYLE)
+        self.css_manager.load_css_font(font_desc, self.config.FONT_STYLE_COLOR)
 
         # We get information from the screen
 
@@ -151,7 +143,7 @@ class Window(Gtk.ApplicationWindow):
             "explorer_1",
             self.vertical_entry_1,
             self,
-            self.EXP_1_PATH,
+            self.config.EXP_1_PATH,
             Window.APP_USER_PATH,
         )
         self.vertical_entry_1.set_text(str(self.explorer_1.actual_path))
@@ -160,7 +152,7 @@ class Window(Gtk.ApplicationWindow):
             "explorer_2",
             self.vertical_entry_2,
             self,
-            self.EXP_2_PATH,
+            self.config.EXP_2_PATH,
             Window.APP_USER_PATH,
         )
         self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
@@ -382,7 +374,15 @@ class Window(Gtk.ApplicationWindow):
         self.close()
         self.explorer_1.my_watchdog.stop()
         self.explorer_2.my_watchdog.stop()
-        self.save_config_file()
+
+        if self.config.SHOW_DIR_LAST:
+            self.config.EXP_1_PATH = str(self.explorer_1.actual_path)
+            self.config.EXP_2_PATH = str(self.explorer_2.actual_path)
+        else:
+            self.config.EXP_1_PATH = "/"
+            self.config.EXP_1_PATH = "/"
+
+        self.save_config_file(self.config)
 
     def set_explorer_initial(self) -> None:
         """
@@ -404,138 +404,39 @@ class Window(Gtk.ApplicationWindow):
         # TODO: Change json  to yaml
         # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
-            with open(self.CONFIG_FILE, "a") as conf:
-                conf.write("EXP_1_PATH=/\n")
-                conf.write("EXP_2_PATH=/\n")
-                conf.write("SHOW_DIR_LAST=True\n")
-                conf.write("SWITCH_IMG_STATUS=True\n")
-                conf.write(
-                    (
-                        f"COLOR_BACKGROUND_APP="
-                        f"{Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP}\n"
-                    )
-                )
-                conf.write(
-                    f"COLOR_ENTRY={Css_explorer_manager.PREDE_COLOR_ENTRY}\n"
-                )
-                conf.write(
-                    (
-                        f"COLOR_EXPLORER_LEFT="
-                        f"{Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT}\n"
-                    )
-                )
-                conf.write(
-                    (
-                        f"COLOR_EXPLORER_RIGHT="
-                        f"{Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT}\n"
-                    )
-                )
-                conf.write(
-                    f"COLOR_BUTTON={Css_explorer_manager.PREDE_COLOR_BUTTON}\n"
-                )
-                conf.write(
-                    (
-                        f"COLOR_BACKGROUND_SEARCH="
-                        f"{Css_explorer_manager.PREDE_COLOR_BACKGROUND_SEARCH}\n"  # noqa: E501
-                    )
-                )
-                conf.write(
-                    (
-                        f"COLOR_SEARCH_TEXT="
-                        f"{Css_explorer_manager.PREDE_COLOR_SEARCH_TEXT}\n"
-                    )
-                )
-                conf.write(
-                    f"FONT_STYLE={Css_explorer_manager.PREDE_FONT_STYLE}\n"
-                )
-                conf.write(
-                    (
-                        f"FONT_STYLE_COLOR="
-                        f"{Css_explorer_manager.PREDE_FONT_STYLE_COLOR}\n"
-                    )
-                )
+            self.config.create_new_config()
+            with open(self.CONFIG_FILE, "w") as config_file:
+                yaml.dump(self.config.to_dict(), config_file, sort_keys=False)
 
         # We open configuration and load in variables.
-        with open(self.CONFIG_FILE, "r+") as conf:
-            for row in conf:
-                if row:
-                    split = row.strip().split("=")
-                    result = ""
-                    variable_name = split[0]
-                    if (
-                        variable_name == "EXP_1_PATH"
-                        or variable_name == "EXP_2_PATH"
-                    ):
-                        path = Path(split[1])
-                        if path.exists():
-                            setattr(self, variable_name, path)
-                        else:
-                            setattr(self, variable_name, "/")
+        with open(self.CONFIG_FILE, "r+") as config_file:
+            data = yaml.safe_load(config_file)
 
-                    elif variable_name == "SHOW_DIR_LAST":
-                        result = True if split[1] == "True" else False
-                        setattr(self, variable_name, result)
-                    elif variable_name == "SWITCH_IMG_STATUS":
-                        result = True if split[1] == "True" else False
-                        setattr(self, variable_name, result)
-                    elif variable_name == "COLOR_ENTRY":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "COLOR_EXPLORER_LEFT":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "COLOR_EXPLORER_RIGHT":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "COLOR_BUTTON":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "COLOR_BACKGROUND_SEARCH":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "COLOR_SEARCH_TEXT":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "COLOR_BACKGROUND_APP":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "FONT_STYLE":
-                        result = split[1]
-                        setattr(self, variable_name, result)
-                    elif variable_name == "FONT_STYLE_COLOR":
-                        result = split[1]
-                        setattr(self, variable_name, result)
+            self.config.EXP_1_PATH = data["EXP_1_PATH"]
+            self.config.EXP_2_PATH = data["EXP_2_PATH"]
+            self.config.SHOW_DIR_LAST = bool(data["SHOW_DIR_LAST"])
+            self.config.SWITCH_IMG_STATUS = bool(data["SWITCH_IMG_STATUS"])
+            self.config.COLOR_BACKGROUND_APP = data["COLOR_BACKGROUND_APP"]
+            self.config.COLOR_EXPLORER_LEFT = data["COLOR_EXPLORER_LEFT"]
+            self.config.COLOR_EXPLORER_RIGHT = data["COLOR_EXPLORER_RIGHT"]
+            self.config.COLOR_BACKGROUND_SEARCH = data[
+                "COLOR_BACKGROUND_SEARCH"
+            ]
+            self.config.COLOR_ENTRY = data["COLOR_ENTRY"]
+            self.config.COLOR_SEARCH_TEXT = data["COLOR_SEARCH_TEXT"]
+            self.config.COLOR_BUTTON = data["COLOR_BUTTON"]
+            self.config.FONT_STYLE = data["FONT_STYLE"]
+            self.config.FONT_STYLE_COLOR = data["FONT_STYLE_COLOR"]
 
-    def save_config_file(self) -> None:
+    def save_config_file(self, config: ConfigEntity) -> None:
         """
         Saves the settings to the current location
         where the browsers are located
         """
+        self.config = config
         # Config is deleted and the entire configuration is saved.
-        with open(self.CONFIG_FILE, "a") as conf:
-            conf.seek(0)
-            conf.truncate()
-            if self.SHOW_DIR_LAST:
-                conf.write(f"EXP_1_PATH={self.explorer_1.actual_path}\n")
-                conf.write(f"EXP_2_PATH={self.explorer_2.actual_path}\n")
-            else:
-                conf.write(f"EXP_1_PATH={self.EXP_1_PATH}\n")
-                conf.write(f"EXP_2_PATH={self.EXP_2_PATH}\n")
-
-            conf.write(f"SHOW_DIR_LAST={self.SHOW_DIR_LAST}\n")
-            conf.write(f"SWITCH_IMG_STATUS={self.SWITCH_IMG_STATUS}\n")
-            conf.write(f"COLOR_BACKGROUND_APP={self.COLOR_BACKGROUND_APP}\n")
-            conf.write(f"COLOR_ENTRY={self.COLOR_ENTRY}\n")
-            conf.write(f"COLOR_EXPLORER_LEFT={self.COLOR_EXPLORER_LEFT}\n")
-            conf.write(f"COLOR_EXPLORER_RIGHT={self.COLOR_EXPLORER_RIGHT}\n")
-            conf.write(f"COLOR_BUTTON={self.COLOR_BUTTON}\n")
-            conf.write(
-                f"COLOR_BACKGROUND_SEARCH={self.COLOR_BACKGROUND_SEARCH}\n"
-            )
-            conf.write(f"COLOR_SEARCH_TEXT={self.COLOR_SEARCH_TEXT}\n")
-            conf.write(f"FONT_STYLE={self.FONT_STYLE}\n")
-            conf.write(f"FONT_STYLE_COLOR={self.FONT_STYLE_COLOR}\n")
-            print("SAVE")
+        with open(self.CONFIG_FILE, "w") as config_file:
+            yaml.dump(config.to_dict(), config_file, sort_keys=False)
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """

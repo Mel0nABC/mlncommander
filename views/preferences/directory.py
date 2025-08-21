@@ -64,7 +64,7 @@ class Directory(Gtk.Box):
         entry_path_1.set_margin_start(40)
         entry_path_1.set_editable(False)
         entry_path_1.set_sensitive(False)
-        Preferences.EXP_1_PATH = self.win.EXP_1_PATH
+        Preferences.EXP_1_PATH = self.win.config.EXP_1_PATH
         entry_path_1.set_text(str(Preferences.EXP_1_PATH))
         entry_path_1.set_name("path_1")
 
@@ -73,7 +73,7 @@ class Directory(Gtk.Box):
         entry_path_2.set_margin_start(40)
         entry_path_2.set_editable(False)
         entry_path_2.set_sensitive(False)
-        Preferences.EXP_2_PATH = self.win.EXP_2_PATH
+        Preferences.EXP_2_PATH = self.win.config.EXP_2_PATH
         entry_path_2.set_text(str(Preferences.EXP_2_PATH))
         entry_path_2.set_name("path_2")
 
@@ -201,5 +201,5 @@ class Directory(Gtk.Box):
         self.select_directory_box_1.set_sensitive(True)
         self.select_directory_box_2.set_sensitive(True)
         Preferences.SHOW_DIR_LAST = False
-        self.win.EXP_1_PATH = entry_1.get_text()
-        self.win.EXP_2_PATH = entry_2.get_text()
+        self.win.config.EXP_1_PATH = entry_1.get_text()
+        self.win.config.EXP_2_PATH = entry_2.get_text()

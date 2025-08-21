@@ -248,30 +248,36 @@ class Appearance(Gtk.Box):
         name = button.get_name()
 
         if name == "btn_color_explorer_left":
-            Preferences.COLOR_EXPLORER_LEFT = self.win.COLOR_EXPLORER_LEFT
+            Preferences.COLOR_EXPLORER_LEFT = (
+                self.win.config.COLOR_EXPLORER_LEFT
+            )
             color.parse(Preferences.COLOR_EXPLORER_LEFT)
         elif name == "btn_color_explorer_right":
-            Preferences.COLOR_EXPLORER_RIGHT = self.win.COLOR_EXPLORER_RIGHT
+            Preferences.COLOR_EXPLORER_RIGHT = (
+                self.win.config.COLOR_EXPLORER_RIGHT
+            )
             color.parse(Preferences.COLOR_EXPLORER_RIGHT)
         elif name == "btn_color_background_search":
             Preferences.COLOR_BACKGROUND_SEARCH = (
-                self.win.COLOR_BACKGROUND_SEARCH
+                self.win.config.COLOR_BACKGROUND_SEARCH
             )
             color.parse(Preferences.COLOR_BACKGROUND_SEARCH)
         elif name == "btn_color_search_text":
-            Preferences.COLOR_SEARCH_TEXT = self.win.COLOR_SEARCH_TEXT
+            Preferences.COLOR_SEARCH_TEXT = self.win.config.COLOR_SEARCH_TEXT
             color.parse(Preferences.COLOR_SEARCH_TEXT)
         elif name == "btn_color_app":
-            Preferences.COLOR_BACKGROUND_APP = self.win.COLOR_BACKGROUND_APP
+            Preferences.COLOR_BACKGROUND_APP = (
+                self.win.config.COLOR_BACKGROUND_APP
+            )
             color.parse(Preferences.COLOR_BACKGROUND_APP)
         elif name == "btn_color_background_buttons":
-            Preferences.COLOR_BUTTON = self.win.COLOR_BUTTON
+            Preferences.COLOR_BUTTON = self.win.config.COLOR_BUTTON
             color.parse(Preferences.COLOR_BUTTON)
         elif name == "btn_color_entry":
-            Preferences.COLOR_ENTRY = self.win.COLOR_ENTRY
+            Preferences.COLOR_ENTRY = self.win.config.COLOR_ENTRY
             color.parse(Preferences.COLOR_ENTRY)
         elif name == "btn_color_font_color":
-            Preferences.FONT_STYLE_COLOR = self.win.FONT_STYLE_COLOR
+            Preferences.FONT_STYLE_COLOR = self.win.config.FONT_STYLE_COLOR
             color.parse(Preferences.FONT_STYLE_COLOR)
 
         button.set_rgba(color)

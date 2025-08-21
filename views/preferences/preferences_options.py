@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from entity.config import ConfigEntity
 from views.preferences.directory import Directory
 from views.preferences.general import General
 from views.preferences.appearance import Appearance
@@ -87,18 +88,20 @@ class Preferences(Gtk.Window):
     def __init__(self, win: Gtk.ApplicationWindow, parent: Gtk.Widget):
         super().__init__(title=_("Preferencias"), transient_for=win)
 
-        Preferences.SHOW_DIR_LAST = win.SHOW_DIR_LAST
-        Preferences.SWITCH_IMG_STATUS = win.SWITCH_IMG_STATUS
+        Preferences.SHOW_DIR_LAST = win.config.SHOW_DIR_LAST
+        Preferences.SWITCH_IMG_STATUS = win.config.SWITCH_IMG_STATUS
 
-        Preferences.COLOR_BACKGROUND_APP = win.COLOR_BACKGROUND_APP
-        Preferences.COLOR_ENTRY = win.COLOR_ENTRY
-        Preferences.COLOR_EXPLORER_LEFT = win.COLOR_EXPLORER_LEFT
-        Preferences.COLOR_EXPLORER_RIGHT = win.COLOR_EXPLORER_RIGHT
-        Preferences.COLOR_BUTTON = win.COLOR_BUTTON
-        Preferences.COLOR_BACKGROUND_SEARCH = win.COLOR_BACKGROUND_SEARCH
-        Preferences.COLOR_SEARCH_TEXT = win.COLOR_SEARCH_TEXT
-        Preferences.FONT_STYLE = win.FONT_STYLE
-        Preferences.FONT_STYLE_COLOR = win.FONT_STYLE_COLOR
+        Preferences.COLOR_BACKGROUND_APP = win.config.COLOR_BACKGROUND_APP
+        Preferences.COLOR_ENTRY = win.config.COLOR_ENTRY
+        Preferences.COLOR_EXPLORER_LEFT = win.config.COLOR_EXPLORER_LEFT
+        Preferences.COLOR_EXPLORER_RIGHT = win.config.COLOR_EXPLORER_RIGHT
+        Preferences.COLOR_BUTTON = win.config.COLOR_BUTTON
+        Preferences.COLOR_BACKGROUND_SEARCH = (
+            win.config.COLOR_BACKGROUND_SEARCH
+        )
+        Preferences.COLOR_SEARCH_TEXT = win.config.COLOR_SEARCH_TEXT
+        Preferences.FONT_STYLE = win.config.FONT_STYLE
+        Preferences.FONT_STYLE_COLOR = win.config.FONT_STYLE_COLOR
 
         self.parent = parent
         self.win = win
@@ -106,6 +109,11 @@ class Preferences(Gtk.Window):
         self.select_directory_box_1 = None
         self.select_directory_box_2 = None
         self.shortcuts_view = None
+
+        self.general = General(self.win)
+        self.directory_box = Directory(self.win)
+        self.appearance = Appearance(self.win)
+        self.shortcuts_view = Shortcuts(self.win)
 
         self.set_default_size(self.win.horizontal / 4, self.win.vertical / 2)
 
@@ -206,14 +214,21 @@ class Preferences(Gtk.Window):
         Close preferencesc window
         """
 
-        self.css_manager.load_css_app_background(self.win.COLOR_BACKGROUND_APP)
-        self.css_manager.load_css_buttons(self.win.COLOR_BUTTON)
-        self.css_manager.load_css_entrys(self.win.COLOR_ENTRY)
-        font_desc = Pango.FontDescription.from_string(self.win.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc, self.win.FONT_STYLE_COLOR)
+        self.css_manager.load_css_app_background(
+            self.win.config.COLOR_BACKGROUND_APP
+        )
+        self.css_manager.load_css_buttons(self.win.config.COLOR_BUTTON)
+        self.css_manager.load_css_entrys(self.win.config.COLOR_ENTRY)
+        font_desc = Pango.FontDescription.from_string(
+            self.win.config.FONT_STYLE
+        )
+        self.css_manager.load_css_font(
+            font_desc, self.win.config.FONT_STYLE_COLOR
+        )
 
         self.css_manager.load_css_explorer_background(
-            self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
+            self.win.config.COLOR_EXPLORER_LEFT,
+            self.win.config.COLOR_EXPLORER_RIGHT,
         )
 
         self.on_close()
@@ -222,27 +237,29 @@ class Preferences(Gtk.Window):
         """
         Confirm changes.
         """
-        self.win.SHOW_DIR_LAST = Preferences.SHOW_DIR_LAST
-        self.win.EXP_1_PATH = Preferences.EXP_1_PATH
-        self.win.EXP_2_PATH = Preferences.EXP_2_PATH
-        self.win.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
-        self.win.COLOR_BACKGROUND_APP = Preferences.COLOR_BACKGROUND_APP
-        self.win.COLOR_ENTRY = Preferences.COLOR_ENTRY
-        self.win.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT
-        self.win.COLOR_EXPLORER_RIGHT = Preferences.COLOR_EXPLORER_RIGHT
-        self.win.COLOR_BUTTON = Preferences.COLOR_BUTTON
-        self.win.COLOR_BACKGROUND_SEARCH = Preferences.COLOR_BACKGROUND_SEARCH
-        self.win.COLOR_SEARCH_TEXT = Preferences.COLOR_SEARCH_TEXT
-        self.win.FONT_STYLE = Preferences.FONT_STYLE
-        self.win.FONT_STYLE_COLOR = Preferences.FONT_STYLE_COLOR
+        config = ConfigEntity()
+        config.SHOW_DIR_LAST = Preferences.SHOW_DIR_LAST
+        config.EXP_1_PATH = Preferences.EXP_1_PATH
+        config.EXP_2_PATH = Preferences.EXP_2_PATH
+        config.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
+        config.COLOR_BACKGROUND_APP = Preferences.COLOR_BACKGROUND_APP
+        config.COLOR_ENTRY = Preferences.COLOR_ENTRY
+        config.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT
+        config.COLOR_EXPLORER_RIGHT = Preferences.COLOR_EXPLORER_RIGHT
+        config.COLOR_BUTTON = Preferences.COLOR_BUTTON
+        config.COLOR_BACKGROUND_SEARCH = Preferences.COLOR_BACKGROUND_SEARCH
+        config.COLOR_SEARCH_TEXT = Preferences.COLOR_SEARCH_TEXT
+        config.FONT_STYLE = Preferences.FONT_STYLE
+        config.FONT_STYLE_COLOR = Preferences.FONT_STYLE_COLOR
 
         # Save shortcuts values.
         self.win.explorer_1.shortcuts.save_yaml_config(
             self.shortcuts_view.store
         )
         self.win.explorer_1.shortcuts.recharge_yaml_shortcuts()
+        self.win.explorer_2.shortcuts.recharge_yaml_shortcuts()
 
-        self.win.save_config_file()
+        self.win.save_config_file(config)
         self.on_close()
 
     def on_close(self, widget: Gtk.Widget = None) -> None:
@@ -269,26 +286,22 @@ class Preferences(Gtk.Window):
         """
         Create windows for general option
         """
-        general = General(self.win)
-        self.change_box(button, general)
+        self.change_box(button, self.general)
 
     def create_directory(self, button: Gtk.Button) -> None:
         """
         Create windows for directory option
         """
-        directory_box = Directory(self.win)
-        self.change_box(button, directory_box)
+        self.change_box(button, self.directory_box)
 
     def create_appearance(self, button: Gtk.Button) -> None:
         """
         Create windows for appearance option
         """
-        appearance = Appearance(self.win)
-        self.change_box(button, appearance)
+        self.change_box(button, self.appearance)
 
     def create_shorcuts(self, button: Gtk.Button) -> None:
         """
         Create windows for appearance option
         """
-        self.shortcuts_view = Shortcuts(self.win)
         self.change_box(button, self.shortcuts_view)

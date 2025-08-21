@@ -359,7 +359,7 @@ class Explorer(Gtk.ColumnView):
 
         self.update_info_explorer(selected_items, selected_size, win)
 
-        if self.win.SWITCH_IMG_STATUS:
+        if self.win.config.SWITCH_IMG_STATUS:
             if len(list(selected_items)) <= 1:
                 self.open_img_preview(selected_items)
         else:
@@ -489,8 +489,8 @@ class Explorer(Gtk.ColumnView):
         self.get_style_context().add_class("background_search")
 
         self.css_manager.load_css_search(
-            self.win.COLOR_BACKGROUND_SEARCH,
-            self.win.COLOR_SEARCH_TEXT,
+            self.win.config.COLOR_BACKGROUND_SEARCH,
+            self.win.config.COLOR_SEARCH_TEXT,
         )
 
     def stop_background_search(self):
@@ -738,7 +738,8 @@ class Explorer(Gtk.ColumnView):
         Load background explorers color
         """
         self.css_manager.load_css_explorer_background(
-            self.win.COLOR_EXPLORER_LEFT, self.win.COLOR_EXPLORER_RIGHT
+            self.win.config.COLOR_EXPLORER_LEFT,
+            self.win.config.COLOR_EXPLORER_RIGHT,
         )
 
         if self.name == "explorer_1":
