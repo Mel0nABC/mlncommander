@@ -5,6 +5,7 @@ from utilities.i18n import _
 from views.preferences.directory import Directory
 from views.preferences.general import General
 from views.preferences.appearance import Appearance
+from views.preferences.shortcuts import Shortcuts
 from css.explorer_css import Css_explorer_manager
 import gi
 
@@ -17,6 +18,7 @@ class Preferences(Gtk.Window):
     GENERAL_LABEL_BTN = _("General")
     DIRECTORY_LABEL_BTN = _("Directorios")
     APPEARANCE_LABEL_BTN = _("Apariencia")
+    SHORCUTS_LABEL_BTN = _("Atajos de teclado")
 
     DIRECTORY_TITLE = _("Directorios de inicio")
     UTILIZATION_LAST_DIR = _("Utilizar últimos directorios usados.")
@@ -133,11 +135,15 @@ class Preferences(Gtk.Window):
         appearance_btn = Gtk.Button(label=Preferences.APPEARANCE_LABEL_BTN)
         appearance_btn.get_style_context().add_class("button")
         appearance_btn.connect("clicked", self.create_appearance)
+        shortcuts_btn = Gtk.Button(label=Preferences.SHORCUTS_LABEL_BTN)
+        shortcuts_btn.get_style_context().add_class("button")
+        shortcuts_btn.connect("clicked", self.create_shorcuts)
 
         vertical_button_box.set_margin_top(40)
         vertical_button_box.append(general_btn)
         vertical_button_box.append(directory_btn)
         vertical_button_box.append(appearance_btn)
+        vertical_button_box.append(shortcuts_btn)
 
         # Contain buttons for accept or cancel
         vertical_option_box = Gtk.Box(
@@ -272,3 +278,10 @@ class Preferences(Gtk.Window):
         """
         appearance = Appearance(self.win)
         self.change_box(button, appearance)
+
+    def create_shorcuts(self, button: Gtk.Button) -> None:
+        """
+        Create windows for appearance option
+        """
+        shortcuts = Shortcuts(self.win)
+        self.change_box(button, shortcuts)

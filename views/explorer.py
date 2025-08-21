@@ -16,7 +16,7 @@ from icons.icon_manager import IconManager
 from css.explorer_css import Css_explorer_manager
 from utilities.access_control import AccessControl
 from controls.actions import Actions
-from controls.shortcuts import Shortcuts_keys
+from controls.shortcuts_keys import Shortcuts_keys
 from utilities.my_watchdog import My_watchdog
 from controls import action_keys
 
