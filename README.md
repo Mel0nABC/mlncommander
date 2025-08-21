@@ -31,7 +31,9 @@ This started as a project to learn Python. Then, I searched for a native graphic
 
 - python >= 3.13.7
 - tk >= 8.6.16
-- Gtk 4  > 4.10
+- gtk4  > 4.10
+- pango >= 1:1.56.4
+- mailcap >= 2.1.54
 
 
 ## Installation
