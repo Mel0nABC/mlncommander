@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2025 Mel0nABC
 
  SPDX-License-Identifier: MIT -->
-MLNCommander
+MLNCommander - MeL0nABC
 
 MLNCommander is a dual-window file explorer
 
