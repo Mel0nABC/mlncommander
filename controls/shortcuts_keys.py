@@ -21,16 +21,12 @@ class Shortcuts_keys:
         self.win = win
         self.explorer = explorer
         self.SHORTCUT_FILE = Path(f"{Window.APP_USER_PATH}/shorcuts_file.yaml")
+        self.controller_list = []
 
         if not self.SHORTCUT_FILE.exists():
             self.reset_shortcuts_config()
 
-        self.list_shortcuts = self.load_yaml_config()
-        for shortcut in self.list_shortcuts:
-            method = getattr(self, shortcut.method)
-            self.add_shortcut(
-                self.explorer, shortcut.first_key, shortcut.second_key, method
-            )
+        self.charge_yrml_shortcuts()
 
     def load_yaml_config(self) -> list:
         with open(self.SHORTCUT_FILE, "r") as file:
@@ -46,9 +42,25 @@ class Shortcuts_keys:
                 for d in data
             ]
 
-    def save_yaml_config(self, shortcuts_dict):
+    def save_yaml_config(self, shortcuts_list: list) -> None:
         with open(self.SHORTCUT_FILE, "w") as file:
-            yaml.dump([s.to_dict() for s in shortcuts_dict], file, indent=4)
+            yaml.dump([s.to_dict() for s in shortcuts_list], file, indent=4)
+
+    def recharge_yaml_shortcuts(self):
+
+        for controller in self.controller_list:
+            self.win.explorer_1.remove_controller(controller)
+            self.win.explorer_2.remove_controller(controller)
+
+        self.charge_yrml_shortcuts()
+
+    def charge_yrml_shortcuts(self):
+        self.list_shortcuts = self.load_yaml_config()
+        for shortcut in self.list_shortcuts:
+            method = getattr(self, shortcut.method)
+            self.add_shortcut(
+                self.explorer, shortcut.first_key, shortcut.second_key, method
+            )
 
     def add_shortcut(
         self,
@@ -63,8 +75,9 @@ class Shortcuts_keys:
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(shortcut)
         explorer.add_controller(controller)
+        self.controller_list.append(controller)
 
-    def shortcut_mirroring_folder(self, *args) -> None:
+    def shortcut_mirroring_folder(self, widget, args) -> None:
         """
         Actions when shortcuts is utilized
         """
@@ -97,13 +110,14 @@ class Shortcuts_keys:
 
         GLib.idle_add(self.explorer._reeconnect_controller)
 
-    def unzip_file(self, *args):
+    def unzip_file(self, widget, args):
+
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
         print("UNZIP")
         GLib.idle_add(self.explorer._reeconnect_controller)
 
-    def zip_file(self, *args):
+    def zip_file(self, widget, args):
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
         print("ZIP")

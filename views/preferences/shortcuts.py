@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from css.explorer_css import Css_explorer_manager
+from controls.actions import Actions
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Pango  # noqa: E402
+from gi.repository import Gtk, Gio, Pango, GObject  # noqa: E402
 
 
 class Shortcuts(Gtk.Box):
@@ -16,12 +17,14 @@ class Shortcuts(Gtk.Box):
 
         self.win = win
         self.css_manager = Css_explorer_manager(self.win)
+        self.action = Actions()
         self.list_shortcuts_exp_1 = (
             self.win.explorer_1.shortcuts.list_shortcuts
         )
         self.list_shortcuts_exp_2 = (
             self.win.explorer_2.shortcuts.list_shortcuts
         )
+        self.actual_character_second_key = ""
 
         # Configure margin Box
         self.set_margin_top(20)
@@ -69,7 +72,6 @@ class Shortcuts(Gtk.Box):
         self.store = Gio.ListStore.new(Shortcut)
 
         for content in self.list_shortcuts_exp_1:
-            print(content)
             shotcute_info = Shortcut(
                 content.explorer,
                 content.first_key,
@@ -89,7 +91,7 @@ class Shortcuts(Gtk.Box):
         signal: Gtk.SignalListItemFactory,
         cell: Gtk.ColumnViewCell,
         property_name: str,
-    ):
+    ) -> None:
         if property_name == "description" or property_name == "first_key":
             label = Gtk.Label(xalign=0)
             label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
@@ -104,7 +106,7 @@ class Shortcuts(Gtk.Box):
         signal: Gtk.SignalListItemFactory,
         cell: Gtk.ColumnViewCell,
         property_name: str,
-    ):
+    ) -> None:
         item = cell.get_item()
         if item:
             output_column = cell.get_child()
@@ -113,19 +115,63 @@ class Shortcuts(Gtk.Box):
             if isinstance(output_column, Gtk.EditableLabel):
 
                 # focus_controller = Gtk.EventControllerFocus()
-                # focus_controller.connect("leave", self.on_focus_leave)
+                # focus_controller.connect("enter", self.on_enter)
                 # output_column.add_controller(focus_controller)
 
-                output_column.connect("changed", self.on_change)
+                handler_id = output_column.connect("changed", self.on_change)
+                output_column.set_name(str(handler_id))
+                output_column.connect("notify::editing", self.on_enter)
 
-    def on_change(self, label: Gtk.EditableLabel):
-        print(label.get_editing())
-        print(label.start_editing())
-        print(label.get_text())
+    def validate_character_second_key(self, second_key: str) -> bool:
+        if len(second_key) == 0 or len(second_key) > 1:
+            return False
 
-    def on_focus_leave(self, controller):
-        print("LEAVE")
-        widget = controller.get_widget()
-        widget.stop_editing(True)  # confirmamos edición
-        self.selection.unselect_all()
-        # print("Confirmado texto:", widget.get_text())
+        return True
+
+    def on_enter(
+        self, label: Gtk.EditableLabel, psec: GObject.GParamSpec
+    ) -> None:
+        """
+        old value from editablelabel
+        """
+        self.actual_character_second_key = label.get_text()
+
+    def on_change(self, label: Gtk.EditableLabel) -> None:
+        """
+        On change on EditableLabel validate new value
+        """
+        character_value = label.get_text()
+
+        if self.actual_character_second_key == character_value:
+            label.stop_editing(True)
+            return
+
+        handler_id = int(label.get_name())
+
+        label.handler_block(handler_id)
+
+        if not self.validate_character_second_key(character_value):
+            label.set_text(self.actual_character_second_key)
+        else:
+            item_temp = None
+            for i in self.store:
+                if i.second_key == character_value:
+                    label.set_text(self.actual_character_second_key)
+
+                    self.action.show_msg_alert(
+                        self.win,
+                        _(
+                            (
+                                "La segunda tecla ya se está"
+                                " empleando. Elija otra o cancele."
+                            )
+                        ),
+                    )
+                    label.handler_unblock(handler_id)
+                    return
+                if i.second_key == self.actual_character_second_key:
+                    item_temp = i
+
+        item_temp.second_key = character_value
+        label.stop_editing(True)
+        label.handler_unblock(handler_id)

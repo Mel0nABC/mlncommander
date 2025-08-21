@@ -105,6 +105,7 @@ class Preferences(Gtk.Window):
         self.css_manager = Css_explorer_manager(self.win)
         self.select_directory_box_1 = None
         self.select_directory_box_2 = None
+        self.shortcuts_view = None
 
         self.set_default_size(self.win.horizontal / 4, self.win.vertical / 2)
 
@@ -235,6 +236,12 @@ class Preferences(Gtk.Window):
         self.win.FONT_STYLE = Preferences.FONT_STYLE
         self.win.FONT_STYLE_COLOR = Preferences.FONT_STYLE_COLOR
 
+        # Save shortcuts values.
+        self.win.explorer_1.shortcuts.save_yaml_config(
+            self.shortcuts_view.store
+        )
+        self.win.explorer_1.shortcuts.recharge_yaml_shortcuts()
+
         self.win.save_config_file()
         self.on_close()
 
@@ -283,5 +290,5 @@ class Preferences(Gtk.Window):
         """
         Create windows for appearance option
         """
-        shortcuts = Shortcuts(self.win)
-        self.change_box(button, shortcuts)
+        self.shortcuts_view = Shortcuts(self.win)
+        self.change_box(button, self.shortcuts_view)

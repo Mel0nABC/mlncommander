@@ -66,7 +66,6 @@ class Explorer(Gtk.ColumnView):
             | Gtk.ListScrollFlags.FOCUS
         )
         self.access_control = AccessControl()
-        self.EXPLORER_MIRROR_KEY = "o"
         type_list = [
             "type_str",
             "name",

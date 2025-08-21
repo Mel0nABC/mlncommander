@@ -401,7 +401,7 @@ class Window(Gtk.ApplicationWindow):
         """
         load config file
         """
-
+        # TODO: Change json  to yaml
         # If no configuration exists, it creates it, with default options
         if not self.CONFIG_FILE.exists():
             with open(self.CONFIG_FILE, "a") as conf:
