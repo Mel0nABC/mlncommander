@@ -18,6 +18,7 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Preview images
 - Hotkeys and shortcuts
 - Different native icons of the symbolic type
+- Managing connection loss to network drives, preventing application crashes
 - Working with compressed files, coming soon...
 
 
