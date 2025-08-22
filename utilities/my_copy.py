@@ -4,7 +4,8 @@
 from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
-from multiprocessing import Process
+from multiprocessing import Process, Queue
+from queue import Empty
 from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
 from views.selected_for_copy_move import Selected_for_copy_move
@@ -20,6 +21,7 @@ import time
 import shutil
 import asyncio
 import threading
+
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import GLib, Gtk  # noqa: E402
@@ -38,6 +40,7 @@ class My_copy:
         self.stop_all = False
         self.access_control = AccessControl()
         self.file_manager = File_manager()
+        self.parent = None
 
     def on_copy(
         self,
@@ -49,6 +52,7 @@ class My_copy:
         """
         Start to copy files or directories.
         """
+        self.parent = parent
         if not selected_items:
             selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
@@ -317,28 +321,64 @@ class My_copy:
         self.response_dic["all_files"] = dialog_response["all_files"]
         self.event_overwrite.set()
 
-    async def create_response_overwrite(self, parent, src_info, dst_info):
+    async def create_response_overwrite(
+        self, parent: Gtk.ApplicationWindow, src_info: Path, dst_info: Path
+    ) -> asyncio.Future:
         dialog = Overwrite_dialog(parent, src_info, dst_info)
         response = await dialog.wait_response_async()
         return response
 
-    def copy_file(self, src_info: Path, dst_info: Path) -> bool:
+    def copy_file(
+        self,
+        src_info: Path,
+        dst_info: Path,
+    ) -> bool:
         """
         copies files from a src to its dst, returns true if
         copied, false otherwise.
         """
+        q = Queue()
+        p = Process(target=self.copy_file_worker, args=(src_info, dst_info, q))
+        p.start()
+        p.join()
 
-        # Use multiprocessing to terminae on cancel copy
-        self.thread_copy = Process(
-            target=shutil.copy, args=(src_info, dst_info)
-        )
-        self.thread_copy.start()
-        self.thread_copy.join()
+        try:
+            msg = q.get_nowait()
+        except Empty:
 
-        if dst_info.exists():
+            if p.exitcode == 0 and dst_info.exists():
+                return True
+            else:
+                GLib.idle_add(
+                    self.action.show_msg_alert,
+                    self.parent,
+                    f"{_("Error al copiar:")} {p.exitcode}",
+                )
+                return False
+
+        if msg["ok"]:
             return True
         else:
+            GLib.idle_add(
+                self.action.show_msg_alert,
+                self.parent,
+                f"{_("Error al copiar:")} {msg["error"]}",
+            )
             return False
+
+    def copy_file_worker(
+        self, src_info: Path, dst_info: Path, q: Queue
+    ) -> dict:
+        """
+        copies files from a src to its dst, return dictionary
+        """
+        try:
+            shutil.copy(src_info, dst_info)
+            q.put({"ok": True, "error": None})
+        except OSError as e:
+            q.put({"ok": False, "error": e})
+        except Exception as e:
+            q.put({"ok": False, "error": e})
 
     def overwrite_with_type(
         self,
