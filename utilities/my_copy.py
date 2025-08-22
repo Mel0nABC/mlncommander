@@ -354,6 +354,8 @@ class My_copy:
                     self.parent,
                     f"{_("Error al copiar:")} {p.exitcode}",
                 )
+                if dst_info.exists():
+                    dst_info.unlink()
                 return False
 
         if msg["ok"]:
@@ -364,6 +366,8 @@ class My_copy:
                 self.parent,
                 f"{_("Error al copiar:")} {msg["error"]}",
             )
+            if dst_info.exists():
+                dst_info.unlink()
             return False
 
     def copy_file_worker(
@@ -376,9 +380,13 @@ class My_copy:
             shutil.copy(src_info, dst_info)
             q.put({"ok": True, "error": None})
         except OSError as e:
+            print("OSError ----------------------->")
             q.put({"ok": False, "error": e})
+            return
         except Exception as e:
+            print("Exception ----------------------->")
             q.put({"ok": False, "error": e})
+            return
 
     def overwrite_with_type(
         self,

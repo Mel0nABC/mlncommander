@@ -250,6 +250,8 @@ class Move:
                     self.parent,
                     f"{_("Error al mover:")} {p.exitcode}",
                 )
+                if dst_info.exists():
+                    dst_info.unlink()
                 return False
 
         if msg["ok"]:
@@ -260,6 +262,8 @@ class Move:
                 self.parent,
                 f"{_("Error al mover:")} {msg["error"]}",
             )
+            if dst_info.exists():
+                dst_info.unlink()
             return False
 
     def move_file_worker(
