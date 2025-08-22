@@ -278,6 +278,12 @@ class Explorer(Gtk.ColumnView):
         if self.selection:
             self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
+        if not self.store:
+            self.action.show_msg_alert(
+                self.win,
+                _("Ha ocurrido un problema para acceder al directorio"),
+            )
+            return
         self.sorter = Gtk.ColumnView.get_sorter(self)
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
         self.selection = Gtk.MultiSelection.new(self.sort_model)
@@ -326,7 +332,11 @@ class Explorer(Gtk.ColumnView):
                 GLib.idle_add(self.scroll_to, self.n_row_old, None, self.flags)
         else:
             # Keep it up
-            size = len(list(self.store))
+            store = self.store
+
+            if not store:
+                return
+            size = len(list(store))
             if size == 1:
                 file = 0
             else:
@@ -371,8 +381,11 @@ class Explorer(Gtk.ColumnView):
         selected_size: int,
         win: Gtk.ApplicationWindow,
     ) -> None:
+        store = self.store
+        if not store:
+            return
 
-        items_list_size = len(list(self.store)) - 1
+        items_list_size = len(list(store)) - 1
 
         total_size_items = 0
         for item in selected_items:

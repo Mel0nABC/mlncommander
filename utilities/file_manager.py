@@ -5,6 +5,8 @@ from entity.File_or_directory_info import File_or_directory_info
 from pathlib import Path
 import gi
 import shutil
+from multiprocessing import Process, Queue
+from queue import Empty
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gio  # noqa: E402
@@ -29,16 +31,43 @@ class File_manager:
                 list_content.append(back_row)
 
             # Sorted list with, .., directorys and files
-            ordered_list = sorted(path.iterdir(), key=File_manager.custom_key)
 
-            for content in ordered_list:
-                new_info = File_or_directory_info(content.absolute())
-                list_content.append(new_info)
+            def get_sorted_dir(path: Path, q: Queue):
+                try:
+                    ordered_list = sorted(
+                        path.iterdir(), key=File_manager.custom_key
+                    )
+                    q.put({"ok": True, "data": ordered_list})
+                except OSError:
+                    q.put({"ok": False, "data": None})
+                except Exception:
+                    q.put({"ok": False, "data": None})
+
+            q = Queue()
+            p = Process(target=get_sorted_dir, args=(path, q))
+            p.start()
+            p.join(0.3)
+
+            try:
+                msg = q.get_nowait()
+            except Empty:
+
+                if p.exitcode == 0:
+                    return True
+                else:
+                    return False
+
+            if msg["ok"]:
+                ordered_list = msg["data"]
+                for content in ordered_list:
+                    new_info = File_or_directory_info(content.absolute())
+                    list_content.append(new_info)
+            else:
+                return False
 
             return list_content
         except Exception as e:
             print(f"Excepción {e}")
-        return list_content
 
     def custom_key(path: Path) -> tuple[int, str]:
         """
