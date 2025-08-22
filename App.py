@@ -84,3 +84,12 @@ class App(Gtk.Application):
 
 app = App()
 app.run()
+
+
+# from utilities.compression import CompressionManager
+# from pathlib import Path
+
+# cm = CompressionManager()
+# path = Path("/home/mel0n/Downloads/mlncommander/tmp/comprimido.zip")
+
+# print(cm.uncompress_manager(path))

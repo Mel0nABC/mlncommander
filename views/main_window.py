@@ -412,8 +412,20 @@ class Window(Gtk.ApplicationWindow):
         with open(self.CONFIG_FILE, "r+") as config_file:
             data = yaml.safe_load(config_file)
 
-            self.config.EXP_1_PATH = data["EXP_1_PATH"]
-            self.config.EXP_2_PATH = data["EXP_2_PATH"]
+            EXP_1_PATH = Path(data["EXP_1_PATH"])
+
+            if not EXP_1_PATH.exists():
+                self.config.EXP_1_PATH = "/"
+            else:
+                self.config.EXP_1_PATH = data["EXP_1_PATH"]
+
+            EXP_2_PATH = Path(data["EXP_2_PATH"])
+
+            if not EXP_2_PATH.exists():
+                self.config.EXP_2_PATH = "/"
+            else:
+                self.config.EXP_2_PATH = data["EXP_2_PATH"]
+
             self.config.SHOW_DIR_LAST = bool(data["SHOW_DIR_LAST"])
             self.config.SWITCH_IMG_STATUS = bool(data["SWITCH_IMG_STATUS"])
             self.config.COLOR_BACKGROUND_APP = data["COLOR_BACKGROUND_APP"]
