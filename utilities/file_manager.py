@@ -17,6 +17,7 @@ class File_manager:
     def get_path_list(path: Path) -> Gio.ListStore:
         """
         Returns io.ListStore of files and directorys from path "path"
+        or False is have any problem.
         """
         list_content = Gio.ListStore.new(File_or_directory_info)
 

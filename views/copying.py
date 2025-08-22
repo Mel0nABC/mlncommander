@@ -67,7 +67,7 @@ class Copying(Gtk.Dialog):
         self.src_info = src_info
         self.dst_info = dst_info
 
-    def update_labels(self) -> None:
+    def update_labels(self, src_size_text: Path, dst_size_text: Path) -> None:
         """
         Force update labels with real information
         """
@@ -75,8 +75,6 @@ class Copying(Gtk.Dialog):
             if self.src_info and self.dst_info:
                 self.lbl_src.set_text(str(self.src_info))
                 self.lbl_dst.set_text(str(self.dst_info))
-                src_size_text = f"{self.src_info.stat().st_size}"
-                dst_size_text = f"{self.dst_info.stat().st_size}"
 
                 self.src_size = int(src_size_text)
                 self.dst_size = int(dst_size_text)

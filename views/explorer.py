@@ -275,6 +275,7 @@ class Explorer(Gtk.ColumnView):
         """
         Load information from the current directory
         """
+
         if self.selection:
             self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
@@ -284,12 +285,12 @@ class Explorer(Gtk.ColumnView):
                 _("Ha ocurrido un problema para acceder al directorio"),
             )
             return
+        self.actual_path = path
+        self.entry.set_text(str(path))
         self.sorter = Gtk.ColumnView.get_sorter(self)
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
-        self.actual_path = path
-        self.entry.set_text(str(path))
 
     def load_new_path(self, path: Path) -> None:
         """
@@ -366,6 +367,24 @@ class Explorer(Gtk.ColumnView):
         selected_size = len(selected_items)
         if selected_size == 1:
             self.n_row = selected[0]
+
+        store = File_manager.get_path_list(self.actual_path)
+        if not store:
+
+            self.load_new_path(Path("/"))
+
+            GLib.idle_add(
+                self.action.show_msg_alert,
+                self.win,
+                _(
+                    (
+                        "Ha ocurri algún problema con la ubicación actual:\n\n"
+                        "Y se ha redirigido al inicio."
+                    )
+                ),
+            )
+
+            return
 
         self.update_info_explorer(selected_items, selected_size, win)
 

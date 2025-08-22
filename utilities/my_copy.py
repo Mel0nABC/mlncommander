@@ -41,6 +41,9 @@ class My_copy:
         self.access_control = AccessControl()
         self.file_manager = File_manager()
         self.parent = None
+        self.thread_copy = None
+        self.explorer_src = None
+        self.explorer_dst = None
 
     def on_copy(
         self,
@@ -53,6 +56,8 @@ class My_copy:
         Start to copy files or directories.
         """
         self.parent = parent
+        self.explorer_src = explorer_src
+        self.explorer_dst = explorer_dst
         if not selected_items:
             selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
@@ -177,6 +182,7 @@ class My_copy:
         self.thread_update_dialog.start()
 
         result = await self.create_dialog_copying(parent)
+        print(f"RESULT DE create dialog: {result}")
 
         self.progress_on = False
 
@@ -201,7 +207,6 @@ class My_copy:
         """
 
         for src_info in selected_items:
-
             if not self.access_control.validate_src_read(
                 src_info,
                 parent,
@@ -258,12 +263,16 @@ class My_copy:
             else:
                 self.copying_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
-                    self.copy_file(src_info, dst_info)
+                    result = self.copy_file(src_info, dst_info)
+
+                    print(f"RESULT: {result}")
                     # On stop copy, delete the last file, posible corruption
                     if self.stop_all:
                         if dst_info.exists():
                             dst_info.unlink()
                             pass
+                    if not result:
+                        return
                 else:
                     self.event_overwrite = threading.Event()
                     if not self.all_files:
@@ -338,26 +347,32 @@ class My_copy:
         copied, false otherwise.
         """
         q = Queue()
-        p = Process(target=self.copy_file_worker, args=(src_info, dst_info, q))
-        p.start()
-        p.join()
+        self.thread_copy = Process(
+            target=self.copy_file_worker, args=(src_info, dst_info, q)
+        )
+        print("INICIA START")
+        self.thread_copy.start()
+        self.thread_copy.join()
+        print("FINALIZA JOIN")
 
         try:
             msg = q.get_nowait()
         except Empty:
-
-            if p.exitcode == 0 and dst_info.exists():
+            print(f"EXITCODE: {self.thread_copy.exitcode}")
+            if self.thread_copy.exitcode == 0 and dst_info.exists():
                 return True
             else:
-                GLib.idle_add(
-                    self.action.show_msg_alert,
-                    self.parent,
-                    f"{_("Error al copiar:")} {p.exitcode}",
-                )
+                if not self.thread_copy.exitcode == -15:
+                    GLib.idle_add(
+                        self.action.show_msg_alert,
+                        self.parent,
+                        f"{_("Error al copiar:")} {self.thread_copy.exitcode}",
+                    )
                 if dst_info.exists():
                     dst_info.unlink()
                 return False
 
+        print(f"MSG: {msg["error"]}")
         if msg["ok"]:
             return True
         else:
@@ -528,7 +543,48 @@ class My_copy:
         """
         Actualiza la  información que muestra el dialog Copying()
         """
+
         while self.progress_on:
             time.sleep(0.1)
             if self.copying_dialog is not None:
-                GLib.idle_add(self.copying_dialog.update_labels)
+                src_info = self.copying_dialog.src_info
+                dst_info = self.copying_dialog.dst_info
+
+                if src_info:
+                    src_dir = src_info.parent
+                    src_store = File_manager.get_path_list(src_dir)
+
+                if dst_info:
+                    dst_dir = dst_info.parent
+                    dst_store = File_manager.get_path_list(dst_dir)
+
+                if not src_store or not dst_store:
+                    GLib.idle_add(
+                        self.copying_dialog.cancel_copying, Gtk.Button
+                    )
+                    GLib.idle_add(
+                        self.action.show_msg_alert,
+                        self.parent,
+                        (
+                            f"{_("Error al copiar:")} {dst_info}\n\n"
+                            f"{_("Puede deberse a una pérdida de red.")}"
+                        ),
+                    )
+                    self.thread_copy.terminate()
+                    if not src_store:
+                        GLib.idle_add(
+                            self.explorer_src.load_new_path, Path("/")
+                        )
+                    if not dst_store:
+                        GLib.idle_add(
+                            self.explorer_dst.load_new_path, Path("/")
+                        )
+
+                src_size_text = f"{src_info.stat().st_size}"
+                dst_size_text = f"{dst_info.stat().st_size}"
+                GLib.idle_add(
+                    self.copying_dialog.update_labels,
+                    src_size_text,
+                    dst_size_text,
+                )
+        print("WHILE FINALIZADO")
