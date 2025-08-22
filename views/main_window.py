@@ -14,6 +14,7 @@ from utilities.remove import Remove
 from utilities.move import Move
 from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
+from utilities.file_manager import File_manager
 from css.explorer_css import Css_explorer_manager
 from pathlib import Path
 import yaml
@@ -109,6 +110,7 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_2 = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
+
         self.vertical_screen_2.set_hexpand(True)
         self.vertical_screen_2.set_vexpand(True)
 
@@ -413,18 +415,24 @@ class Window(Gtk.ApplicationWindow):
             data = yaml.safe_load(config_file)
 
             EXP_1_PATH = Path(data["EXP_1_PATH"])
-
-            if not EXP_1_PATH.exists():
-                self.config.EXP_1_PATH = "/"
+            result = File_manager.get_path_list(EXP_1_PATH)
+            if result:
+                if not EXP_1_PATH.exists():
+                    self.config.EXP_1_PATH = "/"
+                else:
+                    self.config.EXP_1_PATH = data["EXP_1_PATH"]
             else:
-                self.config.EXP_1_PATH = data["EXP_1_PATH"]
+                self.config.EXP_1_PATH = Path("/")
 
             EXP_2_PATH = Path(data["EXP_2_PATH"])
-
-            if not EXP_2_PATH.exists():
-                self.config.EXP_2_PATH = "/"
+            result = File_manager.get_path_list(EXP_2_PATH)
+            if result:
+                if not EXP_2_PATH.exists():
+                    self.config.EXP_2_PATH = "/"
+                else:
+                    self.config.EXP_2_PATH = data["EXP_2_PATH"]
             else:
-                self.config.EXP_2_PATH = data["EXP_2_PATH"]
+                self.config.EXP_2_PATH = Path("/")
 
             self.config.SHOW_DIR_LAST = bool(data["SHOW_DIR_LAST"])
             self.config.SWITCH_IMG_STATUS = bool(data["SWITCH_IMG_STATUS"])
