@@ -13,6 +13,8 @@ from views.selected_for_copy_move import Selected_for_copy_move
 from views.moving import Moving
 from utilities.rename import Rename_Logic
 from views.explorer import Explorer
+from multiprocessing import Process, Queue
+from queue import Empty
 import os
 import time
 import shutil
@@ -178,7 +180,9 @@ class Move:
             else:
                 self.moving_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
-                    shutil.move(src_info, dst_info)
+
+                    self.move_file(src_info, dst_info)
+
                 else:
                     self.event_overwrite = threading.Event()
                     if not self.all_files:
@@ -220,6 +224,58 @@ class Move:
         GLib.idle_add(explorer_dst.load_new_path, dst_info.parent)
         GLib.idle_add(self.moving_dialog.close_moving)
 
+    def move_file(
+        self,
+        src_info: Path,
+        dst_info: Path,
+    ) -> bool:
+        """
+        copies files from a src to its dst, returns true if
+        copied, false otherwise.
+        """
+        q = Queue()
+        p = Process(target=self.move_file_worker, args=(src_info, dst_info, q))
+        p.start()
+        p.join()
+
+        try:
+            msg = q.get_nowait()
+        except Empty:
+
+            if p.exitcode == 0 and dst_info.exists():
+                return True
+            else:
+                GLib.idle_add(
+                    self.action.show_msg_alert,
+                    self.parent,
+                    f"{_("Error al mover:")} {p.exitcode}",
+                )
+                return False
+
+        if msg["ok"]:
+            return True
+        else:
+            GLib.idle_add(
+                self.action.show_msg_alert,
+                self.parent,
+                f"{_("Error al mover:")} {msg["error"]}",
+            )
+            return False
+
+    def move_file_worker(
+        self, src_info: Path, dst_info: Path, q: Queue
+    ) -> dict:
+        """
+        Move files from a src to its dst, return dictionary
+        """
+        try:
+            shutil.move(src_info, dst_info)
+            q.put({"ok": True, "error": None})
+        except OSError as e:
+            q.put({"ok": False, "error": e})
+        except Exception as e:
+            q.put({"ok": False, "error": e})
+
     def overwrite_with_type(
         self,
         parent,
@@ -238,7 +294,7 @@ class Move:
         if response_type == "overwrite":
             os.remove(dst_info)
             if not dst_info.exists():
-                shutil.move(src_info, dst_info)
+                self.move_file(src_info, dst_info)
 
         if response_type == "overwrite_date":
             src_file_date = datetime.fromtimestamp(src_info.stat().st_ctime)
@@ -246,13 +302,13 @@ class Move:
             if src_file_date > dst_file_date:
                 os.remove(dst_info)
                 if not dst_info.exists():
-                    shutil.move(src_info, dst_info)
+                    self.move_file(src_info, dst_info)
 
         if response_type == "overwrite_diff":
             if src_info.stat().st_size != dst_info.stat().st_size:
                 os.remove(dst_info)
                 if not dst_info.exists():
-                    shutil.move(src_info, dst_info)
+                    self.move_file(src_info, dst_info)
 
         if response_type == "rename":
             self.rename_event = threading.Event()
@@ -281,7 +337,7 @@ class Move:
                 while self.emergency_name.exists():
                     self.emergency_name = Path(f"{self.emergency_name}.copy")
                 self.moving_dialog.set_labels(src_info, self.new_name)
-                shutil.move(src_info, self.emergency_name)
+                self.move_file(src_info, self.emergency_name)
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     parent,
@@ -294,7 +350,7 @@ class Move:
                 )
             else:
                 self.moving_dialog.set_labels(src_info, self.new_name)
-                shutil.move(src_info, self.new_name)
+                self.move_file(src_info, self.new_name)
 
     async def create_dialog_rename(
         self, parent: Gtk.ApplicationWindow, dst_info: Path
