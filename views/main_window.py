@@ -8,10 +8,9 @@ from entity.config import ConfigEntity
 from views.menu_bar import Menu_bar
 from views.header import header
 from views.explorer import Explorer
-from utilities.my_copy import My_copy
+from utilities.my_copy_or_move import MyCopyMove
 from utilities.create import Create
 from utilities.remove import Remove
-from utilities.move import Move
 from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from utilities.file_manager import File_manager
@@ -305,18 +304,29 @@ class Window(Gtk.ApplicationWindow):
             lambda btn: new_file.on_new_file(self.explorer_src, self),
         )
 
-        my_copy = My_copy()
+        my_copy_move = MyCopyMove()
         btn_F5.connect(
             "clicked",
-            lambda btn: my_copy.on_copy(
-                self.explorer_src, self.explorer_dst, None, self
+            lambda btn: my_copy_move.on_copy_or_move(
+                self.explorer_src,
+                self.explorer_dst,
+                None,
+                self,
+                _("copiar"),
+                False,
             ),
         )
 
-        move = Move(self)
         btn_F6.connect(
             "clicked",
-            lambda btn: move.on_move(self.explorer_src, self.explorer_dst),
+            lambda btn: my_copy_move.on_copy_or_move(
+                self.explorer_src,
+                self.explorer_dst,
+                None,
+                self,
+                _("mover"),
+                False,
+            ),
         )
 
         create = Create()
@@ -334,11 +344,15 @@ class Window(Gtk.ApplicationWindow):
             ),
         )
 
-        my_copy = My_copy()
         btn_F9.connect(
             "clicked",
-            lambda btn: my_copy.on_duplicate(
-                self.explorer_src, self.explorer_dst, self
+            lambda btn: my_copy_move.on_copy_or_move(
+                self.explorer_src,
+                self.explorer_dst,
+                None,
+                self,
+                _("copiar"),
+                True,
             ),
         )
 

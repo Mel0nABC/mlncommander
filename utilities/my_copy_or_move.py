@@ -9,7 +9,7 @@ from queue import Empty
 from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
 from views.selected_for_copy_move import Selected_for_copy_move
-from views.copying import Copying
+from views.transfering_data import Transfering
 from views.explorer import Explorer
 from utilities.rename import Rename_Logic
 from utilities.access_control import AccessControl
@@ -27,11 +27,11 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import GLib, Gtk  # noqa: E402
 
 
-class My_copy:
+class MyCopyMove:
 
     def __init__(self):
         self.action = Actions()
-        self.copying_dialog = None
+        self.transfering_dialog = None
         self.response_dic = {}
         self.rename_response = None
         self.cancel_rename = False
@@ -45,20 +45,25 @@ class My_copy:
         self.explorer_src = None
         self.explorer_dst = None
         self.showed_msg_network_problem = False
+        self.action_to_exec = None
 
-    def on_copy(
+    def on_copy_or_move(
         self,
         explorer_src: Explorer,
         explorer_dst: Explorer,
         selected_items: list = None,
         parent: Gtk.ApplicationWindow = None,
+        action: str = None,
+        duplicate: bool = None,
     ) -> None:
         """
         Start to copy files or directories.
         """
+
         self.parent = parent
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
+        self.action_to_exec = action
         if not selected_items:
             selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
@@ -80,54 +85,14 @@ class My_copy:
         ):
             return
 
-        if src_dir == dst_dir:
-            self.action.show_msg_alert(
-                parent, _("Intentar copiar un archivo a él mismo")
-            )
-            return
+        if not duplicate:
+            if src_dir == dst_dir:
+                self.action.show_msg_alert(
+                    parent,
+                    f"{_("Intenta ")}{action}{_(" un archivo a él mismo")}",
+                )
+                return
 
-        duplicate = False
-        asyncio.ensure_future(
-            self.copy_proccess(
-                parent,
-                selected_items,
-                dst_dir,
-                explorer_src,
-                explorer_dst,
-                duplicate,
-            )
-        )
-
-    def on_duplicate(
-        self,
-        explorer_src: Explorer,
-        explorer_dst: Explorer,
-        parent: Gtk.ApplicationWindow,
-    ) -> None:
-        """
-        Start to copy files or directories.
-        """
-
-        selected_items = explorer_src.get_selected_items_from_explorer()[1]
-
-        dst_dir = explorer_dst.actual_path
-
-        if not self.file_manager.check_free_space(selected_items, dst_dir):
-            self.action.show_msg_alert(
-                parent, _("No hay suficiente espacio en destino")
-            )
-            return
-
-        if not self.access_control.validate_dst_write(
-            selected_items,
-            explorer_src,
-            explorer_dst,
-            dst_dir,
-            parent,
-        ):
-            return
-
-        duplicate = True
         asyncio.ensure_future(
             self.copy_proccess(
                 parent,
@@ -163,7 +128,6 @@ class My_copy:
             return
 
         self.progress_on = True
-
         self.thread_iterater_folder = threading.Thread(
             target=self.iterate_folders,
             args=(
@@ -175,14 +139,12 @@ class My_copy:
                 duplicate,
             ),
         )
-
         self.thread_update_dialog = threading.Thread(
-            target=self.update_dialog_copying,
+            target=self.update_dialog_transfering,
             args=(parent,),
         )
         self.thread_update_dialog.start()
-
-        result = await self.create_dialog_copying(parent)
+        result = await self.create_dialog_transfering(parent)
 
         self.progress_on = False
 
@@ -205,13 +167,12 @@ class My_copy:
         and asks what to do if they do.
 
         """
-
         for src_info in selected_items:
             if not self.access_control.validate_src_read(
                 src_info,
                 parent,
             ):
-                self.close_dialog_copying_proccess()
+                self.close_dialog_transfering_proccess()
                 return
 
             # On push cancel, return all
@@ -261,7 +222,7 @@ class My_copy:
                         duplicate,
                     )
             else:
-                self.copying_dialog.set_labels(src_info, dst_info)
+                self.transfering_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
                     result = self.copy_file(src_info, dst_info)
 
@@ -306,10 +267,10 @@ class My_copy:
             GLib.idle_add(explorer_dst.load_data, dst_info.parent)
 
         GLib.idle_add(explorer_dst.load_new_path, dst_info.parent)
-        self.close_dialog_copying_proccess()
+        self.close_dialog_transfering_proccess()
 
-    def close_dialog_copying_proccess(self):
-        self.copying_dialog.close_copying()
+    def close_dialog_transfering_proccess(self):
+        self.transfering_dialog.close_copying()
         if self.thread_update_dialog.is_alive():
             self.progress_on = False
             self.thread_update_dialog.join()
@@ -386,7 +347,10 @@ class My_copy:
         copies files from a src to its dst, return dictionary
         """
         try:
-            shutil.copy(src_info, dst_info)
+            if self.action_to_exec == "copiar":
+                shutil.copy(src_info, dst_info)
+            else:
+                shutil.move(src_info, dst_info)
             q.put({"ok": True, "error": None})
         except OSError as e:
             q.put({"ok": False, "error": e})
@@ -446,7 +410,7 @@ class My_copy:
                 self.emergency_name = Path(f"{self.new_name}.copy")
                 while self.emergency_name.exists():
                     self.emergency_name = Path(f"{self.emergency_name}.copy")
-                self.copying_dialog.set_labels(src_info, self.new_name)
+                self.transfering_dialog.set_labels(src_info, self.new_name)
                 self.copy_file(src_info, self.emergency_name)
                 GLib.idle_add(
                     self.action.show_msg_alert,
@@ -459,7 +423,7 @@ class My_copy:
                     ),
                 )
             else:
-                self.copying_dialog.set_labels(src_info, self.new_name)
+                self.transfering_dialog.set_labels(src_info, self.new_name)
                 self.copy_file(src_info, self.new_name)
 
     def overwrite(
@@ -503,21 +467,21 @@ class My_copy:
             explorer_src,
             explorer_dst,
             selected_items,
-            _("Copiar"),
+            self.action_to_exec,
         )
         response = await selected_for_copy.wait_response_async()
         return response
 
-    async def create_dialog_copying(
+    async def create_dialog_transfering(
         self, parent: Gtk.ApplicationWindow
     ) -> Future[bool]:
         """
         Creates dialog showing information about the file being copied
         """
-        self.copying_dialog = Copying(parent)
-        self.copying_dialog.present()
+        self.transfering_dialog = Transfering(parent, self.action_to_exec)
+        self.transfering_dialog.present()
         self.thread_iterater_folder.start()
-        response = await self.copying_dialog.wait_response_async()
+        response = await self.transfering_dialog.wait_response_async()
         return response
 
     async def create_dialog_rename(
@@ -531,58 +495,64 @@ class My_copy:
             self.cancel_rename = True
         self.rename_event.set()
 
-    def update_dialog_copying(self, parent: Gtk.ApplicationWindow) -> None:
+    def update_dialog_transfering(self, parent: Gtk.ApplicationWindow) -> None:
         """
         Actualiza la  información que muestra el dialog Copying()
+        Update information to show dialog Copying() and move
         """
 
         while self.progress_on:
-            time.sleep(0.1)
-            if self.copying_dialog is not None:
-                src_info = self.copying_dialog.src_info
-                dst_info = self.copying_dialog.dst_info
+            time.sleep(0.01)
+            try:
+                if self.transfering_dialog is not None:
+                    src_info = self.transfering_dialog.src_info
+                    dst_info = self.transfering_dialog.dst_info
 
-                if src_info:
-                    src_dir = src_info.parent
-                    src_store = File_manager.get_path_list(src_dir)
+                    src_store = True
+                    dst_store = True
+                    if src_info:
+                        src_dir = src_info.parent
+                        src_store = File_manager.get_path_list(src_dir)
 
-                if dst_info:
-                    dst_dir = dst_info.parent
-                    dst_store = File_manager.get_path_list(dst_dir)
+                    if dst_info:
+                        dst_dir = dst_info.parent
+                        dst_store = File_manager.get_path_list(dst_dir)
 
-                if not src_store or not dst_store:
+                    if not src_store or not dst_store:
+                        GLib.idle_add(
+                            self.transfering_dialog.cancel_copying, Gtk.Button
+                        )
+
+                        if not self.showed_msg_network_problem:
+                            GLib.idle_add(
+                                self.action.show_msg_alert,
+                                self.parent,
+                                (
+                                    f"{_("Error al copiar:")} {dst_info}\n\n"
+                                    f"{_("Puede deberse a una pérdida de red.")}"  # noqa: E501
+                                    f"\n\n{_("si se recupera, se borrará")}"
+                                    f"{_(" automáticamente el archivo corrupto.")}"  # noqa: E501
+                                ),
+                            )
+                            self.showed_msg_network_problem = True
+                        else:
+                            self.showed_msg_network_problem = False
+                        self.thread_copy.terminate()
+                        if not src_store:
+                            GLib.idle_add(
+                                self.explorer_src.load_new_path, Path("/")
+                            )
+                        if not dst_store:
+                            GLib.idle_add(
+                                self.explorer_dst.load_new_path, Path("/")
+                            )
+
+                    src_size_text = f"{src_info.stat().st_size}"
+                    dst_size_text = f"{dst_info.stat().st_size}"
                     GLib.idle_add(
-                        self.copying_dialog.cancel_copying, Gtk.Button
+                        self.transfering_dialog.update_labels,
+                        src_size_text,
+                        dst_size_text,
                     )
-
-                    if not self.showed_msg_network_problem:
-                        GLib.idle_add(
-                            self.action.show_msg_alert,
-                            self.parent,
-                            (
-                                f"{_("Error al copiar:")} {dst_info}\n\n"
-                                f"{_("Puede deberse a una pérdida de red.")}"
-                                f"\n\n{_("si se recupera, se borrará")}"
-                                f"{_(" automáticamente el archivo corrupto.")}"
-                            ),
-                        )
-                        self.showed_msg_network_problem = True
-                    else:
-                        self.showed_msg_network_problem = False
-                    self.thread_copy.terminate()
-                    if not src_store:
-                        GLib.idle_add(
-                            self.explorer_src.load_new_path, Path("/")
-                        )
-                    if not dst_store:
-                        GLib.idle_add(
-                            self.explorer_dst.load_new_path, Path("/")
-                        )
-
-                src_size_text = f"{src_info.stat().st_size}"
-                dst_size_text = f"{dst_info.stat().st_size}"
-                GLib.idle_add(
-                    self.copying_dialog.update_labels,
-                    src_size_text,
-                    dst_size_text,
-                )
+            except FileNotFoundError as e:
+                print(f"Very fast I dont have time to update!!: {e}")

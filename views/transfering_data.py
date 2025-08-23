@@ -2,23 +2,31 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from pathlib import Path
-import asyncio
 import gi
+import asyncio
+from pathlib import Path
+from gi.repository import Gtk, GLib
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Gtk, GLib  # noqa: E402
 
+class Transfering(Gtk.Dialog):
 
-class Moving(Gtk.Dialog):
+    def __init__(self, parent: Gtk.ApplicationWindow, action_to_exec: str):
+        title_str = ""
 
-    def __init__(self, parent: Gtk.ApplicationWindow):
+        if action_to_exec == "mover":
+            title_str = _("Moviendo ..")
+        else:
+            title_str = _("Copiando ..")
+
         super().__init__(
-            title=_("Moviendo .."),
+            title=title_str,
             transient_for=parent,
             modal=True,
         )
+        self.src_size = 0
+        self.dst_size = 0
         self.src_info = None
         self.dst_info = None
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -43,7 +51,7 @@ class Moving(Gtk.Dialog):
         self.lbl_size.set_margin_start(20)
 
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
-        self.btn_cancel.connect("clicked", self.cancel_moving)
+        self.btn_cancel.connect("clicked", self.cancel_copying)
         self.btn_cancel.set_margin_top(20)
         self.btn_cancel.set_margin_end(20)
         self.btn_cancel.set_margin_bottom(20)
@@ -60,15 +68,10 @@ class Moving(Gtk.Dialog):
 
     def set_labels(self, src_info: Path, dst_info: Path) -> None:
         """
-        Set labels to show moving info
+        Set labels to show copying info
         """
         self.src_info = src_info
         self.dst_info = dst_info
-        self.lbl_src.set_text(str(self.src_info))
-        self.lbl_dst.set_text(str(self.dst_info))
-        self.src_size_text = f"{self.src_info.stat().st_size}"
-        self.src_size = int(self.src_size_text)
-        self.src_size = self.src_size / 1024 / 1024
 
     def update_labels(self, src_size_text: Path, dst_size_text: Path) -> None:
         """
@@ -95,26 +98,7 @@ class Moving(Gtk.Dialog):
             self.lbl_size.set_text(_("Caldulando ..."))
             print(e)
 
-    # def update_labels(self) -> None:
-    #     """
-    #     Force update labels with real information
-    #     """
-    #     # This function is executed on the main thread (via idle_add)
-    #     try:
-    #         if self.dst_info:
-    #             dst_size_text = f"{self.dst_info.stat().st_size}"
-    #             dst_size = int(dst_size_text)
-    #             dst_size = dst_size / 1024 / 1024
-    #             self.lbl_size.set_text(
-    #                 f"{self.src_size:.2f}/{dst_size:.2f} Mbytes"
-    #             )
-    #     except Exception as e:
-    #         self.lbl_src.set_text(str(self.src_info))
-    #         self.lbl_dst.set_text(_("Obteniendo destino .."))
-    #         self.lbl_size.set_text(_("Caldulando ..."))
-    #         print(e)
-
-    def cancel_moving(self, button: Gtk.Button) -> None:
+    def cancel_copying(self, button: Gtk.Button) -> None:
         """
         Stop dialog and send response False
         """
@@ -136,7 +120,7 @@ class Moving(Gtk.Dialog):
         response = await self.future
         return response
 
-    def close_moving(self) -> None:
+    def close_copying(self) -> None:
         """
         Set response on close dialog
         """

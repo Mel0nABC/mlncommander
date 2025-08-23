@@ -19,11 +19,11 @@ class Selected_for_copy_move(Gtk.Dialog):
         explorer_src: Explorer,
         explorer_dst: Explorer,
         selected_items: list,
-        btn_src: Gtk.Button,
+        action_to_exec: str,
+        btn_src: Gtk.Button = None,
     ):
-        btn_label = _(str.lower(btn_src))
-        title_text = _("Listo para ")
-        title_text_final = f"{title_text} {btn_label} .."
+        title_text = _("Listo para")
+        title_text_final = f"{title_text} {action_to_exec} .."
         super().__init__(
             title=title_text_final,
             transient_for=parent,
@@ -83,7 +83,7 @@ class Selected_for_copy_move(Gtk.Dialog):
         )
         horizontal_box_btn_sec.set_halign(Gtk.Align.END)
 
-        btn_copy = Gtk.Button(label=_(btn_src))
+        btn_copy = Gtk.Button(label=_("Aceptar"))
         btn_cancel = Gtk.Button(label=_("Cancelar"))
 
         horizontal_box_btn_sec.append(btn_copy)

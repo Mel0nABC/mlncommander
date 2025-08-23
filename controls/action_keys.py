@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
+from utilities.i18n import _
 import gi
-from utilities.my_copy import My_copy
+from utilities.my_copy_or_move import MyCopyMove
 from utilities.create import Create
 from utilities.remove import Remove
 from utilities.rename import Rename_Logic
-from utilities.move import Move
 from utilities.new_file import NewFile
 from controls.actions import Actions
 
@@ -155,14 +155,18 @@ def handle_file_operation(
 
     if key_pressed_name == _F5_KEY:
         # Copy
-        my_copy = My_copy()
-        my_copy.on_copy(explorer_src, explorer_dst, None, win)
+        my_copy = MyCopyMove()
+        my_copy.on_copy_or_move(
+            explorer_src, explorer_dst, None, win, _("copiar"), False
+        )
         return True
 
     if key_pressed_name == _F6_KEY:
         # Move
-        move = Move(win)
-        move.on_move(explorer_src, explorer_dst)
+        move = MyCopyMove()
+        move.on_copy_or_move(
+            explorer_src, explorer_dst, None, win, _("mover"), False
+        )
         return True
 
     if key_pressed_name == _F7_KEY:
@@ -178,9 +182,11 @@ def handle_file_operation(
         return True
 
     if key_pressed_name == _F9_KEY:
-        # Copy
-        my_copy = My_copy()
-        my_copy.on_duplicate(explorer_src, explorer_dst, win)
+        # Duplicate
+        my_copy = MyCopyMove()
+        my_copy.on_copy_or_move(
+            explorer_src, explorer_dst, None, win, _("copiar"), True
+        )
         return True
 
     if key_pressed_name == _F10_KEY:
