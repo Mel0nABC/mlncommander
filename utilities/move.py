@@ -35,11 +35,17 @@ class Move:
         self.response_dic = {}
         self.response_type = ""
         self.all_files = ""
+        self.thread_move = None
+        self.explorer_src = None
+        self.explorer_dst = None
+        self.showed_msg_network_problem = False
 
     def on_move(self, explorer_src: Explorer, explorer_dst: Explorer) -> None:
         """
         To move directory or files
         """
+        self.explorer_src = explorer_src
+        self.explorer_dst = explorer_dst
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
         dst_dir = explorer_dst.actual_path
@@ -94,7 +100,7 @@ class Move:
             return
 
         thread_update_dialog = threading.Thread(
-            target=self.update_dialog_moving
+            target=self.update_dialog_moving, args=(parent,)
         )
 
         self.moving_dialog = Moving(self.parent)
@@ -106,14 +112,68 @@ class Move:
 
         self.progress_on = False
 
-    def update_dialog_moving(self) -> None:
+    # def update_dialog_moving(self) -> None:
+    #     """
+    #     Updates information about transferred files and runs in a thread
+    #     """
+    #     while self.progress_on:
+    #         time.sleep(0.1)
+    #         if self.moving_dialog is not None:
+    #             GLib.idle_add(self.moving_dialog.update_labels)
+
+    def update_dialog_moving(self, parent: Gtk.ApplicationWindow) -> None:
         """
-        Updates information about transferred files and runs in a thread
+        Actualiza la  información que muestra el dialog Copying()
         """
+
         while self.progress_on:
             time.sleep(0.1)
             if self.moving_dialog is not None:
-                GLib.idle_add(self.moving_dialog.update_labels)
+                src_info = self.moving_dialog.src_info
+                dst_info = self.moving_dialog.dst_info
+
+                if src_info:
+                    src_dir = src_info.parent
+                    src_store = File_manager.get_path_list(src_dir)
+
+                if dst_info:
+                    dst_dir = dst_info.parent
+                    dst_store = File_manager.get_path_list(dst_dir)
+
+                if not src_store or not dst_store:
+                    GLib.idle_add(self.moving_dialog.cancel_moving, Gtk.Button)
+
+                    if not self.showed_msg_network_problem:
+                        GLib.idle_add(
+                            self.action.show_msg_alert,
+                            self.parent,
+                            (
+                                f"{_("Error al copiar:")} {dst_info}\n\n"
+                                f"{_("Puede deberse a una pérdida de red.")}"
+                                f"\n\n{_("si se recupera, se borrará")}"
+                                f"{_(" automáticamente el archivo corrupto.")}"
+                            ),
+                        )
+                        self.showed_msg_network_problem = True
+                    else:
+                        self.showed_msg_network_problem = False
+                    self.thread_move.terminate()
+                    if not src_store:
+                        GLib.idle_add(
+                            self.explorer_src.load_new_path, Path("/")
+                        )
+                    if not dst_store:
+                        GLib.idle_add(
+                            self.explorer_dst.load_new_path, Path("/")
+                        )
+
+                src_size_text = f"{src_info.stat().st_size}"
+                dst_size_text = f"{dst_info.stat().st_size}"
+                GLib.idle_add(
+                    self.moving_dialog.update_labels,
+                    src_size_text,
+                    dst_size_text,
+                )
 
     def iterate_folders(
         self,
@@ -180,8 +240,15 @@ class Move:
             else:
                 self.moving_dialog.set_labels(src_info, dst_info)
                 if not dst_info.exists():
-
-                    self.move_file(src_info, dst_info)
+                    # result = self.copy_file(src_info, dst_info)
+                    result = self.move_file(src_info, dst_info)
+                    # On stop copy, delete the last file, posible corruption
+                    if self.stop_all:
+                        if dst_info.exists():
+                            dst_info.unlink()
+                            pass
+                    if not result:
+                        return
 
                 else:
                     self.event_overwrite = threading.Event()
@@ -234,21 +301,23 @@ class Move:
         copied, false otherwise.
         """
         q = Queue()
-        p = Process(target=self.move_file_worker, args=(src_info, dst_info, q))
-        p.start()
-        p.join()
+        self.thread_move = Process(
+            target=self.move_file_worker, args=(src_info, dst_info, q)
+        )
+        self.thread_move.start()
+        self.thread_move.join()
 
         try:
             msg = q.get_nowait()
         except Empty:
 
-            if p.exitcode == 0 and dst_info.exists():
+            if self.thread_move.exitcode == 0 and dst_info.exists():
                 return True
             else:
                 GLib.idle_add(
                     self.action.show_msg_alert,
                     self.parent,
-                    f"{_("Error al mover:")} {p.exitcode}",
+                    f"{_("Error al mover:")} {self.thread_move.exitcode}",
                 )
                 if dst_info.exists():
                     dst_info.unlink()

@@ -183,7 +183,6 @@ class My_copy:
         self.thread_update_dialog.start()
 
         result = await self.create_dialog_copying(parent)
-        print(f"RESULT DE create dialog: {result}")
 
         self.progress_on = False
 
@@ -266,7 +265,6 @@ class My_copy:
                 if not dst_info.exists():
                     result = self.copy_file(src_info, dst_info)
 
-                    print(f"RESULT: {result}")
                     # On stop copy, delete the last file, posible corruption
                     if self.stop_all:
                         if dst_info.exists():
@@ -351,15 +349,11 @@ class My_copy:
         self.thread_copy = Process(
             target=self.copy_file_worker, args=(src_info, dst_info, q)
         )
-        print("INICIA START")
         self.thread_copy.start()
         self.thread_copy.join()
-        print("FINALIZA JOIN")
-
         try:
             msg = q.get_nowait()
         except Empty:
-            print(f"EXITCODE: {self.thread_copy.exitcode}")
             if self.thread_copy.exitcode == 0 and dst_info.exists():
                 return True
             else:
@@ -373,7 +367,6 @@ class My_copy:
                     dst_info.unlink()
                 return False
 
-        print(f"MSG: {msg["error"]}")
         if msg["ok"]:
             return True
         else:
@@ -396,11 +389,9 @@ class My_copy:
             shutil.copy(src_info, dst_info)
             q.put({"ok": True, "error": None})
         except OSError as e:
-            print("OSError ----------------------->")
             q.put({"ok": False, "error": e})
             return
         except Exception as e:
-            print("Exception ----------------------->")
             q.put({"ok": False, "error": e})
             return
 
@@ -595,4 +586,3 @@ class My_copy:
                     src_size_text,
                     dst_size_text,
                 )
-        print("WHILE FINALIZADO")
