@@ -75,6 +75,7 @@ class Explorer(Gtk.ColumnView):
         ]
         self.icon_manager = IconManager(win)
         self.label_gesture_list = {}
+        self.showed_msg_network_problem = False
 
         for property_name in type_list:
 
@@ -362,29 +363,34 @@ class Explorer(Gtk.ColumnView):
         the value of the self.n_row variable.
         Update bottom information, selected files and size
         """
+
+        # Check if actual_path don't have problems to list
+        store = File_manager.get_path_list(self.actual_path)
+
+        if not store:
+            self.load_new_path(Path("/"))
+            if not self.showed_msg_network_problem:
+                self.showed_msg_network_problem = True
+                GLib.idle_add(
+                    self.action.show_msg_alert,
+                    self.win,
+                    _(
+                        (
+                            "Ha ocurrido algún problema con la ubicación"
+                            " actual y se ha redirigido al inicio."
+                        )
+                    ),
+                )
+            else:
+                self.showed_msg_network_problem = False
+
+            return
+
         selected = self.get_selected_items_from_explorer()
         selected_items = list(selected[1])
         selected_size = len(selected_items)
         if selected_size == 1:
             self.n_row = selected[0]
-
-        store = File_manager.get_path_list(self.actual_path)
-        if not store:
-
-            self.load_new_path(Path("/"))
-
-            GLib.idle_add(
-                self.action.show_msg_alert,
-                self.win,
-                _(
-                    (
-                        "Ha ocurri algún problema con la ubicación actual:\n\n"
-                        "Y se ha redirigido al inicio."
-                    )
-                ),
-            )
-
-            return
 
         self.update_info_explorer(selected_items, selected_size, win)
 
