@@ -44,6 +44,7 @@ class My_copy:
         self.thread_copy = None
         self.explorer_src = None
         self.explorer_dst = None
+        self.showed_msg_network_problem = False
 
     def on_copy(
         self,
@@ -562,14 +563,21 @@ class My_copy:
                     GLib.idle_add(
                         self.copying_dialog.cancel_copying, Gtk.Button
                     )
-                    GLib.idle_add(
-                        self.action.show_msg_alert,
-                        self.parent,
-                        (
-                            f"{_("Error al copiar:")} {dst_info}\n\n"
-                            f"{_("Puede deberse a una pérdida de red.")}"
-                        ),
-                    )
+
+                    if not self.showed_msg_network_problem:
+                        GLib.idle_add(
+                            self.action.show_msg_alert,
+                            self.parent,
+                            (
+                                f"{_("Error al copiar:")} {dst_info}\n\n"
+                                f"{_("Puede deberse a una pérdida de red.")}"
+                                f"\n\n{_("si se recupera, se borrará")}"
+                                f"{_(" automáticamente el archivo corrupto.")}"
+                            ),
+                        )
+                        self.showed_msg_network_problem = True
+                    else:
+                        self.showed_msg_network_problem = False
                     self.thread_copy.terminate()
                     if not src_store:
                         GLib.idle_add(

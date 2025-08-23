@@ -281,11 +281,17 @@ class Explorer(Gtk.ColumnView):
             self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
         if not self.store:
-            self.action.show_msg_alert(
-                self.win,
-                _("Ha ocurrido un problema para acceder al directorio"),
-            )
+            if not self.showed_msg_network_problem:
+                self.action.show_msg_alert(
+                    self.win,
+                    _("Ha ocurrido un problema para acceder al directorio"),
+                )
+                self.showed_msg_network_problem = True
+            else:
+                self.showed_msg_network_problem = False
+
             return
+
         self.actual_path = path
         self.entry.set_text(str(path))
         self.sorter = Gtk.ColumnView.get_sorter(self)
