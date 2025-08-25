@@ -8,13 +8,13 @@ import zipfile
 
 class CompressionManager:
 
-    def uncompress_manager(file: Path):
+    def uncompress_manager(file: Path, dst_dir: Path):
 
         name = file.name.lower()
         suffix = file.suffix.lower()
 
         if suffix == ".zip":
-            return CompressionManager.uncompress_zipfile(file, file.parent)
+            return CompressionManager.uncompress_zipfile(file, dst_dir)
 
         elif suffix == ".rar":
             print("RAR (.rar)")

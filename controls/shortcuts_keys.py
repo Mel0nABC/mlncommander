@@ -114,12 +114,13 @@ class Shortcuts_keys:
 
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
-        print("UNZIP")
         selected_items = self.explorer.get_selected_items_from_explorer()[1]
+        dst_dir = self.win.get_other_explorer_with_name(
+            self.explorer.name
+        ).actual_path
         for file in selected_items:
-            print(file)
             if not file.is_dir():
-                response = CompressionManager.uncompress_manager(file)
+                response = CompressionManager.uncompress_manager(file, dst_dir)
                 print(response)
 
         GLib.idle_add(self.explorer._reeconnect_controller)
