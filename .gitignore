@@ -77,3 +77,7 @@ Pipfile.lock
 locales/lenguaje_template.pot
 lenguaje_template.pot
 .gitignore
+tmp/bomb.zip
+tmp/comprimido.zip
+tmp/dummy.txt
+utilities/compression.py

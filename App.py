@@ -88,8 +88,11 @@ app.run()
 
 # from utilities.compression import CompressionManager
 # from pathlib import Path
+# import zipfile
 
 # cm = CompressionManager()
 # path = Path("/home/mel0n/Downloads/mlncommander/tmp/comprimido.zip")
+# # path = Path("/home/mel0n/Downloads/mlncommander/tmp/bomb.zip")
+
 
 # print(cm.uncompress_manager(path))

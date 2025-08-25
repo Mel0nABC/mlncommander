@@ -4,6 +4,7 @@
 from utilities.i18n import _
 from pathlib import Path
 from entity.shortcut import Shortcut
+from utilities.compression import CompressionManager
 import yaml
 import gi
 
@@ -114,6 +115,13 @@ class Shortcuts_keys:
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
         print("UNZIP")
+        selected_items = self.explorer.get_selected_items_from_explorer()[1]
+        for file in selected_items:
+            print(file)
+            if not file.is_dir():
+                response = CompressionManager.uncompress_manager(file)
+                print(response)
+
         GLib.idle_add(self.explorer._reeconnect_controller)
 
     def zip_file(self, widget, args):

@@ -1,28 +1,20 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
+from utilities.i18n import _
 from pathlib import Path
 import zipfile
 
 
 class CompressionManager:
 
-    def __init__(self):
-        print("COMPRESIón")
+    def uncompress_manager(file: Path):
 
-    def uncompress_manager(self, file: Path):
-        name = file.name.lower()  # para ignorar mayúsculas/minúsculas
+        name = file.name.lower()
         suffix = file.suffix.lower()
 
         if suffix == ".zip":
-            return self.uncompress_zipfile(file, file.parent)
-
-            # For view  management
-            # result = self.uncompress_zipfile(file, file.parent)
-            # if isinstance(result, Exception):
-            #     print(f"ERROR: {result}")
-            # else:
-            #     print("todo bien")
+            return CompressionManager.uncompress_zipfile(file, file.parent)
 
         elif suffix == ".rar":
             print("RAR (.rar)")
@@ -63,24 +55,69 @@ class CompressionManager:
             print("WAR (.war)")
 
         else:
-            print(f"Tipo desconocido ({file})")
+            return {
+                "status": False,
+                "msg": _(
+                    (
+                        "El archivo no corresponde"
+                        " a un archivo comprimido o empaquetado."
+                    )
+                ),
+            }
 
-    def uncompress_zipfile(self, file: Path, dst_dir: Path) -> bool:
+    def uncompress_zipfile(file: Path, dst_dir: Path) -> bool:
         try:
             if not zipfile.is_zipfile(file):
-                return False
+                return {
+                    "status": False,
+                    "msg": _("El archivo no es un comprimido zip"),
+                }
 
             with zipfile.ZipFile(file, "r") as myzip:
-                file_count = len(myzip.infolist())
-                if file_count > 1:
-                    new_name_dir = file.stem
-                    new_dir = dst_dir / new_name_dir
-                    new_dir.mkdir(exist_ok=False)
-                    myzip.extractall(new_dir)
-                else:
-                    myzip.extractall()
 
-                return True
+                names = myzip.namelist()
+
+                top_level = {
+                    name.split("/")[0] for name in names if name.strip()
+                }
+                new_name_dir = file.stem
+                dst_dir = Path(dst_dir / new_name_dir)
+
+                if dst_dir.exists():
+                    return {
+                        "status": False,
+                        "msg": _("El directorio destino ya existe"),
+                    }
+
+                total_size_uncompressed = 0
+
+                for info in myzip.infolist():
+                    total_size_uncompressed += info.file_size
+
+                zip_size = file.stat().st_size
+                compressed_ratio = total_size_uncompressed / zip_size
+
+                if compressed_ratio > 500:
+                    return {
+                        "status": False,
+                        "msg": _(
+                            (
+                                "El ratio de compresión es demasiado elevado,"
+                                " por seguridad, no se descomprimirá"
+                            )
+                        ),
+                    }
+
+                if len(top_level) > 1:
+                    dst_dir.mkdir()
+                    myzip.extractall(dst_dir)
+                else:
+                    myzip.extractall(dst_dir)
+
+                return {
+                    "status": True,
+                    "msg": "ok",
+                }
         except FileExistsError as e:
             return e
         except Exception as e:
