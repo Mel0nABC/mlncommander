@@ -97,12 +97,15 @@ class File_manager:
             else:
                 total_size += item.stat().st_size
 
-        dst_free_size = shutil.disk_usage(dst_dir).free
+        dst_free_size = self.get_dst_free_size(dst_dir)
 
         if dst_free_size < total_size:
             return False
 
         return True
+
+    def get_dst_free_size(self, dst_dir: Path):
+        return shutil.disk_usage(dst_dir).free
 
     def get_type_folder(self, path: Path) -> str:
         """

@@ -5,6 +5,7 @@ from utilities.i18n import _
 from pathlib import Path
 from entity.shortcut import Shortcut
 from utilities.compression import CompressionManager
+from controls.actions import Actions
 import yaml
 import gi
 
@@ -21,6 +22,7 @@ class Shortcuts_keys:
 
         self.win = win
         self.explorer = explorer
+        self.action = Actions()
         self.SHORTCUT_FILE = Path(f"{Window.APP_USER_PATH}/shorcuts_file.yaml")
         self.controller_list = []
 
@@ -115,13 +117,31 @@ class Shortcuts_keys:
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
         selected_items = self.explorer.get_selected_items_from_explorer()[1]
-        dst_dir = self.win.get_other_explorer_with_name(
+        dst_explorer = self.win.get_other_explorer_with_name(
             self.explorer.name
-        ).actual_path
+        )
+        dst_dir = dst_explorer.actual_path
+
+        print(
+            CompressionManager.get_dst_suficient_space(selected_items, dst_dir)
+        )
+        if not CompressionManager.get_dst_suficient_space(
+            selected_items, dst_dir
+        ):
+            self.action.show_msg_alert(
+                self.win, _("No hay suficiente espacio en el destino.")
+            )
+            return
+
         for file in selected_items:
             if not file.is_dir():
                 response = CompressionManager.uncompress_manager(file, dst_dir)
                 print(response)
+                if not response["status"]:
+                    self.action.show_msg_alert(
+                        self.win, _(f"{response["msg"]}\n\n{file}")
+                    )
+                dst_explorer.load_new_path(dst_dir)
 
         GLib.idle_add(self.explorer._reeconnect_controller)
 

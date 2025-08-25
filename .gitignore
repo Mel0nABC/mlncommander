@@ -9,6 +9,7 @@ config.conf
 pyproject.toml
 App.spec
 log/mlncommander.log
+tmp/
 
 # Entornos virtuales
 venv/
