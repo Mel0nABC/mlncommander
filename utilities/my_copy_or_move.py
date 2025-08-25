@@ -502,7 +502,6 @@ class MyCopyMove:
         """
 
         while self.progress_on:
-            time.sleep(0.01)
             try:
                 if self.transfering_dialog is not None:
                     src_info = self.transfering_dialog.src_info
@@ -556,3 +555,5 @@ class MyCopyMove:
                     )
             except FileNotFoundError as e:
                 print(f"Very fast I dont have time to update!!: {e}")
+
+            time.sleep(1)

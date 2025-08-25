@@ -13,6 +13,8 @@ gi.require_version("Gtk", "4.0")
 class Transfering(Gtk.Dialog):
 
     def __init__(self, parent: Gtk.ApplicationWindow, action_to_exec: str):
+        margin = 20
+
         title_str = ""
 
         if action_to_exec == "mover":
@@ -27,6 +29,7 @@ class Transfering(Gtk.Dialog):
         )
         self.src_size = 0
         self.dst_size = 0
+        self.old_dst_size = 0
         self.src_info = None
         self.dst_info = None
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -35,31 +38,44 @@ class Transfering(Gtk.Dialog):
 
         self.lbl_src = Gtk.Label(label="SRC")
         self.lbl_src.set_halign(Gtk.Align.START)
-        self.lbl_src.set_margin_top(20)
-        self.lbl_src.set_margin_end(20)
-        self.lbl_src.set_margin_start(20)
+        self.lbl_src.set_margin_top(margin)
+        self.lbl_src.set_margin_end(margin)
+        self.lbl_src.set_margin_start(margin)
 
         self.lbl_dst = Gtk.Label(label="DST")
         self.lbl_dst.set_halign(Gtk.Align.START)
-        self.lbl_dst.set_margin_top(20)
-        self.lbl_dst.set_margin_end(20)
-        self.lbl_dst.set_margin_start(20)
+        self.lbl_dst.set_margin_top(margin)
+        self.lbl_dst.set_margin_end(margin)
+        self.lbl_dst.set_margin_start(margin)
 
         self.lbl_size = Gtk.Label(label="0 bytes")
-        self.lbl_size.set_margin_top(20)
-        self.lbl_size.set_margin_end(20)
-        self.lbl_size.set_margin_start(20)
+        self.lbl_size.set_margin_top(margin)
+        self.lbl_size.set_margin_end(margin)
+        self.lbl_size.set_margin_start(margin)
+
+        self.progress_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.progress_box.set_hexpand(True)
+        self.progress = Gtk.ProgressBar.new()
+        self.progress.set_hexpand(True)
+        self.progress.set_show_text(True)
+        self.progress.set_margin_start(margin)
+        self.progress.set_margin_end(margin)
+
+        self.progress_box.append(self.progress)
 
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
         self.btn_cancel.connect("clicked", self.cancel_copying)
-        self.btn_cancel.set_margin_top(20)
-        self.btn_cancel.set_margin_end(20)
-        self.btn_cancel.set_margin_bottom(20)
-        self.btn_cancel.set_margin_start(20)
+        self.btn_cancel.set_margin_top(margin)
+        self.btn_cancel.set_margin_end(margin)
+        self.btn_cancel.set_margin_bottom(margin)
+        self.btn_cancel.set_margin_start(margin)
 
         self.box.append(self.lbl_src)
         self.box.append(self.lbl_dst)
         self.box.append(self.lbl_size)
+        self.box.append(self.progress_box)
         self.box.append(self.btn_cancel)
 
         self.dialog_response = False
@@ -88,9 +104,19 @@ class Transfering(Gtk.Dialog):
                 self.src_size = self.src_size / 1024 / 1024
                 self.dst_size = self.dst_size / 1024 / 1024
 
-                self.lbl_size.set_text(
-                    f"{self.src_size:.2f}/{self.dst_size:.2f} Mbytes"
-                )
+                speed = self.dst_size - self.old_dst_size / 1024 / 1024
+                speed = f"{round(speed, 2)} Mbytes/s"
+
+                if speed == 0:
+                    speed = _("Espere ...")
+
+                self.lbl_size.set_text(f"{speed}")
+
+                self.old_dst_size = int(dst_size_text)
+
+                fraction = self.dst_size / self.src_size
+
+                self.progress.set_fraction(fraction)
 
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))
