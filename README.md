@@ -19,7 +19,7 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Hotkeys and shortcuts
 - Different native icons of the symbolic type
 - Managing connection loss to network drives, preventing application crashes
-- Working with compressed files, coming soon...
+- Uncompress files, now, only zip, I working on bzip, tar ...
 
 
 
