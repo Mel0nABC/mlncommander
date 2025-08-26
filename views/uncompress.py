@@ -113,6 +113,7 @@ class UncompressWindow(Gtk.Window):
         info_label.set_margin_top(20)
         GLib.idle_add(self.vertical_files.append, info_label)
         GLib.idle_add(self.dst_explorer._reeconnect_controller)
+        GLib.idle_add(self.btn_extract.set_sensitive, False)
         GLib.idle_add(self.btn_extract.set_label, _("Extraer"))
 
     def add_new_label(self, file: Path) -> None:
