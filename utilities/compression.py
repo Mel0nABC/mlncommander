@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from multiprocessing import Queue
 from pathlib import Path
 import shutil
 from zipfile import ZipInfo
@@ -10,12 +11,12 @@ import zipfile
 
 class CompressionManager:
 
-    def uncompress_manager(file: Path, dst_dir: Path) -> dict:
+    def uncompress_manager(file: Path, dst_dir: Path, q: Queue) -> dict:
         name = file.name.lower()
         suffix = file.suffix.lower()
 
         if suffix == ".zip":
-            return CompressionManager.uncompress_zipfile(file, dst_dir)
+            return CompressionManager.uncompress_zipfile(file, dst_dir, q)
 
         elif suffix == ".rar":
             print("RAR (.rar)")
@@ -56,7 +57,7 @@ class CompressionManager:
             print("WAR (.war)")
 
         else:
-            return {
+            result = {
                 "status": False,
                 "msg": _(
                     (
@@ -65,14 +66,18 @@ class CompressionManager:
                     )
                 ),
             }
+            q.put(result)
+            return
 
-    def uncompress_zipfile(file: Path, dst_dir: Path) -> dict:
+    def uncompress_zipfile(file: Path, dst_dir: Path, q: Queue) -> dict:
         try:
             if not zipfile.is_zipfile(file):
-                return {
+                result = {
                     "status": False,
                     "msg": _("El archivo no es un comprimido zip"),
                 }
+                q.put(result)
+                return
 
             with zipfile.ZipFile(file, "r") as myzip:
 
@@ -85,10 +90,12 @@ class CompressionManager:
                 dst_dir = Path(dst_dir / new_name_dir)
 
                 if dst_dir.exists():
-                    return {
+                    result = {
                         "status": False,
                         "msg": _("El directorio destino ya existe"),
                     }
+                    q.put(result)
+                    return
 
                 total_size_uncompressed = (
                     CompressionManager.get_uncompresset_size_zip(
@@ -99,11 +106,8 @@ class CompressionManager:
                 zip_size = file.stat().st_size
                 compressed_ratio = total_size_uncompressed / zip_size
 
-                print(f"ZIP SIZE: {zip_size}")
-                print(f"UNCOMPRESSED SIZE: {total_size_uncompressed}")
-
                 if compressed_ratio > 500:
-                    return {
+                    result = {
                         "status": False,
                         "msg": _(
                             (
@@ -112,17 +116,20 @@ class CompressionManager:
                             )
                         ),
                     }
+                    q.put(result)
+                    return
 
                 if len(top_level) > 1:
                     dst_dir.mkdir()
                     myzip.extractall(dst_dir)
                 else:
                     myzip.extractall(dst_dir)
-
-                return {
+                result = {
                     "status": True,
                     "msg": "ok",
                 }
+                q.put(result)
+                return
         except FileExistsError as e:
             return e
         except Exception as e:

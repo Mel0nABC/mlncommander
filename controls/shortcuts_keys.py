@@ -122,9 +122,6 @@ class Shortcuts_keys:
         )
         dst_dir = dst_explorer.actual_path
 
-        print(
-            CompressionManager.get_dst_suficient_space(selected_items, dst_dir)
-        )
         if not CompressionManager.get_dst_suficient_space(
             selected_items, dst_dir
         ):
@@ -133,17 +130,9 @@ class Shortcuts_keys:
             )
             return
 
-        for file in selected_items:
-            if not file.is_dir():
-                response = CompressionManager.uncompress_manager(file, dst_dir)
-                print(response)
-                if not response["status"]:
-                    self.action.show_msg_alert(
-                        self.win, _(f"{response["msg"]}\n\n{file}")
-                    )
-                dst_explorer.load_new_path(dst_dir)
+        from views.uncompress import UncompressWindow
 
-        GLib.idle_add(self.explorer._reeconnect_controller)
+        UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
 
     def zip_file(self, widget, args):
         # Disconnect key controller from main window
