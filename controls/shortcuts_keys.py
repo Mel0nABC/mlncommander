@@ -21,6 +21,7 @@ class Shortcuts_keys:
         from views.main_window import Window
 
         self.win = win
+        self.compression_manager = CompressionManager(self.win)
         self.explorer = explorer
         self.action = Actions()
         self.SHORTCUT_FILE = Path(f"{Window.APP_USER_PATH}/shorcuts_file.yaml")
@@ -122,9 +123,10 @@ class Shortcuts_keys:
         )
         dst_dir = dst_explorer.actual_path
 
-        if not CompressionManager.get_dst_suficient_space(
+        if not self.compression_manager.get_dst_suficient_space(
             selected_items, dst_dir
         ):
+
             self.action.show_msg_alert(
                 self.win, _("No hay suficiente espacio en el destino.")
             )

@@ -3,9 +3,10 @@ from utilities.compression import CompressionManager
 from controls.actions import Actions
 from views.explorer import Explorer
 from pathlib import Path
-from multiprocessing import Process, Queue
+from multiprocessing import Queue
 import threading
 import gi
+import time
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GLib  # noqa : E402
@@ -18,6 +19,7 @@ class UncompressWindow(Gtk.Window):
         super().__init__(title=_("Descomprimir ficheros"), transient_for=win)
         self.win = win
         self.action = Actions()
+        self.compression_manager = CompressionManager(self)
         self.selected_items = selected_items
         self.dst_explorer = dst_explorer
         self.dst_dir = dst_dir
@@ -72,8 +74,7 @@ class UncompressWindow(Gtk.Window):
             t.start()
         else:
             self.stop_uncompress = True
-            if self.uncompress_thread.is_alive():
-                self.uncompress_thread.terminate()
+            self.compression_manager.stop_uncompress()
             button.set_sensitive(False)
 
     def start_uncompress(self) -> None:
@@ -84,15 +85,11 @@ class UncompressWindow(Gtk.Window):
                 continue
 
             if not file.is_dir():
-                GLib.idle_add(self.add_new_label, file)
 
+                GLib.idle_add(self.add_new_label, file)
                 q = Queue()
-                self.uncompress_thread = Process(
-                    target=CompressionManager.uncompress_manager,
-                    args=(file, self.dst_dir, q),
-                )
-                self.uncompress_thread.start()
-                self.uncompress_thread.join()
+
+                self.compression_manager.uncompress(file, self.dst_dir, q)
 
                 if self.stop_uncompress:
                     output_text = _(
@@ -107,8 +104,8 @@ class UncompressWindow(Gtk.Window):
                 else:
                     response = q.get()
                     GLib.idle_add(self.update_labels, response, file)
+            time.sleep(0.1)
 
-        print("FINAL BUCLE")
         info_label = Gtk.Label.new(output_text)
         info_label.set_margin_top(20)
         GLib.idle_add(self.vertical_files.append, info_label)
@@ -130,18 +127,14 @@ class UncompressWindow(Gtk.Window):
         horizontal_file.append(label)
 
         self.label_rsp = Gtk.Label.new()
+        self.label_rsp.set_text("0%")
         self.label_rsp.set_margin_end(30)
-
-        self.spinner = Gtk.Spinner.new()
-        self.spinner.start()
-        horizontal_file.append(self.spinner)
 
         horizontal_file.append(self.label_rsp)
 
         self.vertical_files.append(horizontal_file)
 
     def update_labels(self, response: dict, file: Path) -> None:
-        self.spinner.stop()
 
         if not response:
             self.label_rsp.set_text(_("Proceso detenido"))
@@ -152,6 +145,7 @@ class UncompressWindow(Gtk.Window):
             self.label_rsp.set_text("✅")
         else:
             self.label_rsp.set_text("❌")
+
         gesture = Gtk.GestureClick.new()
         gesture.connect(
             "pressed",
@@ -176,3 +170,6 @@ class UncompressWindow(Gtk.Window):
 
     def on_exit(self, button: Gtk.Button) -> None:
         self.destroy()
+
+    def set_percent(self, percent):
+        GLib.idle_add(self.label_rsp.set_text, percent)
