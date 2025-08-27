@@ -35,6 +35,7 @@ This started as a project to learn Python. Then, I searched for a native graphic
 - gtk4  > 4.10
 - pango >= 1:1.56.4
 - mailcap >= 2.1.54
+- 7z >= 25.01
 
 
 ## Installation
