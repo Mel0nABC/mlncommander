@@ -84,26 +84,24 @@ class UncompressWindow(Gtk.Window):
             if self.stop_uncompress:
                 continue
 
-            if not file.is_dir():
+            GLib.idle_add(self.add_new_label, file)
+            q = Queue()
 
-                GLib.idle_add(self.add_new_label, file)
-                q = Queue()
+            self.compression_manager.uncompress(file, self.dst_dir, q)
 
-                self.compression_manager.uncompress(file, self.dst_dir, q)
-
-                if self.stop_uncompress:
-                    output_text = _(
-                        (
-                            "Has finalizado el proceso de descompresión\n"
-                            "El último archivo estará corrupto.\n"
-                            "Si hay iconos, pulsando en ellos podrás"
-                            " ver información"
-                        )
+            if self.stop_uncompress:
+                output_text = _(
+                    (
+                        "Has finalizado el proceso de descompresión\n"
+                        "El último archivo estará corrupto.\n"
+                        "Si hay iconos, pulsando en ellos podrás"
+                        " ver información"
                     )
-                    GLib.idle_add(self.update_labels, None, file)
-                else:
-                    response = q.get()
-                    GLib.idle_add(self.update_labels, response, file)
+                )
+                GLib.idle_add(self.update_labels, None, file)
+            else:
+                response = q.get()
+                GLib.idle_add(self.update_labels, response, file)
             time.sleep(0.1)
 
         info_label = Gtk.Label.new(output_text)

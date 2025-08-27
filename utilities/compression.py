@@ -24,6 +24,15 @@ class CompressionManager:
 
     def uncompress(self, file: Path, dst_dir: Path, q: Queue) -> dict:
         try:
+
+            if file.is_dir():
+                result = {
+                    "status": False,
+                    "msg": _(("Ha seleccionado una carpeta,")),
+                }
+                q.put(result)
+                return
+
             cmd = [
                 "7z",
                 "l",
