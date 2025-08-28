@@ -45,8 +45,8 @@ class My_watchdog:
         """
         Stop watchdog
         """
-        self.explorer.watchdog_thread.terminate()
-        self.explorer.watchdog_thread.join()
+        self.observer.stop()
+        self.observer.join()
 
 
 class MiHandler(FileSystemEventHandler):
