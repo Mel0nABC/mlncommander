@@ -25,6 +25,7 @@ class UncompressWindow(Gtk.Window):
         self.dst_explorer = dst_explorer
         self.dst_dir = dst_dir
         self.set_default_size(win.horizontal / 6, win.vertical / 8)
+        self.extract_activate = False
 
         self.stop_uncompress = False
 
@@ -36,8 +37,9 @@ class UncompressWindow(Gtk.Window):
         self.vertical_main.set_margin_bottom(20)
         self.vertical_main.set_margin_start(20)
 
+        text = _("Ruta destino")
         dst_label = Gtk.Label.new()
-        dst_label.set_text(_(f"Ruta destino: {dst_dir}"))
+        dst_label.set_text(f"{text}: {dst_dir}")
 
         self.vertical_main.append(dst_label)
 
@@ -69,7 +71,9 @@ class UncompressWindow(Gtk.Window):
         self.present()
 
     def uncompress(self, button: Gtk.Button) -> None:
-        if button.get_label() == "Extraer":
+
+        if not self.extract_activate:
+            self.extract_activate = True
             button.set_label(label=_("Cancelar"))
             t = threading.Thread(target=self.start_uncompress)
             t.start()

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mlncommander\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-28 19:17+0200\n"
-"PO-Revision-Date: 2025-08-28 19:18+0200\n"
+"POT-Creation-Date: 2025-08-28 19:06+0200\n"
+"PO-Revision-Date: 2025-08-28 19:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -78,11 +78,11 @@ msgstr "There is not enough space at the destination"
 
 #: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:92
 msgid "Intenta "
-msgstr "Internal "
+msgstr "Internal"
 
 #: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:92
 msgid " un archivo a él mismo"
-msgstr " trying to copy a file to itself"
+msgstr "Trying to copy a file to itself"
 
 #: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:204
 msgid "No se puede copiar en esta ruta, se genera bucle infinito."
@@ -100,11 +100,11 @@ msgstr "It may be due to a loss of network."
 
 #: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:533
 msgid "si se recupera, se borrará"
-msgstr "if it is recovered, it will be deleted"
+msgstr "If it is recovered, it will be deleted"
 
 #: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:534
 msgid " automáticamente el archivo corrupto."
-msgstr " automatically the corrupt file."
+msgstr "automatically the corrupt file."
 
 #: /home/mel0n/Downloads/mlncommander/utilities/access_control.py:45
 msgid ""
@@ -240,7 +240,7 @@ msgstr "Accept"
 #: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:83
 #: /home/mel0n/Downloads/mlncommander/views/deleting.py:33
 #: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:87
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:77
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:73
 #: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:67
 #: /home/mel0n/Downloads/mlncommander/views/selected_for_delete.py:76
 msgid "Cancelar"
@@ -513,24 +513,20 @@ msgstr "File"
 msgid "Descomprimir ficheros"
 msgstr "Unzip files"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:40
-msgid "Ruta destino"
-msgstr "Destination"
-
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:62
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:117
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:60
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:113
 msgid "Extraer"
 msgstr "Extract"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:64
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:62
 msgid "Cerrar"
 msgstr "Close"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:86
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:82
 msgid "Para más información pulse sobre los icono."
 msgstr "For more information click on the icons."
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:143
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:139
 msgid "Proceso detenido"
 msgstr "Process stopped"
 
