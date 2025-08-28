@@ -621,17 +621,19 @@ class Explorer(Gtk.ColumnView):
         filter type of source to download url or file path
         """
         files = value.get_files()
+        print(files)
 
         if GObject.type_name(files[0]) == "GLocalFile":
             try:
                 self.drop_from_local_file(value)
-            except Exception:
+            except Exception as e:
+                print(e)
                 self.action.show_msg_alert(
                     self.win,
                     (
                         _(
                             "Ha ocurrido un problema"
-                            " al intentar copiar el archivo"
+                            f" al intentar copiar el archivo: \n\n{e}"
                         )
                     ),
                 )
@@ -701,7 +703,7 @@ class Explorer(Gtk.ColumnView):
             self.load_new_path(dst_dir)
 
     def drop_from_local_file(self, value: Gdk.FileList) -> None:
-        from utilities.my_copy import My_copy
+        from utilities.my_copy_or_move import MyCopyMove
 
         files = value.get_files()
         selected_items = []
@@ -716,8 +718,10 @@ class Explorer(Gtk.ColumnView):
         explorer_src = self.win.get_other_explorer_with_name(self.name)
         old_src_path = explorer_src.actual_path
         explorer_src.load_new_path(src_dir)
-        my_copy = My_copy()
-        my_copy.on_copy(explorer_src, explorer_dst, selected_items, self.win)
+        mycopymove = MyCopyMove()
+        mycopymove.on_copy_or_move(
+            explorer_src, explorer_dst, selected_items, self.win
+        )
 
         GLib.idle_add(explorer_src.load_new_path, old_src_path)
 
