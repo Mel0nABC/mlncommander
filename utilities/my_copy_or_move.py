@@ -168,6 +168,7 @@ class MyCopyMove:
 
         """
         for src_info in selected_items:
+
             if not self.access_control.validate_src_read(
                 src_info,
                 parent,
@@ -266,7 +267,7 @@ class MyCopyMove:
 
             GLib.idle_add(explorer_dst.load_data, dst_info.parent)
 
-        GLib.idle_add(explorer_dst.load_new_path, dst_info.parent)
+        GLib.idle_add(explorer_dst.load_new_path, dst_dir)
         self.close_dialog_transfering_proccess()
 
     def close_dialog_transfering_proccess(self):
@@ -546,8 +547,14 @@ class MyCopyMove:
                                 self.explorer_dst.load_new_path, Path("/")
                             )
 
-                    src_size_text = f"{src_info.stat().st_size}"
-                    dst_size_text = f"{dst_info.stat().st_size}"
+                    src_size_text = 0
+                    dst_size_text = 0
+
+                    if src_info:
+                        src_size_text = f"{src_info.stat().st_size}"
+                    if dst_info:
+                        dst_size_text = f"{dst_info.stat().st_size}"
+
                     GLib.idle_add(
                         self.transfering_dialog.update_labels,
                         src_size_text,
