@@ -116,6 +116,7 @@ class Shortcuts_keys:
 
     def unzip_file(self, widget, args):
 
+        exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
         selected_items = self.explorer.get_selected_items_from_explorer()[1]
@@ -127,11 +128,10 @@ class Shortcuts_keys:
         if not self.compression_manager.get_dst_suficient_space(
             selected_items, dst_dir
         ):
-
             self.action.show_msg_alert(
                 self.win, _("No hay suficiente espacio en el destino.")
             )
-            return
+            exec_uncompress_window = False
 
         list_files = self.explorer.get_selected_items_from_explorer()[1]
 
@@ -142,11 +142,14 @@ class Shortcuts_keys:
         )
 
         if not write_access:
-            return
+            exec_uncompress_window = False
 
         from views.uncompress import UncompressWindow
 
-        UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
+        if exec_uncompress_window:
+            UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
+
+        GLib.idle_add(self.explorer._reeconnect_controller)
 
     def zip_file(self, widget, args):
         # Disconnect key controller from main window
