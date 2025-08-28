@@ -30,6 +30,7 @@ class PasswordWindow(Gtk.Window):
         self.set_child(vertical_box)
 
         self.password = Gtk.PasswordEntry.new()
+        self.password.connect("activate", self.on_accept)
 
         vertical_box.append(self.password)
 
