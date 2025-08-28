@@ -720,7 +720,12 @@ class Explorer(Gtk.ColumnView):
         explorer_src.load_new_path(src_dir)
         mycopymove = MyCopyMove()
         mycopymove.on_copy_or_move(
-            explorer_src, explorer_dst, selected_items, self.win
+            explorer_src,
+            explorer_dst,
+            selected_items,
+            self.win,
+            "copiar",
+            False,
         )
 
         GLib.idle_add(explorer_src.load_new_path, old_src_path)
