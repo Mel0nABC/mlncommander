@@ -4,6 +4,7 @@
 from utilities.i18n import _
 from pathlib import Path
 from entity.shortcut import Shortcut
+from utilities.access_control import AccessControl
 from utilities.compression import CompressionManager
 from controls.actions import Actions
 import yaml
@@ -130,6 +131,17 @@ class Shortcuts_keys:
             self.action.show_msg_alert(
                 self.win, _("No hay suficiente espacio en el destino.")
             )
+            return
+
+        list_files = self.explorer.get_selected_items_from_explorer()[1]
+
+        ac = AccessControl()
+
+        write_access = ac.validate_dst_write(
+            list_files, None, dst_explorer, dst_dir, self.win
+        )
+
+        if not write_access:
             return
 
         from views.uncompress import UncompressWindow

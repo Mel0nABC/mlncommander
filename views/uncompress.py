@@ -88,7 +88,10 @@ class UncompressWindow(Gtk.Window):
 
     def start_uncompress(self) -> None:
         output_text = _("Para más información pulse sobre los icono.")
-        for file in self.selected_items:
+
+        list_files = self.selected_items
+
+        for file in list_files:
 
             if self.stop_uncompress:
                 continue
