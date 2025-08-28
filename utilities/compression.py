@@ -33,22 +33,7 @@ class CompressionManager:
                 q.put(result)
                 return
 
-            cmd = [
-                "7z",
-                "l",
-                file,
-            ]
-
-            p = subprocess.run(cmd, capture_output=True, text=True)
-            if p.returncode != 0:
-                result = {
-                    "status": False,
-                    "msg": _("El archivo no es compatible con 7z"),
-                }
-                q.put(result)
-                return
-
-            if not self.check_file_compressed_ratio(file):
+            if self.check_file_compressed_ratio(file):
                 result = {
                     "status": False,
                     "msg": _(
@@ -61,12 +46,44 @@ class CompressionManager:
                 q.put(result)
                 return
 
-            self.uncompress_file_with_7z(file, dst_dir)
+            cmd = [
+                "7z",
+                "l",
+                file,
+            ]
 
-            result = {
-                "status": True,
-                "msg": "ok",
-            }
+            p = subprocess.run(cmd, capture_output=True, text=True)
+
+            if p.returncode != 0:
+                result = {
+                    "status": False,
+                    "msg": _("El archivo no es compatible con 7z"),
+                }
+                q.put(result)
+                return
+
+            # Only test password to check if the file have
+            cmd = ["7z", "t", file, "-pNothingTheNothing123"]
+
+            check_pass = subprocess.run(cmd, capture_output=True, text=True)
+
+            password = ""
+
+            if "password" in check_pass.stderr:
+                to_work = Queue()
+                self.win.get_archivo_password(to_work)
+                pass_response = to_work.get()
+                if pass_response["status"]:
+                    password = pass_response["msg"]
+                else:
+                    result = {
+                        "status": False,
+                        "msg": _("Cancelado en la solicitud de contraseña"),
+                    }
+                    q.put(result)
+                    return
+
+            result = self.uncompress_file_with_7z(file, dst_dir, password)
             q.put(result)
             return
         except FileExistsError as e:
@@ -74,8 +91,10 @@ class CompressionManager:
         except Exception as e:
             return e
 
-    def uncompress_file_with_7z(self, path: Path, dst_dir: Path) -> None:
-        cmd = ["7z", "x", path, f"-o{dst_dir}"]
+    def uncompress_file_with_7z(
+        self, path: Path, dst_dir: Path, password: str
+    ) -> None:
+        cmd = ["7z", "x", path, f"-o{dst_dir}", f"-p{password}", "-aou"]
 
         master_df, slave_fd = pty.openpty()
         self.uncompress_popen = subprocess.Popen(
@@ -89,12 +108,23 @@ class CompressionManager:
                 if not output:
                     break
                 texto = output.decode("utf-8")
+
+                if "Wrong password" in texto:
+                    return {
+                        "status": False,
+                        "msg": _("contraseña errónea"),
+                    }
+
                 match = re.search(r"(.{2})%", texto)
                 if match:
                     percent = f"{match.group(1)}%"
                     self.win.set_percent(percent)
             except OSError:
                 continue
+        return {
+            "status": True,
+            "msg": _("El proceso finalizó satisfactoriamente"),
+        }
 
     def get_dst_suficient_space(self, file_list: list, dst_dir: Path) -> bool:
         total_size_uncompressed_all_files = 0
@@ -133,4 +163,5 @@ class CompressionManager:
                 total_size_uncompressed = int(m.group(1))
                 total_size_compressed = int(m.group(2))
                 break
-        return (total_size_uncompressed / total_size_compressed) < 500
+
+        return (total_size_uncompressed / total_size_compressed) > 500

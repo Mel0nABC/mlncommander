@@ -21,7 +21,6 @@ import tkinter as tk
 import os
 import gi
 
-
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Pango  # noqa E402
 
@@ -388,6 +387,7 @@ class Window(Gtk.ApplicationWindow):
         Close services, save configuration and close application
         """
         self.close()
+
         self.explorer_1.my_watchdog.stop()
         self.explorer_2.my_watchdog.stop()
 

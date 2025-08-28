@@ -2,6 +2,7 @@ from utilities.i18n import _
 from utilities.compression import CompressionManager
 from controls.actions import Actions
 from views.explorer import Explorer
+from views.password_entry import PasswordWindow
 from pathlib import Path
 from multiprocessing import Queue
 import threading
@@ -171,3 +172,9 @@ class UncompressWindow(Gtk.Window):
 
     def set_percent(self, percent):
         GLib.idle_add(self.label_rsp.set_text, percent)
+
+    def get_archivo_password(self, to_work):
+        GLib.idle_add(self.create_password_window, to_work)
+
+    def create_password_window(self, to_work):
+        PasswordWindow(self, to_work)
