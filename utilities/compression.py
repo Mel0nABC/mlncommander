@@ -18,7 +18,7 @@ class CompressionManager:
         self.uncompress_popen = None
         self.win = win
 
-    def stop_uncompress(self):
+    def stop_uncompress(self) -> None:
         if self.uncompress_popen:
             self.uncompress_popen.kill()
 

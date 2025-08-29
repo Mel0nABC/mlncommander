@@ -18,9 +18,6 @@ from utilities.access_control import AccessControl
 from controls.actions import Actions
 from controls.shortcuts_keys import Shortcuts_keys
 from utilities.my_watchdog import My_watchdog
-from controls import action_keys
-
-# from utilities.my_copy import My_copy
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, Gio, GLib, Pango, GObject  # noqa E402
@@ -146,17 +143,6 @@ class Explorer(Gtk.ColumnView):
 
         self.activate_drag_source(self)
 
-    def _reeconnect_controller(self) -> None:
-        """
-        After finish utilization shortcuts, reactivate key controller
-        """
-        self.win.key_controller_id = self.win.key_controller.connect(
-            "key-pressed",
-            action_keys.on_key_press,
-            self.win,
-            self.win.action,
-        )
-
     def setup(
         self,
         signal: Gtk.SignalListItemFactory,
@@ -276,12 +262,12 @@ class Explorer(Gtk.ColumnView):
         """
         Load information from the current directory
         """
-
-        print("LOAD DATA")
         if self.selection:
             self.selection.unselect_all()
         self.store = File_manager.get_path_list(path)
         if not self.store:
+            # self.showed_msg_network_problem is only to
+            # display the message once
             if not self.showed_msg_network_problem:
                 self.action.show_msg_alert(
                     self.win,
@@ -378,16 +364,11 @@ class Explorer(Gtk.ColumnView):
             self.load_new_path(Path("/"))
             if not self.showed_msg_network_problem:
                 self.showed_msg_network_problem = True
-                GLib.idle_add(
-                    self.action.show_msg_alert,
-                    self.win,
-                    _(
-                        (
-                            "Ha ocurrido algún problema con la ubicación"
-                            " actual y se ha redirigido al inicio."
-                        )
-                    ),
+                text = _(
+                    "Ha ocurrido algún problema con la ubicación"
+                    " actual y se ha redirigido al inicio."
                 )
+                GLib.idle_add(self.action.show_msg_alert, self.win, text)
             else:
                 self.showed_msg_network_problem = False
 

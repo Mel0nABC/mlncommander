@@ -115,7 +115,7 @@ class Shortcuts_keys:
         GLib.idle_add(self.explorer._reeconnect_controller)
 
     def unzip_file(self, widget, args):
-
+        print(f"DESCONECTAR --> {self.win.key_controller_id}")
         exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_controller.disconnect(self.win.key_controller_id)
@@ -149,7 +149,7 @@ class Shortcuts_keys:
         if exec_uncompress_window:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
 
-        GLib.idle_add(self.explorer._reeconnect_controller)
+        GLib.idle_add(self.win.key_connect)
 
     def zip_file(self, widget, args):
         # Disconnect key controller from main window

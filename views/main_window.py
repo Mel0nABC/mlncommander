@@ -362,12 +362,15 @@ class Window(Gtk.ApplicationWindow):
 
         # Event controller to control keys
         self.key_controller = Gtk.EventControllerKey.new()
-        self.key_controller_id = self.key_controller.connect(
-            "key-pressed", action_keys.on_key_press, self, self.action
-        )
+        self.key_connect()
         self.add_controller(self.key_controller)
 
         self.connect("close-request", self.exit)
+
+    def key_connect(self) -> None:
+        self.key_controller_id = self.key_controller.connect(
+            "key-pressed", action_keys.on_key_press, self, self.action
+        )
 
     def set_explorer_focused(
         self, explorer_focused: Explorer, explorer_unfocused: Explorer
