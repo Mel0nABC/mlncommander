@@ -119,7 +119,6 @@ class UncompressWindow(Gtk.Window):
         info_label = Gtk.Label.new(output_text)
         info_label.set_margin_top(20)
         GLib.idle_add(self.vertical_files.append, info_label)
-        GLib.idle_add(self.dst_explorer._reeconnect_controller)
         GLib.idle_add(self.btn_extract.set_sensitive, False)
         GLib.idle_add(self.btn_extract.set_label, _("Extraer"))
 
@@ -180,12 +179,13 @@ class UncompressWindow(Gtk.Window):
 
     def on_exit(self, button: Gtk.Button) -> None:
         self.destroy()
+        GLib.idle_add(self.win.key_connect)
 
     def set_percent(self, percent):
         GLib.idle_add(self.label_rsp.set_text, percent)
 
-    def get_archivo_password(self, to_work):
-        GLib.idle_add(self.create_password_window, to_work)
+    def get_archivo_password(self, to_work: Queue, file: Path):
+        GLib.idle_add(self.create_password_window, to_work, file)
 
-    def create_password_window(self, to_work):
-        PasswordWindow(self, to_work)
+    def create_password_window(self, to_work: Queue, file: Path):
+        PasswordWindow(self, to_work, file)

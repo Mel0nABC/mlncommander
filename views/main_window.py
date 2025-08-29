@@ -372,6 +372,9 @@ class Window(Gtk.ApplicationWindow):
             "key-pressed", action_keys.on_key_press, self, self.action
         )
 
+    def key_disconnect(self) -> None:
+        self.key_controller.disconnect(self.key_controller_id)
+
     def set_explorer_focused(
         self, explorer_focused: Explorer, explorer_unfocused: Explorer
     ) -> None:

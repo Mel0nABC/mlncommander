@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from pathlib import Path
 from multiprocessing import Queue
 import gi
 
@@ -12,7 +13,7 @@ gi.require_version("Gtk", "4.0")
 
 class PasswordWindow(Gtk.Window):
 
-    def __init__(self, win: Gtk.Window, to_work: Queue):
+    def __init__(self, win: Gtk.Window, to_work: Queue, file: Path):
         super().__init__(title=_("Solicitud de password"), transient_for=win)
 
         self.result = None
@@ -28,6 +29,11 @@ class PasswordWindow(Gtk.Window):
         vertical_box.set_margin_start(20)
 
         self.set_child(vertical_box)
+
+        src_label = Gtk.Label()
+        src_label.set_text(str(file))
+        src_label.set_margin_bottom(20)
+        vertical_box.append(src_label)
 
         self.password = Gtk.PasswordEntry.new()
         self.password.connect("activate", self.on_accept)

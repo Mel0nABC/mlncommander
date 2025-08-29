@@ -71,7 +71,7 @@ class CompressionManager:
 
             if "password" in check_pass.stderr:
                 to_work = Queue()
-                self.win.get_archivo_password(to_work)
+                self.win.get_archivo_password(to_work, file)
                 pass_response = to_work.get()
                 if pass_response["status"]:
                     password = pass_response["msg"]
