@@ -13,7 +13,7 @@ import os
 
 class CompressionManager:
 
-    def __init__(self, win: "UncompressWindow"):  # noqa : F821
+    def __init__(self, win: "Window"):  # noqa : F821
 
         self.uncompress_popen = None
         self.win = win

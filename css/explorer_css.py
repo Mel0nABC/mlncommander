@@ -53,6 +53,10 @@ class Css_explorer_manager:
 
         css = f"""
 
+            .border{{
+                border:solid 1px black;
+            }}
+
             .column_view_borders{{
                 border-radius:10px;
             }}

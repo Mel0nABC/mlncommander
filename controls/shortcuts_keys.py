@@ -86,7 +86,7 @@ class Shortcuts_keys:
         Actions when shortcuts is utilized
         """
         # Disconnect key controller from main window
-        self.win.key_controller.disconnect(self.win.key_controller_id)
+        self.win.key_disconnect()
 
         # Returns the browser that does not contain the passed name
         other_explorer = self.win.get_other_explorer_with_name(
@@ -112,7 +112,7 @@ class Shortcuts_keys:
 
         other_explorer.load_data(path)
 
-        GLib.idle_add(self.explorer._reeconnect_controller)
+        GLib.idle_add(self.win.key_connect)
 
     def unzip_file(self, widget, args):
         exec_uncompress_window = True
@@ -149,10 +149,43 @@ class Shortcuts_keys:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
 
     def zip_file(self, widget, args):
+        exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_disconnect()
-        print("ZIP")
-        GLib.idle_add(self.win.key_connect)
+        selected_items = self.explorer.get_selected_items_from_explorer()[1]
+        dst_explorer = self.win.get_other_explorer_with_name(
+            self.explorer.name
+        )
+        dst_dir = dst_explorer.actual_path
+
+        from utilities.file_manager import File_manager
+
+        list_files = self.explorer.get_selected_items_from_explorer()[1]
+
+        fm = File_manager()
+
+        if not fm.check_free_space(list_files, dst_dir):
+
+            self.action.show_msg_alert(
+                self.win, _("No hay suficiente espacio en el destino.")
+            )
+            exec_uncompress_window = False
+
+        ac = AccessControl()
+
+        write_access = ac.validate_dst_write(
+            list_files, None, dst_explorer, dst_dir, self.win
+        )
+
+        if not write_access:
+            exec_uncompress_window = False
+
+        from views.compress import CompressWindow
+
+        if exec_uncompress_window:
+            CompressWindow(self.win, selected_items, dst_explorer, dst_dir)
+        else:
+            GLib.idle_add(self.win.key_connect)
 
     def reset_shortcuts_config(self):
         shortcuts_dict = [
