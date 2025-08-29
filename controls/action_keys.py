@@ -157,7 +157,7 @@ def handle_file_operation(
         # Copy
         my_copy = MyCopyMove()
         my_copy.on_copy_or_move(
-            explorer_src, explorer_dst, None, win, _("copiar"), False
+            explorer_src, explorer_dst, None, win, _("copiar"), True, False
         )
         return True
 
@@ -165,7 +165,7 @@ def handle_file_operation(
         # Move
         move = MyCopyMove()
         move.on_copy_or_move(
-            explorer_src, explorer_dst, None, win, _("mover"), False
+            explorer_src, explorer_dst, None, win, _("mover"), False, False
         )
         return True
 
@@ -185,7 +185,7 @@ def handle_file_operation(
         # Duplicate
         my_copy = MyCopyMove()
         my_copy.on_copy_or_move(
-            explorer_src, explorer_dst, None, win, _("copiar"), True
+            explorer_src, explorer_dst, None, win, _("copiar"), True, True
         )
         return True
 

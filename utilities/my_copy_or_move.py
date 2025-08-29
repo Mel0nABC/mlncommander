@@ -53,7 +53,8 @@ class MyCopyMove:
         explorer_dst: Explorer,
         selected_items: list = None,
         parent: Gtk.ApplicationWindow = None,
-        action: str = None,
+        action_str: str = None,
+        action_copy: bool = True,
         duplicate: bool = None,
     ) -> None:
         """
@@ -63,7 +64,7 @@ class MyCopyMove:
         self.parent = parent
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
-        self.action_to_exec = action
+        self.action_copy = action_copy
         if not selected_items:
             selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
@@ -87,9 +88,10 @@ class MyCopyMove:
 
         if not duplicate:
             if src_dir == dst_dir:
+                text = _("un archivo a él mismo")
                 self.action.show_msg_alert(
                     parent,
-                    f"{_("Intenta ")}{action}{_(" un archivo a él mismo")}",
+                    (f"{_("Intenta ")}{action_str} {text}"),
                 )
                 return
 
@@ -348,7 +350,7 @@ class MyCopyMove:
         copies files from a src to its dst, return dictionary
         """
         try:
-            if self.action_to_exec == "copiar":
+            if self.action_copy:
                 shutil.copy(src_info, dst_info)
             else:
                 shutil.move(src_info, dst_info)
