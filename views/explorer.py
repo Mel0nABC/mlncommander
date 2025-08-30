@@ -286,7 +286,7 @@ class Explorer(Gtk.ColumnView):
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
 
-        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
+        # GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
     def load_new_path(self, path: Path) -> None:
         """

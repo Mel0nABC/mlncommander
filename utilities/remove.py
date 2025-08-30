@@ -130,7 +130,9 @@ class Remove:
                     folder = item.resolve()
                     subfolder = explorer_dst.actual_path.resolve()
                     if subfolder.is_relative_to(folder):
-                        explorer_dst.load_new_path(folder.parent)
+                        GLib.idle_add(
+                            explorer_dst.load_new_path, folder.parent
+                        )
 
                 # To stop the thread if the delete is canceled
                 if self.stop_deleting:
@@ -161,9 +163,6 @@ class Remove:
                         except Exception as e:
                             print(f"❌ Error al eliminar archivo {item}: {e}")
 
-            if explorer_src.actual_path == explorer_dst.actual_path:
-                GLib.idle_add(explorer_dst.load_data, explorer_dst.actual_path)
-
         delete_worker(selected_items, explorer_src, explorer_dst, parent)
         self.stop_remove_dialog(explorer_src, explorer_dst)
 
@@ -173,6 +172,9 @@ class Remove:
         GLib.idle_add(self.dialog_deleting.finish_deleting)
         GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
         GLib.idle_add(explorer_src.scroll_to, 0, None, explorer_src.flags)
+
+        if explorer_src.actual_path == explorer_dst.actual_path:
+            GLib.idle_add(explorer_dst.load_new_path, explorer_dst.actual_path)
 
     async def create_dialog_selected_for_delete(
         self,
