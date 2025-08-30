@@ -17,6 +17,14 @@ xz:
   password: false
   comments: "Solo un archivo; usar .tar.xz para múltiples"
 
+zip:
+  extension: ".zip"
+  compression: true
+  decompression: true
+  levels: true
+  password: true
+  comments: "Compatible con la mayoría de sistemas"
+
 gzip:
   extension: ".gz"
   compression: true
@@ -41,14 +49,6 @@ tar:
   password: false
   comments: "Solo empaquetador (se combina con gzip, xz, etc.)"
 
-zip:
-  extension: ".zip"
-  compression: true
-  decompression: true
-  levels: true
-  password: true
-  comments: "Compatible con la mayoría de sistemas"
-
 wim:
   extension: ".wim"
   compression: true
@@ -57,74 +57,3 @@ wim:
   password: true
   comments: "Usado por Windows Imaging Format"
 
-cab:
-  extension: ".cab"
-  compression: true
-  decompression: true
-  levels: true
-  password: false
-  comments: "Formato de Microsoft"
-
-arj:
-  extension: ".arj"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Solo descompresión"
-
-z:
-  extension: ".Z"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Antiguo formato UNIX, solo extracción"
-
-lzh:
-  extension: ".lzh"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Antiguo formato japonés"
-
-chm:
-  extension: ".chm"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Ayuda de Windows, solo extracción"
-
-nsis:
-  extension: ".exe"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Instaladores NSIS, solo extracción"
-
-cpio:
-  extension: ".cpio"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Formato UNIX"
-
-deb:
-  extension: ".deb"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Paquete Debian (ar + tar + compresión)"
-
-rpm:
-  extension: ".rpm"
-  compression: false
-  decompression: true
-  levels: false
-  password: false
-  comments: "Paquete RedHat"

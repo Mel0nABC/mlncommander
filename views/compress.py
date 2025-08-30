@@ -19,7 +19,7 @@ import os
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib  # noqa : E402
+from gi.repository import Gtk, Gio, GLib  # noqa : E402
 
 
 class CompressWindow(Gtk.Window):
@@ -146,6 +146,7 @@ class CompressWindow(Gtk.Window):
         horizontal_button.append(btn_cancel)
         self.vertical_main.append(self.vertical_files)
         self.vertical_main.append(horizontal_button)
+
         self.present()
 
     def compress(self, button: Gtk.Button) -> None:
@@ -180,7 +181,23 @@ class CompressWindow(Gtk.Window):
             self.compress_activate = False
             self.vertical_main.remove(self.progress)
 
+    def disable_grid_pannel(self):
+        for i in range(5):
+            for widget in self.grid.get_child_at(1, i):
+                widget.set_sensitive(False)
+
+        self.grid.get_child_at(2, 4).set_sensitive(False)
+
+    def enable_grid_pannel(self):
+        for i in range(5):
+            for widget in self.grid.get_child_at(1, i):
+                widget.set_sensitive(True)
+
+        self.grid.get_child_at(2, 4).set_sensitive(True)
+
     def start_compress(self) -> None:
+
+        self.disable_grid_pannel()
 
         file_name = self.file_name_entry.get_text().strip()
         file_name = file_name.replace(" ", "")
@@ -189,6 +206,7 @@ class CompressWindow(Gtk.Window):
             self.drop_drow.get_selected()
         )
         file_type = file_type.replace(".", "")
+        compression_type = file_type
         password = self.password_entry.get_text()
         volumen_size = self.spin_button_size.get_value_as_int()
         volumen_size_type = self.drop_drown_size_type.get_model().get_string(
@@ -204,35 +222,20 @@ class CompressWindow(Gtk.Window):
 
         path_list = [str(path) for path in self.selected_items]
 
+        if file_type == "gz":
+            compression_type = "gzip"
+
+        if file_type == "bz2":
+            compression_type = "bzip2"
+
         cmd = [
             "7z",
             "a",
-            f"-t{file_type}",
+            f"-t{compression_type}",
             f"-mx={compression_lvl}",
             f"-mmt={multithread}",
             "-y",
         ]
-
-        if file_type == "tar":
-            cmd = [
-                "7z",
-                "a",
-                f"-t{file_type}",
-                f"-mx={compression_lvl}",
-                f"-mmt={multithread}",
-                "-y",
-            ]
-
-        if file_type == "gz":
-            cmd = [
-                "7z",
-                "a",
-                "-ttar",
-                f"-t{file_type}",
-                f"-mx={compression_lvl}",
-                f"-mmt={multithread}",
-                "-y",
-            ]
 
         if password:
             cmd.append(f"-p{password}")
@@ -241,22 +244,30 @@ class CompressWindow(Gtk.Window):
             multipart_output = f"-v{volumen_size}{volumen_size_type}"
             cmd.append(multipart_output)
 
-        output_file = Path(f"{self.dst_dir}/{file_name}.{file_type}")
+        output_file = f"{file_name}.{file_type}"
+        output_file_path = Path(f"{self.dst_dir}/{output_file}")
 
-        while output_file.exists():
+        while output_file_path.exists():
             text = "".join(
                 secrets.choice(string.ascii_letters + string.digits)
                 for _ in range(1)
             )
-            output_file = Path(f"{self.dst_dir}/{file_name}{text}.{file_type}")
-        self.file_name_entry.set_text(output_file.stem)
+            output_file_path = Path(
+                f"{self.dst_dir}/{file_name}{text}.{file_type}"
+            )
+        self.file_name_entry.set_text(output_file_path.stem)
 
-        cmd.append(str(output_file))
+        cmd.append(str(output_file_path))
 
         cmd = cmd + path_list
 
-        print(cmd)
+        self.compress_work(cmd, file_name, output_file)
 
+        self.enable_grid_pannel()
+
+    def compress_work(
+        self, cmd: str, file_name: str, output_file: str
+    ) -> None:
         master_df, slave_fd = pty.openpty()
         self.compress_popen = subprocess.Popen(
             cmd, stdin=slave_fd, stdout=slave_fd, stderr=slave_fd, text=True
@@ -290,13 +301,15 @@ class CompressWindow(Gtk.Window):
         if self.stop_compress:
             GLib.idle_add(self.progress.set_fraction, 0)
             for i in self.dst_dir.iterdir():
-                if file_name in str(i):
+                if file_name in str(i) and output_file in str(i):
                     i.unlink()
         else:
             GLib.idle_add(self.progress.set_fraction, 1)
             self.compress_activate = False
             self.stop_compress = False
             self.btn_extract.set_label(label=_("Comprimir"))
+
+        self.compress_popen = None
 
     def add_new_label(self, file: Path) -> None:
         horizontal_file = Gtk.Box(
@@ -331,11 +344,31 @@ class CompressWindow(Gtk.Window):
         self.action.show_msg_alert(self.win, msg)
 
     def on_exit(self, button: Gtk.Button) -> None:
+        if self.compress_popen:
+            self.verify_on_exit()
+            return
+
         self.destroy()
         GLib.idle_add(self.win.key_connect)
-        if self.compress_popen:
-            self.stop_compress = True
-            self.compress_popen.kill()
+
+    def verify_on_exit(self) -> bool:
+
+        alert = Gtk.AlertDialog()
+        alert.set_message(_("Si aceptas, cancelaras el proceso actual."))
+        alert.set_buttons([_("Aceptar"), _("Cancelar")])
+
+        alert.set_default_button(0)
+        alert.set_cancel_button(1)
+
+        def response(alertdialog: Gtk.AlertDialog, result: Gio.Task) -> bool:
+            self.respuesta = alertdialog.choose_finish(result)
+            if not self.respuesta:
+                self.stop_compress = True
+                self.compress_popen.kill()
+                self.destroy()
+                GLib.idle_add(self.win.key_connect)
+
+        alert.choose(self, None, response)
 
     def set_percent(self, percent):
         GLib.idle_add(self.label_rsp.set_text, percent)

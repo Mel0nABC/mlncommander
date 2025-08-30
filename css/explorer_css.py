@@ -50,12 +50,7 @@ class Css_explorer_manager:
         Sets the text color when using the search function for files
         or directories
         """
-
         css = f"""
-
-            .border{{
-                border:solid 1px black;
-            }}
 
             .column_view_borders{{
                 border-radius:10px;
