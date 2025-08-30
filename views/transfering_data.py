@@ -101,32 +101,40 @@ class Transfering(Gtk.Dialog):
         Force update labels with real information
         """
         try:
+
+            def update_worker():
+                self.time_file = time.time()
+                self.lbl_src.set_text(str(self.src_info))
+                self.lbl_dst.set_text(str(self.dst_info))
+
+                self.src_size = int(src_size_text)
+                self.dst_size = int(dst_size_text)
+
+                self.src_size = self.src_size / 1024 / 1024
+                self.dst_size = self.dst_size / 1024 / 1024
+
+                speed = self.dst_size - self.old_dst_size / 1024 / 1024
+                speed = f"{round(speed, 2)} Mbytes/s"
+
+                if speed == 0:
+                    speed = _("Espere ...")
+
+                self.lbl_size.set_text(f"{speed}")
+
+                self.old_dst_size = int(dst_size_text)
+
+                fraction = self.dst_size / self.src_size
+
+                self.progress.set_fraction(fraction)
+
             time_now = time.time()
-            if (time_now - self.time_file) >= 1:
-                if self.src_info and self.dst_info:
-                    self.time_file = time.time()
-                    self.lbl_src.set_text(str(self.src_info))
-                    self.lbl_dst.set_text(str(self.dst_info))
+            if self.src_info and self.dst_info:
 
-                    self.src_size = int(src_size_text)
-                    self.dst_size = int(dst_size_text)
+                if self.src_info.stat().st_size < 100485760:
+                    update_worker()
 
-                    self.src_size = self.src_size / 1024 / 1024
-                    self.dst_size = self.dst_size / 1024 / 1024
-
-                    speed = self.dst_size - self.old_dst_size / 1024 / 1024
-                    speed = f"{round(speed, 2)} Mbytes/s"
-
-                    if speed == 0:
-                        speed = _("Espere ...")
-
-                    self.lbl_size.set_text(f"{speed}")
-
-                    self.old_dst_size = int(dst_size_text)
-
-                    fraction = self.dst_size / self.src_size
-
-                    self.progress.set_fraction(fraction)
+                if (time_now - self.time_file) >= 1:
+                    update_worker()
 
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))

@@ -605,13 +605,12 @@ class Explorer(Gtk.ColumnView):
         filter type of source to download url or file path
         """
         files = value.get_files()
-        print(files)
 
         if GObject.type_name(files[0]) == "GLocalFile":
             try:
                 self.drop_from_local_file(value)
             except Exception as e:
-                print(e)
+
                 self.action.show_msg_alert(
                     self.win,
                     (
