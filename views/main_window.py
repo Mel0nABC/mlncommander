@@ -394,8 +394,8 @@ class Window(Gtk.ApplicationWindow):
         """
         self.close()
 
-        self.explorer_1.my_watchdog.stop()
-        self.explorer_2.my_watchdog.stop()
+        # self.explorer_1.my_watchdog.stop()
+        # self.explorer_2.my_watchdog.stop()
 
         if self.config.SHOW_DIR_LAST:
             self.config.EXP_1_PATH = str(self.explorer_1.actual_path)

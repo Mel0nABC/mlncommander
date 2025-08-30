@@ -561,7 +561,7 @@ class Explorer(Gtk.ColumnView):
             self.my_watchdog.stop()
         self.my_watchdog = My_watchdog(str(path), self.APP_USER_PATH, explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
-        self.watchdog_thread.start()
+        # self.watchdog_thread.start()
 
     def activate_drag_source(self, item: Gtk.Widget) -> None:
         """
