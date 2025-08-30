@@ -27,8 +27,10 @@ class My_watchdog:
         """
         Initialize watchdog
         """
+
+        mihandler = MiHandler(self.path, self.explorer, self.APP_USER_PATH)
         self.observer.schedule(
-            MiHandler(self.path, self.explorer, self.APP_USER_PATH),
+            mihandler,
             path=self.path,
             recursive=False,
         )
@@ -37,6 +39,7 @@ class My_watchdog:
         try:
             while self.observer.is_alive():
                 time.sleep(0.1)
+                mihandler.compare_folder()
 
         except KeyboardInterrupt:
             self.stop()
@@ -63,6 +66,7 @@ class MiHandler(FileSystemEventHandler):
 
         self.explorer = explorer
         self.path = Path(path)
+        self.list_path1 = list(self.path.iterdir())
         self.log_file = Path(f"{APP_USER_PATH}/log/mlncommander.log")
         self.date_str = time.strftime("%A, %d/%m/%Y - %H:%M:%S")
 
@@ -84,6 +88,15 @@ class MiHandler(FileSystemEventHandler):
                 )
         except Exception as e:
             print(f"ERROR: {e}")
+
+    def compare_folder(self):
+        from collections import Counter
+
+        list_path2 = list(self.path.iterdir())
+
+        if not Counter(self.list_path1) == Counter(list_path2):
+            self.load_new_path(self.path)
+            self.list_path1 = list(self.path.iterdir())
 
     # def dispatch(self, event):
     #     print(event)
@@ -108,7 +121,7 @@ class MiHandler(FileSystemEventHandler):
     def load_new_path(self, path):
         path = Path(path)
         if path.exists():
-            GLib.idle_add(self.explorer.load_data, path)
+            GLib.idle_add(self.explorer.load_new_path, path)
 
     def print_status_on_log(self, operation: str, src_path: Path) -> None:
         try:
