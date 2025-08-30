@@ -21,7 +21,7 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Managing connection loss to network drives, preventing application crashes
 - Unzip files with 7zip from the system
 - Compress files and folders with 7zip
-
+- Watchdog, monitors changes in browsers, both local and external.
 
 
 ## Motivation
