@@ -117,14 +117,12 @@ class Shortcuts_keys:
 
     def validate_7zip_installed(self):
         if not shutil.which("7z"):
-            self.action(
+            text = _(
+                "No dispone de 7zip instalado para poder usar esta función."
+            )
+            self.action.show_msg_alert(
                 self.win,
-                _(
-                    _(
-                        "No dispone de 7zip, instalalo"
-                        " para poder usar esta función."
-                    )
-                ),
+                text,
             )
             return False
 
