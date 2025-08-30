@@ -152,6 +152,7 @@ class Shortcuts_keys:
         exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_disconnect()
+
         selected_items = self.explorer.get_selected_items_from_explorer()[1]
         dst_explorer = self.win.get_other_explorer_with_name(
             self.explorer.name

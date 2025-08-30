@@ -75,7 +75,7 @@ class CompressWindow(Gtk.Window):
         self.file_name_entry = Gtk.Entry.new()
 
         # drop down file type
-        drop_down_list = [item["extension"] for item in self.load_yaml_types()]
+        drop_down_list = [".7z", ".xz", ".zip", ".gz", ".bz2", ".tar", ".wim"]
         label_type_file = Gtk.Label.new(_("Tipo de archivo"))
         self.drop_drow = Gtk.DropDown.new_from_strings(drop_down_list)
 
@@ -385,11 +385,3 @@ class CompressWindow(Gtk.Window):
 
     def create_password_window(self, to_work: Queue, file: Path):
         PasswordWindow(self, to_work, file)
-
-    def load_yaml_types(self):
-        import yaml
-
-        with open("./files/7zinformation.yaml", "r") as f:
-            formats = yaml.safe_load(f)
-
-        return list(formats.values())
