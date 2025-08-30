@@ -131,7 +131,8 @@ class Remove:
                     subfolder = explorer_dst.actual_path.resolve()
                     if subfolder.is_relative_to(folder):
                         GLib.idle_add(
-                            explorer_dst.load_new_path, folder.parent
+                            explorer_dst.load_new_path,
+                            explorer_src.actual_path,
                         )
 
                 # To stop the thread if the delete is canceled
