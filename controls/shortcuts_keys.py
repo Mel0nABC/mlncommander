@@ -132,12 +132,13 @@ class Shortcuts_keys:
 
     def unzip_file(self, widget, args):
 
-        if not self.validate_7zip_installed():
-            return
-
         exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_disconnect()
+
+        if not self.validate_7zip_installed():
+            return
+
         selected_items = self.explorer.get_selected_items_from_explorer()[1]
         dst_explorer = self.win.get_other_explorer_with_name(
             self.explorer.name
@@ -170,12 +171,12 @@ class Shortcuts_keys:
 
     def zip_file(self, widget, args):
 
-        if not self.validate_7zip_installed():
-            return
-
         exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_disconnect()
+
+        if not self.validate_7zip_installed():
+            return
 
         selected_items = self.explorer.get_selected_items_from_explorer()[1]
         dst_explorer = self.win.get_other_explorer_with_name(
