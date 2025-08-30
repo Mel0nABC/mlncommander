@@ -218,6 +218,14 @@ class MyCopyMove:
                     )
                     continue
 
+                # move section
+                try:
+                    if not self.action_copy:
+                        os.rename(src_info, dst_info)
+                        continue
+                except OSError:
+                    pass
+
                 if src_info.is_dir():
                     if not dst_info.exists():
                         os.mkdir(dst_info)
@@ -276,6 +284,11 @@ class MyCopyMove:
                             explorer_dst,
                             self.response_type,
                         )
+                if not self.action_copy:
+                    if src_info.is_dir():
+                        src_info.rmdir()
+                    else:
+                        src_info.unlink()
 
         iterate_folders_worker(
             parent,
@@ -285,7 +298,10 @@ class MyCopyMove:
             explorer_dst,
             duplicate,
         )
-        GLib.idle_add(explorer_dst.load_data, dst_dir)
+
+        GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
+        GLib.idle_add(explorer_dst.load_new_path, dst_dir)
+
         self.close_dialog_transfering_proccess()
 
     def close_dialog_transfering_proccess(self):
@@ -358,10 +374,7 @@ class MyCopyMove:
         copies files from a src to its dst, return dictionary
         """
         try:
-            if self.action_copy:
-                shutil.copy(src_info, dst_info)
-            else:
-                shutil.move(src_info, dst_info)
+            shutil.copy(src_info, dst_info)
             return {"ok": True, "error": None}
         except OSError as e:
             return {"ok": False, "error": e}
