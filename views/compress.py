@@ -92,9 +92,15 @@ class CompressWindow(Gtk.Window):
         self.multithread_checkbox = Gtk.CheckButton.new()
 
         # Multi volumen
-        label_multipart = Gtk.Label.new(_("Compresión multi parte"))
+        label_multipart = Gtk.Label.new(_("Tamaño volumen\nmulti parte"))
         self.spin_button_size = Gtk.SpinButton.new_with_range(0, 9999, 1)
-        drop_size_type = ["b", "k", "m", "g"]
+        self.drop_size_dict = {
+            "Bytes": "b",
+            "KBytes": "k",
+            "MBytes": "m",
+            "GigaBytes": "g",
+        }
+        drop_size_type = list(self.drop_size_dict.keys())
         self.drop_drown_size_type = Gtk.DropDown.new_from_strings(
             drop_size_type
         )
@@ -212,6 +218,7 @@ class CompressWindow(Gtk.Window):
         volumen_size_type = self.drop_drown_size_type.get_model().get_string(
             self.drop_drown_size_type.get_selected()
         )
+        volumen_size_type = self.drop_size_dict[volumen_size_type]
 
         multithread = self.multithread_checkbox.get_active()
 
