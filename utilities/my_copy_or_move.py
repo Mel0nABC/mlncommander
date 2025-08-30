@@ -17,7 +17,6 @@ from utilities.file_manager import File_manager
 from asyncio import Future
 import gi
 import os
-import time
 import shutil
 import asyncio
 import threading
@@ -169,107 +168,125 @@ class MyCopyMove:
         and asks what to do if they do.
 
         """
-        for src_info in selected_items:
 
-            if not self.access_control.validate_src_read(
-                src_info,
-                parent,
-            ):
-                self.close_dialog_transfering_proccess()
-                return
+        def iterate_folders_worker(
+            parent: Gtk.ApplicationWindow,
+            selected_items: list,
+            dst_dir: Path,
+            explorer_src: Explorer,
+            explorer_dst: Explorer,
+            duplicate: bool,
+        ) -> None:
+            for src_info in selected_items:
 
-            # On push cancel, return all
-            if self.stop_all:
-                return
-
-            # Set name when use copy or duplicate option
-            if duplicate:
-                if src_info.is_dir():
-                    dst_info = Path(f"{dst_dir}/{src_info.name}_copy")
-                else:
-                    file_name = src_info.name
-                    split_name = list(file_name.rpartition("."))
-                    split_name[0] = f"{split_name[0]}_copy"
-                    return_name = "".join(split_name)
-                    dst_info = Path(f"{dst_dir}/{return_name}")
-            else:
-                dst_info = Path(f"{dst_dir}/{src_info.name}")
-
-            bucle_src_error = Path(f"{src_info}/{src_info.name}")
-
-            if dst_info.resolve().is_relative_to(bucle_src_error.resolve()):
-
-                GLib.idle_add(
-                    self.action.show_msg_alert,
+                if not self.access_control.validate_src_read(
+                    src_info,
                     parent,
-                    _(
-                        "No se puede copiar en esta ruta,"
-                        " se genera bucle infinito."
-                    ),
-                )
-                continue
+                ):
+                    self.close_dialog_transfering_proccess()
+                    return
 
-            if src_info.is_dir():
-                if not dst_info.exists():
-                    os.mkdir(dst_info)
+                # On push cancel, return all
+                if self.stop_all:
+                    return
 
-                if dst_info.exists():
-                    new_selected_items = list(src_info.iterdir())
-                    duplicate = False
-                    self.iterate_folders(
-                        parent,
-                        new_selected_items,
-                        dst_info,
-                        explorer_src,
-                        explorer_dst,
-                        duplicate,
-                    )
-            else:
-                self.transfering_dialog.set_labels(src_info, dst_info)
-                if not dst_info.exists():
-                    result = self.copy_file(src_info, dst_info)
-
-                    # On stop copy, delete the last file, posible corruption
-                    if self.stop_all:
-                        if dst_info.exists():
-                            dst_info.unlink()
-                            pass
-                    if not result:
-                        return
+                # Set name when use copy or duplicate option
+                if duplicate:
+                    if src_info.is_dir():
+                        dst_info = Path(f"{dst_dir}/{src_info.name}_copy")
+                    else:
+                        file_name = src_info.name
+                        split_name = list(file_name.rpartition("."))
+                        split_name[0] = f"{split_name[0]}_copy"
+                        return_name = "".join(split_name)
+                        dst_info = Path(f"{dst_dir}/{return_name}")
                 else:
-                    self.event_overwrite = threading.Event()
-                    if not self.all_files:
-                        GLib.idle_add(
-                            lambda: (
-                                asyncio.ensure_future(
-                                    self.overwrite_dialog(
-                                        parent, src_info, dst_info
-                                    )
-                                ),
-                                False,
-                            )[1]
+                    dst_info = Path(f"{dst_dir}/{src_info.name}")
+
+                bucle_src_error = Path(f"{src_info}/{src_info.name}")
+
+                if dst_info.resolve().is_relative_to(
+                    bucle_src_error.resolve()
+                ):
+
+                    GLib.idle_add(
+                        self.action.show_msg_alert,
+                        parent,
+                        _(
+                            "No se puede copiar en esta ruta,"
+                            " se genera bucle infinito."
+                        ),
+                    )
+                    continue
+
+                if src_info.is_dir():
+                    if not dst_info.exists():
+                        os.mkdir(dst_info)
+
+                    if dst_info.exists():
+                        new_selected_items = list(src_info.iterdir())
+                        duplicate = False
+                        iterate_folders_worker(
+                            parent,
+                            new_selected_items,
+                            dst_info,
+                            explorer_src,
+                            explorer_dst,
+                            duplicate,
+                        )
+                else:
+                    self.transfering_dialog.set_labels(src_info, dst_info)
+                    if not dst_info.exists():
+                        result = self.copy_file(src_info, dst_info)
+
+                        # On stop copy, delete the last file,
+                        # posible corruption
+                        if self.stop_all:
+                            if dst_info.exists():
+                                dst_info.unlink()
+                                pass
+                        if not result:
+                            return
+                    else:
+                        self.event_overwrite = threading.Event()
+                        if not self.all_files:
+                            GLib.idle_add(
+                                lambda: (
+                                    asyncio.ensure_future(
+                                        self.overwrite_dialog(
+                                            parent, src_info, dst_info
+                                        )
+                                    ),
+                                    False,
+                                )[1]
+                            )
+
+                            self.event_overwrite.wait()
+
+                            self.response_type = self.response_dic["response"]
+                            self.all_files = self.response_dic["all_files"]
+
+                        if self.response_type == "skip":
+                            continue
+
+                        self.overwrite_with_type(
+                            parent,
+                            src_info,
+                            dst_info,
+                            explorer_src,
+                            explorer_dst,
+                            self.response_type,
                         )
 
-                        self.event_overwrite.wait()
-
-                        self.response_type = self.response_dic["response"]
-                        self.all_files = self.response_dic["all_files"]
-
-                    if self.response_type == "skip":
-                        continue
-
-                    self.overwrite_with_type(
-                        parent,
-                        src_info,
-                        dst_info,
-                        explorer_src,
-                        explorer_dst,
-                        self.response_type,
-                    )
-
-            GLib.idle_add(explorer_dst.load_data, dst_info.parent)
-
-        GLib.idle_add(explorer_dst.load_new_path, dst_dir)
+        iterate_folders_worker(
+            parent,
+            selected_items,
+            dst_dir,
+            explorer_src,
+            explorer_dst,
+            duplicate,
+        )
+        GLib.idle_add(explorer_dst.load_data, dst_dir)
         self.close_dialog_transfering_proccess()
 
     def close_dialog_transfering_proccess(self):
@@ -564,5 +581,3 @@ class MyCopyMove:
                     )
             except FileNotFoundError as e:
                 print(f"Very fast I dont have time to update!!: {e}")
-
-            time.sleep(1)

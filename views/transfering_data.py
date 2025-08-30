@@ -5,7 +5,7 @@ from utilities.i18n import _
 import gi
 import asyncio
 from pathlib import Path
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Pango
 
 gi.require_version("Gtk", "4.0")
 
@@ -33,16 +33,19 @@ class Transfering(Gtk.Dialog):
         self.src_info = None
         self.dst_info = None
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+
         self.set_child(self.box)
         self.set_default_size(500, 60)
 
         self.lbl_src = Gtk.Label(label="SRC")
+        self.lbl_src.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
         self.lbl_src.set_halign(Gtk.Align.START)
         self.lbl_src.set_margin_top(margin)
         self.lbl_src.set_margin_end(margin)
         self.lbl_src.set_margin_start(margin)
 
         self.lbl_dst = Gtk.Label(label="DST")
+        self.lbl_dst.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
         self.lbl_dst.set_halign(Gtk.Align.START)
         self.lbl_dst.set_margin_top(margin)
         self.lbl_dst.set_margin_end(margin)

@@ -339,8 +339,8 @@ class Explorer(Gtk.ColumnView):
             else:
                 file = 1
 
-        if self.focused:
-            self.scroll_to(file, None, self.flags)
+            if self.focused:
+                self.scroll_to(file, None, self.flags)
 
         if self.count_rst_int > 0:
             self.stop_background_search()
