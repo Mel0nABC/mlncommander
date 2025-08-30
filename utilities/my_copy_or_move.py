@@ -4,7 +4,6 @@
 from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
-from multiprocessing import Process, Queue
 from queue import Empty
 from datetime import datetime
 from views.overwrite_options import Overwrite_dialog
@@ -326,14 +325,8 @@ class MyCopyMove:
         copies files from a src to its dst, returns true if
         copied, false otherwise.
         """
-        q = Queue()
-        self.thread_copy = Process(
-            target=self.copy_file_worker, args=(src_info, dst_info, q)
-        )
-        self.thread_copy.start()
-        self.thread_copy.join()
         try:
-            msg = q.get_nowait()
+            msg = self.copy_file_worker(src_info, dst_info)
         except Empty:
             if self.thread_copy.exitcode == 0 and dst_info.exists():
                 return True
@@ -360,9 +353,7 @@ class MyCopyMove:
                 dst_info.unlink()
             return False
 
-    def copy_file_worker(
-        self, src_info: Path, dst_info: Path, q: Queue
-    ) -> dict:
+    def copy_file_worker(self, src_info: Path, dst_info: Path) -> dict:
         """
         copies files from a src to its dst, return dictionary
         """
@@ -371,13 +362,11 @@ class MyCopyMove:
                 shutil.copy(src_info, dst_info)
             else:
                 shutil.move(src_info, dst_info)
-            q.put({"ok": True, "error": None})
+            return {"ok": True, "error": None}
         except OSError as e:
-            q.put({"ok": False, "error": e})
-            return
+            return {"ok": False, "error": e}
         except Exception as e:
-            q.put({"ok": False, "error": e})
-            return
+            return {"ok": False, "error": e}
 
     def overwrite_with_type(
         self,

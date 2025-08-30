@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+import time
 import gi
 import asyncio
 from pathlib import Path
@@ -32,6 +33,8 @@ class Transfering(Gtk.Dialog):
         self.old_dst_size = 0
         self.src_info = None
         self.dst_info = None
+        self.time_file = None
+
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
 
         self.set_child(self.box)
@@ -89,6 +92,7 @@ class Transfering(Gtk.Dialog):
         """
         Set labels to show copying info
         """
+        self.time_file = time.time()
         self.src_info = src_info
         self.dst_info = dst_info
 
@@ -97,29 +101,32 @@ class Transfering(Gtk.Dialog):
         Force update labels with real information
         """
         try:
-            if self.src_info and self.dst_info:
-                self.lbl_src.set_text(str(self.src_info))
-                self.lbl_dst.set_text(str(self.dst_info))
+            time_now = time.time()
+            if (time_now - self.time_file) >= 1:
+                if self.src_info and self.dst_info:
+                    self.time_file = time.time()
+                    self.lbl_src.set_text(str(self.src_info))
+                    self.lbl_dst.set_text(str(self.dst_info))
 
-                self.src_size = int(src_size_text)
-                self.dst_size = int(dst_size_text)
+                    self.src_size = int(src_size_text)
+                    self.dst_size = int(dst_size_text)
 
-                self.src_size = self.src_size / 1024 / 1024
-                self.dst_size = self.dst_size / 1024 / 1024
+                    self.src_size = self.src_size / 1024 / 1024
+                    self.dst_size = self.dst_size / 1024 / 1024
 
-                speed = self.dst_size - self.old_dst_size / 1024 / 1024
-                speed = f"{round(speed, 2)} Mbytes/s"
+                    speed = self.dst_size - self.old_dst_size / 1024 / 1024
+                    speed = f"{round(speed, 2)} Mbytes/s"
 
-                if speed == 0:
-                    speed = _("Espere ...")
+                    if speed == 0:
+                        speed = _("Espere ...")
 
-                self.lbl_size.set_text(f"{speed}")
+                    self.lbl_size.set_text(f"{speed}")
 
-                self.old_dst_size = int(dst_size_text)
+                    self.old_dst_size = int(dst_size_text)
 
-                fraction = self.dst_size / self.src_size
+                    fraction = self.dst_size / self.src_size
 
-                self.progress.set_fraction(fraction)
+                    self.progress.set_fraction(fraction)
 
         except Exception as e:
             self.lbl_src.set_text(str(self.src_info))
