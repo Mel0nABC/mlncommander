@@ -8,7 +8,7 @@ import asyncio
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Gtk, GLib  # noqa: E402
+from gi.repository import Gtk, GLib, Pango  # noqa: E402
 
 
 class Deleting(Gtk.Dialog):
@@ -25,6 +25,7 @@ class Deleting(Gtk.Dialog):
         self.set_default_size(500, 60)
 
         self.lbl_src = Gtk.Label(label="SRC")
+        self.lbl_src.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
         self.lbl_src.set_halign(Gtk.Align.START)
         self.lbl_src.set_margin_top(20)
         self.lbl_src.set_margin_end(20)

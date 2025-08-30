@@ -104,54 +104,67 @@ class Remove:
         Proccess to delete files or directorys, no undo option
         """
 
-        for item in selected_items:
+        def delete_worker(
+            selected_items: list,
+            explorer_src: Explorer,
+            explorer_dst: Explorer,
+            parent: Gtk.ApplicationWindow,
+        ):
 
-            if not self.access_control.validate_src_write(
-                selected_items,
-                explorer_src,
-                explorer_dst,
-                item.parent,
-                parent,
-            ):
+            for item in selected_items:
 
-                self.stop_remove_dialog(explorer_src, explorer_dst)
-                return
+                if not self.access_control.validate_src_write(
+                    selected_items,
+                    explorer_src,
+                    explorer_dst,
+                    item.parent,
+                    parent,
+                ):
 
-            # Validates When a browser is inside a subdirectory
-            # of what is to be deleted
-            if item.is_dir():
-                folder = item.resolve()
-                subfolder = explorer_dst.actual_path.resolve()
-                if subfolder.is_relative_to(folder):
-                    explorer_dst.load_new_path(folder.parent)
+                    self.stop_remove_dialog(explorer_src, explorer_dst)
+                    return
 
-            # To stop the thread if the delete is canceled
-            if self.stop_deleting:
-                return
-
-            GLib.idle_add(self.dialog_deleting.update_labels, item)
-
-            if item.exists():
+                # Validates When a browser is inside a subdirectory
+                # of what is to be deleted
                 if item.is_dir():
-                    try:
-                        contents = list(item.iterdir())
-                        if contents:
-                            self.delete_now(
-                                contents, explorer_src, explorer_dst, parent
+                    folder = item.resolve()
+                    subfolder = explorer_dst.actual_path.resolve()
+                    if subfolder.is_relative_to(folder):
+                        explorer_dst.load_new_path(folder.parent)
+
+                # To stop the thread if the delete is canceled
+                if self.stop_deleting:
+                    return
+
+                GLib.idle_add(self.dialog_deleting.update_labels, item)
+
+                if item.exists():
+                    if item.is_dir():
+                        try:
+                            contents = list(item.iterdir())
+                            if contents:
+                                delete_worker(
+                                    contents,
+                                    explorer_src,
+                                    explorer_dst,
+                                    parent,
+                                )
+                            item.rmdir()
+                        except Exception as e:
+                            print(
+                                f"❌ Error al eliminar directorio {item}: {e}"
                             )
-                        item.rmdir()
-                    except Exception as e:
-                        print(f"❌ Error al eliminar directorio {item}: {e}")
 
-                else:
-                    try:
-                        item.unlink()
-                    except Exception as e:
-                        print(f"❌ Error al eliminar archivo {item}: {e}")
+                    else:
+                        try:
+                            item.unlink()
+                        except Exception as e:
+                            print(f"❌ Error al eliminar archivo {item}: {e}")
 
-        if explorer_src.actual_path == explorer_dst.actual_path:
-            GLib.idle_add(explorer_dst.load_data, explorer_dst.actual_path)
+            if explorer_src.actual_path == explorer_dst.actual_path:
+                GLib.idle_add(explorer_dst.load_data, explorer_dst.actual_path)
 
+        delete_worker(selected_items, explorer_src, explorer_dst, parent)
         self.stop_remove_dialog(explorer_src, explorer_dst)
 
     def stop_remove_dialog(
