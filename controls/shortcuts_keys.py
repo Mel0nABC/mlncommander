@@ -7,6 +7,7 @@ from entity.shortcut import Shortcut
 from utilities.access_control import AccessControl
 from utilities.compression import CompressionManager
 from controls.actions import Actions
+import shutil
 import yaml
 import gi
 
@@ -114,7 +115,26 @@ class Shortcuts_keys:
 
         GLib.idle_add(self.win.key_connect)
 
+    def validate_7zip_installed(self):
+        if not shutil.which("7z"):
+            self.action(
+                self.win,
+                _(
+                    _(
+                        "No dispone de 7zip, instalalo"
+                        " para poder usar esta función."
+                    )
+                ),
+            )
+            return False
+
+        return True
+
     def unzip_file(self, widget, args):
+
+        if not self.validate_7zip_installed():
+            return
+
         exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_disconnect()
@@ -149,6 +169,10 @@ class Shortcuts_keys:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
 
     def zip_file(self, widget, args):
+
+        if not self.validate_7zip_installed():
+            return
+
         exec_uncompress_window = True
         # Disconnect key controller from main window
         self.win.key_disconnect()
