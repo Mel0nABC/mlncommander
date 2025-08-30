@@ -286,6 +286,8 @@ class Explorer(Gtk.ColumnView):
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
 
+        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
+
     def load_new_path(self, path: Path) -> None:
         """
         Load data and display the contents
@@ -336,13 +338,13 @@ class Explorer(Gtk.ColumnView):
                 file = 0
             else:
                 file = 1
+
+        if self.focused:
             self.scroll_to(file, None, self.flags)
 
         if self.count_rst_int > 0:
             self.stop_background_search()
             self.stop_search_mode()
-
-        GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
     def on_item_change(
         self,
