@@ -85,7 +85,10 @@ class CompressWindow(Gtk.Window):
 
         # set password
         label_entry = Gtk.Label.new(_("Contraseña"))
-        self.password_entry = Gtk.Entry.new()
+        self.password_entry_1 = Gtk.PasswordEntry.new()
+        self.password_entry_1.set_show_peek_icon(True)
+        self.password_entry_2 = Gtk.PasswordEntry.new()
+        self.password_entry_2.set_show_peek_icon(True)
 
         # multithreading compression
         label_multithread = Gtk.Label.new(_("Multi hilo para comprimir"))
@@ -123,14 +126,15 @@ class CompressWindow(Gtk.Window):
         self.grid.attach(self.drop_drow, 1, 2, width, height)
 
         self.grid.attach(label_entry, 0, 3, width, height)
-        self.grid.attach(self.password_entry, 1, 3, width, height)
+        self.grid.attach(self.password_entry_1, 1, 3, width, height)
+        self.grid.attach(self.password_entry_2, 1, 4, width, height)
 
-        self.grid.attach(label_multipart, 0, 4, width, height)
-        self.grid.attach(self.spin_button_size, 1, 4, width, height)
-        self.grid.attach(self.drop_drown_size_type, 2, 4, width, height)
+        self.grid.attach(label_multipart, 0, 5, width, height)
+        self.grid.attach(self.spin_button_size, 1, 5, width, height)
+        self.grid.attach(self.drop_drown_size_type, 2, 5, width, height)
 
-        self.grid.attach(label_multithread, 0, 5, width, height)
-        self.grid.attach(self.multithread_checkbox, 1, 5, width, height)
+        self.grid.attach(label_multithread, 0, 6, width, height)
+        self.grid.attach(self.multithread_checkbox, 1, 6, width, height)
 
         self.vertical_main.append(self.grid)
 
@@ -165,6 +169,14 @@ class CompressWindow(Gtk.Window):
                 GLib.idle_add(self.action.show_msg_alert, self.win, text)
                 return
 
+            if (
+                self.password_entry_1.get_text()
+                != self.password_entry_2.get_text()
+            ):
+                text = _("La contraseña establecida es diferente")
+                GLib.idle_add(self.action.show_msg_alert, self.win, text)
+                return
+
             if not self.progress:
                 self.progress = Gtk.ProgressBar.new()
                 self.progress.set_hexpand(True)
@@ -188,18 +200,18 @@ class CompressWindow(Gtk.Window):
             self.vertical_main.remove(self.progress)
 
     def disable_grid_pannel(self):
-        for i in range(5):
+        for i in range(6):
             for widget in self.grid.get_child_at(1, i):
                 widget.set_sensitive(False)
 
-        self.grid.get_child_at(2, 4).set_sensitive(False)
+        self.grid.get_child_at(2, 5).set_sensitive(False)
 
     def enable_grid_pannel(self):
-        for i in range(5):
+        for i in range(6):
             for widget in self.grid.get_child_at(1, i):
                 widget.set_sensitive(True)
 
-        self.grid.get_child_at(2, 4).set_sensitive(True)
+        self.grid.get_child_at(2, 5).set_sensitive(True)
 
     def start_compress(self) -> None:
 
@@ -213,7 +225,7 @@ class CompressWindow(Gtk.Window):
         )
         file_type = file_type.replace(".", "")
         compression_type = file_type
-        password = self.password_entry.get_text()
+        password = self.password_entry_1.get_text()
         volumen_size = self.spin_button_size.get_value_as_int()
         volumen_size_type = self.drop_drown_size_type.get_model().get_string(
             self.drop_drown_size_type.get_selected()
