@@ -11,7 +11,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk  # noqa: E402
 
 
-class Overwrite_dialog(Gtk.Dialog):
+class OverwriteWindow(Gtk.Window):
     def __init__(
         self,
         parent: Gtk.ApplicationWindow,
@@ -33,11 +33,15 @@ class Overwrite_dialog(Gtk.Dialog):
 
         self.set_default_size(horizontal / 5, vertical / 5)
 
-        box = self.get_content_area()
+        vertical_main = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
+        self.set_child(vertical_main)
 
         vertical_box_info = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
+
         vertical_box_info.set_margin_top(20)
         vertical_box_info.set_margin_start(20)
 
@@ -78,7 +82,7 @@ class Overwrite_dialog(Gtk.Dialog):
         vertical_box_info.append(date_dst_label)
         vertical_box_info.append(perm_dst_label)
 
-        box.append(vertical_box_info)
+        vertical_main.append(vertical_box_info)
 
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
         self.btn_skip = Gtk.Button(label=_("Omitir"))
@@ -124,10 +128,10 @@ class Overwrite_dialog(Gtk.Dialog):
         self.vertical_box.append(self.btn_cancel)
         self.vertical_box.append(self.check_all)
 
-        box.append(self.vertical_box)
+        vertical_main.append(self.vertical_box)
 
         self.future = asyncio.get_event_loop().create_future()
-        self.connect("response", self._on_response)
+
         self.present()
 
     def set_opcion_seleccionada(self, botton: Gtk.Button) -> None:
@@ -170,19 +174,13 @@ class Overwrite_dialog(Gtk.Dialog):
                 "all_files": self.check_all.get_active(),
             }
 
-        self.close()
-
-    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
-        """
-        Set response on close dialog
-        """
         if not self.future.done():
             self.future.set_result(self.response)
-        self.destroy()
 
     async def wait_response_async(self) -> None:
         """
         Set response on close dialog
         """
         response = await self.future
+        self.destroy()
         return response

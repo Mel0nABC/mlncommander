@@ -6,7 +6,7 @@ from controls.actions import Actions
 from pathlib import Path
 from queue import Empty
 from datetime import datetime
-from views.overwrite_options import Overwrite_dialog
+from views.overwrite_window import OverwriteWindow
 from views.selected_for_copy_move import Selected_for_copy_move
 from views.transfering_data import Transfering
 from views.explorer import Explorer
@@ -264,7 +264,7 @@ class MyCopyMove:
                             GLib.idle_add(
                                 lambda: (
                                     asyncio.ensure_future(
-                                        self.overwrite_dialog(
+                                        self.overwrite_window(
                                             parent, src_info, dst_info
                                         )
                                     ),
@@ -314,7 +314,7 @@ class MyCopyMove:
             self.progress_on = False
             self.thread_update_dialog.join()
 
-    async def overwrite_dialog(
+    async def overwrite_window(
         self, parent: Gtk.ApplicationWindow, src_info: Path, dst_info: Path
     ) -> None:
         """
@@ -332,7 +332,7 @@ class MyCopyMove:
     async def create_response_overwrite(
         self, parent: Gtk.ApplicationWindow, src_info: Path, dst_info: Path
     ) -> asyncio.Future:
-        dialog = Overwrite_dialog(parent, src_info, dst_info)
+        dialog = OverwriteWindow(parent, src_info, dst_info)
         response = await dialog.wait_response_async()
         return response
 
@@ -424,7 +424,7 @@ class MyCopyMove:
             GLib.idle_add(
                 lambda: (
                     asyncio.ensure_future(
-                        self.create_dialog_rename(parent, dst_info)
+                        self.create_rename_window(parent, dst_info)
                     ),
                     False,
                 )[1]
@@ -517,11 +517,11 @@ class MyCopyMove:
         response = await self.transfering_dialog.wait_response_async()
         return response
 
-    async def create_dialog_rename(
+    async def create_rename_window(
         self, parent: Gtk.ApplicationWindow, dst_info: Path
     ) -> None:
         rename_logic = Rename_Logic()
-        self.rename_response = await rename_logic.create_dialog_rename(
+        self.rename_response = await rename_logic.create_rename_window(
             parent, dst_info
         )
         if not self.rename_response:
