@@ -41,10 +41,10 @@ class Menu_bar(Gio.Menu):
         self.win.add_action(action_exit)
         self.win.add_action(action_preferences)
 
-    def exit(self, action, parameter):
+    def exit(self, action: Gio.SimpleAction, parameter) -> None:
         self.win.exit()
 
-    def open_preferences(self, action, parameter):
+    def open_preferences(self, action: Gio.SimpleAction, parameter) -> None:
         from views.preferences.preferences_options import Preferences
 
         if not self.preferences:
