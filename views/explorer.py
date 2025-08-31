@@ -279,14 +279,15 @@ class Explorer(Gtk.ColumnView):
 
             return
 
+        if self.actual_path != path:
+            GLib.idle_add(self.update_watchdog_path, path, self)
+
         self.actual_path = path
         self.entry.set_text(str(path))
         self.sorter = Gtk.ColumnView.get_sorter(self)
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
-
-        # GLib.idle_add(self.update_watchdog_path, self.actual_path, self)
 
     def load_new_path(self, path: Path) -> None:
         """
@@ -561,7 +562,7 @@ class Explorer(Gtk.ColumnView):
             self.my_watchdog.stop()
         self.my_watchdog = My_watchdog(str(path), self.APP_USER_PATH, explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
-        # self.watchdog_thread.start()
+        self.watchdog_thread.start()
 
     def activate_drag_source(self, item: Gtk.Widget) -> None:
         """
