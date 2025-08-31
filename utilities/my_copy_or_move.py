@@ -13,6 +13,7 @@ from views.explorer import Explorer
 from utilities.rename import Rename_Logic
 from utilities.access_control import AccessControl
 from utilities.file_manager import File_manager
+from multiprocessing import Process, Queue
 from asyncio import Future
 import gi
 import os
@@ -44,6 +45,7 @@ class MyCopyMove:
         self.explorer_dst = None
         self.showed_msg_network_problem = False
         self.action_to_exec = None
+        self.q = None
 
     def on_copy_or_move(
         self,
@@ -128,7 +130,8 @@ class MyCopyMove:
             return
 
         self.progress_on = True
-        self.thread_iterater_folder = threading.Thread(
+
+        self.iterator_thread = threading.Thread(
             target=self.iterate_folders,
             args=(
                 parent,
@@ -151,6 +154,7 @@ class MyCopyMove:
         if not result:
             self.stop_all = True
             self.thread_copy.terminate()
+            self.q.put({"ok": True, "error": "Se canceló el proceso"})
 
     def iterate_folders(
         self,
@@ -342,7 +346,12 @@ class MyCopyMove:
         copied, false otherwise.
         """
         try:
-            msg = self.copy_file_worker(src_info, dst_info)
+            self.q = Queue()
+            self.thread_copy = Process(
+                target=self.copy_file_worker, args=(src_info, dst_info, self.q)
+            )
+            self.thread_copy.start()
+            msg = self.q.get()
         except Empty:
             if self.thread_copy.exitcode == 0 and dst_info.exists():
                 return True
@@ -369,17 +378,19 @@ class MyCopyMove:
                 dst_info.unlink()
             return False
 
-    def copy_file_worker(self, src_info: Path, dst_info: Path) -> dict:
+    def copy_file_worker(
+        self, src_info: Path, dst_info: Path, q: Queue
+    ) -> dict:
         """
         copies files from a src to its dst, return dictionary
         """
         try:
             shutil.copy(src_info, dst_info)
-            return {"ok": True, "error": None}
+            q.put({"ok": True, "error": None})
         except OSError as e:
-            return {"ok": False, "error": e}
+            q.put({"ok": False, "error": e})
         except Exception as e:
-            return {"ok": False, "error": e}
+            q.put({"ok": False, "error": e})
 
     def overwrite_with_type(
         self,
@@ -502,7 +513,7 @@ class MyCopyMove:
         """
         self.transfering_dialog = Transfering(parent, self.action_to_exec)
         self.transfering_dialog.present()
-        self.thread_iterater_folder.start()
+        self.iterator_thread.start()
         response = await self.transfering_dialog.wait_response_async()
         return response
 
@@ -522,7 +533,6 @@ class MyCopyMove:
         Actualiza la  información que muestra el dialog Copying()
         Update information to show dialog Copying() and move
         """
-
         while self.progress_on:
             try:
                 if self.transfering_dialog is not None:
