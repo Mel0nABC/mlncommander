@@ -4,7 +4,7 @@
 from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
-from views.new_file_dialog import NewFileDialog
+from views.new_file_window import NewFileWindow
 from views.explorer import Explorer
 import gi
 from utilities.access_control import AccessControl
@@ -56,7 +56,7 @@ class NewFile:
         if not response:
             return
 
-        self.new_file = NewFileDialog(self.win, explorer_src, self)
+        self.new_file = NewFileWindow(self.win, explorer_src, self)
 
     def create_new_file(self, path: Path) -> bool:
         """
