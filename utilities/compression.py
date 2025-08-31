@@ -94,7 +94,20 @@ class CompressionManager:
     def uncompress_file_with_7z(
         self, path: Path, dst_dir: Path, password: str
     ) -> None:
-        cmd = ["7z", "x", path, f"-o{dst_dir}", f"-p{password}", "-aou"]
+
+        import secrets
+        import string
+
+        dst_zip_folder = Path(f"{dst_dir}/{path.stem}")
+
+        while dst_zip_folder.exists():
+            text = "".join(
+                secrets.choice(string.ascii_letters + string.digits)
+                for _ in range(1)
+            )
+            dst_zip_folder = Path(f"{dst_zip_folder}{text}")
+
+        cmd = ["7z", "x", path, f"-o{dst_zip_folder}", f"-p{password}", "-aou"]
 
         master_df, slave_fd = pty.openpty()
         self.uncompress_popen = subprocess.Popen(
