@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mlncommander\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-28 19:17+0200\n"
-"PO-Revision-Date: 2025-08-28 19:18+0200\n"
+"POT-Creation-Date: 2025-08-31 21:12+0200\n"
+"PO-Revision-Date: 2025-08-31 21:16+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -50,7 +50,7 @@ msgstr "You must select a file or directory."
 msgid "Se detubo el proceso de borrado antes de finalizar."
 msgstr "The deletion process was stopped before completion."
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:78
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:82
 msgid ""
 "##################################################\n"
 "########## INICIALIZANDO ARCHIVO  DE LOG #########\n"
@@ -60,49 +60,49 @@ msgstr ""
 "################ INITIALIZING LOG FILE ###############\n"
 "#################################################\n"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:93
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:106
 msgid "CREADO"
 msgstr "CREATED"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:97
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:110
 msgid "BORRADO"
 msgstr "DELETED"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:118
+#: /home/mel0n/Downloads/mlncommander/utilities/my_watchdog.py:131
 msgid "Algún problema ha ocurrido"
 msgstr "Some problem has occurred"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:75
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:76
 msgid "No hay suficiente espacio en destino"
 msgstr "There is not enough space at the destination"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:92
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:91
+msgid "un archivo a él mismo"
+msgstr "trying to copy a file to itself"
+
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:94
 msgid "Intenta "
 msgstr "Internal "
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:92
-msgid " un archivo a él mismo"
-msgstr " trying to copy a file to itself"
-
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:204
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:219
 msgid "No se puede copiar en esta ruta, se genera bucle infinito."
 msgstr "Cannot copy to this path, it would create an infinite loop."
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:326
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:338
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:531
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:362
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:374
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:558
 msgid "Error al copiar:"
 msgstr "Error copying:"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:532
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:559
 msgid "Puede deberse a una pérdida de red."
 msgstr "It may be due to a loss of network."
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:533
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:560
 msgid "si se recupera, se borrará"
 msgstr "if it is recovered, it will be deleted"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:534
+#: /home/mel0n/Downloads/mlncommander/utilities/my_copy_or_move.py:561
 msgid " automáticamente el archivo corrupto."
 msgstr " automatically the corrupt file."
 
@@ -125,35 +125,40 @@ msgstr ""
 msgid "Debe estar en un explorador antes de poder crear el archivo"
 msgstr "You must be in a browser before you can create the file"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:60
+#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:68
 msgid "El archivo no es compatible con 7z"
 msgstr "The file is not compatible with 7z"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:81
+#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:89
 msgid "Cancelado en la solicitud de contraseña"
 msgstr "Cancelled at password request"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:115
+#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:139
 msgid "contraseña errónea"
 msgstr "wrong password"
 
-#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:126
+#: /home/mel0n/Downloads/mlncommander/utilities/compression.py:150
 msgid "El proceso finalizó satisfactoriamente"
 msgstr "The process ended successfully"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:131
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:121
+msgid "No dispone de 7zip instalado para poder usar esta función."
+msgstr "You do not have 7zip installed to use this feature."
+
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:150
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:194
 msgid "No hay suficiente espacio en el destino."
 msgstr "There is not enough space at the destination."
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:152
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:221
 msgid "Muestra la carpeta en el otro explorador."
 msgstr "Show the folder in the other explorer."
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:159
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:228
 msgid "Para descomprimir archivos"
 msgstr "To unzip files"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:166
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:235
 msgid "Para comprimir archivos"
 msgstr "To compress files"
 
@@ -172,6 +177,63 @@ msgstr "move"
 #: /home/mel0n/Downloads/mlncommander/controls/actions.py:41
 msgid "¡Advertencia! El fichero o directorio de destino no existe"
 msgstr "Warning! The target file or directory does not exist"
+
+#: /home/mel0n/Downloads/mlncommander/views/confirm_window.py:16
+msgid "Solicitud de confirmación"
+msgstr "Confirmation request"
+
+#: /home/mel0n/Downloads/mlncommander/views/confirm_window.py:33
+msgid "Si aceptas, cancelaras el proceso actual, ¿Continuar?"
+msgstr "If you accept, you will cancel the current process. Continue?"
+
+#: /home/mel0n/Downloads/mlncommander/views/confirm_window.py:46
+msgid "Sí"
+msgstr "Yes"
+
+#: /home/mel0n/Downloads/mlncommander/views/confirm_window.py:48
+msgid "No"
+msgstr "No"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:22
+msgid "Elige una opción para sobre escribir"
+msgstr "Choose an option to overwrite"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:87
+#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:76
+#: /home/mel0n/Downloads/mlncommander/views/new_file_window.py:67
+#: /home/mel0n/Downloads/mlncommander/views/deleting.py:34
+#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:88
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:86
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:195
+#: /home/mel0n/Downloads/mlncommander/views/selected_for_delete.py:77
+#: /home/mel0n/Downloads/mlncommander/views/create_dir_window.py:44
+#: /home/mel0n/Downloads/mlncommander/views/rename_window.py:69
+msgid "Cancelar"
+msgstr "Cancel"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:88
+msgid "Omitir"
+msgstr "Skip"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:89
+msgid "Reemplazar si es más antiguo"
+msgstr "Replace if older"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:91
+msgid "Reemplazar si el tamaño es diferente"
+msgstr "Replace if size differs"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:93
+msgid "Renombrar"
+msgstr "Rename"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:94
+msgid "Reemplazar"
+msgstr "Replace"
+
+#: /home/mel0n/Downloads/mlncommander/views/overwrite_window.py:110
+msgid "Aplicar a todo"
+msgstr "Apply to all"
 
 #: /home/mel0n/Downloads/mlncommander/views/main_window.py:205
 msgid "Renombrar < F2 >"
@@ -205,151 +267,111 @@ msgstr "Duplicate < F9 >"
 msgid "Salir < F10 >"
 msgstr "Exit < F10 >"
 
-#: /home/mel0n/Downloads/mlncommander/views/rename_dialog.py:18
-msgid "Renombrando archivo"
-msgstr "Renaming file"
-
-#: /home/mel0n/Downloads/mlncommander/views/rename_dialog.py:40
-msgid "Destino"
-msgstr "Destination"
-
-#: /home/mel0n/Downloads/mlncommander/views/rename_dialog.py:45
-msgid "Tamaño"
-msgstr "Size"
-
-#: /home/mel0n/Downloads/mlncommander/views/rename_dialog.py:49
-msgid "Fecha"
-msgstr "Data"
-
-#: /home/mel0n/Downloads/mlncommander/views/rename_dialog.py:53
-msgid "Permisos"
-msgstr "Permissions"
-
-#: /home/mel0n/Downloads/mlncommander/views/rename_dialog.py:69
-#: /home/mel0n/Downloads/mlncommander/views/create_dir_dialog.py:46
-#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:86
-#: /home/mel0n/Downloads/mlncommander/views/preferences/preferences_options.py:31
-#: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:66
-#: /home/mel0n/Downloads/mlncommander/views/password_entry.py:36
-msgid "Aceptar"
-msgstr "Accept"
-
-#: /home/mel0n/Downloads/mlncommander/views/rename_dialog.py:70
-#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:68
-#: /home/mel0n/Downloads/mlncommander/views/create_dir_dialog.py:47
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:83
-#: /home/mel0n/Downloads/mlncommander/views/deleting.py:33
-#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:87
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:77
-#: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:67
-#: /home/mel0n/Downloads/mlncommander/views/selected_for_delete.py:76
-msgid "Cancelar"
-msgstr "Cancel"
-
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:90
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:85
 msgid "TIPO"
 msgstr "TYPE"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:92
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:87
 msgid "NOMBRE"
 msgstr "NAME"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:94
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:89
 msgid "TAMAÑO"
 msgstr "SIZE"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:96
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:91
 msgid "FECHA CREACIÓN"
 msgstr "CREATION DATE"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:98
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:93
 msgid "PERMISOS"
 msgstr "PERMISSIONS"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:288
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:277
 msgid "Ha ocurrido un problema para acceder al directorio"
 msgstr "There was a problem trying to copy the file"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:434
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:384
+msgid ""
+"Ha ocurrido algún problema con la ubicación actual y se ha redirigido al "
+"inicio."
+msgstr ""
+"There was a problem with the current location and you have been redirected "
+"to the homepage."
+
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:431
 msgid "Seleccionados"
 msgstr "Selected"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:435
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:432
 msgid "de"
 msgstr "of"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:637
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:616
 msgid "Ha ocurrido un problema"
 msgstr "There was a problem trying to copy the file"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:651
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:630
 msgid ""
 "Puede que tenga que avanzar más en la url para poder descargar este fichero"
 msgstr "You may need to navigate further in the URL to download this file"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:682
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:661
 msgid "La url no llega a un archivo"
 msgstr "The URL does not point to a file"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:689
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:668
 msgid "El fichero que intenta descarga ya existe"
 msgstr "The file you are trying to download already exists"
 
-#: /home/mel0n/Downloads/mlncommander/views/explorer.py:698
+#: /home/mel0n/Downloads/mlncommander/views/explorer.py:677
 msgid "No tiene espacio suficiente para descargar este fichero"
 msgstr "There is not enough space to download this file"
 
-#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:21
+#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:23
 msgid "Moviendo .."
 msgstr "Moving .."
 
-#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:23
+#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:25
 msgid "Copiando .."
 msgstr "Copying .."
 
-#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:111
+#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:122
 msgid "Espere ..."
 msgstr "Wait ..."
 
-#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:123
+#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:143
 msgid "Obteniendo destino .."
 msgstr "Getting destination .."
 
-#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:124
+#: /home/mel0n/Downloads/mlncommander/views/transfering_data.py:144
 msgid "Caldulando ..."
 msgstr "Calculating ..."
 
-#: /home/mel0n/Downloads/mlncommander/views/create_dir_dialog.py:20
-msgid "Creando directorio"
-msgstr "Creating directory"
+#: /home/mel0n/Downloads/mlncommander/views/new_file_window.py:21
+msgid "Crear fichero"
+msgstr "Create file"
 
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:22
-msgid "Elige una opción para sobre escribir"
-msgstr "Choose an option to overwrite"
+#: /home/mel0n/Downloads/mlncommander/views/new_file_window.py:38
+msgid "Nombre del nuevo archivo:"
+msgstr "Name of the new file:"
 
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:84
-msgid "Omitir"
-msgstr "Skip"
+#: /home/mel0n/Downloads/mlncommander/views/new_file_window.py:66
+#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:87
+#: /home/mel0n/Downloads/mlncommander/views/preferences/preferences_options.py:31
+#: /home/mel0n/Downloads/mlncommander/views/password_entry.py:43
+#: /home/mel0n/Downloads/mlncommander/views/create_dir_window.py:43
+#: /home/mel0n/Downloads/mlncommander/views/rename_window.py:68
+msgid "Aceptar"
+msgstr "Accept"
 
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:85
-msgid "Reemplazar si es más antiguo"
-msgstr "Replace if older"
+#: /home/mel0n/Downloads/mlncommander/views/new_file_window.py:114
+msgid "El archivo ya existe."
+msgstr "The file already exists."
 
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:87
-msgid "Reemplazar si el tamaño es diferente"
-msgstr "Replace if size differs"
-
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:89
-msgid "Renombrar"
-msgstr "Rename"
-
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:90
-msgid "Reemplazar"
-msgstr "Replace"
-
-#: /home/mel0n/Downloads/mlncommander/views/overwrite_options.py:106
-msgid "Aplicar a todo"
-msgstr "Apply to all"
+#: /home/mel0n/Downloads/mlncommander/views/new_file_window.py:122
+msgid "Ha surgido algún problema al crear el archivo."
+msgstr "There was a problem creating the file."
 
 #: /home/mel0n/Downloads/mlncommander/views/deleting.py:18
 msgid "Eliminando  .."
@@ -359,11 +381,11 @@ msgstr "Deleting .."
 msgid "Listo para"
 msgstr "List for"
 
-#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:58
+#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:59
 msgid "Destino:"
 msgstr "Destination:"
 
-#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:74
+#: /home/mel0n/Downloads/mlncommander/views/selected_for_copy_move.py:75
 msgid "Archivos"
 msgstr "File"
 
@@ -424,7 +446,7 @@ msgid "Resetear"
 msgstr "Reset"
 
 #: /home/mel0n/Downloads/mlncommander/views/preferences/preferences_options.py:32
-#: /home/mel0n/Downloads/mlncommander/views/password_entry.py:37
+#: /home/mel0n/Downloads/mlncommander/views/password_entry.py:44
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -509,48 +531,83 @@ msgstr "Exit"
 msgid "Archivo"
 msgstr "File"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:20
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:26
 msgid "Descomprimir ficheros"
 msgstr "Unzip files"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:40
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:46
 msgid "Ruta destino"
 msgstr "Destination"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:62
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:117
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:68
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:128
 msgid "Extraer"
 msgstr "Extract"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:64
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:70
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:154
 msgid "Cerrar"
 msgstr "Close"
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:86
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:93
 msgid "Para más información pulse sobre los icono."
 msgstr "For more information click on the icons."
 
-#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:143
+#: /home/mel0n/Downloads/mlncommander/views/uncompress.py:159
 msgid "Proceso detenido"
 msgstr "Process stopped"
 
-#: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:21
-msgid "Crear fichero"
-msgstr "Create file"
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:31
+msgid "Comprimir ficheros"
+msgstr "Compress files"
 
-#: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:38
-msgid "Nombre del nuevo archivo:"
-msgstr "Name of the new file:"
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:52
+msgid "Lista de rutas a comprimir"
+msgstr "List of routes to compress"
 
-#: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:114
-msgid "El archivo ya existe."
-msgstr "The file already exists."
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:76
+msgid "Nombre del archivo"
+msgstr "File name"
 
-#: /home/mel0n/Downloads/mlncommander/views/new_file_dialog.py:122
-msgid "Ha surgido algún problema al crear el archivo."
-msgstr "There was a problem creating the file."
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:81
+msgid "Tipo de archivo"
+msgstr "File type"
 
-#: /home/mel0n/Downloads/mlncommander/views/password_entry.py:16
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:85
+msgid "Nivel de compresión"
+msgstr "Compression level"
+
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:89
+msgid "Contraseña"
+msgstr "Password"
+
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:96
+msgid "Multi hilo para comprimir"
+msgstr "Multi-thread for compression"
+
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:100
+msgid ""
+"Tamaño volumen\n"
+"multi parte"
+msgstr ""
+"Volume size\n"
+"multipart"
+
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:152
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:332
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:399
+msgid "Comprimir"
+msgstr "Compress"
+
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:172
+msgid "Debe introducir un nombre de archivo"
+msgstr "You must enter a file name"
+
+#: /home/mel0n/Downloads/mlncommander/views/compress.py:180
+msgid "La contraseña establecida es diferente"
+msgstr "The password set is different"
+
+#: /home/mel0n/Downloads/mlncommander/views/password_entry.py:17
 msgid "Solicitud de password"
 msgstr "Password request"
 
@@ -558,7 +615,7 @@ msgstr "Password request"
 msgid "Lista para eliminar"
 msgstr "List for deletion"
 
-#: /home/mel0n/Downloads/mlncommander/views/selected_for_delete.py:54
+#: /home/mel0n/Downloads/mlncommander/views/selected_for_delete.py:55
 msgid ""
 "¿Eliminar permanentemente el/los archivo(s) e directorio(s) "
 "seleccionado(s)?\n"
@@ -569,9 +626,33 @@ msgstr ""
 "\n"
 "This operation cannot be undone."
 
-#: /home/mel0n/Downloads/mlncommander/views/selected_for_delete.py:75
+#: /home/mel0n/Downloads/mlncommander/views/selected_for_delete.py:76
 msgid "Eliminar"
 msgstr "Delete"
+
+#: /home/mel0n/Downloads/mlncommander/views/create_dir_window.py:20
+msgid "Creando directorio"
+msgstr "Creating directory"
+
+#: /home/mel0n/Downloads/mlncommander/views/rename_window.py:18
+msgid "Renombrando archivo"
+msgstr "Renaming file"
+
+#: /home/mel0n/Downloads/mlncommander/views/rename_window.py:40
+msgid "Destino"
+msgstr "Destination"
+
+#: /home/mel0n/Downloads/mlncommander/views/rename_window.py:45
+msgid "Tamaño"
+msgstr "Size"
+
+#: /home/mel0n/Downloads/mlncommander/views/rename_window.py:49
+msgid "Fecha"
+msgstr "Data"
+
+#: /home/mel0n/Downloads/mlncommander/views/rename_window.py:53
+msgid "Permisos"
+msgstr "Permissions"
 
 #~ msgid "Estás queriendo mover el contenido al mismo directorio"
 #~ msgstr "You are trying to move content to the same directory"
