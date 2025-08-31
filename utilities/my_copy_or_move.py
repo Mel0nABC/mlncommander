@@ -30,7 +30,7 @@ class MyCopyMove:
 
     def __init__(self):
         self.action = Actions()
-        self.transfering_dialog = None
+        self.transfering_window = None
         self.response_dic = {}
         self.rename_response = None
         self.cancel_rename = False
@@ -246,7 +246,7 @@ class MyCopyMove:
                             duplicate,
                         )
                 else:
-                    self.transfering_dialog.set_labels(src_info, dst_info)
+                    self.transfering_window.set_labels(src_info, dst_info)
                     if not dst_info.exists():
                         result = self.copy_file(src_info, dst_info)
 
@@ -305,11 +305,10 @@ class MyCopyMove:
 
         GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
         GLib.idle_add(explorer_dst.load_new_path, dst_dir)
-
-        self.close_dialog_transfering_proccess()
+        GLib.idle_add(self.close_dialog_transfering_proccess)
 
     def close_dialog_transfering_proccess(self):
-        self.transfering_dialog.close_copying()
+        self.transfering_window.on_finish_close()
         if self.thread_update_dialog.is_alive():
             self.progress_on = False
             self.thread_update_dialog.join()
@@ -443,7 +442,7 @@ class MyCopyMove:
                 self.emergency_name = Path(f"{self.new_name}.copy")
                 while self.emergency_name.exists():
                     self.emergency_name = Path(f"{self.emergency_name}.copy")
-                self.transfering_dialog.set_labels(src_info, self.new_name)
+                self.transfering_window.set_labels(src_info, self.new_name)
                 self.copy_file(src_info, self.emergency_name)
                 GLib.idle_add(
                     self.action.show_msg_alert,
@@ -456,7 +455,7 @@ class MyCopyMove:
                     ),
                 )
             else:
-                self.transfering_dialog.set_labels(src_info, self.new_name)
+                self.transfering_window.set_labels(src_info, self.new_name)
                 self.copy_file(src_info, self.new_name)
 
     def overwrite(
@@ -511,10 +510,10 @@ class MyCopyMove:
         """
         Creates dialog showing information about the file being copied
         """
-        self.transfering_dialog = Transfering(parent, self.action_to_exec)
-        self.transfering_dialog.present()
+        self.transfering_window = Transfering(parent, self.action_to_exec)
+        self.transfering_window.present()
         self.iterator_thread.start()
-        response = await self.transfering_dialog.wait_response_async()
+        response = await self.transfering_window.wait_response_async()
         return response
 
     async def create_rename_window(
@@ -535,9 +534,9 @@ class MyCopyMove:
         """
         while self.progress_on:
             try:
-                if self.transfering_dialog is not None:
-                    src_info = self.transfering_dialog.src_info
-                    dst_info = self.transfering_dialog.dst_info
+                if self.transfering_window is not None:
+                    src_info = self.transfering_window.src_info
+                    dst_info = self.transfering_window.dst_info
 
                     src_store = True
                     dst_store = True
@@ -550,9 +549,6 @@ class MyCopyMove:
                         dst_store = File_manager.get_path_list(dst_dir)
 
                     if not src_store or not dst_store:
-                        GLib.idle_add(
-                            self.transfering_dialog.cancel_copying, Gtk.Button
-                        )
 
                         if not self.showed_msg_network_problem:
                             GLib.idle_add(
@@ -587,7 +583,7 @@ class MyCopyMove:
                         dst_size_text = f"{dst_info.stat().st_size}"
 
                     GLib.idle_add(
-                        self.transfering_dialog.update_labels,
+                        self.transfering_window.update_labels,
                         src_size_text,
                         dst_size_text,
                     )

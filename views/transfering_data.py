@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from views.confirm_window import ConfirmWindow
 import time
 import gi
 import asyncio
@@ -28,6 +29,7 @@ class Transfering(Gtk.Window):
             transient_for=parent,
             modal=True,
         )
+        self.win = parent
         self.src_size = 0
         self.dst_size = 0
         self.old_dst_size = 0
@@ -72,7 +74,7 @@ class Transfering(Gtk.Window):
         self.progress_box.append(self.progress)
 
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
-        self.btn_cancel.connect("clicked", self.cancel_copying)
+        self.btn_cancel.connect("clicked", self.verify_on_exit)
         self.btn_cancel.set_margin_top(margin)
         self.btn_cancel.set_margin_end(margin)
         self.btn_cancel.set_margin_bottom(margin)
@@ -86,7 +88,7 @@ class Transfering(Gtk.Window):
 
         self.window_response = False
         self.future = asyncio.get_event_loop().create_future()
-        self.connect("close-request", self.cancel_copying)
+        self.connect("close-request", self.on_close_window)
 
     def set_labels(self, src_info: Path, dst_info: Path) -> None:
         """
@@ -142,21 +144,12 @@ class Transfering(Gtk.Window):
             self.lbl_size.set_text(_("Caldulando ..."))
             print(e)
 
-    def cancel_copying(self, button: Gtk.Button) -> None:
+    def on_close_window(self, signal) -> bool:
         """
-        Set response on close window
+        When push X for close window, make a question, no auto close
         """
-        self.window_response = False
-        if not self.future.done():
-            self.future.set_result(self.window_response)
-
-    def close_copying(self) -> None:
-        """
-        Set response on close window
-        """
-        self.window_response = True
-        if not self.future.done():
-            self.future.set_result(self.window_response)
+        self.verify_on_exit()
+        return True
 
     async def wait_response_async(self) -> bool:
         """
@@ -165,3 +158,19 @@ class Transfering(Gtk.Window):
         response = await self.future
         self.destroy()
         return response
+
+    def verify_on_exit(self, button: Gtk.Button = None) -> bool:
+
+        mm = ConfirmWindow(self.win)
+
+        async def response():
+            response = await mm.wait_response_async()
+            if response:
+                self.window_response = False
+                if not self.future.done():
+                    self.future.set_result(self.window_response)
+
+        asyncio.ensure_future(response())
+
+    def on_finish_close(self) -> None:
+        self.destroy()
