@@ -157,6 +157,8 @@ class CompressWindow(Gtk.Window):
         self.vertical_main.append(self.vertical_files)
         self.vertical_main.append(horizontal_button)
 
+        self.connect("close-request", self.on_close_window)
+
         self.present()
 
     def compress(self, button: Gtk.Button) -> None:
@@ -362,7 +364,17 @@ class CompressWindow(Gtk.Window):
     ) -> None:
         self.action.show_msg_alert(self.win, msg)
 
-    def on_exit(self, button: Gtk.Button) -> None:
+    def on_close_window(self, signal: compress.CompressWindow) -> bool:
+        """
+        When push X for close window, make a question, no auto close
+        """
+        self.on_exit()
+        return True
+
+    def on_exit(self, button: Gtk.Button = None) -> None:
+        """
+        Make a question, no auto close
+        """
         if self.compress_popen:
             self.verify_on_exit()
             return
