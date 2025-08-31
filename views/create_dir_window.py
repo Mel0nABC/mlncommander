@@ -16,7 +16,6 @@ class CreateDirWindow(Gtk.Window):
         parent: Gtk.ApplicationWindow,
         explorer_src: "Explorer",  # noqa: F821
     ):
-        print("CREATE DIR")
         super().__init__(
             title=_("Creando directorio"),
             transient_for=parent,
@@ -64,7 +63,6 @@ class CreateDirWindow(Gtk.Window):
         self.response_text = None
         self.future = asyncio.get_event_loop().create_future()
         self.present()
-        print(type(self))
 
     def exit(self, button: Gtk.Button) -> None:
         """
