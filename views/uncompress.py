@@ -105,7 +105,7 @@ class UncompressWindow(Gtk.Window):
             self.compression_manager.uncompress(file, self.dst_dir, q)
 
             if self.stop_uncompress:
-                print(f"CANCELAMOS VAMOS A BORRAR: {file.is_dir()}")
+                self.compression_manager.delete_last_uncompress()
                 output_text = _(
                     (
                         "Has finalizado el proceso de descompresión\n"

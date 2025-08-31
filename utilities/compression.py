@@ -24,11 +24,13 @@ class CompressionManager:
     def stop_uncompress(self) -> None:
         if self.uncompress_popen:
             self.uncompress_popen.kill()
-            if self.last_dst_folder.exists():
-                # Delete directory when cancel extract
-                threading.Thread(
-                    target=shutil.rmtree, args=(str(self.last_dst_folder),)
-                ).start()
+
+    def delete_last_uncompress(self):
+        if self.last_dst_folder.exists():
+            # Delete directory when cancel extract
+            threading.Thread(
+                target=shutil.rmtree, args=(str(self.last_dst_folder),)
+            ).start()
 
     def uncompress(self, file: Path, dst_dir: Path, q: Queue) -> dict:
         try:
