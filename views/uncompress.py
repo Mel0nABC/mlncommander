@@ -120,6 +120,7 @@ class UncompressWindow(Gtk.Window):
                 GLib.idle_add(self.update_labels, response, file)
             time.sleep(0.1)
 
+        self.on_stop_uncompress()
         info_label = Gtk.Label.new(output_text)
         info_label.set_margin_top(20)
         GLib.idle_add(self.vertical_files.append, info_label)
