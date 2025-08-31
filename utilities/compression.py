@@ -4,6 +4,7 @@
 from utilities.i18n import _
 from multiprocessing import Queue
 from pathlib import Path
+import threading
 import shutil
 import subprocess
 import re
@@ -17,10 +18,17 @@ class CompressionManager:
 
         self.uncompress_popen = None
         self.win = win
+        self.last_path = None
+        self.last_dst_folder = None
 
     def stop_uncompress(self) -> None:
         if self.uncompress_popen:
             self.uncompress_popen.kill()
+            if self.last_dst_folder.exists():
+                # Delete directory when cancel extract
+                threading.Thread(
+                    target=shutil.rmtree, args=(str(self.last_dst_folder),)
+                ).start()
 
     def uncompress(self, file: Path, dst_dir: Path, q: Queue) -> dict:
         try:
@@ -114,6 +122,9 @@ class CompressionManager:
             cmd, stdin=slave_fd, stdout=slave_fd, stderr=slave_fd, text=True
         )
         os.close(slave_fd)
+
+        self.last_path = path
+        self.last_dst_folder = dst_zip_folder
 
         while self.uncompress_popen.poll() is None:
             try:

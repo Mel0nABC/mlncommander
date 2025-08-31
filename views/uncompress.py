@@ -7,8 +7,10 @@ from utilities.compression import CompressionManager
 from controls.actions import Actions
 from views.explorer import Explorer
 from views.password_entry import PasswordWindow
-from pathlib import Path
+from views.confirm_window import ConfirmWindow
 from multiprocessing import Queue
+from pathlib import Path
+import asyncio
 import threading
 import gi
 import time
@@ -72,6 +74,9 @@ class UncompressWindow(Gtk.Window):
         horizontal_button.append(btn_cancel)
         self.vertical_main.append(self.vertical_files)
         self.vertical_main.append(horizontal_button)
+
+        self.connect("close-request", self.on_close_window)
+
         self.present()
 
     def uncompress(self, button: Gtk.Button) -> None:
@@ -82,9 +87,7 @@ class UncompressWindow(Gtk.Window):
             t = threading.Thread(target=self.start_uncompress)
             t.start()
         else:
-            self.stop_uncompress = True
-            self.compression_manager.stop_uncompress()
-            button.set_sensitive(False)
+            self.verify_on_exit(False)
 
     def start_uncompress(self) -> None:
         output_text = _("Para más información pulse sobre los icono.")
@@ -102,6 +105,7 @@ class UncompressWindow(Gtk.Window):
             self.compression_manager.uncompress(file, self.dst_dir, q)
 
             if self.stop_uncompress:
+                print(f"CANCELAMOS VAMOS A BORRAR: {file.is_dir()}")
                 output_text = _(
                     (
                         "Has finalizado el proceso de descompresión\n"
@@ -173,6 +177,11 @@ class UncompressWindow(Gtk.Window):
 
         self.dst_explorer.load_new_path(self.dst_dir)
 
+    def on_stop_uncompress(self) -> None:
+        self.extract_activate = False
+        self.stop_uncompress = True
+        self.compression_manager.stop_uncompress()
+
     def show_msg_alert(
         self,
         gesture: Gtk.GestureClick,
@@ -184,9 +193,35 @@ class UncompressWindow(Gtk.Window):
     ) -> None:
         self.action.show_msg_alert(self.win, msg)
 
-    def on_exit(self, button: Gtk.Button) -> None:
+    def on_close_window(self, signal) -> bool:
+        """
+        When push X for close window, make a question, no auto close
+        """
+        self.on_exit()
+        return True
+
+    def on_exit(self, button: Gtk.Button = None) -> None:
+        if self.extract_activate:
+            self.verify_on_exit(True)
+            return
+
         self.destroy()
-        GLib.idle_add(self.win.key_connect)
+        self.win.key_connect()
+        return True
+
+    def verify_on_exit(self, destroy: bool) -> bool:
+
+        mm = ConfirmWindow(self.win)
+
+        async def response():
+            response = await mm.wait_response_async()
+            if response:
+                self.on_stop_uncompress()
+                if destroy:
+                    GLib.idle_add(self.destroy)
+                    GLib.idle_add(self.win.key_connect)
+
+        asyncio.ensure_future(response())
 
     def set_percent(self, percent):
         GLib.idle_add(self.progress_bar.set_fraction, percent / 100)
