@@ -22,7 +22,6 @@ class My_watchdog:
         self.path = Path(path)
         self.APP_USER_PATH = APP_USER_PATH
         self.explorer = explorer
-        print("START")
 
     def start(self):
         """

@@ -5,7 +5,6 @@ from utilities.i18n import _
 from pathlib import Path
 import shutil
 import threading
-import asyncio
 import time
 import os
 import gi
@@ -142,6 +141,10 @@ class Explorer(Gtk.ColumnView):
         self.add_controller(gesture)
 
         self.activate_drag_source(self)
+
+        # Activate watchdog on startup
+
+        self.control_watchdog(self.actual_path, self)
 
     def setup(
         self,
@@ -280,7 +283,7 @@ class Explorer(Gtk.ColumnView):
             return
 
         if self.actual_path != path:
-            GLib.idle_add(self.update_watchdog_path, path, self)
+            self.control_watchdog(path, self)
 
         self.actual_path = path
         self.entry.set_text(str(path))
@@ -288,6 +291,16 @@ class Explorer(Gtk.ColumnView):
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
+
+    def control_watchdog(self, path: Path, explorer: "Explorer") -> None:
+        """
+        Create another watchdog with other path
+        """
+        if self.my_watchdog:
+            self.my_watchdog.stop()
+        self.my_watchdog = My_watchdog(str(path), self.APP_USER_PATH, explorer)
+        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
+        self.watchdog_thread.start()
 
     def load_new_path(self, path: Path) -> None:
         """
@@ -445,12 +458,6 @@ class Explorer(Gtk.ColumnView):
 
         return index_return, selected_items
 
-    def update_watchdog_path(self, path: Path, explorer: "Explorer") -> None:
-        """
-        The watchdog route is changed
-        """
-        asyncio.ensure_future(self.control_watchdog(path, explorer))
-
     def set_str_search(self, search_word: str) -> str:
         """
         The search word is changed by
@@ -553,16 +560,6 @@ class Explorer(Gtk.ColumnView):
         Finish str_search_start(self) while loop
         """
         self.count_rst_int = self.COUNT_RST_TIME
-
-    async def control_watchdog(self, path: Path, explorer: "Explorer") -> None:
-        """
-        Create another watchdog with other path
-        """
-        if self.my_watchdog:
-            self.my_watchdog.stop()
-        self.my_watchdog = My_watchdog(str(path), self.APP_USER_PATH, explorer)
-        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
-        self.watchdog_thread.start()
 
     def activate_drag_source(self, item: Gtk.Widget) -> None:
         """
