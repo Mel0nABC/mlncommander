@@ -7,8 +7,10 @@ from utilities.compression import CompressionManager
 from controls.actions import Actions
 from views.explorer import Explorer
 from views.password_entry import PasswordWindow
+from views.confirm_window import ConfirmWindow
 from pathlib import Path
 from multiprocessing import Queue
+import asyncio
 import secrets
 import string
 import threading
@@ -149,11 +151,11 @@ class CompressWindow(Gtk.Window):
 
         self.btn_extract = Gtk.Button(label=_("Comprimir"))
         self.btn_extract.connect("clicked", self.compress)
-        btn_cancel = Gtk.Button(label=_("Cerrar"))
-        btn_cancel.connect("clicked", self.on_exit)
+        self.btn_cancel = Gtk.Button(label=_("Cerrar"))
+        self.btn_cancel.connect("clicked", self.on_exit)
 
         horizontal_button.append(self.btn_extract)
-        horizontal_button.append(btn_cancel)
+        horizontal_button.append(self.btn_cancel)
         self.vertical_main.append(self.vertical_files)
         self.vertical_main.append(horizontal_button)
 
@@ -194,12 +196,11 @@ class CompressWindow(Gtk.Window):
             t = threading.Thread(target=self.start_compress)
             t.start()
         else:
-            self.stop_compress = True
+
             if self.compress_popen:
-                self.compress_popen.kill()
-            button.set_label(label=_("Comprimir"))
-            self.compress_activate = False
-            self.vertical_main.remove(self.progress)
+                # destroy = False, not destroy window
+                destroy = False
+                self.verify_on_exit(destroy)
 
     def disable_grid_pannel(self):
         for i in range(6):
@@ -364,7 +365,7 @@ class CompressWindow(Gtk.Window):
     ) -> None:
         self.action.show_msg_alert(self.win, msg)
 
-    def on_close_window(self, signal: compress.CompressWindow) -> bool:
+    def on_close_window(self, signal) -> bool:
         """
         When push X for close window, make a question, no auto close
         """
@@ -376,30 +377,30 @@ class CompressWindow(Gtk.Window):
         Make a question, no auto close
         """
         if self.compress_popen:
-            self.verify_on_exit()
+            self.verify_on_exit(True)
             return
 
         self.destroy()
         GLib.idle_add(self.win.key_connect)
 
-    def verify_on_exit(self) -> bool:
+    def verify_on_exit(self, destroy: bool) -> bool:
 
-        alert = Gtk.AlertDialog()
-        alert.set_message(_("Si aceptas, cancelaras el proceso actual."))
-        alert.set_buttons([_("Aceptar"), _("Cancelar")])
+        mm = ConfirmWindow(self.win)
 
-        alert.set_default_button(0)
-        alert.set_cancel_button(1)
-
-        def response(alertdialog: Gtk.AlertDialog, result: Gio.Task) -> bool:
-            self.respuesta = alertdialog.choose_finish(result)
-            if not self.respuesta:
+        async def response():
+            response = await mm.wait_response_async()
+            if response:
                 self.stop_compress = True
                 self.compress_popen.kill()
-                self.destroy()
-                GLib.idle_add(self.win.key_connect)
+                if destroy:
+                    GLib.idle_add(self.destroy)
+                    GLib.idle_add(self.win.key_connect)
+                else:
+                    GLib.idle_add(self.btn_extract.set_label, _("Comprimir"))
+                    self.compress_activate = False
+                    GLib.idle_add(self.vertical_main.remove, self.progress)
 
-        alert.choose(self, None, response)
+        asyncio.ensure_future(response())
 
     def set_percent(self, percent):
         GLib.idle_add(self.label_rsp.set_text, percent)
