@@ -10,7 +10,7 @@ import asyncio
 gi.require_version("Gtk", "4.0")
 
 
-class Create_dir_dialog(Gtk.Window):
+class CreateDirWindow(Gtk.Window):
     def __init__(
         self,
         parent: Gtk.ApplicationWindow,
@@ -64,10 +64,11 @@ class Create_dir_dialog(Gtk.Window):
         self.response_text = None
         self.future = asyncio.get_event_loop().create_future()
         self.present()
+        print(type(self))
 
     def exit(self, button: Gtk.Button) -> None:
         """
-        Close dialog on press cancel button
+        Close window on press cancel button
         """
         self.destroy()
 
@@ -83,7 +84,7 @@ class Create_dir_dialog(Gtk.Window):
 
     async def wait_response_async(self) -> None:
         """
-        Response on close dialog
+        Response on close window
         """
         response = await self.future
         return response

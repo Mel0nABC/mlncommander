@@ -5,7 +5,7 @@ from __future__ import annotations
 from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
-from views.create_dir_dialog import Create_dir_dialog
+from views.create_dir_window import CreateDirWindow
 from views.explorer import Explorer
 import asyncio
 import os
@@ -65,7 +65,7 @@ class Create:
         Launches the dialog window to create a new directory
         """
 
-        create_dir = Create_dir_dialog(parent, explorer_dst)
+        create_dir = CreateDirWindow(parent, explorer_dst)
         response = await create_dir.wait_response_async()
         dst_dir = Path(f"{explorer_dst.actual_path}/{response}")
 
