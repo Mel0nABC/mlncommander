@@ -4,7 +4,7 @@
 from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
-from views.rename_dialog import Rename_dialog
+from views.rename_window import RenameWindow
 from views.explorer import Explorer
 import gi
 import os
@@ -107,5 +107,5 @@ class Rename_Logic:
         """
         Dialog rename
         """
-        rename_dialog = Rename_dialog(parent, str(src_info))
-        return await rename_dialog.wait_response_async()
+        rename_window = RenameWindow(parent, str(src_info))
+        return await rename_window.wait_response_async()
