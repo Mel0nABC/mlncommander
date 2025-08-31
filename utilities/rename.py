@@ -65,12 +65,12 @@ class Rename_Logic:
         for src_info in selected_items:
             self.wait_event = threading.Event()
 
-            def run_dialog(parent, src_info):
+            def run_window(parent, src_info):
                 asyncio.ensure_future(
-                    self.create_dialog_response(parent, src_info)
+                    self.create_response_window(parent, src_info)
                 )
 
-            GLib.idle_add(run_dialog, parent, src_info)
+            GLib.idle_add(run_window, parent, src_info)
             self.wait_event.wait()
 
             if self.response is None or self.response == src_info.name:
@@ -92,20 +92,20 @@ class Rename_Logic:
             explorer_src.flags,
         )
 
-    async def create_dialog_response(
+    async def create_response_window(
         self, parent: Gtk.ApplicationWindow, src_info: Path
     ) -> None:
         """
-        Create dialog to set new name
+        Create window to set new name
         """
-        self.response = await self.create_dialog_rename(parent, src_info)
+        self.response = await self.create_rename_window(parent, src_info)
         self.wait_event.set()
 
-    async def create_dialog_rename(
+    async def create_rename_window(
         self, parent: Gtk.ApplicationWindow, src_info: Path
     ) -> Future[str]:
         """
-        Dialog rename
+        Window rename
         """
         rename_window = RenameWindow(parent, str(src_info))
         return await rename_window.wait_response_async()
