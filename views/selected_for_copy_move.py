@@ -11,7 +11,7 @@ import asyncio
 gi.require_version("Gtk", "4.0")
 
 
-class Selected_for_copy_move(Gtk.Dialog):
+class Selected_for_copy_move(Gtk.Window):
 
     def __init__(
         self,
@@ -43,11 +43,12 @@ class Selected_for_copy_move(Gtk.Dialog):
 
         self.on_default_size()
 
-        self.box = self.get_content_area()
-
         self.vertical_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
+
+        self.set_child(self.vertical_box)
+
         self.vertical_box.set_margin_top(20)
         self.vertical_box.set_margin_end(20)
         self.vertical_box.set_margin_bottom(20)
@@ -102,15 +103,12 @@ class Selected_for_copy_move(Gtk.Dialog):
 
         self.vertical_box.append(horizonntal_btns)
 
-        self.box.append(self.vertical_box)
-
         btn_show_files.connect("clicked", self.show_selected_list)
         btn_copy.connect("clicked", self.start_copy)
-        btn_cancel.connect("clicked", self.on_exit, self)
+        btn_cancel.connect("clicked", self.on_exit)
 
         self.response = None
         self.future = asyncio.get_event_loop().create_future()
-        self.connect("response", self._on_response)
 
         self.present()
 
@@ -157,35 +155,28 @@ class Selected_for_copy_move(Gtk.Dialog):
             self.vertical_box.remove(self.scroll)
             self.on_default_size()
 
-    def on_exit(
-        self, button: Gtk.Button, window: Gtk.ApplicationWindow
-    ) -> None:
+    def on_exit(self, button: Gtk.Button) -> None:
         """
         Set respose false
         """
         self.response = False
-        self.close()
+        if not self.future.done():
+            self.future.set_result(self.response)
 
     def start_copy(self, button: Gtk.Button) -> None:
         """
         Set respose True
         """
         self.response = True
-        self.close()
-
-    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
-        """
-        Set response on close dialog
-        """
         if not self.future.done():
             self.future.set_result(self.response)
-        self.destroy()
 
     async def wait_response_async(self) -> bool:
         """
-        Response on close dialog
+        Response on close window
         """
         response = await self.future
+        self.destroy()
         return response
 
     def on_default_size(self) -> None:
