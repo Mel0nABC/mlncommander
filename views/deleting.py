@@ -8,10 +8,10 @@ import asyncio
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Gtk, GLib, Pango  # noqa: E402
+from gi.repository import Gtk, Pango  # noqa: E402
 
 
-class Deleting(Gtk.Dialog):
+class Deleting(Gtk.Window):
 
     def __init__(self, parent: Gtk.ApplicationWindow, src_info: Path):
         super().__init__(
@@ -43,7 +43,7 @@ class Deleting(Gtk.Dialog):
 
         self.dialog_response = False
         self.future = asyncio.get_event_loop().create_future()
-        self.connect("response", self._on_response)
+
         self.present()
 
     def update_labels(self, deleting_file: Path) -> None:
@@ -60,26 +60,19 @@ class Deleting(Gtk.Dialog):
         Close dialog and return False
         """
         self.dialog_response = False
-        GLib.idle_add(self.response, Gtk.ResponseType.CANCEL)
-
-    def _on_response(self, dialog, response_id) -> None:
-        """
-        Set response on close dialog
-        """
-        if not self.future.done():
-            self.future.set_result(self.dialog_response)
-        self.destroy()
-
-    async def wait_response_async(self) -> bool:
-        """
-        Response on close dialog
-        """
-        response = await self.future
-        return response
 
     def finish_deleting(self) -> None:
         """
         Set response on close dialog
         """
         self.dialog_response = True
-        GLib.idle_add(self.response, Gtk.ResponseType.OK)
+        if not self.future.done():
+            self.future.set_result(self.dialog_response)
+
+    async def wait_response_async(self) -> bool:
+        """
+        Response on close dialog
+        """
+        response = await self.future
+        self.destroy()
+        return response

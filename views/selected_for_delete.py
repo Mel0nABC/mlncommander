@@ -12,7 +12,7 @@ from gi.repository import Gtk, Gio
 gi.require_version("Gtk", "4.0")
 
 
-class Selected_for_delete(Gtk.Dialog):
+class Selected_for_delete(Gtk.Window):
 
     def __init__(
         self,
@@ -37,11 +37,12 @@ class Selected_for_delete(Gtk.Dialog):
 
         self.set_default_size(self.horizontal_size, self.vertical_size)
 
-        self.box = self.get_content_area()
-
         self.vertical_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
+
+        self.set_child(self.vertical_box)
+
         self.vertical_box.set_margin_top(20)
         self.vertical_box.set_margin_end(20)
         self.vertical_box.set_margin_bottom(20)
@@ -91,14 +92,11 @@ class Selected_for_delete(Gtk.Dialog):
 
         self.vertical_box.append(horizonntal_btns)
 
-        self.box.append(self.vertical_box)
-
         btn_accept.connect("clicked", self.start_delete)
         btn_cancel.connect("clicked", self.on_exit, self)
 
         self.response = None
         self.future = asyncio.get_event_loop().create_future()
-        self.connect("response", self._on_response)
 
         self.present()
         btn_accept.grab_focus()
@@ -147,26 +145,21 @@ class Selected_for_delete(Gtk.Dialog):
         Set respose false
         """
         self.response = False
-        self.close()
+        if not self.future.done():
+            self.future.set_result(self.response)
 
     def start_delete(self, button: Gtk.Button) -> None:
         """
         Set respose True
         """
         self.response = True
-        self.close()
-
-    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
-        """
-        Set response on close dialog
-        """
         if not self.future.done():
             self.future.set_result(self.response)
-        self.destroy()
 
     async def wait_response_async(self) -> bool:
         """
         Response on close dialog
         """
         response = await self.future
+        self.destroy()
         return response
