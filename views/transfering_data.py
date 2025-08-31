@@ -6,12 +6,12 @@ import time
 import gi
 import asyncio
 from pathlib import Path
-from gi.repository import Gtk, GLib, Pango
+from gi.repository import Gtk, Pango
 
 gi.require_version("Gtk", "4.0")
 
 
-class Transfering(Gtk.Dialog):
+class Transfering(Gtk.Window):
 
     def __init__(self, parent: Gtk.ApplicationWindow, action_to_exec: str):
         margin = 20
@@ -84,9 +84,9 @@ class Transfering(Gtk.Dialog):
         self.box.append(self.progress_box)
         self.box.append(self.btn_cancel)
 
-        self.dialog_response = False
+        self.window_response = False
         self.future = asyncio.get_event_loop().create_future()
-        self.connect("response", self._on_response)
+        self.connect("close-request", self.cancel_copying)
 
     def set_labels(self, src_info: Path, dst_info: Path) -> None:
         """
@@ -144,29 +144,24 @@ class Transfering(Gtk.Dialog):
 
     def cancel_copying(self, button: Gtk.Button) -> None:
         """
-        Stop dialog and send response False
+        Set response on close window
         """
-        self.dialog_response = False
-        GLib.idle_add(self.response, Gtk.ResponseType.OK)
-
-    def _on_response(self, dialog: Gtk.Dialog, response_id: str) -> None:
-        """
-        Set response on close dialog
-        """
+        self.window_response = False
         if not self.future.done():
-            self.future.set_result(self.dialog_response)
-        self.destroy()
-
-    async def wait_response_async(self) -> bool:
-        """
-        Response on close dialog
-        """
-        response = await self.future
-        return response
+            self.future.set_result(self.window_response)
 
     def close_copying(self) -> None:
         """
-        Set response on close dialog
+        Set response on close window
         """
-        self.dialog_response = True
-        GLib.idle_add(self.response, Gtk.ResponseType.OK)
+        self.window_response = True
+        if not self.future.done():
+            self.future.set_result(self.window_response)
+
+    async def wait_response_async(self) -> bool:
+        """
+        Response on close window
+        """
+        response = await self.future
+        self.destroy()
+        return response
