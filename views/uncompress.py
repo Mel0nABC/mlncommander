@@ -14,7 +14,7 @@ import gi
 import time
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib  # noqa : E402
+from gi.repository import Gtk, GLib, Pango  # noqa : E402
 
 
 class UncompressWindow(Gtk.Window):
@@ -123,37 +123,44 @@ class UncompressWindow(Gtk.Window):
         GLib.idle_add(self.btn_extract.set_label, _("Extraer"))
 
     def add_new_label(self, file: Path) -> None:
-        horizontal_file = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+
+        grid = Gtk.Grid(column_spacing=200, row_spacing=10)
+
+        label_src = Gtk.Label.new()
+        label_src.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+        # label_src.set_hexpand(True)
+        label_src.set_halign(Gtk.Align.START)
+        label_src.set_text(str(file))
+
+        grid.attach(label_src, 0, 0, 1, 1)
+
+        self.label_finish_status = Gtk.Label.new()
+        self.label_finish_status.set_text("    ")
+
+        grid.attach(self.label_finish_status, 1, 0, 1, 1)
+
+        self.vertical_files.append(grid)
+        self.progress_bar = Gtk.ProgressBar.new()
+        self.progress_bar.set_hexpand(True)
+        self.progress_bar.set_show_text(True)
+        self.vertical_files.append(self.progress_bar)
+        self.vertical_files.append(
+            Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
         )
-        horizontal_file.set_margin_top(10)
-
-        label = Gtk.Label.new()
-        label.set_hexpand(True)
-        label.set_halign(Gtk.Align.START)
-        label.set_text(str(file))
-
-        horizontal_file.append(label)
-
-        self.label_rsp = Gtk.Label.new()
-        self.label_rsp.set_text("0%")
-        self.label_rsp.set_margin_end(30)
-
-        horizontal_file.append(self.label_rsp)
-
-        self.vertical_files.append(horizontal_file)
 
     def update_labels(self, response: dict, file: Path) -> None:
 
         if not response:
-            self.label_rsp.set_text(_("Proceso detenido"))
+            self.label_finish_status.set_text(_("Proceso detenido"))
             self.dst_explorer.load_new_path(self.dst_dir)
             return
 
         if response["status"]:
-            self.label_rsp.set_text("✅")
+            self.label_finish_status.set_text("✅")
+            GLib.idle_add(self.progress_bar.set_fraction, 1)
         else:
-            self.label_rsp.set_text("❌")
+            self.label_finish_status.set_text("❌")
+            GLib.idle_add(self.progress_bar.set_fraction, 0)
 
         gesture = Gtk.GestureClick.new()
         gesture.connect(
@@ -162,7 +169,7 @@ class UncompressWindow(Gtk.Window):
             self.win,
             _(f"{response["msg"]}\n\n{file}"),
         )
-        self.label_rsp.add_controller(gesture)
+        self.label_finish_status.add_controller(gesture)
 
         self.dst_explorer.load_new_path(self.dst_dir)
 
@@ -182,7 +189,7 @@ class UncompressWindow(Gtk.Window):
         GLib.idle_add(self.win.key_connect)
 
     def set_percent(self, percent):
-        GLib.idle_add(self.label_rsp.set_text, percent)
+        GLib.idle_add(self.progress_bar.set_fraction, percent / 100)
 
     def get_archivo_password(self, to_work: Queue, file: Path):
         GLib.idle_add(self.create_password_window, to_work, file)

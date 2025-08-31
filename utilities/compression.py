@@ -117,7 +117,7 @@ class CompressionManager:
 
                 match = re.search(r"(.{2})%", texto)
                 if match:
-                    percent = f"{match.group(1)}%"
+                    percent = int(match.group(1))
                     self.win.set_percent(percent)
             except OSError:
                 continue
