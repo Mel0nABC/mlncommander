@@ -221,10 +221,10 @@ class Transfering(Gtk.Window):
             self.btn_cancel.set_margin_bottom(0)
             self.btn_cancel.set_margin_start(0)
 
-            self.btn_cancel.set_label("X")
             self.btn_cancel.set_size_request(-1, -1)
             self.btn_cancel.set_hexpand(False)
             self.btn_cancel.set_halign(Gtk.Align.END)
+            self.btn_cancel.set_margin_top(5)
 
             self.grid.set_margin_top(self.win.scroll_margin)
 
@@ -249,10 +249,10 @@ class Transfering(Gtk.Window):
             self.grid.remove(self.progress_box)
             self.grid.remove(self.btn_cancel)
 
-            self.grid.attach(self.lbl_dst, 0, 1, 1, 2)
-            self.grid.attach(self.btn_cancel, 1, 1, 1, 2)
-            self.grid.attach(self.progress_box, 0, 3, 1, 2)
-            self.grid.attach(self.lbl_size, 1, 3, 1, 2)
+            self.grid.attach(self.lbl_dst, 0, 1, 1, 1)
+            self.grid.attach(self.progress_box, 0, 2, 1, 1)
+            self.grid.attach(self.lbl_size, 1, 2, 1, 1)
+            self.grid.attach(self.btn_cancel, 1, 3, 1, 1)
 
         GLib.idle_add(
             self.win.to_down_explorer, self.dst_explorer.name, self.grid
