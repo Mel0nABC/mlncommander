@@ -60,7 +60,7 @@ class MyCopyMove:
         """
         Start to copy files or directories.
         """
-
+        self.action_to_exec = action_str
         self.parent = parent
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst

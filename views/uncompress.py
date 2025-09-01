@@ -203,7 +203,7 @@ class UncompressWindow(Gtk.Window):
         self.on_exit()
         return True
 
-    def on_exit(self, button: Gtk.Button = None) -> None:
+    def on_exit(self, button: Gtk.Button = None) -> bool:
         if self.extract_activate:
             self.verify_on_exit(True)
             return
@@ -211,6 +211,7 @@ class UncompressWindow(Gtk.Window):
         GLib.idle_add(self.finish_background)
         GLib.idle_add(self.destroy)
         GLib.idle_add(self.win.key_connect)
+        return True
 
     def verify_on_exit(self, destroy: bool) -> bool:
 
