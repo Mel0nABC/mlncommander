@@ -13,10 +13,21 @@ from gi.repository import Gtk  # noqa: E402
 class ConfirmWindow(Gtk.Window):
     def __init__(self, parent: Gtk.ApplicationWindow):
         super().__init__(
-            title=_("Solicitud de confirmación"),
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(
+            Gtk.Label(label=_("Solicitud de confirmación"))
+        )
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
 
         horizontal = parent.horizontal
 

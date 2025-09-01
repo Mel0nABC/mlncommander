@@ -28,7 +28,18 @@ class CompressWindow(Gtk.Window):
     def __init__(
         self, win, selected_items: list, dst_explorer: Explorer, dst_dir: Path
     ):
-        super().__init__(title=_("Comprimir ficheros"), transient_for=win)
+        super().__init__(transient_for=win)
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("Comprimir ficheros")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+
         self.win = win
         self.action = Actions()
         self.compression_manager = CompressionManager(self)

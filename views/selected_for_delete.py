@@ -21,10 +21,20 @@ class Selected_for_delete(Gtk.Window):
         selected_items: list,
     ):
         super().__init__(
-            title=_("Lista para eliminar"),
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("Lista para eliminar")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+
         self.parent = parent
         self.selected_items = selected_items
         self.explorer_src = explorer_src

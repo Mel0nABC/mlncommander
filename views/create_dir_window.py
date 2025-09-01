@@ -17,10 +17,20 @@ class CreateDirWindow(Gtk.Window):
         explorer_src: "Explorer",  # noqa: F821
     ):
         super().__init__(
-            title=_("Creando directorio"),
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("Creando directorio")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+
         self.dst_info = explorer_src.actual_path
 
         horizontal = parent.horizontal

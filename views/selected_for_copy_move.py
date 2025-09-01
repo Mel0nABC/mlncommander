@@ -25,10 +25,20 @@ class Selected_for_copy_move(Gtk.Window):
         title_text = _("Listo para")
         title_text_final = f"{title_text} {action_to_exec} .."
         super().__init__(
-            title=title_text_final,
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=title_text_final))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+
         self.parent = parent
         self.selected_items = selected_items
         self.explorer_src = explorer_src

@@ -18,7 +18,17 @@ class NewFileWindow(Gtk.Window):
         src_dir: "Explorer",  # noqa: F821
         new_file: "NewFile",  # noqa: F821
     ):
-        super().__init__(title=_("Crear fichero"), transient_for=parent)
+        super().__init__(transient_for=parent)
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("SCrear fichero")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
 
         self.actions = Actions()
         self.win = parent

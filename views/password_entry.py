@@ -14,7 +14,17 @@ gi.require_version("Gtk", "4.0")
 class PasswordWindow(Gtk.Window):
 
     def __init__(self, win: Gtk.Window, to_work: Queue, file: Path):
-        super().__init__(title=_("Solicitud de password"), transient_for=win)
+        super().__init__(transient_for=win)
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("Solicitud de password")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
 
         self.result = None
         self.win = win

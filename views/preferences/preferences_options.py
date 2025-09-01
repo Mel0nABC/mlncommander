@@ -86,7 +86,17 @@ class Preferences(Gtk.Window):
     FONT_STYLE_COLOR = None
 
     def __init__(self, win: Gtk.ApplicationWindow, parent: Gtk.Widget):
-        super().__init__(title=_("Preferencias"), transient_for=win)
+        super().__init__(transient_for=win)
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("Preferencias")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
 
         Preferences.SHOW_DIR_LAST = win.config.SHOW_DIR_LAST
         Preferences.SWITCH_IMG_STATUS = win.config.SWITCH_IMG_STATUS
@@ -198,12 +208,6 @@ class Preferences(Gtk.Window):
         self.present()
 
         self.create_general()
-
-        self.get_style_context().add_class("app_background")
-
-        # Load css
-
-        self.get_style_context().add_class("font-color")
 
         # Signals
 

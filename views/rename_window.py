@@ -15,10 +15,19 @@ from gi.repository import Gtk  # noqa: E402
 class RenameWindow(Gtk.Window):
     def __init__(self, parent: Gtk.ApplicationWindow, dst_info: Path):
         super().__init__(
-            title=_("Renombrando archivo"),
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("Renombrando archivo")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
 
         self.dst_info = File_or_directory_info(dst_info)
 
@@ -36,6 +45,7 @@ class RenameWindow(Gtk.Window):
         vertical_box_info.set_margin_top(20)
         vertical_box_info.set_margin_start(20)
         vertical_box_info.set_margin_end(20)
+        vertical_box_info.set_margin_bottom(20)
 
         dst_text = _("Destino")
         dst_label_text = f"{dst_text}: {self.dst_info.path_file}"

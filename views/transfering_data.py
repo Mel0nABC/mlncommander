@@ -30,10 +30,20 @@ class Transfering(Gtk.Window):
             title_str = _("Copiando ..")
 
         super().__init__(
-            title=title_str,
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=title_str))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+
         self.win = parent
         self.dst_explorer = dst_explorer
         self.src_size = 0

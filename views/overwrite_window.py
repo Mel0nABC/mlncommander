@@ -19,10 +19,21 @@ class OverwriteWindow(Gtk.Window):
         dst_info: Explorer,
     ):
         super().__init__(
-            title=_("Elige una opción para sobre escribir"),
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(
+            Gtk.Label(label=_("Elige una opción para sobre escribir"))
+        )
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
 
         self.src_info = File_or_directory_info(src_info)
         self.dst_info = File_or_directory_info(dst_info)

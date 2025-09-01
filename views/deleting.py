@@ -15,10 +15,20 @@ class Deleting(Gtk.Window):
 
     def __init__(self, parent: Gtk.ApplicationWindow, src_info: Path):
         super().__init__(
-            title=_("Eliminando  .."),
             transient_for=parent,
             modal=True,
         )
+
+        # Load css
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(Gtk.Label(label=_("Eliminando  ..")))
+        self.set_titlebar(header)
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+
         self.src_info = src_info
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.set_child(self.box)
