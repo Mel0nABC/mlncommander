@@ -13,6 +13,10 @@ import os
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk  # noqa: E402
 
+# force tu use dark theme
+settings = Gtk.Settings.get_default()
+settings.set_property("gtk-application-prefer-dark-theme", True)
+
 
 gbulb.install()  # Integrate asyncio into Gtk
 
