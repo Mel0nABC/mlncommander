@@ -40,37 +40,41 @@ class CompressWindow(Gtk.Window):
         self.stop_compress = False
         self.compress_popen = None
         self.progress = None
+        self.in_background = False
 
         self.vertical_main = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
+
+        self.set_child(self.vertical_main)
+
         self.vertical_main.set_margin_top(20)
         self.vertical_main.set_margin_end(20)
         self.vertical_main.set_margin_bottom(20)
         self.vertical_main.set_margin_start(20)
 
         text = _("Lista de rutas a comprimir")
-        dst_label = Gtk.Label.new()
-        dst_label.set_hexpand(True)
-        dst_label.set_text(f"{text}:")
-        dst_label.set_halign(Gtk.Align.START)
-        dst_label.set_margin_bottom(20)
+        self.dst_label = Gtk.Label.new()
+        self.dst_label.set_hexpand(True)
+        self.dst_label.set_text(f"{text}:")
+        self.dst_label.set_halign(Gtk.Align.START)
+        self.dst_label.set_margin_bottom(20)
 
-        self.vertical_main.append(dst_label)
+        self.vertical_main.append(self.dst_label)
+
+        self.vertical_files = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=6
+        )
+        self.vertical_files.set_margin_top(20)
 
         for path in self.selected_items:
             src = Gtk.Label.new()
             src.set_hexpand(True)
             src.set_text(str(path))
             src.set_halign(Gtk.Align.START)
-            self.vertical_main.append(src)
+            self.vertical_files.append(src)
 
-        self.set_child(self.vertical_main)
-
-        self.vertical_files = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=6
-        )
-        self.vertical_files.set_margin_top(20)
+        self.vertical_main.append(self.vertical_files)
 
         # set output file name
         label_file_name = Gtk.Label.new(_("Nombre del archivo"))
@@ -140,24 +144,28 @@ class CompressWindow(Gtk.Window):
 
         self.vertical_main.append(self.grid)
 
-        horizontal_button = Gtk.Box(
+        self.horizontal_button = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        horizontal_button.set_hexpand(True)
-        horizontal_button.set_vexpand(True)
-        horizontal_button.set_halign(Gtk.Align.END)
-        horizontal_button.set_valign(Gtk.Align.END)
-        horizontal_button.set_margin_top(20)
+        self.horizontal_button.set_hexpand(True)
+        self.horizontal_button.set_vexpand(True)
+        self.horizontal_button.set_halign(Gtk.Align.END)
+        self.horizontal_button.set_valign(Gtk.Align.END)
+        self.horizontal_button.set_margin_top(20)
 
         self.btn_extract = Gtk.Button(label=_("Comprimir"))
         self.btn_extract.connect("clicked", self.compress)
         self.btn_cancel = Gtk.Button(label=_("Cerrar"))
         self.btn_cancel.connect("clicked", self.on_exit)
+        self.btn_background = Gtk.Button(label=_("Minimizar"))
+        self.btn_background.set_sensitive(False)
+        self.btn_background.connect("clicked", self.to_background)
 
-        horizontal_button.append(self.btn_extract)
-        horizontal_button.append(self.btn_cancel)
-        self.vertical_main.append(self.vertical_files)
-        self.vertical_main.append(horizontal_button)
+        self.horizontal_button.append(self.btn_extract)
+        self.horizontal_button.append(self.btn_cancel)
+        self.horizontal_button.append(self.btn_background)
+
+        self.vertical_main.append(self.horizontal_button)
 
         self.connect("close-request", self.on_close_window)
 
@@ -165,6 +173,7 @@ class CompressWindow(Gtk.Window):
 
     def compress(self, button: Gtk.Button) -> None:
         if not self.compress_activate:
+            self.btn_background.set_sensitive(True)
             file_name = self.file_name_entry.get_text().strip()
             file_name = file_name.replace(" ", "")
 
@@ -267,25 +276,28 @@ class CompressWindow(Gtk.Window):
             cmd.append(multipart_output)
 
         output_file = f"{file_name}.{file_type}"
-        output_file_path = Path(f"{self.dst_dir}/{output_file}")
+        self.output_file_path = Path(f"{self.dst_dir}/{output_file}")
 
-        while output_file_path.exists():
+        while self.output_file_path.exists():
             text = "".join(
                 secrets.choice(string.ascii_letters + string.digits)
                 for _ in range(1)
             )
-            output_file_path = Path(
+            self.output_file_path = Path(
                 f"{self.dst_dir}/{file_name}{text}.{file_type}"
             )
-        self.file_name_entry.set_text(output_file_path.stem)
+        self.file_name_entry.set_text(self.output_file_path.stem)
 
-        cmd.append(str(output_file_path))
+        cmd.append(str(self.output_file_path))
 
         cmd = cmd + path_list
 
         self.compress_work(cmd, file_name, output_file)
 
         self.enable_grid_pannel()
+
+        if self.in_background:
+            self.horizontal_button.remove(self.btn_extract)
 
     def compress_work(
         self, cmd: str, file_name: str, output_file: str
@@ -333,27 +345,6 @@ class CompressWindow(Gtk.Window):
 
         self.compress_popen = None
 
-    def add_new_label(self, file: Path) -> None:
-        horizontal_file = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
-        horizontal_file.set_margin_top(10)
-
-        label = Gtk.Label.new()
-        label.set_hexpand(True)
-        label.set_halign(Gtk.Align.START)
-        label.set_text(str(file))
-
-        horizontal_file.append(label)
-
-        self.label_rsp = Gtk.Label.new()
-        self.label_rsp.set_text("0%")
-        self.label_rsp.set_margin_end(30)
-
-        horizontal_file.append(self.label_rsp)
-
-        self.vertical_files.append(horizontal_file)
-
     def show_msg_alert(
         self,
         gesture: Gtk.GestureClick,
@@ -381,7 +372,8 @@ class CompressWindow(Gtk.Window):
             return
 
         self.destroy()
-        GLib.idle_add(self.win.key_connect)
+        self.finish_background()
+        self.win.key_connect()
 
     def verify_on_exit(self, destroy: bool) -> bool:
 
@@ -398,15 +390,53 @@ class CompressWindow(Gtk.Window):
                 else:
                     GLib.idle_add(self.btn_extract.set_label, _("Comprimir"))
                     self.compress_activate = False
-                    GLib.idle_add(self.vertical_main.remove, self.progress)
 
         asyncio.ensure_future(response())
 
-    def set_percent(self, percent):
+    def set_percent(self, percent: str) -> None:
         GLib.idle_add(self.label_rsp.set_text, percent)
 
-    def get_archivo_password(self, to_work: Queue, file: Path):
+    def get_archivo_password(self, to_work: Queue, file: Path) -> None:
         GLib.idle_add(self.create_password_window, to_work, file)
 
     def create_password_window(self, to_work: Queue, file: Path):
         PasswordWindow(self, to_work, file)
+
+    def to_background(self, button: Gtk.Button) -> None:
+        self.in_background = True
+        self.set_child(None)
+        self.vertical_main.remove(self.grid)
+        self.vertical_main.remove(self.vertical_files)
+        self.vertical_main.set_margin_bottom(0)
+        self.dst_label.set_margin_bottom(0)
+        self.progress.set_margin_top(0)
+        self.progress.set_margin_bottom(0)
+        self.horizontal_button.set_margin_top(0)
+        self.horizontal_button.remove(self.btn_background)
+        self.horizontal_button.set_vexpand(False)
+        text = _("Comprimiendo")
+        self.dst_label.set_text(f"{text}: {str(self.output_file_path)}")
+
+        # self.vertical_main.set_size_request(-1, -1)
+        self.vertical_main.get_style_context().add_class("to_down_explorer")
+
+        if self.dst_explorer.name == "explorer_1":
+            self.vertical_main.set_margin_end(self.win.scroll_margin / 2)
+            self.vertical_main.set_margin_start(self.win.scroll_margin)
+            self.vertical_main.get_style_context().add_class(
+                "explorer_background_left"
+            )
+        else:
+            self.vertical_main.set_margin_end(self.win.scroll_margin)
+            self.vertical_main.set_margin_start(self.win.scroll_margin / 2)
+            self.vertical_main.get_style_context().add_class(
+                "explorer_background_right"
+            )
+
+        self.win.to_down_explorer(self.dst_explorer.name, self.vertical_main)
+        self.hide()
+
+    def finish_background(self) -> None:
+        self.win.finish_to_down_explorer(
+            self.dst_explorer.name, self.vertical_main
+        )
