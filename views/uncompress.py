@@ -30,50 +30,53 @@ class UncompressWindow(Gtk.Window):
         self.selected_items = selected_items
         self.dst_explorer = dst_explorer
         self.dst_dir = dst_dir
-        self.set_default_size(win.horizontal / 6, win.vertical / 8)
+        self.set_default_size(win.horizontal / 5, -1)
         self.extract_activate = False
 
         self.stop_uncompress = False
 
-        self.vertical_main = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=6
-        )
-        self.vertical_main.set_margin_top(20)
-        self.vertical_main.set_margin_end(20)
-        self.vertical_main.set_margin_bottom(20)
-        self.vertical_main.set_margin_start(20)
+        self.grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+        self.set_child(self.grid)
+
+        self.grid.set_margin_top(20)
+        self.grid.set_margin_end(20)
+        self.grid.set_margin_bottom(20)
+        self.grid.set_margin_start(20)
 
         text = _("Ruta destino")
         dst_label = Gtk.Label.new()
         dst_label.set_text(f"{text}: {dst_dir}")
 
-        self.vertical_main.append(dst_label)
-
-        self.set_child(self.vertical_main)
+        self.grid.attach(dst_label, 0, 0, 1, 1)
 
         self.vertical_files = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
         self.vertical_files.set_margin_top(20)
+        self.vertical_files.set_hexpand(True)
+        self.grid.attach(self.vertical_files, 0, 1, 1, 1)
 
-        horizontal_button = Gtk.Box(
+        self.horizontal_button = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        horizontal_button.set_hexpand(True)
-        horizontal_button.set_vexpand(True)
-        horizontal_button.set_halign(Gtk.Align.END)
-        horizontal_button.set_valign(Gtk.Align.END)
-        horizontal_button.set_margin_top(20)
+        self.horizontal_button.set_halign(Gtk.Align.END)
+        self.horizontal_button.set_valign(Gtk.Align.END)
+
+        self.btn_background = Gtk.Button(label=_("Minimizar"))
+        self.btn_background.connect("clicked", self.to_background)
+        self.btn_background.set_sensitive(False)
 
         self.btn_extract = Gtk.Button(label=_("Extraer"))
         self.btn_extract.connect("clicked", self.uncompress)
+
         btn_cancel = Gtk.Button(label=_("Cerrar"))
         btn_cancel.connect("clicked", self.on_exit)
 
-        horizontal_button.append(self.btn_extract)
-        horizontal_button.append(btn_cancel)
-        self.vertical_main.append(self.vertical_files)
-        self.vertical_main.append(horizontal_button)
+        self.horizontal_button.append(self.btn_extract)
+        self.horizontal_button.append(btn_cancel)
+        self.horizontal_button.append(self.btn_background)
+
+        self.grid.attach(self.horizontal_button, 0, 2, 1, 1)
 
         self.connect("close-request", self.on_close_window)
 
@@ -86,6 +89,7 @@ class UncompressWindow(Gtk.Window):
             button.set_label(label=_("Cancelar"))
             t = threading.Thread(target=self.start_uncompress)
             t.start()
+            self.btn_background.set_sensitive(True)
         else:
             self.verify_on_exit(False)
 
@@ -106,14 +110,7 @@ class UncompressWindow(Gtk.Window):
 
             if self.stop_uncompress:
                 self.compression_manager.delete_last_uncompress()
-                output_text = _(
-                    (
-                        "Has finalizado el proceso de descompresión\n"
-                        "El último archivo estará corrupto.\n"
-                        "Si hay iconos, pulsando en ellos podrás"
-                        " ver información"
-                    )
-                )
+                output_text = _("Has cancelado el proceso de descompresión")
                 GLib.idle_add(self.update_labels, None, file)
             else:
                 response = q.get()
@@ -123,35 +120,40 @@ class UncompressWindow(Gtk.Window):
         self.on_stop_uncompress()
         info_label = Gtk.Label.new(output_text)
         info_label.set_margin_top(20)
+        info_label.set_margin_bottom(20)
+
+        self.horizontal_button.remove(self.btn_extract)
+        self.horizontal_button.remove(self.btn_background)
         GLib.idle_add(self.vertical_files.append, info_label)
-        GLib.idle_add(self.btn_extract.set_sensitive, False)
-        GLib.idle_add(self.btn_extract.set_label, _("Extraer"))
 
     def add_new_label(self, file: Path) -> None:
 
         grid = Gtk.Grid(column_spacing=200, row_spacing=10)
+        grid.set_hexpand(True)
 
         label_src = Gtk.Label.new()
         label_src.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
-        # label_src.set_hexpand(True)
         label_src.set_halign(Gtk.Align.START)
+        label_src.set_hexpand(True)
         label_src.set_text(str(file))
 
-        grid.attach(label_src, 0, 0, 1, 1)
+        grid.attach(label_src, 0, 0, 2, 1)
 
         self.label_finish_status = Gtk.Label.new()
-        self.label_finish_status.set_text("    ")
+        self.label_finish_status.set_halign(Gtk.Align.END)
 
-        grid.attach(self.label_finish_status, 1, 0, 1, 1)
+        grid.attach(self.label_finish_status, 2, 0, 1, 1)
 
-        self.vertical_files.append(grid)
         self.progress_bar = Gtk.ProgressBar.new()
         self.progress_bar.set_hexpand(True)
         self.progress_bar.set_show_text(True)
-        self.vertical_files.append(self.progress_bar)
-        self.vertical_files.append(
-            Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
-        )
+
+        grid.attach(self.progress_bar, 0, 1, 3, 1)
+
+        sepaprator = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
+        grid.attach(sepaprator, 0, 2, 3, 1)
+
+        self.vertical_files.append(grid)
 
     def update_labels(self, response: dict, file: Path) -> None:
 
@@ -206,8 +208,9 @@ class UncompressWindow(Gtk.Window):
             self.verify_on_exit(True)
             return
 
-        self.destroy()
-        self.win.key_connect()
+        GLib.idle_add(self.finish_background)
+        GLib.idle_add(self.destroy)
+        GLib.idle_add(self.win.key_connect)
         return True
 
     def verify_on_exit(self, destroy: bool) -> bool:
@@ -219,6 +222,7 @@ class UncompressWindow(Gtk.Window):
             if response:
                 self.on_stop_uncompress()
                 if destroy:
+                    GLib.idle_add(self.finish_background)
                     GLib.idle_add(self.destroy)
                     GLib.idle_add(self.win.key_connect)
 
@@ -232,3 +236,36 @@ class UncompressWindow(Gtk.Window):
 
     def create_password_window(self, to_work: Queue, file: Path):
         PasswordWindow(self, to_work, file)
+
+    def to_background(self, button: Gtk.Button) -> None:
+
+        self.grid.remove(self.vertical_files)
+        self.grid.remove(self.horizontal_button)
+
+        self.horizontal_button.remove(self.btn_background)
+        self.vertical_files.append(self.horizontal_button)
+
+        self.vertical_files.get_style_context().add_class("to_down_explorer")
+
+        if self.dst_explorer.name == "explorer_1":
+            self.vertical_files.set_margin_end(self.win.scroll_margin / 2)
+            self.vertical_files.set_margin_start(self.win.scroll_margin)
+            self.vertical_files.get_style_context().add_class(
+                "explorer_background_left"
+            )
+        else:
+            self.vertical_files.set_margin_end(self.win.scroll_margin)
+            self.vertical_files.set_margin_start(self.win.scroll_margin / 2)
+            self.vertical_files.get_style_context().add_class(
+                "explorer_background_right"
+            )
+
+        self.win.to_down_explorer(self.dst_explorer.name, self.vertical_files)
+        self.hide()
+
+    def finish_background(self) -> None:
+        GLib.idle_add(
+            self.win.finish_to_down_explorer,
+            self.dst_explorer.name,
+            self.vertical_files,
+        )
