@@ -400,9 +400,6 @@ class Window(Gtk.ApplicationWindow):
         if self.config.SHOW_DIR_LAST:
             self.config.EXP_1_PATH = str(self.explorer_1.actual_path)
             self.config.EXP_2_PATH = str(self.explorer_2.actual_path)
-        else:
-            self.config.EXP_1_PATH = "/"
-            self.config.EXP_1_PATH = "/"
 
         self.save_config_file(self.config)
 
@@ -434,6 +431,7 @@ class Window(Gtk.ApplicationWindow):
             data = yaml.safe_load(config_file)
 
             EXP_1_PATH = Path(data["EXP_1_PATH"])
+            print(EXP_1_PATH)
             result = File_manager.get_path_list(EXP_1_PATH)
             if result:
                 if not EXP_1_PATH.exists():
@@ -444,6 +442,7 @@ class Window(Gtk.ApplicationWindow):
                 self.config.EXP_1_PATH = Path("/")
 
             EXP_2_PATH = Path(data["EXP_2_PATH"])
+            print(EXP_2_PATH)
             result = File_manager.get_path_list(EXP_2_PATH)
             if result:
                 if not EXP_2_PATH.exists():
@@ -473,6 +472,7 @@ class Window(Gtk.ApplicationWindow):
         where the browsers are located
         """
         self.config = config
+        print(config.to_dict())
         # Config is deleted and the entire configuration is saved.
         with open(self.CONFIG_FILE, "w") as config_file:
             yaml.dump(config.to_dict(), config_file, sort_keys=False)

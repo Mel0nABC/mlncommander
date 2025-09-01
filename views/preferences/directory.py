@@ -163,7 +163,7 @@ class Directory(Gtk.Box):
         from views.preferences.preferences_options import Preferences
 
         file_dialog = Gtk.FileDialog(title=Preferences.SELECT_FILE_TITLE)
-        file_dialog.select_folder(self, None, self.on_file_selected, entry)
+        file_dialog.select_folder(self.win, None, self.on_file_selected, entry)
 
     def on_file_selected(
         self, dialog: Gtk.FileDialog, result: Gio.Task, entry: Gtk.Entry
@@ -177,7 +177,8 @@ class Directory(Gtk.Box):
                 entry.set_text(value)
                 if entry.get_name() == "path_1":
                     Preferences.EXP_1_PATH = value
-                else:
+
+                if entry.get_name() == "path_2":
                     Preferences.EXP_2_PATH = value
 
     def directory_select_option_last_dir(self, button: Gtk.Button) -> None:
