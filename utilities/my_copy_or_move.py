@@ -510,7 +510,9 @@ class MyCopyMove:
         """
         Creates dialog showing information about the file being copied
         """
-        self.transfering_window = Transfering(parent, self.action_to_exec)
+        self.transfering_window = Transfering(
+            parent, self.action_to_exec, self.explorer_dst
+        )
         self.transfering_window.present()
         self.iterator_thread.start()
         response = await self.transfering_window.wait_response_async()

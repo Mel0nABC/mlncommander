@@ -22,7 +22,7 @@ import os
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Pango  # noqa E402
+from gi.repository import Gtk, GLib, Pango  # noqa E402
 
 
 class Window(Gtk.ApplicationWindow):
@@ -486,3 +486,19 @@ class Window(Gtk.ApplicationWindow):
                 return explorer
 
         return None
+
+    def to_down_explorer(self, explorer_name: str, widget: Gtk.Widget) -> None:
+
+        if explorer_name == "explorer_1":
+            self.vertical_screen_1.append(widget)
+        else:
+            self.vertical_screen_2.append(widget)
+
+    def finish_to_down_explorer(
+        self, explorer_name: str, widget: Gtk.Widget
+    ) -> None:
+
+        if explorer_name == "explorer_1":
+            self.vertical_screen_1.remove(widget)
+        else:
+            self.vertical_screen_2.remove(widget)

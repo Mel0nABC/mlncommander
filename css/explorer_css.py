@@ -51,7 +51,11 @@ class Css_explorer_manager:
         or directories
         """
         css = f"""
-
+            .to_down_explorer{{
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 12px;
+            }}
             .column_view_borders{{
                 border-radius:10px;
             }}

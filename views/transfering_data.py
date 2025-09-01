@@ -7,14 +7,19 @@ import time
 import gi
 import asyncio
 from pathlib import Path
-from gi.repository import Gtk, Pango
+from gi.repository import Gtk, GLib, Pango
 
 gi.require_version("Gtk", "4.0")
 
 
 class Transfering(Gtk.Window):
 
-    def __init__(self, parent: Gtk.ApplicationWindow, action_to_exec: str):
+    def __init__(
+        self,
+        parent: Gtk.ApplicationWindow,
+        action_to_exec: str,
+        dst_explorer: Gtk.Window,
+    ):
         margin = 20
 
         title_str = ""
@@ -30,6 +35,7 @@ class Transfering(Gtk.Window):
             modal=True,
         )
         self.win = parent
+        self.dst_explorer = dst_explorer
         self.src_size = 0
         self.dst_size = 0
         self.old_dst_size = 0
@@ -37,9 +43,10 @@ class Transfering(Gtk.Window):
         self.dst_info = None
         self.time_file = None
 
-        self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.grid = Gtk.Grid(column_spacing=10, row_spacing=1)
+        self.grid.set_hexpand(True)
+        self.set_child(self.grid)
 
-        self.set_child(self.box)
         self.set_default_size(500, 60)
 
         self.lbl_src = Gtk.Label(label="SRC")
@@ -77,14 +84,21 @@ class Transfering(Gtk.Window):
         self.btn_cancel.connect("clicked", self.verify_on_exit)
         self.btn_cancel.set_margin_top(margin)
         self.btn_cancel.set_margin_end(margin)
-        self.btn_cancel.set_margin_bottom(margin)
         self.btn_cancel.set_margin_start(margin)
 
-        self.box.append(self.lbl_src)
-        self.box.append(self.lbl_dst)
-        self.box.append(self.lbl_size)
-        self.box.append(self.progress_box)
-        self.box.append(self.btn_cancel)
+        self.btn_background = Gtk.Button(label=_("Minimizar"))
+        self.btn_background.connect("clicked", self.to_background)
+        self.btn_background.set_margin_top(margin)
+        self.btn_background.set_margin_end(margin)
+        self.btn_background.set_margin_bottom(margin)
+        self.btn_background.set_margin_start(margin)
+
+        self.grid.attach(self.lbl_src, 0, 0, 1, 1)
+        self.grid.attach(self.lbl_dst, 0, 1, 1, 1)
+        self.grid.attach(self.lbl_size, 0, 2, 1, 1)
+        self.grid.attach(self.progress_box, 0, 3, 1, 1)
+        self.grid.attach(self.btn_cancel, 0, 4, 1, 1)
+        self.grid.attach(self.btn_background, 0, 5, 1, 1)
 
         self.window_response = False
         self.future = asyncio.get_event_loop().create_future()
@@ -173,4 +187,79 @@ class Transfering(Gtk.Window):
         asyncio.ensure_future(response())
 
     def on_finish_close(self) -> None:
+        self.finish_background()
         self.destroy()
+
+    def to_background(self, button: Gtk.Button) -> None:
+        if self.grid is not None:
+
+            self.set_child(None)
+
+            self.grid.get_style_context().add_class("to_down_explorer")
+
+            self.lbl_dst.set_margin_top(0)
+            self.lbl_dst.set_margin_end(0)
+            self.lbl_dst.set_margin_bottom(0)
+            self.lbl_dst.set_margin_start(0)
+
+            self.lbl_size.set_margin_top(self.win.scroll_margin)
+            self.lbl_size.set_margin_end(0)
+            self.lbl_size.set_margin_bottom(0)
+            self.lbl_size.set_margin_start(0)
+
+            self.lbl_size.set_width_chars(20)
+
+            self.progress.set_margin_top(self.win.scroll_margin)
+            self.progress.set_margin_end(0)
+            self.progress.set_margin_bottom(0)
+            self.progress.set_margin_start(0)
+
+            # self.progress.set_hexpand(False)
+
+            self.btn_cancel.set_margin_top(0)
+            self.btn_cancel.set_margin_end(0)
+            self.btn_cancel.set_margin_bottom(0)
+            self.btn_cancel.set_margin_start(0)
+
+            self.btn_cancel.set_label("X")
+            self.btn_cancel.set_size_request(-1, -1)
+            self.btn_cancel.set_hexpand(False)
+            self.btn_cancel.set_halign(Gtk.Align.END)
+
+            self.grid.set_margin_top(self.win.scroll_margin)
+
+            if self.dst_explorer.name == "explorer_1":
+                self.grid.set_margin_end(self.win.scroll_margin / 2)
+                self.grid.set_margin_start(self.win.scroll_margin)
+                self.grid.get_style_context().add_class(
+                    "explorer_background_left"
+                )
+            else:
+                self.grid.set_margin_end(self.win.scroll_margin)
+                self.grid.set_margin_start(self.win.scroll_margin / 2)
+                self.grid.get_style_context().add_class(
+                    "explorer_background_right"
+                )
+
+            self.grid.set_hexpand(False)
+            self.grid.remove(self.lbl_src)
+            self.grid.remove(self.btn_background)
+            self.grid.remove(self.lbl_dst)
+            self.grid.remove(self.lbl_size)
+            self.grid.remove(self.progress_box)
+            self.grid.remove(self.btn_cancel)
+
+            self.grid.attach(self.lbl_dst, 0, 1, 1, 2)
+            self.grid.attach(self.btn_cancel, 1, 1, 1, 2)
+            self.grid.attach(self.progress_box, 0, 3, 1, 2)
+            self.grid.attach(self.lbl_size, 1, 3, 1, 2)
+
+        GLib.idle_add(
+            self.win.to_down_explorer, self.dst_explorer.name, self.grid
+        )
+        self.hide()
+
+    def finish_background(self) -> None:
+        GLib.idle_add(
+            self.win.finish_to_down_explorer, self.dst_explorer.name, self.grid
+        )
