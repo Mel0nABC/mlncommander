@@ -211,7 +211,6 @@ class UncompressWindow(Gtk.Window):
         GLib.idle_add(self.finish_background)
         GLib.idle_add(self.destroy)
         GLib.idle_add(self.win.key_connect)
-        return True
 
     def verify_on_exit(self, destroy: bool) -> bool:
 
