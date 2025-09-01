@@ -304,7 +304,8 @@ class MyCopyMove:
         )
 
         GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
-        GLib.idle_add(explorer_dst.load_new_path, dst_dir)
+        if explorer_dst.actual_path == dst_dir:
+            GLib.idle_add(explorer_dst.load_new_path, dst_dir)
         GLib.idle_add(self.close_dialog_transfering_proccess)
 
     def close_dialog_transfering_proccess(self):
