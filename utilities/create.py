@@ -88,7 +88,9 @@ class Create:
             return
 
         dst_dir.mkdir()
-        explorer_dst.load_new_path(explorer_dst.actual_path)
+        if dst_dir.exists():
+            explorer_dst.insert_log_line("CREATED", dst_dir, None)
+            explorer_dst.load_new_path(explorer_dst.actual_path)
 
         if other_explorer.actual_path == explorer_dst.actual_path:
             other_explorer.load_new_path(explorer_dst.actual_path)

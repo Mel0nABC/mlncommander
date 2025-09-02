@@ -83,6 +83,7 @@ class Rename_Logic:
                     GLib.idle_add(self.action.show_msg_alert, parent, _(text))
                     continue
                 os.rename(src_info, new_path)
+                explorer_src.insert_log_line("RENAMED", src_info, new_path)
 
         GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
         GLib.idle_add(

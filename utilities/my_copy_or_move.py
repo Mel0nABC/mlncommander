@@ -45,6 +45,7 @@ class MyCopyMove:
         self.explorer_dst = None
         self.showed_msg_network_problem = False
         self.action_to_exec = None
+        self.duplicate = None
         self.q = None
 
     def on_copy_or_move(
@@ -65,6 +66,7 @@ class MyCopyMove:
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
         self.action_copy = action_copy
+        self.duplicate = duplicate
         if not selected_items:
             selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
@@ -223,9 +225,13 @@ class MyCopyMove:
                     continue
 
                 # move section
+                print(f"MOVED: {self.action_copy}")
                 try:
                     if not self.action_copy:
                         os.rename(src_info, dst_info)
+                        self.explorer_src.insert_log_line(
+                            "MOVED", src_info, dst_info
+                        )
                         continue
                 except OSError:
                     pass
@@ -288,11 +294,16 @@ class MyCopyMove:
                             explorer_dst,
                             self.response_type,
                         )
+                print("FINAL")
                 if not self.action_copy:
+                    print("DENTRO")
                     if src_info.is_dir():
                         src_info.rmdir()
                     else:
                         src_info.unlink()
+                    self.explorer_src.insert_log_line(
+                        "MOVED", src_info, dst_info
+                    )
 
         iterate_folders_worker(
             parent,
@@ -367,6 +378,16 @@ class MyCopyMove:
                 return False
 
         if msg["ok"]:
+            if self.action_copy:
+                if not self.duplicate:
+                    self.explorer_src.insert_log_line(
+                        "COPIED", src_info, dst_info
+                    )
+                else:
+                    self.explorer_src.insert_log_line(
+                        "DUPLICATED", src_info, dst_info
+                    )
+
             return True
         else:
             GLib.idle_add(

@@ -165,6 +165,9 @@ class Remove:
                             print(f"❌ Error al eliminar archivo {item}: {e}")
 
         delete_worker(selected_items, explorer_src, explorer_dst, parent)
+        for item in selected_items:
+            if not item.exists():
+                explorer_src.insert_log_line("DELETED", item, None)
         self.stop_remove_dialog(explorer_src, explorer_dst)
 
     def stop_remove_dialog(

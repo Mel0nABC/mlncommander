@@ -27,6 +27,7 @@ class NewFile:
         self.win = None
         self.new_file = None
         self.access_control = AccessControl()
+        self.explorer_src = None
 
     def on_new_file(
         self, explorer_src: Explorer, win: Gtk.ApplicationWindow
@@ -55,7 +56,7 @@ class NewFile:
 
         if not response:
             return
-
+        self.explorer_src = explorer_src
         self.new_file = NewFileWindow(self.win, explorer_src, self)
 
     def create_new_file(self, path: Path) -> bool:
@@ -87,6 +88,7 @@ class NewFile:
             doc.save(path)
 
         if path.exists():
+            self.explorer_src.insert_log_line("CREATED", path, None)
             return True
 
         return True
