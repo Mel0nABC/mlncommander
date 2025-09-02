@@ -294,9 +294,7 @@ class MyCopyMove:
                             explorer_dst,
                             self.response_type,
                         )
-                print("FINAL")
                 if not self.action_copy:
-                    print("DENTRO")
                     if src_info.is_dir():
                         src_info.rmdir()
                     else:

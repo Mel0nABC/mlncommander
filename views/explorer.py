@@ -787,7 +787,6 @@ class Explorer(Gtk.ColumnView):
     def insert_log_line(
         self, operation: str, src_path: Path, dst_path: Path
     ) -> None:
-        print("LALA")
         self.my_watchdog.mihandler.print_status_on_log(
             operation, src_path, dst_path
         )

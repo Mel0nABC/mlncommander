@@ -42,7 +42,12 @@ class My_watchdog:
         try:
             while self.observer.is_alive():
                 time.sleep(0.1)
-                self.mihandler.compare_folder()
+                if not self.explorer.actual_path.exists():
+                    GLib.idle_add(
+                        self.explorer.load_new_path, self.path.parent
+                    )
+                else:
+                    self.mihandler.compare_folder()
 
         except KeyboardInterrupt:
             self.stop()
@@ -75,6 +80,10 @@ class MiHandler(FileSystemEventHandler):
 
     def compare_folder(self):
         from collections import Counter
+
+        if not self.path.exists():
+            self.load_new_path(self.path.parent)
+            return
 
         list_path2 = list(self.path.iterdir())
 
@@ -144,10 +153,6 @@ class MiHandler(FileSystemEventHandler):
                 else:
                     # DELETED, CREATED
                     row = _(f"{operation}: {self.date_str} -- {src_path} \n")
-
-                # else:
-                #     row = _(f"{operation}: {self.date_str} -- {src_path} \n")
-                print(row)
                 file.write(row)
         except Exception as e:
             text = _("Algún problema ha ocurrido")
