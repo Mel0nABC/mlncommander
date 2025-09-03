@@ -591,8 +591,6 @@ class MyCopyMove:
 
                             if response_type == "rename":
                                 dst_info = self.new_name
-
-                        # print(response_type)
                     else:
                         dst_info = self.transfering_window.dst_info
 
