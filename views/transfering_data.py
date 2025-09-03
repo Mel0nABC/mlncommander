@@ -136,8 +136,10 @@ class Transfering(Gtk.Window):
                 self.src_size = int(src_size_text)
                 self.dst_size = int(dst_size_text)
 
-                self.src_size = self.src_size / 1024 / 1024
-                self.dst_size = self.dst_size / 1024 / 1024
+                if self.src_size != 0:
+                    self.src_size = self.src_size / 1024 / 1024
+                if self.dst_size != 0:
+                    self.dst_size = self.dst_size / 1024 / 1024
 
                 speed = self.dst_size - self.old_dst_size / 1024 / 1024
                 speed = f"{round(speed, 2)} Mbytes/s"

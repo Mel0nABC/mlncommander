@@ -47,6 +47,7 @@ class MyCopyMove:
         self.action_to_exec = None
         self.duplicate = None
         self.q = None
+        self.overwrite_response = None
 
     def on_copy_or_move(
         self,
@@ -340,8 +341,8 @@ class MyCopyMove:
     async def create_response_overwrite(
         self, parent: Gtk.ApplicationWindow, src_info: Path, dst_info: Path
     ) -> asyncio.Future:
-        dialog = OverwriteWindow(parent, src_info, dst_info)
-        response = await dialog.wait_response_async()
+        self.overwrite_response = OverwriteWindow(parent, src_info, dst_info)
+        response = await self.overwrite_response.wait_response_async()
         return response
 
     def copy_file(
@@ -578,7 +579,22 @@ class MyCopyMove:
                 if self.transfering_window is not None:
 
                     src_info = self.transfering_window.src_info
-                    dst_info = self.transfering_window.dst_info
+
+                    # update dst file on overwrite option
+                    if self.overwrite_response:
+                        if self.response_dic:
+                            response_type = self.response_dic["response"]
+
+                            if "overwrite" in response_type:
+                                if Path(f"{src_info}.old").exists():
+                                    dst_info = self.transfering_window.dst_info
+
+                            if response_type == "rename":
+                                dst_info = self.new_name
+
+                        # print(response_type)
+                    else:
+                        dst_info = self.transfering_window.dst_info
 
                     src_store = True
                     dst_store = True
