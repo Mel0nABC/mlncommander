@@ -80,16 +80,16 @@ class Window(Gtk.ApplicationWindow):
         print(f"Screen resolution: {self.horizontal}x{self.vertical}")
 
         self.set_default_size(self.horizontal / 2, self.vertical)
-        # self.set_default_size(720, 576)
-        # self.set_size_request(720, 576)
-        # self.set_resizable(True)
 
         self.set_titlebar(header().header)
+
+        self.set_resizable(True)
 
         main_vertical_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
         menu_bar = Menu_bar(self)
+        # main_vertical_box.set_hexpand(True)
 
         main_vertical_box.append(menu_bar.menubar)
 
@@ -98,18 +98,17 @@ class Window(Gtk.ApplicationWindow):
         horizontal_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
+        # main_vertical_box.set_hexpand(True)
         horizontal_box.set_vexpand(True)
+        horizontal_box.set_homogeneous(True)
 
         self.vertical_screen_1 = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
-        self.vertical_screen_1.set_hexpand(True)
         self.vertical_screen_1.set_vexpand(True)
         self.vertical_screen_2 = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
-
-        self.vertical_screen_2.set_hexpand(True)
         self.vertical_screen_2.set_vexpand(True)
 
         self.vertical_entry_1 = Gtk.Entry()
@@ -128,16 +127,37 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_entry_1.set_margin_end(self.entry_margin / 2)
         self.vertical_entry_1.set_margin_bottom(self.entry_margin)
         self.vertical_entry_1.set_margin_start(self.entry_margin)
-        self.vertical_entry_1.set_hexpand(True)
 
         self.vertical_entry_2.set_margin_top(self.entry_margin)
         self.vertical_entry_2.set_margin_end(self.entry_margin)
         self.vertical_entry_2.set_margin_bottom(self.entry_margin)
         self.vertical_entry_2.set_margin_start(self.entry_margin / 2)
-        self.vertical_entry_2.set_hexpand(True)
 
         self.vertical_screen_1.append(self.vertical_entry_1)
         self.vertical_screen_2.append(self.vertical_entry_2)
+
+        # Fav path start
+
+        self.buttom_horizontal_1 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.buttom_horizontal_1.set_margin_start(self.entry_margin)
+        self.buttom_horizontal_1.set_margin_end(self.entry_margin / 2)
+        self.buttom_horizontal_1.set_margin_bottom(self.entry_margin)
+        self.buttom_horizontal_1.set_homogeneous(True)
+
+        self.buttom_horizontal_2 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.buttom_horizontal_2.set_margin_start(self.entry_margin / 2)
+        self.buttom_horizontal_2.set_margin_end(self.entry_margin)
+        self.buttom_horizontal_2.set_margin_bottom(self.entry_margin)
+        self.buttom_horizontal_2.set_homogeneous(True)
+
+        self.vertical_screen_1.append(self.buttom_horizontal_1)
+        self.vertical_screen_2.append(self.buttom_horizontal_2)
+
+        # Fav path final
 
         self.explorer_1 = Explorer(
             "explorer_1",
@@ -161,7 +181,6 @@ class Window(Gtk.ApplicationWindow):
         self.scroll_1.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
-        self.scroll_1.set_hexpand(True)
         self.scroll_1.set_vexpand(True)
         self.scroll_1.set_margin_end(self.scroll_margin / 2)
         self.scroll_1.set_margin_start(self.scroll_margin)
@@ -171,7 +190,6 @@ class Window(Gtk.ApplicationWindow):
         self.scroll_2.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
-        self.scroll_2.set_hexpand(True)
         self.scroll_2.set_vexpand(True)
         self.scroll_2.set_margin_end(self.scroll_margin)
         self.scroll_2.set_margin_start(self.scroll_margin / 2)
@@ -200,7 +218,6 @@ class Window(Gtk.ApplicationWindow):
         horizontal_botton_menu.set_margin_start(
             self.horizontal_button_list_margin
         )
-        horizontal_botton_menu.set_hexpand(True)
 
         btn_F2 = Gtk.Button(label=_("Renombrar < F2 >"))
         btn_F2.get_style_context().add_class("button")
@@ -239,7 +256,6 @@ class Window(Gtk.ApplicationWindow):
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
         self.label_left_selected_files = Gtk.Label(label="--")
-        label_box_left.set_hexpand(True)
         label_box_left.append(self.label_left_selected_files)
 
         # Right label show selection info
@@ -248,7 +264,6 @@ class Window(Gtk.ApplicationWindow):
         )
         self.label_right_selected_files = Gtk.Label(label="--")
 
-        label_box_right.set_hexpand(True)
         label_box_right.append(self.label_right_selected_files)
 
         label_box_right.set_halign(Gtk.Align.END)
@@ -263,7 +278,6 @@ class Window(Gtk.ApplicationWindow):
         horizontal_bottom.append(horizontal_botton_menu)
         horizontal_bottom.append(label_box_right)
 
-        horizontal_bottom.set_hexpand(True)
         horizontal_bottom.set_margin_start(self.scroll_margin + 20)
         horizontal_bottom.set_margin_end(self.scroll_margin + 20)
 
@@ -411,6 +425,11 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_1.load_new_path(self.explorer_1.actual_path)
         self.explorer_2.load_new_path(self.explorer_2.actual_path)
 
+        self.explorer_1.fav_path_list = self.config.FAV_PATH_LIST_1
+        self.explorer_2.fav_path_list = self.config.FAV_PATH_LIST_2
+
+        self.load_botons_fav()
+
         # We set the initial focus to explorer_1, left
         self.action.set_explorer_to_focused(self.explorer_1, self)
         self.explorer_src = self.explorer_1
@@ -443,6 +462,9 @@ class Window(Gtk.ApplicationWindow):
             ]
 
             # DIRECTORYS
+
+            self.config.FAV_PATH_LIST_1 = data["FAV_PATH_LIST_1"]
+            self.config.FAV_PATH_LIST_2 = data["FAV_PATH_LIST_2"]
 
             EXP_1_PATH = Path(data["EXP_1_PATH"])
             result = File_manager.get_path_list(EXP_1_PATH)
@@ -519,3 +541,51 @@ class Window(Gtk.ApplicationWindow):
             self.vertical_screen_1.remove(widget)
         else:
             self.vertical_screen_2.remove(widget)
+
+    def load_botons_fav(self) -> None:
+
+        self.clear_botons_fav()
+
+        def add_fav_btn(explorer: Explorer, path: Path, position: int) -> None:
+            text_lbl = f"[ {position+1} ] : {str(path)}"
+            lbl = Gtk.Label.new(text_lbl)
+            lbl.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+            # btn_del = Gtk.Button.new_with_label(label="X")
+
+            # grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+            # grid.get_style_context().add_class("button")
+            # grid.set_hexpand(True)
+
+            # grid.attach(btn_del, 1, 0, 1, 1)
+            # grid.attach(lbl, 0, 1, 1, 1)
+
+            btn = Gtk.Button.new()
+            btn.set_child(lbl)
+            btn.set_hexpand(False)
+            btn.set_halign(Gtk.Align.FILL)
+            btn.connect(
+                "clicked",
+                lambda btn: explorer.load_new_path(path),
+            )
+
+            if explorer.name == "explorer_1":
+                self.buttom_horizontal_1.append(btn)
+            else:
+                self.buttom_horizontal_2.append(btn)
+
+        if self.explorer_1.fav_path_list:
+            for index, path in enumerate(self.explorer_1.fav_path_list):
+                add_fav_btn(self.explorer_1, Path(path), index)
+
+        if self.explorer_2.fav_path_list:
+            for index, path in enumerate(self.explorer_2.fav_path_list):
+                add_fav_btn(self.explorer_2, Path(path), index)
+
+    def clear_botons_fav(self) -> None:
+        child = None
+        for button_box in [self.buttom_horizontal_1, self.buttom_horizontal_2]:
+            child = button_box.get_first_child()
+            while child is not None:
+                child = button_box.get_first_child()
+                if child:
+                    button_box.remove(child)

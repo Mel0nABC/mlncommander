@@ -32,7 +32,7 @@ class Shortcuts_keys:
         if not self.SHORTCUT_FILE.exists():
             self.reset_shortcuts_config()
 
-        self.charge_yrml_shortcuts()
+        self.charge_yaml_shortcuts()
 
     def load_yaml_config(self) -> list:
         with open(self.SHORTCUT_FILE, "r") as file:
@@ -57,9 +57,9 @@ class Shortcuts_keys:
         for controller in self.controller_list:
             self.explorer.remove_controller(controller)
 
-        self.charge_yrml_shortcuts()
+        self.charge_yaml_shortcuts()
 
-    def charge_yrml_shortcuts(self):
+    def charge_yaml_shortcuts(self):
         self.list_shortcuts = self.load_yaml_config()
         for shortcut in self.list_shortcuts:
             method = getattr(self, shortcut.method)
@@ -211,6 +211,69 @@ class Shortcuts_keys:
         else:
             GLib.idle_add(self.win.key_connect)
 
+    def add_fav_path(self, widget, args) -> None:
+        # Disconnect key controller from main window
+        self.win.key_disconnect()
+
+        actual_path = str(self.explorer.actual_path)
+
+        if self.explorer.name == "explorer_1":
+            fav_1 = self.win.config.FAV_PATH_LIST_1
+
+            if actual_path not in fav_1:
+                fav_1.append(actual_path)
+                self.explorer.fav_path_list = self.win.config.FAV_PATH_LIST_1
+            else:
+                self.action.show_msg_alert(
+                    self.win,
+                    _(
+                        (
+                            f"El directorio: {actual_path}, ya está añadido"  # noqa:E501
+                            f" a los favoritos de {self.explorer.name}"
+                        )
+                    ),
+                )
+
+        else:
+            fav_2 = self.win.config.FAV_PATH_LIST_2
+
+            if actual_path not in fav_2:
+                fav_2.append(actual_path)
+                self.explorer.fav_path_list = self.win.config.FAV_PATH_LIST_2
+            else:
+                self.action.show_msg_alert(
+                    self.win,
+                    _(
+                        (
+                            f"El directorio: {actual_path}, ya está añadido"  # noqa:E501
+                            f" a los favoritos de {self.explorer.name}"
+                        )
+                    ),
+                )
+
+        self.win.save_config_file(self.win.config)
+        self.win.load_botons_fav()
+        GLib.idle_add(self.win.key_connect)
+
+    def del_fav_path(self, widget, args) -> None:
+        # Disconnect key controller from main window
+        self.win.key_disconnect()
+
+        actual_path = str(self.explorer.actual_path)
+
+        if self.explorer.name == "explorer_1":
+            fav_1 = self.win.config.FAV_PATH_LIST_1
+            if actual_path in fav_1:
+                fav_1.remove(str(self.explorer.actual_path))
+        else:
+            fav_2 = self.win.config.FAV_PATH_LIST_2
+            if actual_path in fav_2:
+                fav_2.remove(str(self.explorer.actual_path))
+
+        self.win.save_config_file(self.win.config)
+        self.win.load_botons_fav()
+        GLib.idle_add(self.win.key_connect)
+
     def reset_shortcuts_config(self):
         shortcuts_dict = [
             Shortcut(
@@ -233,6 +296,20 @@ class Shortcuts_keys:
                 "i",
                 "zip_file",
                 _("Para comprimir archivos"),
+            ),
+            Shortcut(
+                self.explorer,
+                "<Control>",
+                "f",
+                "add_fav_path",
+                _("Para añadir directorios en favoritos"),
+            ),
+            Shortcut(
+                self.explorer,
+                "<Control>",
+                "d",
+                "del_fav_path",
+                _("Para eliminar directorios en favoritos"),
             ),
         ]
         self.save_yaml_config(shortcuts_dict)

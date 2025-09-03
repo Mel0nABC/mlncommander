@@ -21,6 +21,8 @@ class ConfigEntity(GObject.Object):
         SWITCH_UNCOMPRESS_STATUS: bool = None,
         EXP_1_PATH: str = None,
         EXP_2_PATH: str = None,
+        FAV_PATH_LIST_1: list[str] = None,
+        FAV_PATH_LIST_2: list[str] = None,
         SHOW_DIR_LAST: bool = None,
         SWITCH_IMG_STATUS: bool = None,
         SWITCH_WATCHDOG_STATUS: bool = None,
@@ -46,6 +48,8 @@ class ConfigEntity(GObject.Object):
 
         # DIRECTORYS
 
+        self.FAV_PATH_LIST_1 = FAV_PATH_LIST_1
+        self.FAV_PATH_LIST_2 = FAV_PATH_LIST_2
         self.EXP_1_PATH = EXP_1_PATH
         self.EXP_2_PATH = EXP_2_PATH
         self.SHOW_DIR_LAST = SHOW_DIR_LAST
@@ -73,6 +77,8 @@ class ConfigEntity(GObject.Object):
             "SWITCH_COMPRESS_STATUS": self.SWITCH_COMPRESS_STATUS,
             "SWITCH_UNCOMPRESS_STATUS": self.SWITCH_UNCOMPRESS_STATUS,
             # DIRECTORYS
+            "FAV_PATH_LIST_1": self.FAV_PATH_LIST_1,
+            "FAV_PATH_LIST_2": self.FAV_PATH_LIST_2,
             "EXP_1_PATH": self.EXP_1_PATH,
             "EXP_2_PATH": self.EXP_2_PATH,
             "SHOW_DIR_LAST": self.SHOW_DIR_LAST,
@@ -105,6 +111,8 @@ class ConfigEntity(GObject.Object):
         # DIRECTORYS
         self.EXP_1_PATH = "/"
         self.EXP_2_PATH = "/"
+        self.FAV_PATH_LIST_1 = []
+        self.FAV_PATH_LIST_2 = []
         self.SHOW_DIR_LAST = True
         self.SWITCH_IMG_STATUS = True
         self.SWITCH_WATCHDOG_STATUS = True

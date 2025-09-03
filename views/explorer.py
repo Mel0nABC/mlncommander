@@ -62,6 +62,7 @@ class Explorer(Gtk.ColumnView):
             | Gtk.ListScrollFlags.FOCUS
         )
         self.access_control = AccessControl()
+        self.fav_path_list = []
         type_list = [
             "type_str",
             "name",

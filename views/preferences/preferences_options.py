@@ -292,6 +292,8 @@ class Preferences(Gtk.Window):
 
         # DIRECTORYS
 
+        config.FAV_PATH_LIST_1 = self.win.explorer_1.fav_path_list
+        config.FAV_PATH_LIST_2 = self.win.explorer_2.fav_path_list
         config.SHOW_DIR_LAST = Preferences.SHOW_DIR_LAST
         config.EXP_1_PATH = Preferences.EXP_1_PATH
         config.EXP_2_PATH = Preferences.EXP_2_PATH
