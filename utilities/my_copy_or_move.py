@@ -152,7 +152,6 @@ class MyCopyMove:
         result = await self.create_dialog_transfering(parent)
 
         self.progress_on = False
-
         if not result:
             self.stop_all = True
             self.thread_copy.terminate()
@@ -294,13 +293,14 @@ class MyCopyMove:
                             self.response_type,
                         )
                 if not self.action_copy:
-                    if src_info.is_dir():
-                        src_info.rmdir()
-                    else:
-                        src_info.unlink()
-                    self.explorer_src.insert_log_line(
-                        "MOVED", src_info, dst_info
-                    )
+                    if not self.stop_all:
+                        if src_info.is_dir():
+                            src_info.rmdir()
+                        else:
+                            src_info.unlink()
+                        self.explorer_src.insert_log_line(
+                            "MOVED", src_info, dst_info
+                        )
 
         iterate_folders_worker(
             parent,
@@ -376,14 +376,15 @@ class MyCopyMove:
 
         if msg["ok"]:
             if self.action_copy:
-                if not self.duplicate:
-                    self.explorer_src.insert_log_line(
-                        "COPIED", src_info, dst_info
-                    )
-                else:
-                    self.explorer_src.insert_log_line(
-                        "DUPLICATED", src_info, dst_info
-                    )
+                if not self.stop_all:
+                    if not self.duplicate:
+                        self.explorer_src.insert_log_line(
+                            "COPIED", src_info, dst_info
+                        )
+                    else:
+                        self.explorer_src.insert_log_line(
+                            "DUPLICATED", src_info, dst_info
+                        )
 
             return True
         else:
@@ -532,8 +533,6 @@ class MyCopyMove:
         self.transfering_window = Transfering(
             parent, self.action_to_exec, self.explorer_dst
         )
-
-        print(self.action_to_exec)
 
         if (
             parent.config.SWITCH_COPY_STATUS
