@@ -574,14 +574,46 @@ class Window(Gtk.ApplicationWindow):
                 self.buttom_horizontal_2.append(btn)
 
         if self.explorer_1.fav_path_list:
-            for index, path in enumerate(self.explorer_1.fav_path_list):
+            fav_path_list = enumerate(self.explorer_1.fav_path_list)
+            for index, path in fav_path_list:
                 add_fav_btn(self.explorer_1, Path(path), index)
+                method = getattr(
+                    self.explorer_1.shortcuts,
+                    "change_fav_explorer_path",
+                )
+                self.explorer_1.shortcuts.add_shortcut(
+                    self.explorer_1,
+                    "<Alt>",
+                    index + 1,
+                    method,
+                )
 
         if self.explorer_2.fav_path_list:
-            for index, path in enumerate(self.explorer_2.fav_path_list):
+            fav_path_list = enumerate(self.explorer_2.fav_path_list)
+            for index, path in fav_path_list:
                 add_fav_btn(self.explorer_2, Path(path), index)
+                method = getattr(
+                    self.explorer_2.shortcuts,
+                    "change_fav_explorer_path",
+                )
+                self.explorer_2.shortcuts.add_shortcut(
+                    self.explorer_2,
+                    "<Alt>",
+                    index + 1,
+                    method,
+                )
+        return True
 
     def clear_botons_fav(self) -> None:
+
+        for controller in self.explorer_1.shortcuts.fav_controller_list:
+            self.explorer_1.remove_controller(controller)
+            self.explorer_1.shortcuts.fav_controller_list.remove(controller)
+
+        for controller in self.explorer_2.shortcuts.fav_controller_list:
+            self.explorer_2.remove_controller(controller)
+            self.explorer_2.shortcuts.fav_controller_list.remove(controller)
+
         child = None
         for button_box in [self.buttom_horizontal_1, self.buttom_horizontal_2]:
             child = button_box.get_first_child()
@@ -589,3 +621,5 @@ class Window(Gtk.ApplicationWindow):
                 child = button_box.get_first_child()
                 if child:
                     button_box.remove(child)
+
+        return True

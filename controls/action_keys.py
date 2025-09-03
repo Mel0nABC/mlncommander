@@ -67,12 +67,12 @@ def on_key_press(
         | Gtk.ListScrollFlags.FOCUS
     )
 
-    print(
-        (
-            f"Keyval: {keyval}  - keycode: {keycode}"
-            f"- keypressed: {key_pressed_name}"
-        )
-    )
+    # print(
+    #     (
+    #         f"Keyval: {keyval}  - keycode: {keycode}"
+    #         f"- keypressed: {key_pressed_name}"
+    #     )
+    # )
 
     return {
         handle_navitation_keys(

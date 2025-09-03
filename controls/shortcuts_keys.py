@@ -28,6 +28,7 @@ class Shortcuts_keys:
         self.action = Actions()
         self.SHORTCUT_FILE = Path(f"{Window.APP_USER_PATH}/shorcuts_file.yaml")
         self.controller_list = []
+        self.fav_controller_list = []
 
         if not self.SHORTCUT_FILE.exists():
             self.reset_shortcuts_config()
@@ -53,10 +54,10 @@ class Shortcuts_keys:
             yaml.dump([s.to_dict() for s in shortcuts_list], file, indent=4)
 
     def recharge_yaml_shortcuts(self):
-
         for controller in self.controller_list:
             self.explorer.remove_controller(controller)
 
+        self.controller_list = []
         self.charge_yaml_shortcuts()
 
     def charge_yaml_shortcuts(self):
@@ -75,12 +76,17 @@ class Shortcuts_keys:
         method,
     ) -> None:
         trigger = Gtk.ShortcutTrigger.parse_string(f"{first_key}{second_key}")
-        action = Gtk.CallbackAction.new(method)
+        action = Gtk.CallbackAction.new(
+            lambda widget, args: method(widget, second_key)
+        )
         shortcut = Gtk.Shortcut.new(trigger, action)
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(shortcut)
         explorer.add_controller(controller)
-        self.controller_list.append(controller)
+        if first_key == "<Alt>":
+            self.fav_controller_list.append(controller)
+        else:
+            self.controller_list.append(controller)
 
     def shortcut_mirroring_folder(self, widget, args) -> None:
         """
@@ -273,6 +279,17 @@ class Shortcuts_keys:
         self.win.save_config_file(self.win.config)
         self.win.load_botons_fav()
         GLib.idle_add(self.win.key_connect)
+
+    def change_fav_explorer_path(self, widget, index):
+        # Disconnect key controller from main window
+        self.win.key_disconnect()
+        if widget.fav_path_list:
+            list_index = int(index) - 1
+            path = Path(widget.fav_path_list[list_index])
+            widget.load_new_path(path)
+
+        GLib.idle_add(self.win.key_connect)
+        return True
 
     def reset_shortcuts_config(self):
         shortcuts_dict = [
