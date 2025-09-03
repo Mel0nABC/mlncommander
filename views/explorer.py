@@ -143,8 +143,8 @@ class Explorer(Gtk.ColumnView):
         self.activate_drag_source(self)
 
         # Activate watchdog on startup
-
-        self.control_watchdog(self.actual_path, self)
+        if self.win.config.SWITCH_WATCHDOG_STATUS:
+            self.start_watchdog(self.actual_path, self)
 
     def setup(
         self,
@@ -283,7 +283,7 @@ class Explorer(Gtk.ColumnView):
             return
 
         if self.actual_path != path:
-            self.control_watchdog(path, self)
+            self.start_watchdog(path, self)
 
         self.actual_path = path
         self.entry.set_text(str(path))
@@ -292,15 +292,18 @@ class Explorer(Gtk.ColumnView):
         self.selection = Gtk.MultiSelection.new(self.sort_model)
         self.set_model(self.selection)
 
-    def control_watchdog(self, path: Path, explorer: "Explorer") -> None:
+    def start_watchdog(self, path: Path, explorer: "Explorer") -> None:
         """
         Create another watchdog with other path
         """
-        if self.my_watchdog:
-            self.my_watchdog.stop()
+        self.stop_watchdog()
         self.my_watchdog = My_watchdog(str(path), self.APP_USER_PATH, explorer)
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
+
+    def stop_watchdog(self) -> None:
+        if self.my_watchdog:
+            self.my_watchdog.stop()
 
     def load_new_path(self, path: Path) -> None:
         """

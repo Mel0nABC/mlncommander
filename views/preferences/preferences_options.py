@@ -38,6 +38,9 @@ class Preferences(Gtk.Window):
     )
     SWITCH_IMG_STATUS = None
 
+    SHOW_WATCHDOG_PREVIEW_LABEL = _("Activar o desactivar watchdog:")
+    SWITCH_WATCHDOG_STATUS = None
+
     # Application colors
 
     BACKGROUND_APP_TITLE = _("Aplicación")
@@ -100,6 +103,7 @@ class Preferences(Gtk.Window):
 
         Preferences.SHOW_DIR_LAST = win.config.SHOW_DIR_LAST
         Preferences.SWITCH_IMG_STATUS = win.config.SWITCH_IMG_STATUS
+        Preferences.SWITCH_WATCHDOG_STATUS = win.config.SWITCH_WATCHDOG_STATUS
 
         Preferences.COLOR_BACKGROUND_APP = win.config.COLOR_BACKGROUND_APP
         Preferences.COLOR_ENTRY = win.config.COLOR_ENTRY
@@ -246,6 +250,7 @@ class Preferences(Gtk.Window):
         config.EXP_1_PATH = Preferences.EXP_1_PATH
         config.EXP_2_PATH = Preferences.EXP_2_PATH
         config.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
+        config.SWITCH_WATCHDOG_STATUS = Preferences.SWITCH_WATCHDOG_STATUS
         config.COLOR_BACKGROUND_APP = Preferences.COLOR_BACKGROUND_APP
         config.COLOR_ENTRY = Preferences.COLOR_ENTRY
         config.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT

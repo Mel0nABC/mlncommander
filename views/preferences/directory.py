@@ -115,24 +115,38 @@ class Directory(Gtk.Box):
         else:
             check_button_set_dir.set_active(True)
 
+        # Image preview
+
         img_preview_label = Gtk.Label(
             label=Preferences.SHOW_IMAGE_PREVIEW_LABEL
         )
 
-        image_preview_box = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
-        image_preview_box.set_margin_top(20)
-        image_preview_box.append(img_preview_label)
-
         switch_img = Gtk.Switch.new()
         switch_img.set_active(Preferences.SWITCH_IMG_STATUS)
-        switch_img.connect("state-set", self.on_press_switch)
+        switch_img.connect("state-set", self.on_press_switch_img)
 
-        image_preview_box.append(switch_img)
-        self.append(image_preview_box)
+        # Watchdog on/off
 
-    def on_press_switch(self, switch: Gtk.Switch, pspec: bool) -> None:
+        watchdog_label = Gtk.Label(
+            label=Preferences.SHOW_WATCHDOG_PREVIEW_LABEL
+        )
+        watchdog_label.set_halign(Gtk.Align.START)
+        sw_watchdog = Gtk.Switch.new()
+        sw_watchdog.set_active(Preferences.SWITCH_WATCHDOG_STATUS)
+        sw_watchdog.connect("state-set", self.on_press_switch_wd)
+
+        # add image preview and watchdog
+
+        grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+
+        grid.attach(img_preview_label, 0, 0, 1, 1)
+        grid.attach(switch_img, 1, 0, 1, 1)
+        grid.attach(watchdog_label, 0, 1, 1, 1)
+        grid.attach(sw_watchdog, 1, 1, 1, 1)
+
+        self.append(grid)
+
+    def on_press_switch_img(self, switch: Gtk.Switch, pspec: bool) -> None:
         """
         When change switch status, update visual on explorers
         """
@@ -153,6 +167,22 @@ class Directory(Gtk.Box):
             index = explorer_2.get_selected_items_from_explorer()[0]
             explorer_2.scroll_to(0, None, explorer_1.flags)
             explorer_2.scroll_to(index, None, explorer_1.flags)
+
+    def on_press_switch_wd(self, switch: Gtk.Switch, pspec: bool) -> None:
+        from views.preferences.preferences_options import Preferences
+
+        Preferences.SWITCH_WATCHDOG_STATUS = pspec
+        self.win.SWITCH_WATCHDOG_STATUS = pspec
+
+        explorer_1 = self.win.explorer_1
+        explorer_2 = self.win.explorer_2
+
+        if pspec:
+            explorer_1.start_watchdog(explorer_1.actual_path, explorer_1)
+            explorer_2.start_watchdog(explorer_2.actual_path, explorer_2)
+        else:
+            explorer_1.stop_watchdog()
+            explorer_2.stop_watchdog()
 
     def click_select_path_dialog(
         self, button: Gtk.Button, entry: Gtk.Entry

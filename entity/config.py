@@ -18,6 +18,7 @@ class ConfigEntity(GObject.Object):
         EXP_2_PATH: str = None,
         SHOW_DIR_LAST: bool = None,
         SWITCH_IMG_STATUS: bool = None,
+        SWITCH_WATCHDOG_STATUS: bool = None,
         COLOR_BACKGROUND_APP: str = None,
         COLOR_ENTRY: str = None,
         COLOR_EXPLORER_LEFT: str = None,
@@ -33,6 +34,7 @@ class ConfigEntity(GObject.Object):
         self.EXP_2_PATH = EXP_2_PATH
         self.SHOW_DIR_LAST = SHOW_DIR_LAST
         self.SWITCH_IMG_STATUS = SWITCH_IMG_STATUS
+        self.SWITCH_WATCHDOG_STATUS = SWITCH_WATCHDOG_STATUS
         self.COLOR_BACKGROUND_APP = COLOR_BACKGROUND_APP
         self.COLOR_ENTRY = COLOR_ENTRY
         self.COLOR_EXPLORER_LEFT = COLOR_EXPLORER_LEFT
@@ -49,6 +51,7 @@ class ConfigEntity(GObject.Object):
             "EXP_2_PATH": self.EXP_2_PATH,
             "SHOW_DIR_LAST": self.SHOW_DIR_LAST,
             "SWITCH_IMG_STATUS": self.SWITCH_IMG_STATUS,
+            "SWITCH_WATCHDOG_STATUS": self.SWITCH_WATCHDOG_STATUS,
             "COLOR_BACKGROUND_APP": self.COLOR_BACKGROUND_APP,
             "COLOR_ENTRY": self.COLOR_ENTRY,
             "COLOR_EXPLORER_LEFT": self.COLOR_EXPLORER_LEFT,
@@ -68,6 +71,7 @@ class ConfigEntity(GObject.Object):
         self.EXP_2_PATH = "/"
         self.SHOW_DIR_LAST = True
         self.SWITCH_IMG_STATUS = True
+        self.SWITCH_WATCHDOG_STATUS = True
         self.COLOR_BACKGROUND_APP = (
             Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
         )

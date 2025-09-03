@@ -452,6 +452,9 @@ class Window(Gtk.ApplicationWindow):
 
             self.config.SHOW_DIR_LAST = bool(data["SHOW_DIR_LAST"])
             self.config.SWITCH_IMG_STATUS = bool(data["SWITCH_IMG_STATUS"])
+            self.config.SWITCH_WATCHDOG_STATUS = bool(
+                data["SWITCH_WATCHDOG_STATUS"]
+            )
             self.config.COLOR_BACKGROUND_APP = data["COLOR_BACKGROUND_APP"]
             self.config.COLOR_EXPLORER_LEFT = data["COLOR_EXPLORER_LEFT"]
             self.config.COLOR_EXPLORER_RIGHT = data["COLOR_EXPLORER_RIGHT"]
