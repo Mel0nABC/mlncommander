@@ -14,6 +14,11 @@ class ConfigEntity(GObject.Object):
 
     def __init__(
         self,
+        SWITCH_COPY_STATUS: bool = None,
+        SWITCH_MOVE_STATUS: bool = None,
+        SWITCH_DUPLICATE_STATUS: bool = None,
+        SWITCH_COMPRESS_STATUS: bool = None,
+        SWITCH_UNCOMPRESS_STATUS: bool = None,
         EXP_1_PATH: str = None,
         EXP_2_PATH: str = None,
         SHOW_DIR_LAST: bool = None,
@@ -30,11 +35,25 @@ class ConfigEntity(GObject.Object):
         FONT_STYLE_COLOR: str = None,
     ):
         super().__init__()
+
+        # GENERAL
+
+        self.SWITCH_COPY_STATUS = SWITCH_COPY_STATUS
+        self.SWITCH_MOVE_STATUS = SWITCH_MOVE_STATUS
+        self.SWITCH_DUPLICATE_STATUS = SWITCH_DUPLICATE_STATUS
+        self.SWITCH_COMPRESS_STATUS = SWITCH_COMPRESS_STATUS
+        self.SWITCH_UNCOMPRESS_STATUS = SWITCH_UNCOMPRESS_STATUS
+
+        # DIRECTORYS
+
         self.EXP_1_PATH = EXP_1_PATH
         self.EXP_2_PATH = EXP_2_PATH
         self.SHOW_DIR_LAST = SHOW_DIR_LAST
         self.SWITCH_IMG_STATUS = SWITCH_IMG_STATUS
         self.SWITCH_WATCHDOG_STATUS = SWITCH_WATCHDOG_STATUS
+
+        # APPEARANCE
+
         self.COLOR_BACKGROUND_APP = COLOR_BACKGROUND_APP
         self.COLOR_ENTRY = COLOR_ENTRY
         self.COLOR_EXPLORER_LEFT = COLOR_EXPLORER_LEFT
@@ -47,11 +66,19 @@ class ConfigEntity(GObject.Object):
 
     def to_dict(self) -> dict:
         return {
+            # GENERAL
+            "SWITCH_COPY_STATUS": self.SWITCH_COPY_STATUS,
+            "SWITCH_MOVE_STATUS": self.SWITCH_MOVE_STATUS,
+            "SWITCH_DUPLICATE_STATUS": self.SWITCH_DUPLICATE_STATUS,
+            "SWITCH_COMPRESS_STATUS": self.SWITCH_COMPRESS_STATUS,
+            "SWITCH_UNCOMPRESS_STATUS": self.SWITCH_UNCOMPRESS_STATUS,
+            # DIRECTORYS
             "EXP_1_PATH": self.EXP_1_PATH,
             "EXP_2_PATH": self.EXP_2_PATH,
             "SHOW_DIR_LAST": self.SHOW_DIR_LAST,
             "SWITCH_IMG_STATUS": self.SWITCH_IMG_STATUS,
             "SWITCH_WATCHDOG_STATUS": self.SWITCH_WATCHDOG_STATUS,
+            # APPEARANCE
             "COLOR_BACKGROUND_APP": self.COLOR_BACKGROUND_APP,
             "COLOR_ENTRY": self.COLOR_ENTRY,
             "COLOR_EXPLORER_LEFT": self.COLOR_EXPLORER_LEFT,
@@ -67,11 +94,22 @@ class ConfigEntity(GObject.Object):
         return self.to_dict().keys()
 
     def create_new_config(self):
+
+        # GENERAL
+        self.SWITCH_COPY_STATUS = False
+        self.SWITCH_MOVE_STATUS = False
+        self.SWITCH_DUPLICATE_STATUS = False
+        self.SWITCH_COMPRESS_STATUS = False
+        self.SWITCH_UNCOMPRESS_STATUS = False
+
+        # DIRECTORYS
         self.EXP_1_PATH = "/"
         self.EXP_2_PATH = "/"
         self.SHOW_DIR_LAST = True
         self.SWITCH_IMG_STATUS = True
         self.SWITCH_WATCHDOG_STATUS = True
+
+        # APPEARANCE
         self.COLOR_BACKGROUND_APP = (
             Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
         )

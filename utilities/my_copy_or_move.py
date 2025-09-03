@@ -225,7 +225,6 @@ class MyCopyMove:
                     continue
 
                 # move section
-                print(f"MOVED: {self.action_copy}")
                 try:
                     if not self.action_copy:
                         os.rename(src_info, dst_info)
@@ -533,7 +532,28 @@ class MyCopyMove:
         self.transfering_window = Transfering(
             parent, self.action_to_exec, self.explorer_dst
         )
-        self.transfering_window.present()
+
+        print(self.action_to_exec)
+
+        if (
+            parent.config.SWITCH_COPY_STATUS
+            and self.action_to_exec == "copy"
+            and not self.duplicate
+        ):
+            GLib.idle_add(self.transfering_window.to_background, None)
+        elif (
+            parent.config.SWITCH_DUPLICATE_STATUS
+            and self.action_to_exec == "copy"
+            and self.duplicate
+        ):
+            GLib.idle_add(self.transfering_window.to_background, None)
+        elif (
+            parent.config.SWITCH_MOVE_STATUS and self.action_to_exec == "move"
+        ):
+            GLib.idle_add(self.transfering_window.to_background, None)
+        else:
+            self.transfering_window.present()
+
         self.iterator_thread.start()
         response = await self.transfering_window.wait_response_async()
         return response
@@ -557,6 +577,7 @@ class MyCopyMove:
         while self.progress_on:
             try:
                 if self.transfering_window is not None:
+
                     src_info = self.transfering_window.src_info
                     dst_info = self.transfering_window.dst_info
 

@@ -200,7 +200,7 @@ class Transfering(Gtk.Window):
         self.finish_background()
         self.destroy()
 
-    def to_background(self, button: Gtk.Button) -> None:
+    def to_background(self, button: Gtk.Button = None) -> None:
         if self.grid is not None:
 
             self.set_child(None)

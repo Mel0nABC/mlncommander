@@ -21,8 +21,8 @@ class Directory(Gtk.Box):
         self.set_margin_start(20)
 
         # title
-        label_title = Gtk.Label(label=Preferences.DIRECTORY_TITLE)
-        label_title.set_halign(Gtk.Align.START)
+        title_label = Gtk.Label(label=Preferences.DIRECTORY_TITLE)
+        title_label.set_halign(Gtk.Align.START)
 
         # Buttons to select the option to use in directories
         check_button_last_dir = Gtk.CheckButton.new_with_label(
@@ -37,7 +37,7 @@ class Directory(Gtk.Box):
 
         check_button_set_dir.set_group(check_button_last_dir)
 
-        self.append(label_title)
+        self.append(title_label)
         self.append(check_button_last_dir)
         self.append(check_button_set_dir)
 

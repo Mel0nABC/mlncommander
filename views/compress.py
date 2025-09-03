@@ -313,6 +313,10 @@ class CompressWindow(Gtk.Window):
     def compress_work(
         self, cmd: str, file_name: str, output_file: str
     ) -> None:
+
+        if self.win.config.SWITCH_COMPRESS_STATUS:
+            GLib.idle_add(self.to_background, None)
+
         master_df, slave_fd = pty.openpty()
         self.compress_popen = subprocess.Popen(
             cmd, stdin=slave_fd, stdout=slave_fd, stderr=slave_fd, text=True
@@ -413,7 +417,7 @@ class CompressWindow(Gtk.Window):
     def create_password_window(self, to_work: Queue, file: Path):
         PasswordWindow(self, to_work, file)
 
-    def to_background(self, button: Gtk.Button) -> None:
+    def to_background(self, button: Gtk.Button = None) -> None:
         self.in_background = True
         self.set_child(None)
         self.vertical_main.remove(self.grid)

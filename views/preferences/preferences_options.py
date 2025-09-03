@@ -21,6 +21,23 @@ class Preferences(Gtk.Window):
     APPEARANCE_LABEL_BTN = _("Apariencia")
     SHORCUTS_LABEL_BTN = _("Atajos de teclado")
 
+    # GENERAL
+
+    GENERAL_TITLE = _("Minimizar al iniciar")
+    COPY_LABEL = _("Copiar")
+    MOVE_LABEL = _("Mover")
+    DUPLICATE_LABEL = _("Duplicar")
+    COMPRESS_LABEL = _("Comprimir")
+    UNCOMPRESS_LABEL = _("Descomprimir")
+
+    SWITCH_COPY_STATUS = None
+    SWITCH_MOVE_STATUS = None
+    SWITCH_DUPLICATE_STATUS = None
+    SWITCH_COMPRESS_STATUS = None
+    SWITCH_UNCOMPRESS_STATUS = None
+
+    # DIRECTORYS
+
     DIRECTORY_TITLE = _("Directorios de inicio")
     UTILIZATION_LAST_DIR = _("Utilizar últimos directorios usados.")
     UTILIZATION_SET_DIR = _("Utilizar siempre los mismos al iniciar.")
@@ -40,6 +57,8 @@ class Preferences(Gtk.Window):
 
     SHOW_WATCHDOG_PREVIEW_LABEL = _("Activar o desactivar watchdog:")
     SWITCH_WATCHDOG_STATUS = None
+
+    # APPEARANCE
 
     # Application colors
 
@@ -101,9 +120,25 @@ class Preferences(Gtk.Window):
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
 
+        # GENERAL
+
+        Preferences.SWITCH_COPY_STATUS = win.config.SWITCH_COPY_STATUS
+        Preferences.SWITCH_MOVE_STATUS = win.config.SWITCH_MOVE_STATUS
+        Preferences.SWITCH_DUPLICATE_STATUS = (
+            win.config.SWITCH_DUPLICATE_STATUS
+        )
+        Preferences.SWITCH_COMPRESS_STATUS = win.config.SWITCH_COMPRESS_STATUS
+        Preferences.SWITCH_UNCOMPRESS_STATUS = (
+            win.config.SWITCH_UNCOMPRESS_STATUS
+        )
+
+        # DIRECTORYS
+
         Preferences.SHOW_DIR_LAST = win.config.SHOW_DIR_LAST
         Preferences.SWITCH_IMG_STATUS = win.config.SWITCH_IMG_STATUS
         Preferences.SWITCH_WATCHDOG_STATUS = win.config.SWITCH_WATCHDOG_STATUS
+
+        # APPEARANCE
 
         Preferences.COLOR_BACKGROUND_APP = win.config.COLOR_BACKGROUND_APP
         Preferences.COLOR_ENTRY = win.config.COLOR_ENTRY
@@ -246,11 +281,25 @@ class Preferences(Gtk.Window):
         Confirm changes.
         """
         config = ConfigEntity()
+
+        # GENERAL
+
+        config.SWITCH_COPY_STATUS = Preferences.SWITCH_COPY_STATUS
+        config.SWITCH_MOVE_STATUS = Preferences.SWITCH_MOVE_STATUS
+        config.SWITCH_DUPLICATE_STATUS = Preferences.SWITCH_DUPLICATE_STATUS
+        config.SWITCH_COMPRESS_STATUS = Preferences.SWITCH_COMPRESS_STATUS
+        config.SWITCH_UNCOMPRESS_STATUS = Preferences.SWITCH_UNCOMPRESS_STATUS
+
+        # DIRECTORYS
+
         config.SHOW_DIR_LAST = Preferences.SHOW_DIR_LAST
         config.EXP_1_PATH = Preferences.EXP_1_PATH
         config.EXP_2_PATH = Preferences.EXP_2_PATH
         config.SWITCH_IMG_STATUS = Preferences.SWITCH_IMG_STATUS
         config.SWITCH_WATCHDOG_STATUS = Preferences.SWITCH_WATCHDOG_STATUS
+
+        # APPEARANCE
+
         config.COLOR_BACKGROUND_APP = Preferences.COLOR_BACKGROUND_APP
         config.COLOR_ENTRY = Preferences.COLOR_ENTRY
         config.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT

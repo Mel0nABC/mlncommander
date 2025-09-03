@@ -105,6 +105,10 @@ class UncompressWindow(Gtk.Window):
             self.verify_on_exit(False)
 
     def start_uncompress(self) -> None:
+
+        if self.win.config.SWITCH_UNCOMPRESS_STATUS:
+            GLib.idle_add(self.to_background, None)
+
         output_text = _("Para más información pulse sobre los icono.")
 
         list_files = self.selected_items
@@ -248,7 +252,7 @@ class UncompressWindow(Gtk.Window):
     def create_password_window(self, to_work: Queue, file: Path):
         PasswordWindow(self, to_work, file)
 
-    def to_background(self, button: Gtk.Button) -> None:
+    def to_background(self, button: Gtk.Button = None) -> None:
 
         self.grid.remove(self.vertical_files)
         self.grid.remove(self.horizontal_button)

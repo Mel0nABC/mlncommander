@@ -430,6 +430,20 @@ class Window(Gtk.ApplicationWindow):
         with open(self.CONFIG_FILE, "r+") as config_file:
             data = yaml.safe_load(config_file)
 
+            # GENERAL
+
+            self.config.SWITCH_COPY_STATUS = data["SWITCH_COPY_STATUS"]
+            self.config.SWITCH_MOVE_STATUS = data["SWITCH_MOVE_STATUS"]
+            self.config.SWITCH_DUPLICATE_STATUS = data[
+                "SWITCH_DUPLICATE_STATUS"
+            ]
+            self.config.SWITCH_COMPRESS_STATUS = data["SWITCH_COMPRESS_STATUS"]
+            self.config.SWITCH_UNCOMPRESS_STATUS = data[
+                "SWITCH_UNCOMPRESS_STATUS"
+            ]
+
+            # DIRECTORYS
+
             EXP_1_PATH = Path(data["EXP_1_PATH"])
             result = File_manager.get_path_list(EXP_1_PATH)
             if result:
@@ -455,6 +469,9 @@ class Window(Gtk.ApplicationWindow):
             self.config.SWITCH_WATCHDOG_STATUS = bool(
                 data["SWITCH_WATCHDOG_STATUS"]
             )
+
+            # APPEARANCE
+
             self.config.COLOR_BACKGROUND_APP = data["COLOR_BACKGROUND_APP"]
             self.config.COLOR_EXPLORER_LEFT = data["COLOR_EXPLORER_LEFT"]
             self.config.COLOR_EXPLORER_RIGHT = data["COLOR_EXPLORER_RIGHT"]
