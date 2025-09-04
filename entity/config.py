@@ -31,6 +31,7 @@ class ConfigEntity(GObject.Object):
         COLOR_EXPLORER_LEFT: str = None,
         COLOR_EXPLORER_RIGHT: str = None,
         COLOR_BUTTON: str = None,
+        COLOR_FAV_BUTTON: str = None,
         COLOR_BACKGROUND_SEARCH: str = None,
         COLOR_SEARCH_TEXT: str = None,
         FONT_STYLE: str = None,
@@ -63,6 +64,7 @@ class ConfigEntity(GObject.Object):
         self.COLOR_EXPLORER_LEFT = COLOR_EXPLORER_LEFT
         self.COLOR_EXPLORER_RIGHT = COLOR_EXPLORER_RIGHT
         self.COLOR_BUTTON = COLOR_BUTTON
+        self.COLOR_FAV_BUTTON = COLOR_FAV_BUTTON
         self.COLOR_BACKGROUND_SEARCH = COLOR_BACKGROUND_SEARCH
         self.COLOR_SEARCH_TEXT = COLOR_SEARCH_TEXT
         self.FONT_STYLE = FONT_STYLE
@@ -90,6 +92,7 @@ class ConfigEntity(GObject.Object):
             "COLOR_EXPLORER_LEFT": self.COLOR_EXPLORER_LEFT,
             "COLOR_EXPLORER_RIGHT": self.COLOR_EXPLORER_RIGHT,
             "COLOR_BUTTON": self.COLOR_BUTTON,
+            "COLOR_FAV_BUTTON": self.COLOR_FAV_BUTTON,
             "COLOR_BACKGROUND_SEARCH": self.COLOR_BACKGROUND_SEARCH,
             "COLOR_SEARCH_TEXT": self.COLOR_SEARCH_TEXT,
             "FONT_STYLE": self.FONT_STYLE,
@@ -129,6 +132,7 @@ class ConfigEntity(GObject.Object):
             Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT
         )
         self.COLOR_BUTTON = Css_explorer_manager.PREDE_COLOR_BUTTON
+        self.COLOR_FAV_BUTTON = Css_explorer_manager.PREDE_COLOR_FAV_BUTTON
 
         self.COLOR_BACKGROUND_SEARCH = (
             Css_explorer_manager.PREDE_COLOR_BACKGROUND_SEARCH

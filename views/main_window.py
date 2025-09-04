@@ -64,7 +64,9 @@ class Window(Gtk.ApplicationWindow):
         self.css_manager.load_css_app_background(
             self.config.COLOR_BACKGROUND_APP
         )
-        self.css_manager.load_css_buttons(self.config.COLOR_BUTTON)
+        self.css_manager.load_css_buttons(
+            self.config.COLOR_BUTTON, self.config.COLOR_FAV_BUTTON
+        )
         self.css_manager.load_css_entrys(self.config.COLOR_ENTRY)
         font_desc = Pango.FontDescription.from_string(self.config.FONT_STYLE)
         self.css_manager.load_css_font(font_desc, self.config.FONT_STYLE_COLOR)
@@ -547,6 +549,7 @@ class Window(Gtk.ApplicationWindow):
             self.config.COLOR_ENTRY = data["COLOR_ENTRY"]
             self.config.COLOR_SEARCH_TEXT = data["COLOR_SEARCH_TEXT"]
             self.config.COLOR_BUTTON = data["COLOR_BUTTON"]
+            self.config.COLOR_FAV_BUTTON = data["COLOR_FAV_BUTTON"]
             self.config.FONT_STYLE = data["FONT_STYLE"]
             self.config.FONT_STYLE_COLOR = data["FONT_STYLE_COLOR"]
 
@@ -594,15 +597,6 @@ class Window(Gtk.ApplicationWindow):
             text_lbl = f"[ {position+1} ] : {str(path)}"
             lbl = Gtk.Label.new(text_lbl)
             lbl.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
-            # btn_del = Gtk.Button.new_with_label(label="X")
-
-            # grid = Gtk.Grid(column_spacing=10, row_spacing=5)
-            # grid.get_style_context().add_class("button")
-            # grid.set_hexpand(True)
-
-            # grid.attach(btn_del, 1, 0, 1, 1)
-            # grid.attach(lbl, 0, 1, 1, 1)
-
             btn = Gtk.Button.new()
             btn.set_child(lbl)
             btn.set_hexpand(False)
@@ -614,8 +608,10 @@ class Window(Gtk.ApplicationWindow):
 
             if explorer.name == "explorer_1":
                 self.buttom_horizontal_1.append(btn)
+                self.explorer_1.fav_path_btn_list.append(btn)
             else:
                 self.buttom_horizontal_2.append(btn)
+                self.explorer_2.fav_path_btn_list.append(btn)
 
         if self.explorer_1.fav_path_list:
             fav_path_list = enumerate(self.explorer_1.fav_path_list)
@@ -646,9 +642,19 @@ class Window(Gtk.ApplicationWindow):
                     index + 1,
                     method,
                 )
+
+        self.explorer_1.set_on_path_fav_button()
+        self.explorer_2.set_on_path_fav_button()
+
         return True
 
     def clear_botons_fav(self) -> None:
+
+        self.explorer_1.fav_path_btn_list = None
+        self.explorer_1.fav_path_btn_list = []
+
+        self.explorer_2.fav_path_btn_list = None
+        self.explorer_2.fav_path_btn_list = []
 
         for controller in self.explorer_1.shortcuts.fav_controller_list:
             self.explorer_1.remove_controller(controller)

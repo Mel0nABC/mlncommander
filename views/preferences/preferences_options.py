@@ -88,7 +88,12 @@ class Preferences(Gtk.Window):
 
     FONT_SELECT_TITLE = _("Seleccion de fuente")
     FONT_SELECT_LABEL = _("Fuente")
-    FONT_SELECT_COLOT = _("Color")
+    FONT_SELECT_COLOR = _("Color")
+
+    # Fav button
+
+    BACKGROUND_FAV_TITLE = _("Color de los botones de favoritos")
+    BACKGROUND_FAV_LABEL = _("Fondo de los botones")
 
     # Colors
 
@@ -103,6 +108,7 @@ class Preferences(Gtk.Window):
     COLOR_SEARCH_TEXT = None
 
     COLOR_BUTTON = None
+    COLOR_FAV_BUTTON = None
 
     FONT_STYLE = None
     FONT_STYLE_COLOR = None
@@ -145,6 +151,7 @@ class Preferences(Gtk.Window):
         Preferences.COLOR_EXPLORER_LEFT = win.config.COLOR_EXPLORER_LEFT
         Preferences.COLOR_EXPLORER_RIGHT = win.config.COLOR_EXPLORER_RIGHT
         Preferences.COLOR_BUTTON = win.config.COLOR_BUTTON
+        Preferences.COLOR_FAV_BUTTON = win.config.COLOR_FAV_BUTTON
         Preferences.COLOR_BACKGROUND_SEARCH = (
             win.config.COLOR_BACKGROUND_SEARCH
         )
@@ -260,7 +267,9 @@ class Preferences(Gtk.Window):
         self.css_manager.load_css_app_background(
             self.win.config.COLOR_BACKGROUND_APP
         )
-        self.css_manager.load_css_buttons(self.win.config.COLOR_BUTTON)
+        self.css_manager.load_css_buttons(
+            self.win.config.COLOR_BUTTON, self.win.config.COLOR_FAV_BUTTON
+        )
         self.css_manager.load_css_entrys(self.win.config.COLOR_ENTRY)
         font_desc = Pango.FontDescription.from_string(
             self.win.config.FONT_STYLE
@@ -307,6 +316,7 @@ class Preferences(Gtk.Window):
         config.COLOR_EXPLORER_LEFT = Preferences.COLOR_EXPLORER_LEFT
         config.COLOR_EXPLORER_RIGHT = Preferences.COLOR_EXPLORER_RIGHT
         config.COLOR_BUTTON = Preferences.COLOR_BUTTON
+        config.COLOR_FAV_BUTTON = Preferences.COLOR_FAV_BUTTON
         config.COLOR_BACKGROUND_SEARCH = Preferences.COLOR_BACKGROUND_SEARCH
         config.COLOR_SEARCH_TEXT = Preferences.COLOR_SEARCH_TEXT
         config.FONT_STYLE = Preferences.FONT_STYLE

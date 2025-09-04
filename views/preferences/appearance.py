@@ -17,6 +17,7 @@ class Appearance(Gtk.Box):
 
         self.win = win
         self.css_manager = Css_explorer_manager(self.win)
+        self.btn_color_list = []
 
         # Configure margin Box
         self.set_margin_top(20)
@@ -24,162 +25,157 @@ class Appearance(Gtk.Box):
         self.set_margin_bottom(20)
         self.set_margin_start(20)
 
+        grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+
         # Background application
 
-        self.background_horizontal_box = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        lbl_back_app_title = self.create_label_for_title_section(
+            Preferences.BACKGROUND_APP_TITLE
         )
 
-        self.append(
-            self.create_box_for_title_section(Preferences.BACKGROUND_APP_TITLE)
+        lbl_application_background = self.create_label(
+            Preferences.BACKGROUND_APP_TITLE_COLOR
         )
 
-        self.background_horizontal_box_app = self.create_box_for_color_btn()
+        btn_color_app = self.create_btn_color("btn_color_app")
 
-        self.background_horizontal_box_app.append(
-            self.create_label(Preferences.BACKGROUND_APP_TITLE_COLOR)
-        )
-        self.background_horizontal_box_app.append(
-            self.create_btn_color("btn_color_app")
-        )
+        grid.attach(lbl_back_app_title, 0, 0, 1, 1)
+        grid.attach(lbl_application_background, 1, 1, 1, 1)
+        grid.attach(btn_color_app, 2, 1, 1, 1)
 
-        self.append(self.background_horizontal_box_app)
+        self.append(grid)
 
         # Background entrys
 
-        self.append(
-            self.create_box_for_title_section(
-                Preferences.BACKGROUND_ENTRY_TITLE
-            )
+        lbl_back_entry_title = self.create_label_for_title_section(
+            Preferences.BACKGROUND_ENTRY_TITLE
         )
 
-        self.background_horizontal_box_entry_color = (
-            self.create_box_for_color_btn()
+        lbl_application_background = self.create_label(
+            Preferences.BACKGROUND_ENTRY_TITLE_COLOR
         )
 
-        self.background_horizontal_box_entry_color.append(
-            self.create_label(Preferences.BACKGROUND_ENTRY_TITLE_COLOR)
-        )
-        self.background_horizontal_box_entry_color.append(
-            self.create_btn_color("btn_color_entry")
-        )
+        btn_color_entry = self.create_btn_color("btn_color_entry")
 
-        self.append(self.background_horizontal_box_entry_color)
+        grid.attach(lbl_back_entry_title, 0, 2, 1, 1)
+        grid.attach(lbl_application_background, 1, 3, 1, 1)
+        grid.attach(btn_color_entry, 2, 3, 1, 1)
 
         # Background explorers
 
-        self.append(
-            self.create_box_for_title_section(
-                Preferences.BACKGROUND_EXPLORER_TITLE
-            )
+        lbl_explorer_title = self.create_label_for_title_section(
+            Preferences.BACKGROUND_EXPLORER_TITLE
         )
 
-        self.background_horizontal_box_1 = self.create_box_for_color_btn()
-
-        self.background_horizontal_box_1.append(
-            self.create_label(Preferences.BACKGROUND_EXPLORER_LEFT)
-        )
-        self.background_horizontal_box_1.append(
-            self.create_btn_color("btn_color_explorer_left")
+        lbl_explorer_left = self.create_label(
+            Preferences.BACKGROUND_EXPLORER_LEFT
         )
 
-        self.append(self.background_horizontal_box_1)
-
-        self.background_horizontal_box_2 = self.create_box_for_color_btn()
-
-        self.background_horizontal_box_2.append(
-            self.create_label(Preferences.BACKGROUND_EXPLORER_RIGHT)
-        )
-        self.background_horizontal_box_2.append(
-            self.create_btn_color("btn_color_explorer_right")
+        btn_color_explorer_left = self.create_btn_color(
+            "btn_color_explorer_left"
         )
 
-        self.append(self.background_horizontal_box_2)
+        lbl_explorer_right = self.create_label(
+            Preferences.BACKGROUND_EXPLORER_RIGHT
+        )
+
+        btn_color_explorer_right = self.create_btn_color(
+            "btn_color_explorer_right"
+        )
+
+        grid.attach(lbl_explorer_title, 0, 4, 1, 1)
+        grid.attach(lbl_explorer_left, 1, 5, 1, 1)
+        grid.attach(btn_color_explorer_left, 2, 5, 1, 1)
+        grid.attach(lbl_explorer_right, 1, 6, 1, 1)
+        grid.attach(btn_color_explorer_right, 2, 6, 1, 1)
 
         # Search section
 
-        self.append(
-            self.create_box_for_title_section(Preferences.SEARCH_COLORS_TITLE)
+        lbl_search_title = self.create_label_for_title_section(
+            Preferences.SEARCH_COLORS_TITLE
         )
 
-        self.background_horizontal_box_3 = self.create_box_for_color_btn()
-
-        self.background_horizontal_box_3.append(
-            self.create_label(Preferences.SEARCH_BACKGROUND)
-        )
-        self.background_horizontal_box_3.append(
-            self.create_btn_color("btn_color_background_search")
+        lbl_search_background = self.create_label(
+            Preferences.SEARCH_BACKGROUND
         )
 
-        self.append(self.background_horizontal_box_3)
-
-        self.background_horizontal_box_4 = self.create_box_for_color_btn()
-
-        self.background_horizontal_box_4.append(
-            self.create_label(Preferences.SEARCH_FONT_COLOR)
-        )
-        self.background_horizontal_box_4.append(
-            self.create_btn_color("btn_color_search_text")
+        btn_color_background_search = self.create_btn_color(
+            "btn_color_background_search"
         )
 
-        self.append(self.background_horizontal_box_4)
+        lbl_search_font = self.create_label(Preferences.SEARCH_FONT_COLOR)
+
+        btn_color_search_text = self.create_btn_color("btn_color_search_text")
+
+        grid.attach(lbl_search_title, 0, 7, 1, 1)
+        grid.attach(lbl_search_background, 1, 8, 1, 1)
+        grid.attach(btn_color_background_search, 2, 8, 1, 1)
+        grid.attach(lbl_search_font, 1, 9, 1, 1)
+        grid.attach(btn_color_search_text, 2, 9, 1, 1)
 
         # Set color button
 
-        self.append(
-            self.create_box_for_title_section(
-                Preferences.BACKGROUND_BUTTONS_TITLE
-            )
+        lbl_button_title = self.create_label_for_title_section(
+            Preferences.BACKGROUND_BUTTONS_TITLE
         )
 
-        self.background_horizontal_box_4 = self.create_box_for_color_btn()
-
-        self.background_horizontal_box_4.append(
-            self.create_label(Preferences.BACKGROUND_BUTTONS_LABEL)
-        )
-        self.background_horizontal_box_4.append(
-            self.create_btn_color("btn_color_background_buttons")
+        lbl_button_background = self.create_label(
+            Preferences.BACKGROUND_BUTTONS_LABEL
         )
 
-        self.append(self.background_horizontal_box_4)
+        btn_color_background_buttons = self.create_btn_color(
+            "btn_color_background_buttons"
+        )
+
+        grid.attach(lbl_button_title, 0, 10, 1, 1)
+        grid.attach(lbl_button_background, 1, 11, 1, 1)
+        grid.attach(btn_color_background_buttons, 2, 11, 1, 1)
 
         # Font selector
 
-        self.append(
-            self.create_box_for_title_section(Preferences.FONT_SELECT_TITLE)
+        lbl_font_title = self.create_label_for_title_section(
+            Preferences.FONT_SELECT_TITLE
         )
 
-        self.background_horizontal_box_font_btn = (
-            self.create_box_for_color_btn()
+        lbl_font_type = self.create_label(Preferences.FONT_SELECT_LABEL)
+
+        self.font_dialog = Gtk.FontDialog.new()
+        self.font_dialog.connect("notify::font-desc", self.set_font)
+        self.btn_font = Gtk.FontDialogButton.new(self.font_dialog)
+        self.font_desc = Pango.FontDescription.from_string(
+            Preferences.FONT_STYLE
+        )
+        self.btn_font.set_font_desc(self.font_desc)
+        self.btn_font.connect("notify::font-desc", self.set_font)
+
+        lbl_font_color = self.create_label(Preferences.FONT_SELECT_COLOR)
+        btn_color_font_color = self.create_btn_color("btn_color_font_color")
+
+        grid.attach(lbl_font_title, 0, 12, 1, 1)
+        grid.attach(lbl_font_type, 1, 13, 1, 1)
+        grid.attach(self.btn_font, 2, 13, 1, 1)
+        grid.attach(lbl_font_color, 1, 14, 1, 1)
+        grid.attach(btn_color_font_color, 2, 14, 1, 1)
+
+        # Fav button
+
+        lbl_fav_title = self.create_label_for_title_section(
+            Preferences.BACKGROUND_FAV_TITLE
         )
 
-        font_dialog = Gtk.FontDialog.new()
-        font_dialog.connect("notify::font-desc", self.set_font)
-        btn_font = Gtk.FontDialogButton.new(font_dialog)
-        font_desc = Pango.FontDescription.from_string(Preferences.FONT_STYLE)
-        btn_font.set_font_desc(font_desc)
-        btn_font.connect("notify::font-desc", self.set_font)
-
-        self.background_horizontal_box_font_btn.append(
-            self.create_label(Preferences.FONT_SELECT_LABEL)
-        )
-        self.background_horizontal_box_font_btn.append(btn_font)
-
-        self.append(self.background_horizontal_box_font_btn)
-
-        # Font color selector
-        self.background_horizontal_box_font_color = (
-            self.create_box_for_color_btn()
+        lbl_fav_background = self.create_label(
+            Preferences.BACKGROUND_FAV_LABEL
         )
 
-        self.background_horizontal_box_font_color.append(
-            self.create_label(Preferences.FONT_SELECT_COLOT)
-        )
-        self.background_horizontal_box_font_color.append(
-            self.create_btn_color("btn_color_font_color")
+        btn_color_background_fav_buttons = self.create_btn_color(
+            "btn_color_background_fav_buttons"
         )
 
-        self.append(self.background_horizontal_box_font_color)
+        grid.attach(lbl_fav_title, 0, 15, 1, 1)
+        grid.attach(lbl_fav_background, 1, 16, 1, 1)
+        grid.attach(btn_color_background_fav_buttons, 2, 16, 1, 1)
+
+        # Button reset
 
         btn_rst = Gtk.Button(label=Preferences.BTN_RST_LABEL)
         btn_rst.set_margin_top(20)
@@ -224,7 +220,9 @@ class Appearance(Gtk.Box):
             )
         elif name == "btn_color_background_buttons":
             Preferences.COLOR_BUTTON = color
-            self.css_manager.load_css_buttons(Preferences.COLOR_BUTTON)
+            self.css_manager.load_css_buttons(
+                Preferences.COLOR_BUTTON, Preferences.COLOR_FAV_BUTTON
+            )
         elif name == "btn_color_entry":
             Preferences.COLOR_ENTRY = color
             self.css_manager.load_css_entrys(Preferences.COLOR_ENTRY)
@@ -235,6 +233,11 @@ class Appearance(Gtk.Box):
             )
             self.css_manager.load_css_font(
                 font_desc, Preferences.FONT_STYLE_COLOR
+            )
+        elif name == "btn_color_background_fav_buttons":
+            Preferences.COLOR_FAV_BUTTON = color
+            self.css_manager.load_css_buttons(
+                Preferences.COLOR_BUTTON, Preferences.COLOR_FAV_BUTTON
             )
 
         self.css_manager.load_css_explorer_background(
@@ -279,22 +282,21 @@ class Appearance(Gtk.Box):
         elif name == "btn_color_font_color":
             Preferences.FONT_STYLE_COLOR = self.win.config.FONT_STYLE_COLOR
             color.parse(Preferences.FONT_STYLE_COLOR)
+        elif name == "btn_color_background_fav_buttons":
+            Preferences.COLOR_FAV_BUTTON = self.win.config.COLOR_FAV_BUTTON
+            color.parse(Preferences.COLOR_FAV_BUTTON)
 
         button.set_rgba(color)
 
-    def create_box_for_title_section(self, text_label: str) -> Gtk.Box:
+    def create_label_for_title_section(self, text_label: str) -> Gtk.Box:
         """
-        Create box and label for title section
+        Create label for title section
         """
-        box_for_title = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
         label = Gtk.Label()
-        label.set_markup(f"<u>{text_label}</u>")
-        box_for_title.append(label)
-        box_for_title.set_margin_top(40)
+        label.set_markup(text_label)
+        label.set_halign(Gtk.Align.START)
 
-        return box_for_title
+        return label
 
     def create_label(self, label_text: str) -> Gtk.Label:
         label = Gtk.Label(label=label_text)
@@ -308,14 +310,10 @@ class Appearance(Gtk.Box):
         btn_color.set_name(btn_name)
         btn_color.connect("notify::rgba", self.set_color)
         self.set_color_dialog_button(btn_color)
+        btn_color.set_hexpand(True)
+        btn_color.set_halign(Gtk.Align.CENTER)
+        self.btn_color_list.append(btn_color)
         return btn_color
-
-    def create_box_for_color_btn(self) -> Gtk.Box:
-        box_for_color_btn = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
-        box_for_color_btn.set_margin_start(100)
-        return box_for_color_btn
 
     def reset_css_values(self, button: Gtk.Button):
         from views.preferences.preferences_options import Preferences
@@ -345,6 +343,9 @@ class Appearance(Gtk.Box):
         Preferences.FONT_STYLE_COLOR = (
             Css_explorer_manager.PREDE_FONT_STYLE_COLOR
         )
+        Preferences.COLOR_FAV_BUTTON = (
+            Css_explorer_manager.PREDE_COLOR_FAV_BUTTON
+        )
 
         self.css_manager.load_css_app_background(
             Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
@@ -360,7 +361,8 @@ class Appearance(Gtk.Box):
         )
 
         self.css_manager.load_css_buttons(
-            Css_explorer_manager.PREDE_COLOR_BUTTON
+            Css_explorer_manager.PREDE_COLOR_BUTTON,
+            Css_explorer_manager.PREDE_COLOR_FAV_BUTTON,
         )
 
         font_desc = Pango.FontDescription.from_string(
@@ -370,3 +372,11 @@ class Appearance(Gtk.Box):
         self.css_manager.load_css_font(
             font_desc, Css_explorer_manager.PREDE_FONT_STYLE_COLOR
         )
+
+        self.font_desc = Pango.FontDescription.from_string(
+            Preferences.FONT_STYLE
+        )
+        self.btn_font.set_font_desc(self.font_desc)
+
+        for btn in self.btn_color_list:
+            self.set_color_dialog_button(btn)

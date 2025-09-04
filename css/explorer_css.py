@@ -14,6 +14,7 @@ class Css_explorer_manager:
     PREDE_COLOR_EXPLORER_LEFT = "#222226"
     PREDE_COLOR_EXPLORER_RIGHT = "#222226"
     PREDE_COLOR_BUTTON = "#393939"
+    PREDE_COLOR_FAV_BUTTON = "#222226"
     PREDE_COLOR_BACKGROUND_SEARCH = "rgb(0,0,0)"
     PREDE_COLOR_SEARCH_TEXT = "rgb(246,211,45)"
     PREDE_FONT_STYLE = "Adwaita Sans 12"
@@ -85,11 +86,17 @@ class Css_explorer_manager:
 
         self.set_css_to_provider(css)
 
-    def load_css_buttons(self, color_button: str) -> None:
+    def load_css_buttons(
+        self, color_button: str = None, color_fav_button: str = None
+    ) -> None:
         """
         Set color to all button
         """
         css = f"""
+            .fav{{
+                background-image: none;
+                background-color: {color_fav_button};
+            }}
             .button{{
                 background-image: none;
                 background-color: {color_button};

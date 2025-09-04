@@ -63,6 +63,7 @@ class Explorer(Gtk.ColumnView):
         )
         self.access_control = AccessControl()
         self.fav_path_list = []
+        self.fav_path_btn_list = []
         type_list = [
             "type_str",
             "name",
@@ -363,6 +364,8 @@ class Explorer(Gtk.ColumnView):
         if self.count_rst_int > 0:
             self.stop_background_search()
             self.stop_search_mode()
+
+        self.set_on_path_fav_button()
 
     def on_item_change(
         self,
@@ -794,3 +797,13 @@ class Explorer(Gtk.ColumnView):
         self.my_watchdog.mihandler.print_status_on_log(
             operation, src_path, dst_path
         )
+
+    def set_on_path_fav_button(self) -> None:
+        for fav_btn in self.fav_path_btn_list:
+            btn_path = Path(
+                fav_btn.get_child().get_text().split(":")[1].strip()
+            )
+            if self.actual_path == btn_path:
+                fav_btn.get_style_context().add_class("fav")
+            else:
+                fav_btn.get_style_context().remove_class("fav")
