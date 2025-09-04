@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=mlnCommander
+Comment=A lightweight, cross-platform file manager
+Exec=mlncommander
+Icon=/usr/share/icons/mlncommander_transparente.png
+Terminal=false
+Type=Application
+Categories=Application;FileManager;Utility;
+StartupNotify=true
+StartupWMClass=mlncommander

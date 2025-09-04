@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export GTK_THEME=Adwaita:dark
+
+/usr/bin/env /opt/mlncommander/venv/bin/python /opt/mlncommander/App.py
