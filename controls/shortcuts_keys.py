@@ -217,7 +217,7 @@ class Shortcuts_keys:
         else:
             GLib.idle_add(self.win.key_connect)
 
-    def add_fav_path(self, widget, args) -> None:
+    def add_fav_path(self, widget: Gtk.Widget, args=None) -> None:
         # Disconnect key controller from main window
         self.win.key_disconnect()
 
@@ -261,7 +261,7 @@ class Shortcuts_keys:
         self.win.load_botons_fav()
         GLib.idle_add(self.win.key_connect)
 
-    def del_fav_path(self, widget, args) -> None:
+    def del_fav_path(self, widget: Gtk.Widget, args=None) -> None:
         # Disconnect key controller from main window
         self.win.key_disconnect()
 

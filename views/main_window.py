@@ -89,7 +89,6 @@ class Window(Gtk.ApplicationWindow):
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
         menu_bar = Menu_bar(self)
-        # main_vertical_box.set_hexpand(True)
 
         main_vertical_box.append(menu_bar.menubar)
 
@@ -98,7 +97,7 @@ class Window(Gtk.ApplicationWindow):
         horizontal_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        # main_vertical_box.set_hexpand(True)
+
         horizontal_box.set_vexpand(True)
         horizontal_box.set_homogeneous(True)
 
@@ -138,24 +137,51 @@ class Window(Gtk.ApplicationWindow):
 
         # Fav path start
 
+        self.button_main_1 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.button_main_1.set_margin_start(self.entry_margin)
+        self.button_main_1.set_margin_end(self.entry_margin / 2)
+        self.button_main_1.set_margin_bottom(self.entry_margin)
+
+        self.button_main_2 = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
+        )
+        self.button_main_2.set_margin_start(self.entry_margin / 2)
+        self.button_main_2.set_margin_end(self.entry_margin)
+        self.button_main_2.set_margin_bottom(self.entry_margin)
+
+        self.vertical_screen_1.append(self.button_main_1)
+        self.vertical_screen_2.append(self.button_main_2)
+
+        add_fav_btn_1 = Gtk.Button.new_with_label("+")
+        add_fav_btn_2 = Gtk.Button.new_with_label("+")
+        add_fav_btn_1.set_hexpand(False)
+        add_fav_btn_2.set_hexpand(False)
+
+        self.button_main_1.append(add_fav_btn_1)
+        self.button_main_2.append(add_fav_btn_2)
+
+        del_fav_btn_1 = Gtk.Button.new_with_label("-")
+        del_fav_btn_2 = Gtk.Button.new_with_label("-")
+        del_fav_btn_1.set_hexpand(False)
+        del_fav_btn_2.set_hexpand(False)
+
+        self.button_main_1.append(del_fav_btn_1)
+        self.button_main_2.append(del_fav_btn_2)
+
         self.buttom_horizontal_1 = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        self.buttom_horizontal_1.set_margin_start(self.entry_margin)
-        self.buttom_horizontal_1.set_margin_end(self.entry_margin / 2)
-        self.buttom_horizontal_1.set_margin_bottom(self.entry_margin)
         self.buttom_horizontal_1.set_homogeneous(True)
 
         self.buttom_horizontal_2 = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        self.buttom_horizontal_2.set_margin_start(self.entry_margin / 2)
-        self.buttom_horizontal_2.set_margin_end(self.entry_margin)
-        self.buttom_horizontal_2.set_margin_bottom(self.entry_margin)
         self.buttom_horizontal_2.set_homogeneous(True)
 
-        self.vertical_screen_1.append(self.buttom_horizontal_1)
-        self.vertical_screen_2.append(self.buttom_horizontal_2)
+        self.button_main_1.append(self.buttom_horizontal_1)
+        self.button_main_2.append(self.buttom_horizontal_2)
 
         # Fav path final
 
@@ -372,6 +398,24 @@ class Window(Gtk.ApplicationWindow):
         btn_F10.connect(
             "clicked",
             lambda btn: self.exit(self),
+        )
+
+        # fav buttons signals
+
+        add_fav_btn_1.connect(
+            "clicked", self.explorer_1.shortcuts.add_fav_path
+        )
+
+        add_fav_btn_2.connect(
+            "clicked", self.explorer_2.shortcuts.add_fav_path
+        )
+
+        del_fav_btn_1.connect(
+            "clicked", self.explorer_1.shortcuts.del_fav_path
+        )
+
+        del_fav_btn_2.connect(
+            "clicked", self.explorer_2.shortcuts.del_fav_path
         )
 
         # Event controller to control keys
