@@ -9,19 +9,18 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 
 ## Features
 
-- Rename
-- Create office files: *.docx, *.odt, *.xlsx, *.ods, *.txt, and *.csv
-- Copy
-- Move
+- Copy, move, duplicate and rename actions
 - Create a new directory
+- Create office files: *.docx, *.odt, *.xlsx, *.ods, *.txt, and *.csv
 - Duplicate files or folders with a different name
 - Preview images
 - Hotkeys and shortcuts
 - Different native icons of the symbolic type
 - Managing connection loss to network drives, preventing application crashes
 - Compress and decompress with 7zip system
-- Watchdog, monitors changes in browsers, both local and external.
-
+- Watchdog, monitors changes in browsers, both local and external
+- Favorite directories for each browser
+- Settings to automatically minimize copy, move, duplicate, compress and decompress options
 
 ## Motivation
 
@@ -46,5 +45,10 @@ This started as a project to learn Python. Then, I searched for a native graphic
 - source venv/bin/activate.fish | source venv/bin/activate.csh | source venv/bin/activate
 - pip install -r requirements.txt
 - ./venv/bin/python App.py
+
+
+## Download
+
+[Download AppImage][https://github.com/Mel0nABC/mlncommander/releases/download/v1.0/mlnCommander-x86_64.AppImage]
 
 
