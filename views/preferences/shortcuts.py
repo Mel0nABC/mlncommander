@@ -170,11 +170,7 @@ class Shortcuts(Gtk.Box):
                         label.handler_unblock(handler_id)
                         return
                     if i.second_key == self.actual_character_second_key:
-                        print(i.second_key)
                         self.item_temp = i
-
-            print(character_value)
-            print(self.item_temp.second_key)
 
             self.item_temp.second_key = character_value
             label.stop_editing(True)
