@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=MLNCommander
+Comment=A lightweight, cross-platform file manager
+Exec=AppRun
+Icon=AppIcon
+Terminal=false
+Type=Application
+Categories=Utility;FileManager;FileTools;System;
+StartupNotify=true
+StartupWMClass=mlncommander
