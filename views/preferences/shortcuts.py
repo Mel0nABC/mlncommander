@@ -18,12 +18,7 @@ class Shortcuts(Gtk.Box):
         self.win = win
         self.css_manager = Css_explorer_manager(self.win)
         self.action = Actions()
-        self.list_shortcuts_exp_1 = (
-            self.win.explorer_1.shortcuts.list_shortcuts
-        )
-        self.list_shortcuts_exp_2 = (
-            self.win.explorer_2.shortcuts.list_shortcuts
-        )
+        self.list_shortcuts = self.win.shortcuts.list_shortcuts
         self.actual_character_second_key = ""
 
         # Configure margin Box
@@ -71,9 +66,8 @@ class Shortcuts(Gtk.Box):
 
         self.store = Gio.ListStore.new(Shortcut)
 
-        for content in self.list_shortcuts_exp_1:
+        for content in self.list_shortcuts:
             shotcute_info = Shortcut(
-                content.explorer,
                 content.first_key,
                 content.second_key,
                 content.method,

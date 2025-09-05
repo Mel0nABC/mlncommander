@@ -18,7 +18,6 @@ class Shortcut(GObject.Object):
 
     def __init__(
         self,
-        explorer: "Explorer",  # noqa F821
         first_key: str,
         second_key: str,
         method: str,
@@ -26,7 +25,6 @@ class Shortcut(GObject.Object):
     ):
         super().__init__()
 
-        self.explorer = explorer
         self.first_key = first_key
         self.second_key = second_key
         self.method = method

@@ -18,13 +18,19 @@ from gi.repository import Gtk, GLib  # noqa E402
 
 class Shortcuts_keys:
 
-    def __init__(self, win: Gtk.Window, explorer: "Explorer"):  # noqa F821
+    def __init__(
+        self,
+        win: Gtk.Window,
+        explorer_left: "Explorer",  # noqa F821
+        explorer_right: "Explorer",  # noqa F821
+    ):  # noqa F821
 
         from views.main_window import Window
 
         self.win = win
         self.compression_manager = CompressionManager(self.win)
-        self.explorer = explorer
+        self.explorer_left = explorer_left
+        self.explorer_right = explorer_right
         self.action = Actions()
         self.SHORTCUT_FILE = Path(f"{Window.APP_USER_PATH}/shorcuts_file.yaml")
         self.controller_list = []
@@ -36,26 +42,52 @@ class Shortcuts_keys:
         self.charge_yaml_shortcuts()
 
     def load_yaml_config(self) -> list:
-        with open(self.SHORTCUT_FILE, "r") as file:
-            data = yaml.safe_load(file)
-            return [
-                Shortcut(
-                    self.explorer,
-                    d["first_key"],
-                    d["second_key"],
-                    d["method"],
-                    d["description"],
+        try:
+            with open(self.SHORTCUT_FILE, "r") as file:
+                data = yaml.safe_load(file)
+                return [
+                    Shortcut(
+                        d["first_key"],
+                        d["second_key"],
+                        d["method"],
+                        d["description"],
+                    )
+                    for d in data
+                ]
+        except Exception as e:
+            print(f"ERROR en LOAD YAML CONFIG: {e}")
+            text = _(
+                (
+                    "Ha ocurrido algún error al abrir el archivo de configuración:\n\n"  # noqa : E501
+                    f"{e}\n\n"
+                    "Se carga una versión en memoria, no podrá guardar los cambios."  # noqa : E501
                 )
-                for d in data
-            ]
+            )
+            self.action.show_msg_alert(self.win, text)
+            return self.load_shortcuts_config_prede()
 
     def save_yaml_config(self, shortcuts_list: list) -> None:
-        with open(self.SHORTCUT_FILE, "w") as file:
-            yaml.dump([s.to_dict() for s in shortcuts_list], file, indent=4)
+        try:
+            with open(self.SHORTCUT_FILE, "w") as file:
+                yaml.dump(
+                    [s.to_dict() for s in shortcuts_list], file, indent=4
+                )
+
+        except Exception as e:
+            print(f"ERROR EN SAVE YAML CONFIG: {e}")
+            text = _(
+                (
+                    "Ha ocurrido algún error al guardar el archivo de configuración:\n\n"  # noqa : E501
+                    f"{e}\n\n"
+                    "Cualquier cambio no se podrá conservar."  # noqa : E501
+                )
+            )
+            self.action.show_msg_alert(self.win, text)
 
     def recharge_yaml_shortcuts(self):
         for controller in self.controller_list:
-            self.explorer.remove_controller(controller)
+            self.explorer_left.remove_controller(controller)
+            self.explorer_right.remove_controller(controller)
 
         self.controller_list = []
         self.charge_yaml_shortcuts()
@@ -65,7 +97,16 @@ class Shortcuts_keys:
         for shortcut in self.list_shortcuts:
             method = getattr(self, shortcut.method)
             self.add_shortcut(
-                self.explorer, shortcut.first_key, shortcut.second_key, method
+                self.explorer_left,
+                shortcut.first_key,
+                shortcut.second_key,
+                method,
+            )
+            self.add_shortcut(
+                self.explorer_right,
+                shortcut.first_key,
+                shortcut.second_key,
+                method,
             )
 
     def add_shortcut(
@@ -77,7 +118,7 @@ class Shortcuts_keys:
     ) -> None:
         trigger = Gtk.ShortcutTrigger.parse_string(f"{first_key}{second_key}")
         action = Gtk.CallbackAction.new(
-            lambda widget, args: method(widget, second_key)
+            lambda widget, args: method(widget, second_key, explorer)
         )
         shortcut = Gtk.Shortcut.new(trigger, action)
         controller = Gtk.ShortcutController.new()
@@ -88,7 +129,9 @@ class Shortcuts_keys:
         else:
             self.controller_list.append(controller)
 
-    def shortcut_mirroring_folder(self, widget, args) -> None:
+    def shortcut_mirroring_folder(
+        self, widget: Gtk.Widget, args, explorer: "explorer"  # noqa F821
+    ) -> None:
         """
         Actions when shortcuts is utilized
         """
@@ -96,20 +139,18 @@ class Shortcuts_keys:
         self.win.key_disconnect()
 
         # Returns the browser that does not contain the passed name
-        other_explorer = self.win.get_other_explorer_with_name(
-            self.explorer.name
-        )
+        other_explorer = self.win.get_other_explorer_with_name(explorer.name)
 
         if not other_explorer:
             return
 
-        selected_item = self.explorer.get_selected_items_from_explorer()[1]
+        selected_item = explorer.get_selected_items_from_explorer()[1]
 
         if not selected_item:
-            other_explorer.load_data(self.explorer.actual_path.parent)
+            other_explorer.load_data(explorer.actual_path.parent)
 
         if not selected_item:
-            path = self.explorer.actual_path.parent
+            path = explorer.actual_path.parent
         else:
             path = selected_item[0]
 
@@ -134,7 +175,9 @@ class Shortcuts_keys:
 
         return True
 
-    def unzip_file(self, widget, args):
+    def unzip_file(
+        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa: F821
+    ) -> None:
 
         exec_uncompress_window = True
         # Disconnect key controller from main window
@@ -143,10 +186,8 @@ class Shortcuts_keys:
         if not self.validate_7zip_installed():
             return
 
-        selected_items = self.explorer.get_selected_items_from_explorer()[1]
-        dst_explorer = self.win.get_other_explorer_with_name(
-            self.explorer.name
-        )
+        selected_items = explorer.get_selected_items_from_explorer()[1]
+        dst_explorer = self.win.get_other_explorer_with_name(explorer.name)
         dst_dir = dst_explorer.actual_path
 
         if not self.compression_manager.get_dst_suficient_space(
@@ -157,7 +198,7 @@ class Shortcuts_keys:
             )
             exec_uncompress_window = False
 
-        list_files = self.explorer.get_selected_items_from_explorer()[1]
+        list_files = explorer.get_selected_items_from_explorer()[1]
 
         ac = AccessControl()
 
@@ -173,7 +214,9 @@ class Shortcuts_keys:
         if exec_uncompress_window:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
 
-    def zip_file(self, widget, args):
+    def zip_file(
+        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa: F821
+    ):
 
         exec_uncompress_window = True
         # Disconnect key controller from main window
@@ -182,15 +225,13 @@ class Shortcuts_keys:
         if not self.validate_7zip_installed():
             return
 
-        selected_items = self.explorer.get_selected_items_from_explorer()[1]
-        dst_explorer = self.win.get_other_explorer_with_name(
-            self.explorer.name
-        )
+        selected_items = explorer.get_selected_items_from_explorer()[1]
+        dst_explorer = self.win.get_other_explorer_with_name(explorer.name)
         dst_dir = dst_explorer.actual_path
 
         from utilities.file_manager import File_manager
 
-        list_files = self.explorer.get_selected_items_from_explorer()[1]
+        list_files = explorer.get_selected_items_from_explorer()[1]
 
         fm = File_manager()
 
@@ -217,25 +258,27 @@ class Shortcuts_keys:
         else:
             GLib.idle_add(self.win.key_connect)
 
-    def add_fav_path(self, widget: Gtk.Widget, args=None) -> None:
+    def add_fav_path(
+        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa : F821
+    ) -> None:
         # Disconnect key controller from main window
         self.win.key_disconnect()
 
-        actual_path = str(self.explorer.actual_path)
+        actual_path = str(explorer.actual_path)
 
-        if self.explorer.name == "explorer_1":
+        if explorer.name == "explorer_1":
             fav_1 = self.win.config.FAV_PATH_LIST_1
 
             if actual_path not in fav_1:
                 fav_1.append(actual_path)
-                self.explorer.fav_path_list = self.win.config.FAV_PATH_LIST_1
+                explorer.fav_path_list = self.win.config.FAV_PATH_LIST_1
             else:
                 self.action.show_msg_alert(
                     self.win,
                     _(
                         (
                             f"El directorio: {actual_path}, ya está añadido"  # noqa:E501
-                            f" a los favoritos de {self.explorer.name}"
+                            f" a los favoritos de {explorer.name}"
                         )
                     ),
                 )
@@ -245,14 +288,14 @@ class Shortcuts_keys:
 
             if actual_path not in fav_2:
                 fav_2.append(actual_path)
-                self.explorer.fav_path_list = self.win.config.FAV_PATH_LIST_2
+                explorer.fav_path_list = self.win.config.FAV_PATH_LIST_2
             else:
                 self.action.show_msg_alert(
                     self.win,
                     _(
                         (
                             f"El directorio: {actual_path}, ya está añadido"  # noqa:E501
-                            f" a los favoritos de {self.explorer.name}"
+                            f" a los favoritos de {explorer.name}"
                         )
                     ),
                 )
@@ -261,26 +304,33 @@ class Shortcuts_keys:
         self.win.load_botons_fav()
         GLib.idle_add(self.win.key_connect)
 
-    def del_fav_path(self, widget: Gtk.Widget, args=None) -> None:
+    def del_fav_path(
+        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa : F821
+    ) -> None:
         # Disconnect key controller from main window
         self.win.key_disconnect()
 
-        actual_path = str(self.explorer.actual_path)
+        actual_path = str(explorer.actual_path)
 
-        if self.explorer.name == "explorer_1":
+        if explorer.name == "explorer_1":
             fav_1 = self.win.config.FAV_PATH_LIST_1
             if actual_path in fav_1:
-                fav_1.remove(str(self.explorer.actual_path))
+                fav_1.remove(str(explorer.actual_path))
         else:
             fav_2 = self.win.config.FAV_PATH_LIST_2
             if actual_path in fav_2:
-                fav_2.remove(str(self.explorer.actual_path))
+                fav_2.remove(str(explorer.actual_path))
 
         self.win.save_config_file(self.win.config)
         self.win.load_botons_fav()
         GLib.idle_add(self.win.key_connect)
 
-    def change_fav_explorer_path(self, widget, index):
+    def change_fav_explorer_path(
+        self,
+        widget: Gtk.Widget,
+        index: str,
+        explorer: "explorer",  # noqa : F821
+    ) -> bool:
         # Disconnect key controller from main window
         self.win.key_disconnect()
         if widget.fav_path_list:
@@ -291,42 +341,40 @@ class Shortcuts_keys:
         GLib.idle_add(self.win.key_connect)
         return True
 
-    def reset_shortcuts_config(self):
-        shortcuts_dict = [
+    def reset_shortcuts_config(self) -> None:
+        shortcuts_dict = self.load_shortcuts_config_prede()
+        self.save_yaml_config(shortcuts_dict)
+
+    def load_shortcuts_config_prede(self) -> list[Shortcut]:
+        return [
             Shortcut(
-                self.explorer,
                 "<Control>",
                 "o",
                 "shortcut_mirroring_folder",
                 _("Muestra la carpeta en el otro explorador."),
             ),
             Shortcut(
-                self.explorer,
                 "<Control>",
                 "p",
                 "unzip_file",
                 _("Para descomprimir archivos"),
             ),
             Shortcut(
-                self.explorer,
                 "<Control>",
                 "i",
                 "zip_file",
                 _("Para comprimir archivos"),
             ),
             Shortcut(
-                self.explorer,
                 "<Control>",
                 "f",
                 "add_fav_path",
                 _("Para añadir directorios en favoritos"),
             ),
             Shortcut(
-                self.explorer,
                 "<Control>",
                 "d",
                 "del_fav_path",
                 _("Para eliminar directorios en favoritos"),
             ),
         ]
-        self.save_yaml_config(shortcuts_dict)

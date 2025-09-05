@@ -15,6 +15,7 @@ from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from utilities.file_manager import File_manager
 from css.explorer_css import Css_explorer_manager
+from controls.shortcuts_keys import Shortcuts_keys
 from pathlib import Path
 import yaml
 import tkinter as tk
@@ -204,6 +205,9 @@ class Window(Gtk.ApplicationWindow):
             Window.APP_USER_PATH,
         )
         self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
+
+        # load shortcuts
+        self.shortcuts = Shortcuts_keys(self, self.explorer_1, self.explorer_2)
 
         self.scroll_1 = Gtk.ScrolledWindow()
         self.scroll_1.set_policy(
@@ -404,21 +408,13 @@ class Window(Gtk.ApplicationWindow):
 
         # fav buttons signals
 
-        add_fav_btn_1.connect(
-            "clicked", self.explorer_1.shortcuts.add_fav_path
-        )
+        add_fav_btn_1.connect("clicked", self.shortcuts.add_fav_path)
 
-        add_fav_btn_2.connect(
-            "clicked", self.explorer_2.shortcuts.add_fav_path
-        )
+        add_fav_btn_2.connect("clicked", self.shortcuts.add_fav_path)
 
-        del_fav_btn_1.connect(
-            "clicked", self.explorer_1.shortcuts.del_fav_path
-        )
+        del_fav_btn_1.connect("clicked", self.shortcuts.del_fav_path)
 
-        del_fav_btn_2.connect(
-            "clicked", self.explorer_2.shortcuts.del_fav_path
-        )
+        del_fav_btn_2.connect("clicked", self.shortcuts.del_fav_path)
 
         # Event controller to control keys
         self.key_controller = Gtk.EventControllerKey.new()
@@ -471,9 +467,9 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_1.load_new_path(self.explorer_1.actual_path)
         self.explorer_2.load_new_path(self.explorer_2.actual_path)
 
+        # Load favorite folders
         self.explorer_1.fav_path_list = self.config.FAV_PATH_LIST_1
         self.explorer_2.fav_path_list = self.config.FAV_PATH_LIST_2
-
         self.load_botons_fav()
 
         # We set the initial focus to explorer_1, left
@@ -618,10 +614,10 @@ class Window(Gtk.ApplicationWindow):
             for index, path in fav_path_list:
                 add_fav_btn(self.explorer_1, Path(path), index)
                 method = getattr(
-                    self.explorer_1.shortcuts,
+                    self.shortcuts,
                     "change_fav_explorer_path",
                 )
-                self.explorer_1.shortcuts.add_shortcut(
+                self.shortcuts.add_shortcut(
                     self.explorer_1,
                     "<Alt>",
                     index + 1,
@@ -633,10 +629,10 @@ class Window(Gtk.ApplicationWindow):
             for index, path in fav_path_list:
                 add_fav_btn(self.explorer_2, Path(path), index)
                 method = getattr(
-                    self.explorer_2.shortcuts,
+                    self.shortcuts,
                     "change_fav_explorer_path",
                 )
-                self.explorer_2.shortcuts.add_shortcut(
+                self.shortcuts.add_shortcut(
                     self.explorer_2,
                     "<Alt>",
                     index + 1,
@@ -656,13 +652,9 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_2.fav_path_btn_list = None
         self.explorer_2.fav_path_btn_list = []
 
-        for controller in self.explorer_1.shortcuts.fav_controller_list:
-            self.explorer_1.remove_controller(controller)
-            self.explorer_1.shortcuts.fav_controller_list.remove(controller)
-
-        for controller in self.explorer_2.shortcuts.fav_controller_list:
-            self.explorer_2.remove_controller(controller)
-            self.explorer_2.shortcuts.fav_controller_list.remove(controller)
+        for controller in self.shortcuts.fav_controller_list:
+            self.remove_controller(controller)
+            self.shortcuts.fav_controller_list.remove(controller)
 
         child = None
         for button_box in [self.buttom_horizontal_1, self.buttom_horizontal_2]:

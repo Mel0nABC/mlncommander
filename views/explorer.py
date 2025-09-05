@@ -15,7 +15,6 @@ from icons.icon_manager import IconManager
 from css.explorer_css import Css_explorer_manager
 from utilities.access_control import AccessControl
 from controls.actions import Actions
-from controls.shortcuts_keys import Shortcuts_keys
 from utilities.my_watchdog import My_watchdog
 
 gi.require_version("Gtk", "4.0")
@@ -42,7 +41,6 @@ class Explorer(Gtk.ColumnView):
         self.my_watchdog = None
         self.action = Actions()
         self.css_manager = Css_explorer_manager(win)
-        self.shortcuts = Shortcuts_keys(self.win, self)
         self.selection = None
         self.n_row = 0
         self.n_row_old = 0
