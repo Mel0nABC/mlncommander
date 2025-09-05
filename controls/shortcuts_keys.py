@@ -120,7 +120,12 @@ class Shortcuts_keys:
         from functools import partial
 
         trigger = Gtk.ShortcutTrigger.parse_string(f"{first_key}{second_key}")
-        action = Gtk.CallbackAction.new(partial(method, explorer=explorer))
+        if first_key == "<Alt>":
+            action = Gtk.CallbackAction.new(
+                partial(method, index=second_key, explorer=explorer)
+            )
+        else:
+            action = Gtk.CallbackAction.new(partial(method, explorer=explorer))
         shortcut = Gtk.Shortcut.new(trigger, action)
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(shortcut)
@@ -335,8 +340,9 @@ class Shortcuts_keys:
     def change_fav_explorer_path(
         self,
         widget: Gtk.Widget,
+        *args,
         index: str,
-        explorer: "explorer",  # noqa : F821
+        explorer: "explorer" = None,  # noqa : F821
     ) -> bool:
         # Disconnect key controller from main window
         self.win.key_disconnect()
