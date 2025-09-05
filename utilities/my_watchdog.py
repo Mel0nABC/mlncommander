@@ -80,10 +80,7 @@ class MiHandler(FileSystemEventHandler):
         self.explorer = explorer
         self.path = Path(path)
         self.list_path1 = list(self.path.iterdir())
-        # self.log_file = Path(f"{APP_USER_PATH}/log/mlncommander.log")
-        self.log_file = Path(
-            "/home/mel0n/Downloads/pruebas_copiar/estructura/log/mlncommander.log"
-        )
+        self.log_file = Path(f"{APP_USER_PATH}/log/mlncommander.log")
         self.date_str = time.strftime("%A, %d/%m/%Y - %H:%M:%S")
         self.action = Actions()
 
