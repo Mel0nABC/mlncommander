@@ -128,6 +128,9 @@ class Shortcuts(Gtk.Box):
         """
         old value from editablelabel
         """
+        if not label.get_text().strip():
+            label.set_text(self.actual_character_second_key)
+
         self.actual_character_second_key = label.get_text()
 
     def on_change(self, label: Gtk.EditableLabel) -> None:
@@ -135,6 +138,8 @@ class Shortcuts(Gtk.Box):
         On change on EditableLabel validate new value
         """
         character_value = label.get_text()
+        if not character_value.strip():
+            return
 
         if self.actual_character_second_key == character_value:
             label.stop_editing(True)
@@ -143,29 +148,36 @@ class Shortcuts(Gtk.Box):
         handler_id = int(label.get_name())
 
         label.handler_block(handler_id)
+        self.item_temp = None
+        try:
+            if not self.validate_character_second_key(character_value):
+                label.set_text(self.actual_character_second_key)
+            else:
 
-        if not self.validate_character_second_key(character_value):
-            label.set_text(self.actual_character_second_key)
-        else:
-            item_temp = None
-            for i in self.store:
-                if i.second_key == character_value:
-                    label.set_text(self.actual_character_second_key)
+                for i in self.store:
+                    if i.second_key == character_value:
+                        label.set_text(self.actual_character_second_key)
 
-                    self.action.show_msg_alert(
-                        self.win,
-                        _(
-                            (
-                                "La segunda tecla ya se está"
-                                " empleando. Elija otra o cancele."
-                            )
-                        ),
-                    )
-                    label.handler_unblock(handler_id)
-                    return
-                if i.second_key == self.actual_character_second_key:
-                    item_temp = i
+                        self.action.show_msg_alert(
+                            self.win,
+                            _(
+                                (
+                                    "La segunda tecla ya se está"
+                                    " empleando. Elija otra o cancele."
+                                )
+                            ),
+                        )
+                        label.handler_unblock(handler_id)
+                        return
+                    if i.second_key == self.actual_character_second_key:
+                        print(i.second_key)
+                        self.item_temp = i
 
-        item_temp.second_key = character_value
-        label.stop_editing(True)
-        label.handler_unblock(handler_id)
+            print(character_value)
+            print(self.item_temp.second_key)
+
+            self.item_temp.second_key = character_value
+            label.stop_editing(True)
+            label.handler_unblock(handler_id)
+        except Exception as e:
+            print(f"ERROR: {e}")
