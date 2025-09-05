@@ -116,10 +116,11 @@ class Shortcuts_keys:
         second_key: str,
         method,
     ) -> None:
+
+        from functools import partial
+
         trigger = Gtk.ShortcutTrigger.parse_string(f"{first_key}{second_key}")
-        action = Gtk.CallbackAction.new(
-            lambda widget, args: method(widget, second_key, explorer)
-        )
+        action = Gtk.CallbackAction.new(partial(method, explorer=explorer))
         shortcut = Gtk.Shortcut.new(trigger, action)
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(shortcut)
@@ -130,7 +131,7 @@ class Shortcuts_keys:
             self.controller_list.append(controller)
 
     def shortcut_mirroring_folder(
-        self, widget: Gtk.Widget, args, explorer: "explorer"  # noqa F821
+        self, widget: Gtk.Widget, *args, explorer: "explorer"  # noqa F821
     ) -> None:
         """
         Actions when shortcuts is utilized
@@ -176,7 +177,7 @@ class Shortcuts_keys:
         return True
 
     def unzip_file(
-        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa: F821
+        self, widget: Gtk.Widget, *args, explorer: "Explorer"  # noqa: F821
     ) -> None:
 
         exec_uncompress_window = True
@@ -215,7 +216,7 @@ class Shortcuts_keys:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
 
     def zip_file(
-        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa: F821
+        self, widget: Gtk.Widget, *args, explorer: "Explorer"  # noqa: F821
     ):
 
         exec_uncompress_window = True
@@ -259,7 +260,10 @@ class Shortcuts_keys:
             GLib.idle_add(self.win.key_connect)
 
     def add_fav_path(
-        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa : F821
+        self,
+        widget: Gtk.Widget,
+        *args,
+        explorer: "Explorer" = None,  # noqa : F821
     ) -> None:
         # Disconnect key controller from main window
         self.win.key_disconnect()
@@ -305,7 +309,10 @@ class Shortcuts_keys:
         GLib.idle_add(self.win.key_connect)
 
     def del_fav_path(
-        self, widget: Gtk.Widget, args, explorer: "Explorer"  # noqa : F821
+        self,
+        widget: Gtk.Widget,
+        *args,
+        explorer: "Explorer" = None,  # noqa : F821
     ) -> None:
         # Disconnect key controller from main window
         self.win.key_disconnect()

@@ -52,6 +52,7 @@ class Window(Gtk.ApplicationWindow):
         self.label_right_selected_files = None
         self.config = ConfigEntity()
         self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
+        self.error_fav_path_shown = False
 
         # to use in watchdog
         self.write_error_msg_displayer = False
@@ -410,13 +411,27 @@ class Window(Gtk.ApplicationWindow):
 
         # fav buttons signals
 
-        add_fav_btn_1.connect("clicked", self.shortcuts.add_fav_path)
+        from functools import partial
 
-        add_fav_btn_2.connect("clicked", self.shortcuts.add_fav_path)
+        add_fav_btn_1.connect(
+            "clicked",
+            partial(self.shortcuts.add_fav_path, explorer=self.explorer_1),
+        )
 
-        del_fav_btn_1.connect("clicked", self.shortcuts.del_fav_path)
+        add_fav_btn_2.connect(
+            "clicked",
+            partial(self.shortcuts.add_fav_path, explorer=self.explorer_2),
+        )
 
-        del_fav_btn_2.connect("clicked", self.shortcuts.del_fav_path)
+        del_fav_btn_1.connect(
+            "clicked",
+            partial(self.shortcuts.del_fav_path, explorer=self.explorer_1),
+        )
+
+        del_fav_btn_2.connect(
+            "clicked",
+            partial(self.shortcuts.del_fav_path, explorer=self.explorer_2),
+        )
 
         # Event controller to control keys
         self.key_controller = Gtk.EventControllerKey.new()
@@ -618,7 +633,12 @@ class Window(Gtk.ApplicationWindow):
 
         self.clear_botons_fav()
 
-        def add_fav_btn(explorer: Explorer, path: Path, position: int) -> None:
+        def add_fav_btn(
+            explorer: Explorer,
+            button_horizontal_box: Gtk.Box,
+            path: Path,
+            position: int,
+        ) -> Gtk.Button:
             text_lbl = f"[ {position+1} ] : {str(path)}"
             lbl = Gtk.Label.new(text_lbl)
             lbl.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
@@ -631,45 +651,91 @@ class Window(Gtk.ApplicationWindow):
                 lambda btn: explorer.load_new_path(path),
             )
 
-            if explorer.name == "explorer_1":
-                self.buttom_horizontal_1.append(btn)
-                self.explorer_1.fav_path_btn_list.append(btn)
-            else:
-                self.buttom_horizontal_2.append(btn)
-                self.explorer_2.fav_path_btn_list.append(btn)
+            button_horizontal_box.append(btn)
+            explorer.fav_path_btn_list.append(btn)
+            return btn
 
-        if self.explorer_1.fav_path_list:
-            fav_path_list = enumerate(self.explorer_1.fav_path_list)
-            for index, path in fav_path_list:
-                add_fav_btn(self.explorer_1, Path(path), index)
-                method = getattr(
-                    self.shortcuts,
-                    "change_fav_explorer_path",
-                )
-                self.shortcuts.add_shortcut(
-                    self.explorer_1,
-                    "<Alt>",
-                    index + 1,
-                    method,
-                )
+        self.path_fav_no_exist_list = []
+        self.path_fav_no_read_permission = []
 
-        if self.explorer_2.fav_path_list:
-            fav_path_list = enumerate(self.explorer_2.fav_path_list)
-            for index, path in fav_path_list:
-                add_fav_btn(self.explorer_2, Path(path), index)
-                method = getattr(
-                    self.shortcuts,
-                    "change_fav_explorer_path",
-                )
-                self.shortcuts.add_shortcut(
-                    self.explorer_2,
-                    "<Alt>",
-                    index + 1,
-                    method,
-                )
+        def load_explorer_fav_button_list(
+            explorer: "Explorer",
+            button_horizontal_box: Gtk.Box,
+        ) -> None:
+            if explorer.fav_path_list:
+                fav_path_list = enumerate(explorer.fav_path_list)
+                for index, path_str in fav_path_list:
+                    path = Path(path_str)
+
+                    disable_btn = False
+
+                    if not path.exists():
+                        self.path_fav_no_exist_list.append(path)
+                        disable_btn = True
+                    elif not os.access(path, os.R_OK):
+                        self.path_fav_no_read_permission.append(path)
+                        disable_btn = True
+
+                    btn = add_fav_btn(
+                        explorer, button_horizontal_box, path, index
+                    )
+
+                    if disable_btn:
+                        btn.hide()
+
+                    method = getattr(
+                        self.shortcuts,
+                        "change_fav_explorer_path",
+                    )
+                    self.shortcuts.add_shortcut(
+                        explorer,
+                        "<Alt>",
+                        index + 1,
+                        method,
+                    )
+
+        load_explorer_fav_button_list(
+            self.explorer_1, self.buttom_horizontal_1
+        )
+        load_explorer_fav_button_list(
+            self.explorer_2, self.buttom_horizontal_2
+        )
 
         self.explorer_1.set_on_path_fav_button()
         self.explorer_2.set_on_path_fav_button()
+
+        if self.error_fav_path_shown:
+            return True
+
+        if self.path_fav_no_exist_list or self.path_fav_no_read_permission:
+            text = _(
+                (
+                    "No existen algunas rutas en favoritos"
+                    " o no disponen de permiso de lectura:\n\n"
+                )
+            )
+
+            if self.path_fav_no_exist_list:
+                text += "No existe:\n\n"
+
+            for path in self.path_fav_no_exist_list:
+                text += f"      - {path}\n"
+
+            if self.path_fav_no_read_permission:
+                text += "\nSin permiso de lectura:\n\n"
+
+            for path in self.path_fav_no_read_permission:
+                text += f"      - {path}\n"
+
+            text += _(
+                (
+                    "\nHan sido deshabilitadas para esta sesión.\n\n"
+                    "Este mensaje sólo saldrá al iniciar la aplicación."
+                )
+            )
+
+            self.action.show_msg_alert(self, text)
+            self.error_fav_path_shown = True
 
         return True
 
