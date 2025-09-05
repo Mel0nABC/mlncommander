@@ -93,7 +93,8 @@ class File_manager:
         for item in item_list:
             if item.is_dir():
                 for archivo in item.rglob("*"):
-                    total_size += archivo.stat().st_size
+                    if archivo.exists():
+                        total_size += archivo.stat().st_size
             else:
                 total_size += item.stat().st_size
 
