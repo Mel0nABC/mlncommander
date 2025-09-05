@@ -253,7 +253,7 @@ class UncompressWindow(Gtk.Window):
         PasswordWindow(self, to_work, file)
 
     def to_background(self, button: Gtk.Button = None) -> None:
-
+        self.win.key_connect()
         self.grid.remove(self.vertical_files)
         self.grid.remove(self.horizontal_button)
 

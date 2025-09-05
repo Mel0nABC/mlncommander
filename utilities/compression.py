@@ -11,6 +11,11 @@ import re
 import pty
 import os
 
+import gi
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk, GLib  # noqa : E402
+
 
 class CompressionManager:
 
@@ -20,6 +25,7 @@ class CompressionManager:
         self.win = win
         self.last_path = None
         self.last_dst_folder = None
+        self.EXEC_SEVEN_Z_TYPE = self.validate_7zip_installed()
 
     def stop_uncompress(self) -> None:
         if self.uncompress_popen:
@@ -57,7 +63,7 @@ class CompressionManager:
                 return
 
             cmd = [
-                "7z",
+                self.EXEC_SEVEN_Z_TYPE,
                 "l",
                 file,
             ]
@@ -73,7 +79,7 @@ class CompressionManager:
                 return
 
             # Only test password to check if the file have
-            cmd = ["7z", "t", file, "-pNothingTheNothing123"]
+            cmd = [self.EXEC_SEVEN_Z_TYPE, "t", file, "-pNothingTheNothing123"]
 
             check_pass = subprocess.run(cmd, capture_output=True, text=True)
 
@@ -117,7 +123,14 @@ class CompressionManager:
             )
             dst_zip_folder = Path(f"{dst_zip_folder}{text}")
 
-        cmd = ["7z", "x", path, f"-o{dst_zip_folder}", f"-p{password}", "-aou"]
+        cmd = [
+            self.EXEC_SEVEN_Z_TYPE,
+            "x",
+            path,
+            f"-o{dst_zip_folder}",
+            f"-p{password}",
+            "-aou",
+        ]
 
         master_df, slave_fd = pty.openpty()
         self.uncompress_popen = subprocess.Popen(
@@ -152,10 +165,67 @@ class CompressionManager:
             "msg": _("El proceso finalizó satisfactoriamente"),
         }
 
+    def compress_work(
+        self,
+        compress_win: Gtk.Window,
+        win: Gtk.ApplicationWindow,
+        progress: Gtk.ProgressBar,
+        cmd: str,
+        file_name: str,
+        output_file: str,
+        dst_explorer: "explorer",  # noqa: F821
+    ) -> None:
+
+        if win.config.SWITCH_COMPRESS_STATUS:
+            GLib.idle_add(compress_win.to_background, None)
+
+        master_df, slave_fd = pty.openpty()
+        compress_win.compress_popen = subprocess.Popen(
+            cmd, stdin=slave_fd, stdout=slave_fd, stderr=slave_fd, text=True
+        )
+        os.close(slave_fd)
+
+        while compress_win.compress_popen.poll() is None:
+            try:
+                output = os.read(master_df, 1024)
+                if not output:
+                    break
+                texto = output.decode("utf-8")
+
+                if "Everything is Ok" in texto:
+                    GLib.idle_add(progress.set_fraction, 1)
+                    GLib.idle_add(
+                        dst_explorer.load_new_path, compress_win.dst_dir
+                    )
+
+                match = re.search(r"(.{2})%", texto)
+                if match:
+                    fraction = int(match.group(1)) / 100
+                    GLib.idle_add(progress.set_fraction, fraction)
+                    if dst_explorer.actual_path == compress_win.dst_dir:
+                        GLib.idle_add(
+                            dst_explorer.load_new_path, compress_win.dst_dir
+                        )
+            except OSError:
+                continue
+
+        if compress_win.stop_compress:
+            GLib.idle_add(progress.set_fraction, 0)
+            for i in compress_win.dst_dir.iterdir():
+                if file_name in str(i) and output_file in str(i):
+                    i.unlink()
+        else:
+            GLib.idle_add(progress.set_fraction, 1)
+            compress_win.compress_activate = False
+            compress_win.stop_compress = False
+            compress_win.btn_extract.set_label(label=_("Comprimir"))
+
+        compress_win.compress_popen = None
+
     def get_dst_suficient_space(self, file_list: list, dst_dir: Path) -> bool:
         total_size_uncompressed_all_files = 0
         for file in file_list:
-            cmd = ["7z", "l", file]
+            cmd = [self.EXEC_SEVEN_Z_TYPE, "l", file]
             res = subprocess.run(cmd, capture_output=True, text=True)
 
             if res.returncode != 0:
@@ -174,7 +244,7 @@ class CompressionManager:
         return total_size_uncompressed_all_files < free_space
 
     def check_file_compressed_ratio(self, file: Path) -> bool:
-        cmd = ["7z", "l", file]
+        cmd = [self.EXEC_SEVEN_Z_TYPE, "l", file]
         res = subprocess.run(cmd, capture_output=True, text=True)
 
         if res.returncode != 0:
@@ -191,3 +261,9 @@ class CompressionManager:
                 break
 
         return (total_size_uncompressed / total_size_compressed) > 500
+
+    def validate_7zip_installed(self) -> str:
+        path = Path("./files/7zip/7z")
+        if not shutil.which("7z"):
+            return str(path)
+        return "7z"

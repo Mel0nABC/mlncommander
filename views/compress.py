@@ -14,10 +14,6 @@ import asyncio
 import secrets
 import string
 import threading
-import subprocess
-import pty
-import re
-import os
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -43,6 +39,7 @@ class CompressWindow(Gtk.Window):
         self.win = win
         self.action = Actions()
         self.compression_manager = CompressionManager(self)
+        self.EXEC_SEVEN_Z_TYPE = self.compression_manager.EXEC_SEVEN_Z_TYPE
         self.selected_items = selected_items
         self.dst_explorer = dst_explorer
         self.dst_dir = dst_dir
@@ -271,7 +268,7 @@ class CompressWindow(Gtk.Window):
             compression_type = "bzip2"
 
         cmd = [
-            "7z",
+            self.EXEC_SEVEN_Z_TYPE,
             "a",
             f"-t{compression_type}",
             f"-mx={compression_lvl}",
@@ -303,62 +300,20 @@ class CompressWindow(Gtk.Window):
 
         cmd = cmd + path_list
 
-        self.compress_work(cmd, file_name, output_file)
+        self.compression_manager.compress_work(
+            self,
+            self.win,
+            self.progress,
+            cmd,
+            file_name,
+            output_file,
+            self.dst_explorer,
+        )
 
         self.enable_grid_pannel()
 
         if self.in_background:
             self.horizontal_button.remove(self.btn_extract)
-
-    def compress_work(
-        self, cmd: str, file_name: str, output_file: str
-    ) -> None:
-
-        if self.win.config.SWITCH_COMPRESS_STATUS:
-            GLib.idle_add(self.to_background, None)
-
-        master_df, slave_fd = pty.openpty()
-        self.compress_popen = subprocess.Popen(
-            cmd, stdin=slave_fd, stdout=slave_fd, stderr=slave_fd, text=True
-        )
-        os.close(slave_fd)
-
-        while self.compress_popen.poll() is None:
-            try:
-                output = os.read(master_df, 1024)
-                if not output:
-                    break
-                texto = output.decode("utf-8")
-
-                if "Everything is Ok" in texto:
-                    GLib.idle_add(self.progress.set_fraction, 1)
-                    GLib.idle_add(
-                        self.dst_explorer.load_new_path, self.dst_dir
-                    )
-
-                match = re.search(r"(.{2})%", texto)
-                if match:
-                    fraction = int(match.group(1)) / 100
-                    GLib.idle_add(self.progress.set_fraction, fraction)
-                    if self.dst_explorer.actual_path == self.dst_dir:
-                        GLib.idle_add(
-                            self.dst_explorer.load_new_path, self.dst_dir
-                        )
-            except OSError:
-                continue
-
-        if self.stop_compress:
-            GLib.idle_add(self.progress.set_fraction, 0)
-            for i in self.dst_dir.iterdir():
-                if file_name in str(i) and output_file in str(i):
-                    i.unlink()
-        else:
-            GLib.idle_add(self.progress.set_fraction, 1)
-            self.compress_activate = False
-            self.stop_compress = False
-            self.btn_extract.set_label(label=_("Comprimir"))
-
-        self.compress_popen = None
 
     def show_msg_alert(
         self,
@@ -418,6 +373,7 @@ class CompressWindow(Gtk.Window):
         PasswordWindow(self, to_work, file)
 
     def to_background(self, button: Gtk.Button = None) -> None:
+        self.win.key_connect()
         self.in_background = True
         self.set_child(None)
         self.vertical_main.remove(self.grid)
