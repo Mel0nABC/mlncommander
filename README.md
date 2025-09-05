@@ -49,6 +49,6 @@ This started as a project to learn Python. Then, I searched for a native graphic
 
 ## Download
 
-[Download AppImage][https://github.com/Mel0nABC/mlncommander/releases/download/v1.0/mlnCommander-x86_64.AppImage]
+[Download AppImage](https://github.com/Mel0nABC/mlncommander/releases/download/v1.0/mlnCommander-x86_64.AppImage)
 
 
