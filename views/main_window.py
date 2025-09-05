@@ -52,10 +52,7 @@ class Window(Gtk.ApplicationWindow):
         self.label_left_selected_files = None
         self.label_right_selected_files = None
         self.config = ConfigEntity()
-        # self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
-        self.CONFIG_FILE = Path(
-            "/home/mel0n/Downloads/pruebas_copiar/estructura/config.yaml"
-        )
+        self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
