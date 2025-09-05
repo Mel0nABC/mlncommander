@@ -45,7 +45,6 @@ class Window(Gtk.ApplicationWindow):
         self.key_controller_id = 0
         self.explorer_src = None
         self.explorer_dst = None
-        self.my_watchdog = None
         self.entry_margin = 10
         self.horizontal_button_list_margin = 10
         self.scroll_margin = 10
@@ -53,6 +52,9 @@ class Window(Gtk.ApplicationWindow):
         self.label_right_selected_files = None
         self.config = ConfigEntity()
         self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
+
+        # to use in watchdog
+        self.write_error_msg_displayer = False
 
         # We load the configuration, to send necessary variables
         self.load_config_file()

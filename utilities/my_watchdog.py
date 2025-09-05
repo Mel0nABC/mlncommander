@@ -8,12 +8,13 @@ from pathlib import Path
 import time
 import gi  # noqa: F401
 
-from gi.repository import GLib
+from gi.repository import Gtk, GLib
 
 
 class My_watchdog:
     def __init__(
         self,
+        win: Gtk.ApplicationWindow,
         path: Path,
         APP_USER_PATH: Path,
         explorer: "Explorer" = None,  # noqa: F821
@@ -23,6 +24,7 @@ class My_watchdog:
         self.APP_USER_PATH = APP_USER_PATH
         self.explorer = explorer
         self.mihandler = None
+        self.win = win
 
     def start(self):
         """
@@ -30,7 +32,7 @@ class My_watchdog:
         """
 
         self.mihandler = MiHandler(
-            self.path, self.explorer, self.APP_USER_PATH
+            self.win, self.path, self.explorer, self.APP_USER_PATH
         )
         self.observer.schedule(
             self.mihandler,
@@ -67,16 +69,23 @@ class MiHandler(FileSystemEventHandler):
 
     def __init__(
         self,
+        win: Gtk.ApplicationWindow,
         path: Path,
         explorer: "Explorer",  # noqa: F821
         APP_USER_PATH: Path,
     ):
+        from controls.actions import Actions
 
+        self.win = win
         self.explorer = explorer
         self.path = Path(path)
         self.list_path1 = list(self.path.iterdir())
-        self.log_file = Path(f"{APP_USER_PATH}/log/mlncommander.log")
+        # self.log_file = Path(f"{APP_USER_PATH}/log/mlncommander.log")
+        self.log_file = Path(
+            "/home/mel0n/Downloads/pruebas_copiar/estructura/log/mlncommander.log"
+        )
         self.date_str = time.strftime("%A, %d/%m/%Y - %H:%M:%S")
+        self.action = Actions()
 
     def compare_folder(self):
         from collections import Counter
@@ -116,9 +125,7 @@ class MiHandler(FileSystemEventHandler):
         if path.exists():
             GLib.idle_add(self.explorer.load_new_path, path)
 
-    def print_status_on_log(
-        self, operation: str, src_path: Path, dst_path: Path = None
-    ) -> None:
+    def print_title_on_log(self) -> bool:
         try:
 
             if not self.log_file.parent.exists():
@@ -135,8 +142,24 @@ class MiHandler(FileSystemEventHandler):
                         "##################################################\n"
                     )
                 )
+            return True
         except Exception as e:
             print(f"ERROR: {e}")
+            if not self.win.write_error_msg_displayer:
+                GLib.idle_add(
+                    self.action.show_msg_alert,
+                    self.win,
+                    _(("Error al escribir el log\n\n" f"{e}")),
+                )
+                self.win.write_error_msg_displayer = True
+            return False
+
+    def print_status_on_log(
+        self, operation: str, src_path: Path, dst_path: Path = None
+    ) -> None:
+
+        if not self.print_title_on_log():
+            return
 
         try:
 

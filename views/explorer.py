@@ -297,7 +297,9 @@ class Explorer(Gtk.ColumnView):
         Create another watchdog with other path
         """
         self.stop_watchdog()
-        self.my_watchdog = My_watchdog(str(path), self.APP_USER_PATH, explorer)
+        self.my_watchdog = My_watchdog(
+            self.win, str(path), self.APP_USER_PATH, explorer
+        )
         self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
         self.watchdog_thread.start()
 
