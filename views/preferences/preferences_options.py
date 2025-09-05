@@ -323,11 +323,9 @@ class Preferences(Gtk.Window):
         config.FONT_STYLE_COLOR = Preferences.FONT_STYLE_COLOR
 
         # Save shortcuts values.
-        self.win.explorer_1.shortcuts.save_yaml_config(
-            self.shortcuts_view.store
-        )
-        self.win.explorer_1.shortcuts.recharge_yaml_shortcuts()
-        self.win.explorer_2.shortcuts.recharge_yaml_shortcuts()
+        self.win.shortcuts.save_yaml_config(self.shortcuts_view.store)
+        self.win.shortcuts.recharge_yaml_shortcuts()
+        self.win.shortcuts.recharge_yaml_shortcuts()
 
         self.win.save_config_file(config)
         self.on_close()

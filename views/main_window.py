@@ -52,7 +52,10 @@ class Window(Gtk.ApplicationWindow):
         self.label_left_selected_files = None
         self.label_right_selected_files = None
         self.config = ConfigEntity()
-        self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
+        # self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
+        self.CONFIG_FILE = Path(
+            "/home/mel0n/Downloads/pruebas_copiar/estructura/config.yaml"
+        )
 
         # We load the configuration, to send necessary variables
         self.load_config_file()
@@ -482,82 +485,109 @@ class Window(Gtk.ApplicationWindow):
         load config file
         """
         # If no configuration exists, it creates it, with default options
-        if not self.CONFIG_FILE.exists():
-            self.config.create_new_config()
-            with open(self.CONFIG_FILE, "w") as config_file:
-                yaml.dump(self.config.to_dict(), config_file, sort_keys=False)
+        try:
+            if not self.CONFIG_FILE.exists():
+                self.config.create_new_config()
+                with open(self.CONFIG_FILE, "w") as config_file:
+                    yaml.dump(
+                        self.config.to_dict(), config_file, sort_keys=False
+                    )
+            # We open configuration and load in variables.
+            with open(self.CONFIG_FILE, "r+") as config_file:
+                data = yaml.safe_load(config_file)
 
-        # We open configuration and load in variables.
-        with open(self.CONFIG_FILE, "r+") as config_file:
-            data = yaml.safe_load(config_file)
+                # GENERAL
 
-            # GENERAL
+                self.config.SWITCH_COPY_STATUS = data["SWITCH_COPY_STATUS"]
+                self.config.SWITCH_MOVE_STATUS = data["SWITCH_MOVE_STATUS"]
+                self.config.SWITCH_DUPLICATE_STATUS = data[
+                    "SWITCH_DUPLICATE_STATUS"
+                ]
+                self.config.SWITCH_COMPRESS_STATUS = data[
+                    "SWITCH_COMPRESS_STATUS"
+                ]
+                self.config.SWITCH_UNCOMPRESS_STATUS = data[
+                    "SWITCH_UNCOMPRESS_STATUS"
+                ]
 
-            self.config.SWITCH_COPY_STATUS = data["SWITCH_COPY_STATUS"]
-            self.config.SWITCH_MOVE_STATUS = data["SWITCH_MOVE_STATUS"]
-            self.config.SWITCH_DUPLICATE_STATUS = data[
-                "SWITCH_DUPLICATE_STATUS"
-            ]
-            self.config.SWITCH_COMPRESS_STATUS = data["SWITCH_COMPRESS_STATUS"]
-            self.config.SWITCH_UNCOMPRESS_STATUS = data[
-                "SWITCH_UNCOMPRESS_STATUS"
-            ]
+                # DIRECTORYS
 
-            # DIRECTORYS
+                self.config.FAV_PATH_LIST_1 = data["FAV_PATH_LIST_1"]
+                self.config.FAV_PATH_LIST_2 = data["FAV_PATH_LIST_2"]
 
-            self.config.FAV_PATH_LIST_1 = data["FAV_PATH_LIST_1"]
-            self.config.FAV_PATH_LIST_2 = data["FAV_PATH_LIST_2"]
-
-            EXP_1_PATH = Path(data["EXP_1_PATH"])
-            result = File_manager.get_path_list(EXP_1_PATH)
-            if result:
-                if not EXP_1_PATH.exists():
-                    self.config.EXP_1_PATH = "/"
+                EXP_1_PATH = Path(data["EXP_1_PATH"])
+                result = File_manager.get_path_list(EXP_1_PATH)
+                if result:
+                    if not EXP_1_PATH.exists():
+                        self.config.EXP_1_PATH = "/"
+                    else:
+                        self.config.EXP_1_PATH = data["EXP_1_PATH"]
                 else:
-                    self.config.EXP_1_PATH = data["EXP_1_PATH"]
-            else:
-                self.config.EXP_1_PATH = Path("/")
+                    self.config.EXP_1_PATH = Path("/")
 
-            EXP_2_PATH = Path(data["EXP_2_PATH"])
-            result = File_manager.get_path_list(EXP_2_PATH)
-            if result:
-                if not EXP_2_PATH.exists():
-                    self.config.EXP_2_PATH = "/"
+                EXP_2_PATH = Path(data["EXP_2_PATH"])
+                result = File_manager.get_path_list(EXP_2_PATH)
+                if result:
+                    if not EXP_2_PATH.exists():
+                        self.config.EXP_2_PATH = "/"
+                    else:
+                        self.config.EXP_2_PATH = data["EXP_2_PATH"]
                 else:
-                    self.config.EXP_2_PATH = data["EXP_2_PATH"]
-            else:
-                self.config.EXP_2_PATH = Path("/")
+                    self.config.EXP_2_PATH = Path("/")
 
-            self.config.SHOW_DIR_LAST = bool(data["SHOW_DIR_LAST"])
-            self.config.SWITCH_IMG_STATUS = bool(data["SWITCH_IMG_STATUS"])
-            self.config.SWITCH_WATCHDOG_STATUS = bool(
-                data["SWITCH_WATCHDOG_STATUS"]
+                self.config.SHOW_DIR_LAST = bool(data["SHOW_DIR_LAST"])
+                self.config.SWITCH_IMG_STATUS = bool(data["SWITCH_IMG_STATUS"])
+                self.config.SWITCH_WATCHDOG_STATUS = bool(
+                    data["SWITCH_WATCHDOG_STATUS"]
+                )
+
+                # APPEARANCE
+
+                self.config.COLOR_BACKGROUND_APP = data["COLOR_BACKGROUND_APP"]
+                self.config.COLOR_EXPLORER_LEFT = data["COLOR_EXPLORER_LEFT"]
+                self.config.COLOR_EXPLORER_RIGHT = data["COLOR_EXPLORER_RIGHT"]
+                self.config.COLOR_BACKGROUND_SEARCH = data[
+                    "COLOR_BACKGROUND_SEARCH"
+                ]
+                self.config.COLOR_ENTRY = data["COLOR_ENTRY"]
+                self.config.COLOR_SEARCH_TEXT = data["COLOR_SEARCH_TEXT"]
+                self.config.COLOR_BUTTON = data["COLOR_BUTTON"]
+                self.config.COLOR_FAV_BUTTON = data["COLOR_FAV_BUTTON"]
+                self.config.FONT_STYLE = data["FONT_STYLE"]
+                self.config.FONT_STYLE_COLOR = data["FONT_STYLE_COLOR"]
+
+        except Exception as e:
+            print(f"ERROR en LOAD CONFIG FILE: {e}")
+            text = _(
+                (
+                    "Ha ocurrido algún error al abrir el archivo de configuración:\n\n"  # noqa : E501
+                    f"{e}\n\n"
+                    "Se carga una versión en memoria, no podrá guardar los cambios."  # noqa : E501
+                )
             )
-
-            # APPEARANCE
-
-            self.config.COLOR_BACKGROUND_APP = data["COLOR_BACKGROUND_APP"]
-            self.config.COLOR_EXPLORER_LEFT = data["COLOR_EXPLORER_LEFT"]
-            self.config.COLOR_EXPLORER_RIGHT = data["COLOR_EXPLORER_RIGHT"]
-            self.config.COLOR_BACKGROUND_SEARCH = data[
-                "COLOR_BACKGROUND_SEARCH"
-            ]
-            self.config.COLOR_ENTRY = data["COLOR_ENTRY"]
-            self.config.COLOR_SEARCH_TEXT = data["COLOR_SEARCH_TEXT"]
-            self.config.COLOR_BUTTON = data["COLOR_BUTTON"]
-            self.config.COLOR_FAV_BUTTON = data["COLOR_FAV_BUTTON"]
-            self.config.FONT_STYLE = data["FONT_STYLE"]
-            self.config.FONT_STYLE_COLOR = data["FONT_STYLE_COLOR"]
+            self.action.show_msg_alert(self, text)
 
     def save_config_file(self, config: ConfigEntity) -> None:
         """
         Saves the settings to the current location
         where the browsers are located
         """
-        self.config = config
-        # Config is deleted and the entire configuration is saved.
-        with open(self.CONFIG_FILE, "w") as config_file:
-            yaml.dump(config.to_dict(), config_file, sort_keys=False)
+        try:
+            self.config = config
+            # Config is deleted and the entire configuration is saved.
+            with open(self.CONFIG_FILE, "w") as config_file:
+                yaml.dump(config.to_dict(), config_file, sort_keys=False)
+
+        except Exception as e:
+            print(f"ERROR EN SAVE CONFIG FILE: {e}")
+            text = _(
+                (
+                    "Ha ocurrido algún error al guardar el archivo de configuración:\n\n"  # noqa : E501
+                    f"{e}\n\n"
+                    "Se carga una versión en memoria, no podrá guardar los cambios."  # noqa : E501
+                )
+            )
+            self.action.show_msg_alert(self, text)
 
     def get_other_explorer_with_name(self, name: str) -> Explorer:
         """
