@@ -18,7 +18,6 @@ from css.explorer_css import Css_explorer_manager
 from controls.shortcuts_keys import Shortcuts_keys
 from pathlib import Path
 import yaml
-import tkinter as tk
 import os
 import gi
 
@@ -77,11 +76,10 @@ class Window(Gtk.ApplicationWindow):
 
         # We get information from the screen
 
-        root = tk.Tk()
-        root.withdraw()
-        self.horizontal = root.winfo_screenwidth()
-        self.vertical = root.winfo_screenheight()
-        root.destroy()
+        from utilities.screen_info import ScreenInfo
+
+        self.horizontal = ScreenInfo.horizontal
+        self.vertical = ScreenInfo.vertical
 
         print(f"Screen resolution: {self.horizontal}x{self.vertical}")
 

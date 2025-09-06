@@ -22,8 +22,16 @@ class Menu_bar(Gio.Menu):
         # append_section -> separated with horizontal bar
         # append -> create option list
 
-        # Object to insert in vertical main box, on main_window.Window class
+        # Menu bar to insert in vertical main box, on main_window.Window class
         self.menubar = Gtk.PopoverMenuBar.new_from_model(self)
+
+        self.create_file_submenu()
+        self.create_help_submenu()
+
+    def exit(self, action: Gio.SimpleAction, parameter) -> None:
+        self.win.exit()
+
+    def create_file_submenu(self) -> None:
 
         # Menu file, for menu bar
         menu_file = Gio.Menu()
@@ -45,20 +53,6 @@ class Menu_bar(Gio.Menu):
         self.win.add_action(action_exit)
         menu_file.append_section(None, menu_exit)
 
-        # Menu help, for menu bar
-        menu_help = Gio.Menu()
-        self.append_submenu(_("Ayuda"), menu_help)
-
-        menu_shortcuts = Gio.Menu()
-        menu_shortcuts.append(_("Atajos de teclado"), "win.help")
-        action_help = Gio.SimpleAction.new("help", None)
-        action_help.connect("activate", self.help_window)
-        self.win.add_action(action_help)
-        menu_help.append_section(None, menu_shortcuts)
-
-    def exit(self, action: Gio.SimpleAction, parameter) -> None:
-        self.win.exit()
-
     def open_preferences(self, action: Gio.SimpleAction, parameter) -> None:
         from views.menu_bar.file.preferences.preferences_options import (
             Preferences,
@@ -67,5 +61,32 @@ class Menu_bar(Gio.Menu):
         if not self.preferences:
             self.preferences = Preferences(self.win, self)
 
-    def help_window(self, action: Gio.SimpleAction, parameter):
-        print("HOLA")
+    def create_help_submenu(self) -> None:
+
+        # Menu help, for menu bar
+        menu_help = Gio.Menu()
+        self.append_submenu(_("Ayuda"), menu_help)
+
+        menu_shortcuts = Gio.Menu()
+        menu_shortcuts.append(_("Atajos de teclado"), "win.help")
+        action_help = Gio.SimpleAction.new("help", None)
+        action_help.connect("activate", self.shortcut_window)
+        self.win.add_action(action_help)
+        menu_help.append_section(None, menu_shortcuts)
+
+        menu_about = Gio.Menu()
+        menu_about.append(_("Acerca de mlnCommander"), "win.about")
+        action_about = Gio.SimpleAction.new("about", None)
+        action_about.connect("activate", self.about_window)
+        self.win.add_action(action_about)
+        menu_help.append_section(None, menu_about)
+
+    def shortcut_window(self, action: Gio.SimpleAction, parameter):
+        from views.menu_bar.help.shortcuts_help import ShortCutsHelp
+
+        ShortCutsHelp(self.win)
+
+    def about_window(self, action: Gio.SimpleAction, parameter):
+        from views.menu_bar.help.about import About
+
+        About(self.win)

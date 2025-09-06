@@ -30,6 +30,7 @@ class Css_explorer_manager:
         css = f"""
             .app_background{{
                 background-color: {app_background_color};
+                border-radius: 10pt;
             }}
 
         """.encode()
