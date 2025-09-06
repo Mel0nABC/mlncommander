@@ -5,9 +5,9 @@ from utilities.i18n import _
 from controls import action_keys
 from controls import actions
 from entity.config import ConfigEntity
-from views.menu_bar import Menu_bar
-from views.header import header
-from views.explorer import Explorer
+from views.menu_bar.menu_bar_view import Menu_bar
+from views.pop_up_windows.header import header
+from views.file_explorer.explorer import Explorer
 from utilities.my_copy_or_move import MyCopyMove
 from utilities.create import Create
 from utilities.remove import Remove

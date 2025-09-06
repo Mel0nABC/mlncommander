@@ -13,7 +13,9 @@ class Appearance(Gtk.Box):
 
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         self.win = win
         self.css_manager = Css_explorer_manager(self.win)
@@ -188,7 +190,9 @@ class Appearance(Gtk.Box):
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
     ) -> None:
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         font_desc = button.get_font_desc()
         if font_desc:
@@ -200,7 +204,9 @@ class Appearance(Gtk.Box):
     def set_color(
         self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
     ) -> None:
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         color = button.get_rgba().to_string()
         name = button.get_name()
@@ -245,7 +251,9 @@ class Appearance(Gtk.Box):
         )
 
     def set_color_dialog_button(self, button: Gtk.ColorDialogButton) -> None:
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         color = Gdk.RGBA()
         name = button.get_name()

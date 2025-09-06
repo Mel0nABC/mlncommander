@@ -197,7 +197,7 @@ class Shortcuts_keys:
         if not write_access:
             exec_uncompress_window = False
 
-        from views.uncompress import UncompressWindow
+        from views.pop_up_windows.uncompress import UncompressWindow
 
         if exec_uncompress_window:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
@@ -235,7 +235,7 @@ class Shortcuts_keys:
         if not write_access:
             exec_uncompress_window = False
 
-        from views.compress import CompressWindow
+        from views.pop_up_windows.compress import CompressWindow
 
         if exec_uncompress_window:
             CompressWindow(self.win, selected_items, dst_explorer, dst_dir)

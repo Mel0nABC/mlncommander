@@ -5,9 +5,9 @@
 from utilities.i18n import _
 from utilities.compression import CompressionManager
 from controls.actions import Actions
-from views.explorer import Explorer
-from views.password_entry import PasswordWindow
-from views.confirm_window import ConfirmWindow
+from views.file_explorer.explorer import Explorer
+from views.pop_up_windows.password_entry import PasswordWindow
+from views.pop_up_windows.confirm_window import ConfirmWindow
 from pathlib import Path
 from multiprocessing import Queue
 import asyncio

@@ -4,8 +4,8 @@
 from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
-from views.new_file_window import NewFileWindow
-from views.explorer import Explorer
+from views.pop_up_windows.new_file_window import NewFileWindow
+from views.file_explorer.explorer import Explorer
 import gi
 from utilities.access_control import AccessControl
 from docx import Document  # docx

@@ -5,8 +5,8 @@ from __future__ import annotations
 from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
-from views.create_dir_window import CreateDirWindow
-from views.explorer import Explorer
+from views.pop_up_windows.create_dir_window import CreateDirWindow
+from views.file_explorer.explorer import Explorer
 import asyncio
 import os
 import gi

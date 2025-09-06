@@ -11,7 +11,9 @@ class General(Gtk.Box):
 
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         self.win = win
         self.set_margin_top(20)

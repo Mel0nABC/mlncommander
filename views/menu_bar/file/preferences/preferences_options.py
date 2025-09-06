@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from entity.config import ConfigEntity
-from views.preferences.directory import Directory
-from views.preferences.general import General
-from views.preferences.appearance import Appearance
-from views.preferences.shortcuts import Shortcuts
+from views.menu_bar.file.preferences.directory import Directory
+from views.menu_bar.file.preferences.general import General
+from views.menu_bar.file.preferences.appearance import Appearance
+from views.menu_bar.file.preferences.shortcuts import Shortcuts
 from css.explorer_css import Css_explorer_manager
 import gi
 

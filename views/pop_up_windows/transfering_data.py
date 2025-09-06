@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from views.confirm_window import ConfirmWindow
+from views.pop_up_windows.confirm_window import ConfirmWindow
 import time
 import gi
 import asyncio

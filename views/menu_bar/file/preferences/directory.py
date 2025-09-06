@@ -12,7 +12,9 @@ class Directory(Gtk.Box):
 
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         self.win = win
         self.set_margin_top(20)
@@ -150,7 +152,9 @@ class Directory(Gtk.Box):
         """
         When change switch status, update visual on explorers
         """
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         Preferences.SWITCH_IMG_STATUS = pspec
         self.win.SWITCH_IMG_STATUS = pspec
@@ -169,7 +173,9 @@ class Directory(Gtk.Box):
             explorer_2.scroll_to(index, None, explorer_1.flags)
 
     def on_press_switch_wd(self, switch: Gtk.Switch, pspec: bool) -> None:
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         Preferences.SWITCH_WATCHDOG_STATUS = pspec
         self.win.SWITCH_WATCHDOG_STATUS = pspec
@@ -190,7 +196,9 @@ class Directory(Gtk.Box):
         """
         Generate FileDialog to select folder
         """
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         file_dialog = Gtk.FileDialog(title=Preferences.SELECT_FILE_TITLE)
         file_dialog.select_folder(self.win, None, self.on_file_selected, entry)
@@ -198,7 +206,9 @@ class Directory(Gtk.Box):
     def on_file_selected(
         self, dialog: Gtk.FileDialog, result: Gio.Task, entry: Gtk.Entry
     ) -> None:
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         folder = dialog.select_folder_finish(result)
         if folder:
@@ -215,7 +225,9 @@ class Directory(Gtk.Box):
         """
         Change on gui to select last dir option
         """
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         self.select_directory_box_1.set_sensitive(False)
         self.select_directory_box_2.set_sensitive(False)
@@ -227,7 +239,9 @@ class Directory(Gtk.Box):
         """
         Change on gui to select set dir option
         """
-        from views.preferences.preferences_options import Preferences
+        from views.menu_bar.file.preferences.preferences_options import (
+            Preferences,
+        )
 
         self.select_directory_box_1.set_sensitive(True)
         self.select_directory_box_2.set_sensitive(True)

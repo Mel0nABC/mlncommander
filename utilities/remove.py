@@ -6,9 +6,9 @@ from controls.actions import Actions
 from pathlib import Path
 from asyncio import Future
 from utilities.access_control import AccessControl
-from views.explorer import Explorer
-from views.selected_for_delete import Selected_for_delete
-from views.deleting import Deleting
+from views.file_explorer.explorer import Explorer
+from views.pop_up_windows.selected_for_delete import Selected_for_delete
+from views.pop_up_windows.deleting import Deleting
 import asyncio
 import threading
 import gi
