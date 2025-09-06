@@ -23,14 +23,6 @@ class Css_explorer_manager:
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
 
-        # css = b"""
-        # window{
-        #     font-size:0.3em;
-        # }
-
-        # """
-        # self.set_css_to_provider(css)
-
     def load_css_app_background(self, app_background_color: str) -> None:
         """
         Set application background color (all window)
@@ -52,6 +44,12 @@ class Css_explorer_manager:
         or directories
         """
         css = f"""
+
+            .image-preview{{
+                border-radius: 10px;
+                padding: 10px;
+            }}
+
             .to_down_explorer{{
                 border-radius: 10px;
                 padding: 10px;

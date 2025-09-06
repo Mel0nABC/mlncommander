@@ -72,6 +72,8 @@ class Explorer(Gtk.ColumnView):
         self.icon_manager = IconManager(win)
         self.label_gesture_list = {}
         self.showed_msg_network_problem = False
+        self.min_size_width = 0
+        self.min_size_height = 0
 
         for property_name in type_list:
 
@@ -721,18 +723,22 @@ class Explorer(Gtk.ColumnView):
     def open_img_preview(self, selected_items: list) -> None:
         """
         When show preview image is True,
-        insert Gtk.Imgage in other explorer
+        insert Gtk.Picture in other explorer
         """
+
+        # Set explorer scroll min size
+        self.win.scroll_1.set_size_request(
+            1, (self.get_allocated_height() / 3) * 2
+        )
+        self.win.scroll_2.set_size_request(
+            1, (self.get_allocated_height() / 3) * 2
+        )
+
         if not selected_items:
             self.disable_img_box()
             return
 
         path = selected_items[0]
-
-        if self.name == "explorer_1":
-            self.vert_screen_preview = self.win.vertical_screen_2
-        else:
-            self.vert_screen_preview = self.win.vertical_screen_1
 
         if path.is_dir() or not selected_items:
             self.disable_img_box()
@@ -742,19 +748,74 @@ class Explorer(Gtk.ColumnView):
             self.disable_img_box()
             return
 
+        if self.img_box:
+            self.vert_screen_preview.remove(self.img_box)
+            self.img_box = None
+
         if not self.img_box:
-            self.img_preview = Gtk.Image.new()
-            self.img_preview.set_size_request(-1, self.win.vertical / 2)
 
-            self.img_preview.set_hexpand(True)
-            self.img_box = Gtk.Box(
-                orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-            )
+            self.img_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            self.img_box.get_style_context().add_class("to_down_explorer")
+            self.img_box.set_vexpand(True)
 
-            self.img_box.append(self.img_preview)
-            self.vert_screen_preview.append(self.img_box)
+            self.lbl_info = Gtk.Label.new()
+            self.lbl_info.set_margin_top(10)
+            self.lbl_info.set_hexpand(True)
 
-        self.img_preview.set_from_file(str(path))
+            # Set box margins
+            if self.name == "explorer_1":
+                self.vert_screen_preview = self.win.vertical_screen_2
+                self.img_box.set_margin_top(self.win.scroll_margin / 2)
+                self.img_box.set_margin_start(self.win.scroll_margin / 2)
+                self.img_box.set_margin_end(self.win.scroll_margin)
+                self.img_box.get_style_context().add_class(
+                    "explorer_background_left"
+                )
+            else:
+                self.vert_screen_preview = self.win.vertical_screen_1
+                self.img_box.set_margin_top(self.win.scroll_margin / 2)
+                self.img_box.set_margin_start(self.win.scroll_margin)
+                self.img_box.set_margin_end(self.win.scroll_margin / 2)
+                self.img_box.get_style_context().add_class(
+                    "explorer_background_right"
+                )
+
+        from gi.repository import GdkPixbuf
+
+        box_width = self.win.explorer_1.get_allocated_width()
+        # box_height = self.win.explorer_1.get_allocated_height() / 3
+
+        self.img_file = GdkPixbuf.Pixbuf.new_from_file(str(path))
+        img_width = self.img_file.get_width()
+        img_height = self.img_file.get_height()
+        img_ratio = img_width / img_height
+
+        new_height = box_width / img_ratio
+
+        if img_width < box_width:
+            box_width = img_width
+            new_height = img_height
+
+        self.img_file = self.img_file.scale_simple(
+            box_width,
+            new_height,
+            GdkPixbuf.InterpType.BILINEAR,
+        )
+
+        self.lbl_info.set_text(
+            _(f"Resolución imagen original: {img_width} x {img_height} px")
+        )
+
+        paintable = Gdk.Texture.new_for_pixbuf(self.img_file)
+        self.img_preview = Gtk.Picture.new_for_paintable(paintable)
+        self.img_preview.set_vexpand(True)
+        self.img_preview.set_hexpand(True)
+        self.img_preview.get_style_context().add_class("image-preview")
+
+        self.img_box.append(self.img_preview)
+        self.img_box.append(self.lbl_info)
+
+        self.vert_screen_preview.append(self.img_box)
 
     def disable_img_box(self):
         if self.img_box:

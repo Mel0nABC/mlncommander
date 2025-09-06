@@ -216,7 +216,9 @@ class Window(Gtk.ApplicationWindow):
         self.scroll_1.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
+
         self.scroll_1.set_vexpand(True)
+        self.scroll_1.set_hexpand(True)
         self.scroll_1.set_margin_end(self.scroll_margin / 2)
         self.scroll_1.set_margin_start(self.scroll_margin)
         self.scroll_1.set_child(self.explorer_1)
@@ -226,6 +228,7 @@ class Window(Gtk.ApplicationWindow):
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
         self.scroll_2.set_vexpand(True)
+        self.scroll_2.set_hexpand(True)
         self.scroll_2.set_margin_end(self.scroll_margin)
         self.scroll_2.set_margin_start(self.scroll_margin / 2)
         self.scroll_2.set_child(self.explorer_2)
