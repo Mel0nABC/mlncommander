@@ -105,13 +105,10 @@ class Shortcuts(Gtk.Box):
         if item:
             output_column = cell.get_child()
             value = item.get_property(property_name)
+            if str(value) == "apostrophe":
+                value = "?"
             output_column.set_text(str(value))
             if isinstance(output_column, Gtk.EditableLabel):
-
-                # focus_controller = Gtk.EventControllerFocus()
-                # focus_controller.connect("enter", self.on_enter)
-                # output_column.add_controller(focus_controller)
-
                 handler_id = output_column.connect("changed", self.on_change)
                 output_column.set_name(str(handler_id))
                 output_column.connect("notify::editing", self.on_enter)

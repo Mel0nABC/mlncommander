@@ -263,7 +263,9 @@ class CompressionManager:
         return (total_size_uncompressed / total_size_compressed) > 500
 
     def validate_7zip_installed(self) -> str:
-        path = Path("./files/7zip/7z")
+        import App
+
+        path = Path(f"{App.APP_HOME}/files/7zip/7z")
         if not shutil.which("7z"):
             return str(path)
         return "7z"

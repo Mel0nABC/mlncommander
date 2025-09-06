@@ -23,7 +23,8 @@ gbulb.install()  # Integrate asyncio into Gtk
 
 # Configure gettext
 APP_NAME = "mlncommander"
-LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locales")
+APP_HOME = os.path.dirname(__file__)
+LOCALE_DIR = os.path.join(APP_HOME, "locales")
 
 # Initialice gettext
 gettext.bindtextdomain(APP_NAME, LOCALE_DIR)

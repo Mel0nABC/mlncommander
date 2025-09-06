@@ -23,7 +23,7 @@ class NewFileWindow(Gtk.Window):
         # Load css
 
         header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=_("SCrear fichero")))
+        header.set_title_widget(Gtk.Label(label=_("Crear fichero")))
         self.set_titlebar(header)
 
         self.get_style_context().add_class("app_background")

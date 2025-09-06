@@ -14,6 +14,8 @@ class About(Gtk.Window):
     def __init__(self, win):
         super().__init__(transient_for=win)
 
+        self.win = win
+
         from utilities.screen_info import ScreenInfo
 
         self.horizontal = ScreenInfo.horizontal
@@ -87,7 +89,7 @@ Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander
 
         self.present()
 
-    def show_license(self, button: Gtk.Button):
+    def show_license(self, button: Gtk.Button = None):
         win = Gtk.Window.new()
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Licencias")))
@@ -104,7 +106,7 @@ Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander
         vertical_box.set_margin_end(20)
         vertical_box.set_margin_bottom(20)
         vertical_box.set_margin_start(20)
-        vertical_box.set_size_request(640, 480)
+        vertical_box.set_size_request(1024, 768)
 
         win.set_child(vertical_box)
         win.present()
@@ -120,15 +122,19 @@ Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander
         scroll.set_child(text_view)
         vertical_box.append(scroll)
 
-        license_path = Path("./LICENSES/")
+        import App
+
+        license_path = Path(f"{App.APP_HOME}/LICENSES/")
+
         text = ""
 
         with open(f"{license_path}/MIT.txt", "r") as file:
             text += file.read()
 
         text += (
-            "\n\n\n\n#####################################"
-            "##########################################\n\n\n\n"
+            "\n\n\n\n##########################################"
+            "##################################################"
+            "#####################\n\n\n\n"
         )
 
         for license in license_path.iterdir():
@@ -137,8 +143,9 @@ Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander
                     text += file.read()
 
             text += (
-                "\n\n\n\n#####################################"
-                "##########################################\n\n\n\n"
+                "\n\n\n\n##########################################"
+                "##################################################"
+                "#####################\n\n\n\n"
             )
 
         text_buffer.set_text(text)
