@@ -40,7 +40,7 @@ class About(Gtk.Window):
 MlnCommander
 Versión: 1.0
 
-Descripción / Comentarios:
+Descripción:
 
 MlnCommander es un explorador de archivos de doble explorador
 que permite gestionar tus carpetas y archivos de manera rápida

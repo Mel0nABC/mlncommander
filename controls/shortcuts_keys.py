@@ -19,9 +19,9 @@ class Shortcuts_keys:
 
     def __init__(
         self,
-        win: Gtk.Window,
-        explorer_left: "Explorer",  # noqa F821
-        explorer_right: "Explorer",  # noqa F821
+        win: Gtk.Window = None,
+        explorer_left: "Explorer" = None,  # noqa F821
+        explorer_right: "Explorer" = None,  # noqa F821
     ):  # noqa F821
 
         from views.main_window import Window
@@ -37,8 +37,6 @@ class Shortcuts_keys:
 
         if not self.SHORTCUT_FILE.exists():
             self.reset_shortcuts_config()
-
-        self.charge_yaml_shortcuts()
 
     def load_yaml_config(self) -> list:
         try:
@@ -256,6 +254,13 @@ class Shortcuts_keys:
         if explorer.name == "explorer_1":
             fav_1 = self.win.config.FAV_PATH_LIST_1
 
+            if len(fav_1) == 9:
+                self.action.show_msg_alert(
+                    self.win,
+                    _("No puede añadir más favoritos al explorador izquierdo"),
+                )
+                return
+
             if actual_path not in fav_1:
                 fav_1.append(actual_path)
                 explorer.fav_path_list = self.win.config.FAV_PATH_LIST_1
@@ -272,6 +277,13 @@ class Shortcuts_keys:
 
         else:
             fav_2 = self.win.config.FAV_PATH_LIST_2
+
+            if len(fav_2) == 9:
+                self.action.show_msg_alert(
+                    self.win,
+                    _("No puede añadir más favoritos al explorador derecho"),
+                )
+                return
 
             if actual_path not in fav_2:
                 fav_2.append(actual_path)
@@ -336,6 +348,18 @@ class Shortcuts_keys:
         shortcuts_dict = self.load_shortcuts_config_prede()
         self.save_yaml_config(shortcuts_dict)
 
+    def exit(
+        self, widget: Gtk.Widget, *args, explorer: "Explorer"  # noqa: F821
+    ) -> None:
+        self.win.exit()
+
+    def show_shortcut(
+        self, widget: Gtk.Widget, *args, explorer: "Explorer"  # noqa: F821
+    ) -> None:
+        from views.menu_bar.help.shortcuts_help import ShortCutsHelp
+
+        ShortCutsHelp(self.win)
+
     def load_shortcuts_config_prede(self) -> list[Shortcut]:
         return [
             Shortcut(
@@ -367,5 +391,17 @@ class Shortcuts_keys:
                 "d",
                 "del_fav_path",
                 _("Para eliminar directorios en favoritos"),
+            ),
+            Shortcut(
+                "<Control>",
+                "q",
+                "exit",
+                _("Cerrar la aplicación"),
+            ),
+            Shortcut(
+                "<Control>",
+                "apostrophe",
+                "show_shortcut",
+                _("Muestra información sobre atajos de teclado"),
             ),
         ]

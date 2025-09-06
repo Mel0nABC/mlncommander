@@ -209,6 +209,7 @@ class Window(Gtk.ApplicationWindow):
 
         # load shortcuts
         self.shortcuts = Shortcuts_keys(self, self.explorer_1, self.explorer_2)
+        self.shortcuts.charge_yaml_shortcuts()
 
         self.scroll_1 = Gtk.ScrolledWindow()
         self.scroll_1.set_policy(
