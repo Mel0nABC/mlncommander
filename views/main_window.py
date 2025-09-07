@@ -514,6 +514,12 @@ class Window(Gtk.ApplicationWindow):
 
                 # GENERAL
 
+                self.LANGUAGE = data["LANGUAGE"]
+                print(self.LANGUAGE)
+                if self.LANGUAGE == "en":
+                    print("LALA")
+                    os.environ["LANG"] = "en_US.UTF-8"
+
                 self.config.SWITCH_COPY_STATUS = data["SWITCH_COPY_STATUS"]
                 self.config.SWITCH_MOVE_STATUS = data["SWITCH_MOVE_STATUS"]
                 self.config.SWITCH_DUPLICATE_STATUS = data[

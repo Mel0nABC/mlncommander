@@ -90,7 +90,7 @@ class ShortCutsHelp(Gtk.Window):
                 exit_short.first_key,
                 exit_short.second_key,
                 "+",
-                exit_short.description,
+                _(exit_short.description),
             ),
             1,
             2,
@@ -102,7 +102,7 @@ class ShortCutsHelp(Gtk.Window):
                 show_shortcut_short.first_key,
                 show_shortcut_short.second_key,
                 "+",
-                show_shortcut_short.description,
+                _(show_shortcut_short.description),
             ),
             1,
             3,
@@ -117,7 +117,7 @@ class ShortCutsHelp(Gtk.Window):
                 shortcut_mirroring_short.first_key,
                 shortcut_mirroring_short.second_key,
                 "+",
-                shortcut_mirroring_short.description,
+                _(shortcut_mirroring_short.description),
             ),
             1,
             5,
@@ -130,7 +130,7 @@ class ShortCutsHelp(Gtk.Window):
                 add_fav_path_short.first_key,
                 add_fav_path_short.second_key,
                 "+",
-                add_fav_path_short.description,
+                _(add_fav_path_short.description),
             ),
             1,
             6,
@@ -143,7 +143,7 @@ class ShortCutsHelp(Gtk.Window):
                 del_fav_path_short.first_key,
                 del_fav_path_short.second_key,
                 "+",
-                del_fav_path_short.description,
+                _(del_fav_path_short.description),
             ),
             1,
             7,
@@ -157,10 +157,8 @@ class ShortCutsHelp(Gtk.Window):
                 "n",
                 "+",
                 _(
-                    (
-                        "Entrada al directorio de favoritos del explorador,\n"
-                        "donde n, es un nº comprendido del 1 al 9"
-                    )
+                    "Entrada al directorio de favoritos del explorador,\n"
+                    "donde n, es un nº comprendido del 1 al 9"
                 ),
             ),
             1,
@@ -243,7 +241,9 @@ class ShortCutsHelp(Gtk.Window):
         )
 
         grid_left.attach(
-            self.create_buttons("F10", description=_("Cerrar la aplicación")),
+            self.create_buttons(
+                "F10", description=_("Salir de la aplicación")
+            ),
             1,
             17,
             1,

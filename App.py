@@ -29,8 +29,7 @@ LOCALE_DIR = os.path.join(APP_HOME, "locales")
 # Initialice gettext
 gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
 gettext.textdomain(APP_NAME)
-# _ = gettext.gettext
-
+_ = gettext.gettext
 
 # trans = gettext.translation(
 #     APP_NAME, localedir=LOCALE_DIR, languages=["en"], fallback=False

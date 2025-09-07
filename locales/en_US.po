@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mlncommander\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-06 22:09+0200\n"
-"PO-Revision-Date: 2025-09-06 22:19+0200\n"
+"POT-Creation-Date: 2025-09-07 01:41+0200\n"
+"PO-Revision-Date: 2025-09-07 01:31+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: /home/mel0n/Downloads/mlncommander/utilities/create.py:36
 msgid "Debe seleccionar explorador."
-msgstr "You must select a browser."
+msgstr "You must select browser."
 
 #: /home/mel0n/Downloads/mlncommander/utilities/create.py:47
 #: /home/mel0n/Downloads/mlncommander/utilities/access_control.py:58
@@ -153,32 +153,33 @@ msgstr "You can't add more favorites to the left explorer"
 msgid "No puede añadir más favoritos al explorador derecho"
 msgstr "You can't add more favorites to the right explorer"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:369
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:365
 msgid "Muestra la carpeta en el otro explorador."
 msgstr "Show the folder in the other explorer."
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:375
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:366
 msgid "Para descomprimir archivos"
 msgstr "To unzip files"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:381
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:367
 msgid "Para comprimir archivos"
 msgstr "To compress files"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:387
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:368
 msgid "Para añadir directorios en favoritos"
 msgstr "To add directories to favorites"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:393
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:369
 msgid "Para eliminar directorios en favoritos"
 msgstr "To remove directories from favorites"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:399
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:246
-msgid "Cerrar la aplicación"
-msgstr "Close the application"
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:370
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:81
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:245
+msgid "Salir de la aplicación"
+msgstr "Exit the application"
 
-#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:405
+#: /home/mel0n/Downloads/mlncommander/controls/shortcuts_keys.py:371
 msgid "Muestra información sobre atajos de teclado"
 msgstr "Displays information about keyboard shortcuts"
 
@@ -560,47 +561,51 @@ msgstr "Explorer Events"
 msgid "Acciones sobre ficheros y carpeta"
 msgstr "Actions on files and folders"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:81
-msgid "Salir de la aplicación"
-msgstr "Exit the application"
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:160
+msgid ""
+"Entrada al directorio de favoritos del explorador,\n"
+"donde n, es un nº comprendido del 1 al 9"
+msgstr ""
+"Entry in the browser's favorites directory,\n"
+"where n is a number from 1 to 9"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:176
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:174
 msgid "Renombrar fichero o carpeta"
 msgstr "Rename file or folder"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:186
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:184
 msgid "Crear nuevo fichero ofimática"
 msgstr "Create a new office file"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:196
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:194
 msgid "Copiar ficheros o carpetas"
 msgstr "Copy files or folders"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:206
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:204
 msgid "Mover ficheros o carpetas"
 msgstr "Move files or folders"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:215
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:213
 msgid "Crear directorio"
 msgstr "Create directory"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:227
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:225
 msgid "Borrar ficheros o directorios"
 msgstr "Delete files or directories"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:237
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/shortcuts_help.py:235
 msgid "Generar copia de ficheros o directorios"
 msgstr "Generate a copy of files or directories"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:25
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:27
 #: /home/mel0n/Downloads/mlncommander/views/menu_bar/menu_bar_view.py:78
 msgid "Acerca de mlnCommander"
 msgstr "About mlnCommander"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:39
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:40
 msgid ""
-"\n"
 "MlnCommander\n"
+"\n"
 "Versión: 1.0\n"
 "\n"
 "Descripción:\n"
@@ -612,31 +617,37 @@ msgid ""
 "una vista dual para mejorar la productividad.\n"
 "\n"
 "Autor: MeL0nABC\n"
-"Licencia: MIT\n"
-"Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander\n"
-"        "
-msgstr ""
 "\n"
+"Licencia: MIT\n"
+"\n"
+"Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander\n"
+"\n"
+msgstr ""
 "MlnCommander\n"
+"\n"
 "Version: 1.0\n"
 "\n"
 "Description:\n"
 "\n"
-"MlnCommander is a dual-browser file explorer that lets you manage your "
-"folders and files quickly and efficiently. With a simple and functional "
-"interface, it facilitates common operations such as copying, moving, and "
-"deleting files, while also offering a dual view to improve productivity.\n"
+"MlnCommander is a dual-browser file explorer\n"
+"that lets you manage your folders and files quickly\n"
+"and efficiently. With a simple and functional interface, it facilitates "
+"common operations\n"
+"such as copying, moving, and deleting files, while offering\n"
+"a dual view to improve productivity.\n"
 "\n"
 "Author: MeL0nABC\n"
+"\n"
 "License: MIT\n"
+"\n"
 "Project Website: https://github.com/MeL0nABC/mlncommander\n"
-"        "
+"\n"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:81
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:78
 msgid "Licencia"
 msgstr "License"
 
-#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:93
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/help/about.py:90
 msgid "Licencias"
 msgstr "Licenses"
 
@@ -651,6 +662,10 @@ msgstr "First key"
 #: /home/mel0n/Downloads/mlncommander/views/menu_bar/file/preferences/shortcuts.py:51
 msgid "Segunda tecla"
 msgstr "Second key"
+
+#: /home/mel0n/Downloads/mlncommander/views/menu_bar/file/preferences/shortcuts.py:161
+msgid "La segunda tecla ya se está empleando. Elija otra o cancele."
+msgstr "The second key is already in use. Choose another key or cancel."
 
 #: /home/mel0n/Downloads/mlncommander/views/menu_bar/file/preferences/preferences_options.py:19
 msgid "General"
@@ -806,6 +821,9 @@ msgstr "Exit"
 #: /home/mel0n/Downloads/mlncommander/views/menu_bar/menu_bar_view.py:68
 msgid "Ayuda"
 msgstr "Help"
+
+#~ msgid "Cerrar la aplicación"
+#~ msgstr "Close the application"
 
 #~ msgid "CREADO"
 #~ msgstr "CREATED"

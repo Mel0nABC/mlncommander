@@ -107,7 +107,7 @@ class Shortcuts(Gtk.Box):
             value = item.get_property(property_name)
             if str(value) == "apostrophe":
                 value = "?"
-            output_column.set_text(str(value))
+            output_column.set_text(str(_(value)))
             if isinstance(output_column, Gtk.EditableLabel):
                 handler_id = output_column.connect("changed", self.on_change)
                 output_column.set_name(str(handler_id))
@@ -158,10 +158,8 @@ class Shortcuts(Gtk.Box):
                         self.action.show_msg_alert(
                             self.win,
                             _(
-                                (
-                                    "La segunda tecla ya se está"
-                                    " empleando. Elija otra o cancele."
-                                )
+                                "La segunda tecla ya se está"
+                                " empleando. Elija otra o cancele."
                             ),
                         )
                         label.handler_unblock(handler_id)

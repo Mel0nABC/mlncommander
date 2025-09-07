@@ -361,47 +361,56 @@ class Shortcuts_keys:
         ShortCutsHelp(self.win)
 
     def load_shortcuts_config_prede(self) -> list[Shortcut]:
+
+        _("Muestra la carpeta en el otro explorador.")
+        _("Para descomprimir archivos")
+        _("Para comprimir archivos")
+        _("Para añadir directorios en favoritos")
+        _("Para eliminar directorios en favoritos")
+        _("Salir de la aplicación")
+        _("Muestra información sobre atajos de teclado")
+
         return [
             Shortcut(
                 "<Control>",
                 "o",
                 "shortcut_mirroring_folder",
-                _("Muestra la carpeta en el otro explorador."),
+                "Muestra la carpeta en el otro explorador.",
             ),
             Shortcut(
                 "<Control>",
                 "p",
                 "unzip_file",
-                _("Para descomprimir archivos"),
+                "Para descomprimir archivos",
             ),
             Shortcut(
                 "<Control>",
                 "i",
                 "zip_file",
-                _("Para comprimir archivos"),
+                "Para comprimir archivos",
             ),
             Shortcut(
                 "<Control>",
                 "f",
                 "add_fav_path",
-                _("Para añadir directorios en favoritos"),
+                "Para añadir directorios en favoritos",
             ),
             Shortcut(
                 "<Control>",
                 "d",
                 "del_fav_path",
-                _("Para eliminar directorios en favoritos"),
+                "Para eliminar directorios en favoritos",
             ),
             Shortcut(
                 "<Control>",
                 "q",
                 "exit",
-                _("Cerrar la aplicación"),
+                "Salir de la aplicación",
             ),
             Shortcut(
                 "<Control>",
                 "apostrophe",
                 "show_shortcut",
-                _("Muestra información sobre atajos de teclado"),
+                "Muestra información sobre atajos de teclado",
             ),
         ]

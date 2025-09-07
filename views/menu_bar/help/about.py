@@ -36,26 +36,21 @@ class About(Gtk.Window):
         img_preview = Gtk.Image.new_from_file(str(path))
         img_preview.set_size_request(height_percent, height_percent)
 
-        lbl_text = Gtk.Label.new(
-            _(
-                """
-MlnCommander
-Versión: 1.0
-
-Descripción:
-
-MlnCommander es un explorador de archivos de doble explorador
-que permite gestionar tus carpetas y archivos de manera rápida
-y eficiente. Con una interfaz sencilla y funcional, facilita operaciones
-comunes como copiar, mover y borrar archivos, al mismo tiempo que ofrece
-una vista dual para mejorar la productividad.
-
-Autor: MeL0nABC
-Licencia: MIT
-Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander
-        """
-            )
+        text_about = _(
+            "MlnCommander\n\n"
+            "Versión: 1.0\n\n"
+            "Descripción:\n\n"
+            "MlnCommander es un explorador de archivos de doble explorador\n"
+            "que permite gestionar tus carpetas y archivos de manera rápida\n"
+            "y eficiente. Con una interfaz sencilla y funcional, facilita operaciones\n"  # noqa :E501
+            "comunes como copiar, mover y borrar archivos, al mismo tiempo que ofrece\n"  # noqa :E501
+            "una vista dual para mejorar la productividad.\n\n"
+            "Autor: MeL0nABC\n\n"
+            "Licencia: MIT\n\n"
+            "Sitio web del Proyecto: https://github.com/MeL0nABC/mlncommander\n\n"  # noqa :E501
         )
+
+        lbl_text = Gtk.Label.new(_(text_about))
 
         horizontal_main = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=30

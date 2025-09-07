@@ -36,6 +36,7 @@ class ConfigEntity(GObject.Object):
         COLOR_SEARCH_TEXT: str = None,
         FONT_STYLE: str = None,
         FONT_STYLE_COLOR: str = None,
+        LANGUAGE: str = None,
     ):
         super().__init__()
 
@@ -46,6 +47,7 @@ class ConfigEntity(GObject.Object):
         self.SWITCH_DUPLICATE_STATUS = SWITCH_DUPLICATE_STATUS
         self.SWITCH_COMPRESS_STATUS = SWITCH_COMPRESS_STATUS
         self.SWITCH_UNCOMPRESS_STATUS = SWITCH_UNCOMPRESS_STATUS
+        self.LANGUAGE = LANGUAGE
 
         # DIRECTORYS
 
@@ -97,6 +99,7 @@ class ConfigEntity(GObject.Object):
             "COLOR_SEARCH_TEXT": self.COLOR_SEARCH_TEXT,
             "FONT_STYLE": self.FONT_STYLE,
             "FONT_STYLE_COLOR": self.FONT_STYLE_COLOR,
+            "LANGUAGE": self.LANGUAGE,
         }
 
     def get_param_list(self) -> list:
@@ -110,6 +113,7 @@ class ConfigEntity(GObject.Object):
         self.SWITCH_DUPLICATE_STATUS = False
         self.SWITCH_COMPRESS_STATUS = False
         self.SWITCH_UNCOMPRESS_STATUS = False
+        self.LANGUAGE = "es"
 
         # DIRECTORYS
         self.EXP_1_PATH = "/"
