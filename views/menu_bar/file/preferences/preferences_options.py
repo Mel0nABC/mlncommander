@@ -27,6 +27,11 @@ class Preferences(Gtk.Window):
         self.BTN_ACCEPT_LABEL = _("Aceptar")
         self.BTN_CANCEL_LABEL = _("Cancel")
 
+        self.vertical_button_box = None
+        self.vertical_option_box = None
+        self.horizontal_option_box = None
+        self.horizontal_option_btn = None
+
         # Load css
 
         header = Gtk.HeaderBar()
@@ -43,7 +48,7 @@ class Preferences(Gtk.Window):
 
         # Sections
 
-        self.general = General(self.win)
+        self.general = General(self.win, self)
         self.directory_box = Directory(self.win)
         self.appearance = Appearance(self.win)
         self.shortcuts_view = Shortcuts(self.win)
@@ -51,22 +56,35 @@ class Preferences(Gtk.Window):
         self.set_default_size(self.win.horizontal / 4, self.win.vertical / 2)
 
         # Contain vertical button box and main option screen
-        horizontal_main = Gtk.Box(
+        self.horizontal_main = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        horizontal_main.set_margin_top(20)
-        horizontal_main.set_margin_end(20)
-        horizontal_main.set_margin_bottom(20)
-        horizontal_main.set_margin_start(20)
+        self.horizontal_main.set_margin_top(20)
+        self.horizontal_main.set_margin_end(20)
+        self.horizontal_main.set_margin_bottom(20)
+        self.horizontal_main.set_margin_start(20)
 
-        self.set_child(horizontal_main)
+        self.set_child(self.horizontal_main)
 
+        self.create_vertical_buttoms()
+        self.create_right_box()
+        self.create_option_box()
+        self.create_accept_cancel_buttons()
+        self.create_general()
+
+        self.present()
+
+        # Signals
+
+        self.connect("close-request", self.on_close)
+
+    def create_vertical_buttoms(self) -> None:
         # Box for buttons
-        vertical_button_box = Gtk.Box(
+        self.vertical_button_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
-        vertical_button_box.set_vexpand(True)
+        self.vertical_button_box.set_vexpand(True)
 
         general_btn = Gtk.Button(label=self.GENERAL_LABEL_BTN)
         general_btn.get_style_context().add_class("button")
@@ -81,18 +99,22 @@ class Preferences(Gtk.Window):
         shortcuts_btn.get_style_context().add_class("button")
         shortcuts_btn.connect("clicked", self.create_shorcuts)
 
-        vertical_button_box.set_margin_top(40)
-        vertical_button_box.append(general_btn)
-        vertical_button_box.append(directory_btn)
-        vertical_button_box.append(appearance_btn)
-        vertical_button_box.append(shortcuts_btn)
+        self.vertical_button_box.set_margin_top(40)
+        self.vertical_button_box.append(general_btn)
+        self.vertical_button_box.append(directory_btn)
+        self.vertical_button_box.append(appearance_btn)
+        self.vertical_button_box.append(shortcuts_btn)
+        self.horizontal_main.append(self.vertical_button_box)
 
-        # Contain buttons for accept or cancel
-        vertical_option_box = Gtk.Box(
+    def create_right_box(self) -> None:
+        self.vertical_option_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
-        vertical_option_box.set_vexpand(True)
+        self.vertical_option_box.set_vexpand(True)
 
+        self.horizontal_main.append(self.vertical_option_box)
+
+    def create_option_box(self) -> None:
         # Where the multiple screens are displayed
         self.horizontal_option_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
@@ -102,14 +124,17 @@ class Preferences(Gtk.Window):
         self.horizontal_option_box.get_style_context().add_class(
             "border-style"
         )
+        self.vertical_option_box.append(self.horizontal_option_box)
+
+    def create_accept_cancel_buttons(self) -> None:
 
         # box for accept or cancel buttons
-        horizontal_option_btn = Gtk.Box(
+        self.horizontal_option_btn = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        horizontal_option_btn.set_hexpand(True)
-        horizontal_option_btn.set_halign(Gtk.Align.END)
+        self.horizontal_option_btn.set_hexpand(True)
+        self.horizontal_option_btn.set_halign(Gtk.Align.END)
 
         btn_accept = Gtk.Button(label=self.BTN_ACCEPT_LABEL)
         btn_accept.get_style_context().add_class("button")
@@ -119,22 +144,10 @@ class Preferences(Gtk.Window):
         btn_cancel.get_style_context().add_class("button")
         btn_cancel.connect("clicked", self.on_exit)
 
-        horizontal_option_btn.append(btn_accept)
-        horizontal_option_btn.append(btn_cancel)
+        self.horizontal_option_btn.append(btn_accept)
+        self.horizontal_option_btn.append(btn_cancel)
 
-        vertical_option_box.append(self.horizontal_option_box)
-        vertical_option_box.append(horizontal_option_btn)
-
-        horizontal_main.append(vertical_button_box)
-        horizontal_main.append(vertical_option_box)
-
-        self.present()
-
-        self.create_general()
-
-        # Signals
-
-        self.connect("close-request", self.on_close)
+        self.vertical_option_box.append(self.horizontal_option_btn)
 
     def on_exit(self, button: Gtk.Button) -> None:
         """
@@ -174,6 +187,7 @@ class Preferences(Gtk.Window):
         config.SWITCH_DUPLICATE_STATUS = self.general.SWITCH_DUPLICATE_STATUS
         config.SWITCH_COMPRESS_STATUS = self.general.SWITCH_COMPRESS_STATUS
         config.SWITCH_UNCOMPRESS_STATUS = self.general.SWITCH_UNCOMPRESS_STATUS
+        config.LANGUAGE = self.general.LANGUAGE
 
         # DIRECTORYS
 

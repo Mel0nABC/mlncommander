@@ -52,6 +52,10 @@ class Window(Gtk.ApplicationWindow):
         self.config = ConfigEntity()
         self.CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
         self.error_fav_path_shown = False
+        self.horizontal_bottom = None
+        self.menu_bar = None
+        self.explorer_1 = None
+        self.explorer_2 = None
 
         # to use in watchdog
         self.write_error_msg_displayer = False
@@ -89,21 +93,31 @@ class Window(Gtk.ApplicationWindow):
 
         self.set_resizable(True)
 
-        main_vertical_box = Gtk.Box(
+        self.main_vertical_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
-        menu_bar = Menu_bar(self)
 
-        main_vertical_box.append(menu_bar.menubar)
+        self.create_menu_bar()
+        self.create_explorers()
+        self.create_horizontal_button()
 
-        self.set_child(main_vertical_box)
+        self.set_child(self.main_vertical_box)
 
-        horizontal_box = Gtk.Box(
+        # Event controller to control keys
+        self.key_controller = Gtk.EventControllerKey.new()
+        self.key_connect()
+        self.add_controller(self.key_controller)
+
+        self.connect("close-request", self.exit)
+
+    def create_explorers(self):
+
+        self.horizontal_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        horizontal_box.set_vexpand(True)
-        horizontal_box.set_homogeneous(True)
+        self.horizontal_box.set_vexpand(True)
+        self.horizontal_box.set_homogeneous(True)
 
         self.vertical_screen_1 = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
@@ -239,11 +253,62 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_1.append(self.scroll_1)
         self.vertical_screen_2.append(self.scroll_2)
 
-        horizontal_box.append(self.vertical_screen_1)
-        horizontal_box.append(self.vertical_screen_2)
+        self.horizontal_box.append(self.vertical_screen_1)
+        self.horizontal_box.append(self.vertical_screen_2)
 
-        main_vertical_box.append(horizontal_box)
+        self.main_vertical_box.append(self.horizontal_box)
 
+        # Signals and events area
+
+        self.vertical_entry_1.connect(
+            "activate", self.action.entry_change_path, self.explorer_1
+        )
+        self.vertical_entry_2.connect(
+            "activate", self.action.entry_change_path, self.explorer_2
+        )
+
+        self.explorer_1.connect(
+            "activate",
+            self.action.on_doble_click_or_enter,
+            self.explorer_1,
+            self.vertical_entry_1,
+        )
+        self.explorer_2.connect(
+            "activate",
+            self.action.on_doble_click_or_enter,
+            self.explorer_2,
+            self.vertical_entry_2,
+        )
+
+        # fav buttons signals
+
+        from functools import partial
+
+        add_fav_btn_1.connect(
+            "clicked",
+            partial(self.shortcuts.add_fav_path, explorer=self.explorer_1),
+        )
+
+        add_fav_btn_2.connect(
+            "clicked",
+            partial(self.shortcuts.add_fav_path, explorer=self.explorer_2),
+        )
+
+        del_fav_btn_1.connect(
+            "clicked",
+            partial(self.shortcuts.del_fav_path, explorer=self.explorer_1),
+        )
+
+        del_fav_btn_2.connect(
+            "clicked",
+            partial(self.shortcuts.del_fav_path, explorer=self.explorer_2),
+        )
+
+    def create_menu_bar(self):
+        self.menu_bar = Menu_bar(self)
+        self.main_vertical_box.append(self.menu_bar.menubar)
+
+    def create_horizontal_button(self):
         horizontal_botton_menu = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
@@ -311,40 +376,19 @@ class Window(Gtk.ApplicationWindow):
 
         horizontal_botton_menu.set_halign(Gtk.Align.CENTER)
 
-        horizontal_bottom = Gtk.Box(
+        self.horizontal_bottom = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
+        self.horizontal_bottom.set_halign(Gtk.Align.CENTER)
 
-        horizontal_bottom.append(label_box_left)
-        horizontal_bottom.append(horizontal_botton_menu)
-        horizontal_bottom.append(label_box_right)
+        self.horizontal_bottom.append(label_box_left)
+        self.horizontal_bottom.append(horizontal_botton_menu)
+        self.horizontal_bottom.append(label_box_right)
 
-        horizontal_bottom.set_margin_start(self.scroll_margin + 20)
-        horizontal_bottom.set_margin_end(self.scroll_margin + 20)
+        self.horizontal_bottom.set_margin_start(self.scroll_margin + 20)
+        self.horizontal_bottom.set_margin_end(self.scroll_margin + 20)
 
-        main_vertical_box.append(horizontal_bottom)
-
-        # Signals and events area
-
-        self.vertical_entry_1.connect(
-            "activate", self.action.entry_change_path, self.explorer_1
-        )
-        self.vertical_entry_2.connect(
-            "activate", self.action.entry_change_path, self.explorer_2
-        )
-
-        self.explorer_1.connect(
-            "activate",
-            self.action.on_doble_click_or_enter,
-            self.explorer_1,
-            self.vertical_entry_1,
-        )
-        self.explorer_2.connect(
-            "activate",
-            self.action.on_doble_click_or_enter,
-            self.explorer_2,
-            self.vertical_entry_2,
-        )
+        self.main_vertical_box.append(self.horizontal_bottom)
 
         rename_logic = Rename_Logic()
         btn_F2.connect(
@@ -414,37 +458,6 @@ class Window(Gtk.ApplicationWindow):
             "clicked",
             lambda btn: self.exit(self),
         )
-
-        # fav buttons signals
-
-        from functools import partial
-
-        add_fav_btn_1.connect(
-            "clicked",
-            partial(self.shortcuts.add_fav_path, explorer=self.explorer_1),
-        )
-
-        add_fav_btn_2.connect(
-            "clicked",
-            partial(self.shortcuts.add_fav_path, explorer=self.explorer_2),
-        )
-
-        del_fav_btn_1.connect(
-            "clicked",
-            partial(self.shortcuts.del_fav_path, explorer=self.explorer_1),
-        )
-
-        del_fav_btn_2.connect(
-            "clicked",
-            partial(self.shortcuts.del_fav_path, explorer=self.explorer_2),
-        )
-
-        # Event controller to control keys
-        self.key_controller = Gtk.EventControllerKey.new()
-        self.key_connect()
-        self.add_controller(self.key_controller)
-
-        self.connect("close-request", self.exit)
 
     def key_connect(self) -> None:
         self.key_controller_id = self.key_controller.connect(
@@ -518,11 +531,9 @@ class Window(Gtk.ApplicationWindow):
 
                 # GENERAL
 
-                self.LANGUAGE = data["LANGUAGE"]
+                self.config.LANGUAGE = data["LANGUAGE"]
 
-                if self.LANGUAGE == "en":
-                    print("LALA")
-                    os.environ["LANG"] = "en_US.UTF-8"
+                self.load_env_language()
 
                 self.config.SWITCH_COPY_STATUS = data["SWITCH_COPY_STATUS"]
                 self.config.SWITCH_MOVE_STATUS = data["SWITCH_MOVE_STATUS"]
@@ -600,6 +611,7 @@ class Window(Gtk.ApplicationWindow):
         """
         try:
             self.config = config
+
             # Config is deleted and the entire configuration is saved.
             with open(self.CONFIG_FILE, "w") as config_file:
                 yaml.dump(config.to_dict(), config_file, sort_keys=False)
@@ -776,3 +788,33 @@ class Window(Gtk.ApplicationWindow):
                     button_box.remove(child)
 
         return True
+
+    def reload_for_language(self) -> None:
+
+        self.menu_bar.preferences.destroy()
+
+        self.explorer_1.my_watchdog.stop()
+        self.explorer_2.my_watchdog.stop()
+
+        old_path_explorer_1 = self.explorer_1.actual_path
+        old_path_explorer_2 = self.explorer_2.actual_path
+
+        self.main_vertical_box.remove(self.menu_bar.menubar)
+        self.main_vertical_box.remove(self.horizontal_box)
+        self.main_vertical_box.remove(self.horizontal_bottom)
+
+        self.create_menu_bar()
+        self.create_explorers()
+        self.create_horizontal_button()
+
+        self.explorer_1.load_new_path(old_path_explorer_1)
+        self.explorer_2.load_new_path(old_path_explorer_2)
+
+        self.menu_bar.open_preferences()
+
+    def load_env_language(self):
+        if self.config.LANGUAGE == "en":
+            os.environ["LANG"] = "en_US.UTF-8"
+
+        elif self.config.LANGUAGE == "es":
+            os.environ["LANG"] = "es_ES.UTF-8"

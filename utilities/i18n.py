@@ -3,6 +3,6 @@
 # SPDX-License-Identifier: MIT
 import gettext
 
-gettext.bindtextdomain("miapp", "locales")
-gettext.textdomain("miapp")
+gettext.bindtextdomain("mlncommander", "locales")
+gettext.textdomain("mlncommander")
 _ = gettext.gettext

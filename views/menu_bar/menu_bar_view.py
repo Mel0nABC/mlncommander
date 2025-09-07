@@ -53,7 +53,10 @@ class Menu_bar(Gio.Menu):
         self.win.add_action(action_exit)
         menu_file.append_section(None, menu_exit)
 
-    def open_preferences(self, action: Gio.SimpleAction, parameter) -> None:
+    def open_preferences(
+        self, action: Gio.SimpleAction = None, parameter=None
+    ) -> None:
+
         from views.menu_bar.file.preferences.preferences_options import (
             Preferences,
         )

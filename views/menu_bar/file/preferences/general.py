@@ -2,15 +2,16 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from pathlib import Path
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk  # noqa: E402
+from gi.repository import Gtk, GObject  # noqa: E402
 
 
 class General(Gtk.Box):
 
-    def __init__(self, win: Gtk.ApplicationWindow):
+    def __init__(self, win: Gtk.ApplicationWindow, parent: Gtk.Window):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         # GENERAL CONSTANTS
@@ -21,8 +22,7 @@ class General(Gtk.Box):
         self.DUPLICATE_LABEL = _("Duplicar")
         self.COMPRESS_LABEL = _("Comprimir")
         self.UNCOMPRESS_LABEL = _("Descomprimir")
-
-        # GENERAL
+        self.LANGUAGE_LABEL = _("Selección de idioma")
 
         self.SWITCH_COPY_STATUS = win.config.SWITCH_COPY_STATUS
         self.SWITCH_MOVE_STATUS = win.config.SWITCH_MOVE_STATUS
@@ -30,35 +30,60 @@ class General(Gtk.Box):
         self.SWITCH_COMPRESS_STATUS = win.config.SWITCH_COMPRESS_STATUS
         self.SWITCH_UNCOMPRESS_STATUS = win.config.SWITCH_UNCOMPRESS_STATUS
 
+        self.LANGUAGE = win.config.LANGUAGE
+
         self.win = win
+        self.parent = parent
         self.set_margin_top(20)
         self.set_margin_end(20)
         self.set_margin_bottom(20)
         self.set_margin_start(20)
 
-        grid_lenguage = Gtk.Grid(column_spacing=1, row_spacing=5)
-        # copy_label = Gtk.Label.new(Preferences.COPY_LABEL)
+        grid_language = Gtk.Grid(column_spacing=1, row_spacing=5)
+        self.title_language = Gtk.Label.new(self.LANGUAGE_LABEL)
+
+        languages_list = ["es"]
+
+        import App
+
+        path_locales = Path(App.LOCALE_DIR)
+        for dir in path_locales.iterdir():
+            if dir.is_dir() and len(dir.stem) == 2:
+                languages_list.append(str(dir.stem))
+
+        store_languages = Gtk.StringList.new(languages_list)
+        dropdown_language = Gtk.DropDown.new(store_languages)
+
+        for index, item in enumerate(store_languages):
+            language = item.get_string()
+            if str(language) == self.LANGUAGE:
+                dropdown_language.set_selected(index)
+
+        dropdown_language.connect("notify::selected", self.language_change)
+
+        grid_language.attach(self.title_language, 0, 0, 1, 1)
+        grid_language.attach(dropdown_language, 1, 1, 1, 1)
 
         # Minimize on startup section
 
         grid_minimize = Gtk.Grid(column_spacing=1, row_spacing=5)
 
-        self.append(grid_lenguage)
+        self.append(grid_language)
         self.append(grid_minimize)
 
-        title_label = Gtk.Label.new(self.GENERAL_TITLE)
+        self.title_label = Gtk.Label.new(self.GENERAL_TITLE)
 
-        copy_label = Gtk.Label.new(self.COPY_LABEL)
-        move_label = Gtk.Label.new(self.MOVE_LABEL)
-        duplicate_label = Gtk.Label.new(self.DUPLICATE_LABEL)
-        compress_label = Gtk.Label.new(self.COMPRESS_LABEL)
-        uncompress_label = Gtk.Label.new(self.UNCOMPRESS_LABEL)
+        self.copy_label = Gtk.Label.new(self.COPY_LABEL)
+        self.move_label = Gtk.Label.new(self.MOVE_LABEL)
+        self.duplicate_label = Gtk.Label.new(self.DUPLICATE_LABEL)
+        self.compress_label = Gtk.Label.new(self.COMPRESS_LABEL)
+        self.uncompress_label = Gtk.Label.new(self.UNCOMPRESS_LABEL)
 
-        copy_label.set_halign(Gtk.Align.START)
-        move_label.set_halign(Gtk.Align.START)
-        duplicate_label.set_halign(Gtk.Align.START)
-        compress_label.set_halign(Gtk.Align.START)
-        uncompress_label.set_halign(Gtk.Align.START)
+        self.copy_label.set_halign(Gtk.Align.START)
+        self.move_label.set_halign(Gtk.Align.START)
+        self.duplicate_label.set_halign(Gtk.Align.START)
+        self.compress_label.set_halign(Gtk.Align.START)
+        self.uncompress_label.set_halign(Gtk.Align.START)
 
         copy_switch = Gtk.Switch.new()
         copy_switch.set_active(self.SWITCH_COPY_STATUS)
@@ -97,21 +122,21 @@ class General(Gtk.Box):
         uncompress_switch.set_hexpand(True)
         uncompress_switch.set_halign(Gtk.Align.CENTER)
 
-        grid_minimize.attach(title_label, 0, 0, 1, 1)
+        grid_minimize.attach(self.title_label, 0, 0, 1, 1)
 
-        grid_minimize.attach(copy_label, 1, 1, 1, 1)
+        grid_minimize.attach(self.copy_label, 1, 1, 1, 1)
         grid_minimize.attach(copy_switch, 2, 1, 1, 1)
 
-        grid_minimize.attach(move_label, 1, 2, 1, 1)
+        grid_minimize.attach(self.move_label, 1, 2, 1, 1)
         grid_minimize.attach(move_switch, 2, 2, 1, 1)
 
-        grid_minimize.attach(duplicate_label, 1, 3, 1, 1)
+        grid_minimize.attach(self.duplicate_label, 1, 3, 1, 1)
         grid_minimize.attach(duplicate_switch, 2, 3, 1, 1)
 
-        grid_minimize.attach(compress_label, 1, 4, 1, 1)
+        grid_minimize.attach(self.compress_label, 1, 4, 1, 1)
         grid_minimize.attach(comrpess_switch, 2, 4, 1, 1)
 
-        grid_minimize.attach(uncompress_label, 1, 5, 1, 1)
+        grid_minimize.attach(self.uncompress_label, 1, 5, 1, 1)
         grid_minimize.attach(uncompress_switch, 2, 5, 1, 1)
 
     def on_press_any(self, switch: Gtk.Switch, pspec: bool) -> None:
@@ -131,3 +156,15 @@ class General(Gtk.Box):
         elif switch.get_name() == "uncompress":
             self.SWITCH_UNCOMPRESS_STATUS = pspec
             self.win.SWITCH_UNCOMPRESS_STATUS = pspec
+
+    def language_change(
+        self, dropdrown: Gtk.DropDown, pspec: GObject.GParamSpec
+    ) -> None:
+
+        self.LANGUAGE = dropdrown.get_selected_item().get_string()
+
+        self.win.config.LANGUAGE = self.LANGUAGE
+
+        self.win.load_env_language()
+
+        self.win.reload_for_language()
