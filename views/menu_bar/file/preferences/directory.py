@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
-# from utilities.i18n import _
+from utilities.i18n import _
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -12,9 +12,28 @@ class Directory(Gtk.Box):
 
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
+
+        # DIRECTORYS
+
+        self.DIRECTORY_TITLE = _("Directorios de inicio")
+        self.UTILIZATION_LAST_DIR = _("Utilizar últimos directorios usados.")
+        self.UTILIZATION_SET_DIR = _("Utilizar siempre los mismos al iniciar.")
+        self.SELECT_FILE_TITLE = _("Seleccionar archivo")
+        self.LABEL_DIR_SELECT_LEFT = _("Directorio izquierdo:")
+        self.LABEL_DIR_SELECT_RIGHT = _("Directorio derecho:")
+        self.BTN_RST_LABEL = _("Resetear")
+        self.BTN_ACCEPT_LABEL = _("Aceptar")
+        self.BTN_CANCEL_LABEL = _("Cancel")
+        self.EXP_1_PATH = ""
+        self.EXP_2_PATH = ""
+        self.SHOW_IMAGE_PREVIEW_LABEL = _(
+            "Mostrar preview de la imagen al seleccionar:"
         )
+        self.SHOW_WATCHDOG_PREVIEW_LABEL = _("Activar o desactivar watchdog:")
+
+        self.SHOW_DIR_LAST = win.config.SHOW_DIR_LAST
+        self.SWITCH_IMG_STATUS = win.config.SWITCH_IMG_STATUS
+        self.SWITCH_WATCHDOG_STATUS = win.config.SWITCH_WATCHDOG_STATUS
 
         self.win = win
         self.set_margin_top(20)
@@ -23,17 +42,17 @@ class Directory(Gtk.Box):
         self.set_margin_start(20)
 
         # title
-        title_label = Gtk.Label(label=Preferences.DIRECTORY_TITLE)
+        title_label = Gtk.Label(label=self.DIRECTORY_TITLE)
         title_label.set_halign(Gtk.Align.START)
 
         # Buttons to select the option to use in directories
         check_button_last_dir = Gtk.CheckButton.new_with_label(
-            Preferences.UTILIZATION_LAST_DIR
+            self.UTILIZATION_LAST_DIR
         )
         check_button_last_dir.set_halign(Gtk.Align.START)
 
         check_button_set_dir = Gtk.CheckButton.new_with_label(
-            Preferences.UTILIZATION_SET_DIR
+            self.UTILIZATION_SET_DIR
         )
         check_button_set_dir.set_halign(Gtk.Align.START)
 
@@ -53,11 +72,11 @@ class Directory(Gtk.Box):
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        dir_label_left = Gtk.Label(label=Preferences.LABEL_DIR_SELECT_LEFT)
+        dir_label_left = Gtk.Label(label=self.LABEL_DIR_SELECT_LEFT)
         dir_label_left.set_size_request(150, -1)
         dir_label_left.set_xalign(0.0)
 
-        dir_label_right = Gtk.Label(label=Preferences.LABEL_DIR_SELECT_RIGHT)
+        dir_label_right = Gtk.Label(label=self.LABEL_DIR_SELECT_RIGHT)
         dir_label_right.set_size_request(150, -1)
         dir_label_right.set_xalign(0.0)
 
@@ -66,8 +85,8 @@ class Directory(Gtk.Box):
         entry_path_1.set_margin_start(40)
         entry_path_1.set_editable(False)
         entry_path_1.set_sensitive(False)
-        Preferences.EXP_1_PATH = self.win.config.EXP_1_PATH
-        entry_path_1.set_text(str(Preferences.EXP_1_PATH))
+        self.EXP_1_PATH = self.win.config.EXP_1_PATH
+        entry_path_1.set_text(str(self.EXP_1_PATH))
         entry_path_1.set_name("path_1")
 
         entry_path_2 = Gtk.Entry()
@@ -75,8 +94,8 @@ class Directory(Gtk.Box):
         entry_path_2.set_margin_start(40)
         entry_path_2.set_editable(False)
         entry_path_2.set_sensitive(False)
-        Preferences.EXP_2_PATH = self.win.config.EXP_2_PATH
-        entry_path_2.set_text(str(Preferences.EXP_2_PATH))
+        self.EXP_2_PATH = self.win.config.EXP_2_PATH
+        entry_path_2.set_text(str(self.EXP_2_PATH))
         entry_path_2.set_name("path_2")
 
         sel_path_1_btn = Gtk.Button(label="...")
@@ -112,29 +131,25 @@ class Directory(Gtk.Box):
             entry_path_2,
         )
 
-        if Preferences.SHOW_DIR_LAST:
+        if self.SHOW_DIR_LAST:
             check_button_last_dir.set_active(True)
         else:
             check_button_set_dir.set_active(True)
 
         # Image preview
 
-        img_preview_label = Gtk.Label(
-            label=Preferences.SHOW_IMAGE_PREVIEW_LABEL
-        )
+        img_preview_label = Gtk.Label(label=self.SHOW_IMAGE_PREVIEW_LABEL)
 
         switch_img = Gtk.Switch.new()
-        switch_img.set_active(Preferences.SWITCH_IMG_STATUS)
+        switch_img.set_active(self.SWITCH_IMG_STATUS)
         switch_img.connect("state-set", self.on_press_switch_img)
 
         # Watchdog on/off
 
-        watchdog_label = Gtk.Label(
-            label=Preferences.SHOW_WATCHDOG_PREVIEW_LABEL
-        )
+        watchdog_label = Gtk.Label(label=self.SHOW_WATCHDOG_PREVIEW_LABEL)
         watchdog_label.set_halign(Gtk.Align.START)
         sw_watchdog = Gtk.Switch.new()
-        sw_watchdog.set_active(Preferences.SWITCH_WATCHDOG_STATUS)
+        sw_watchdog.set_active(self.SWITCH_WATCHDOG_STATUS)
         sw_watchdog.connect("state-set", self.on_press_switch_wd)
 
         # add image preview and watchdog
@@ -152,11 +167,7 @@ class Directory(Gtk.Box):
         """
         When change switch status, update visual on explorers
         """
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
-
-        Preferences.SWITCH_IMG_STATUS = pspec
+        self.SWITCH_IMG_STATUS = pspec
         self.win.SWITCH_IMG_STATUS = pspec
 
         explorer_1 = self.win.explorer_1
@@ -173,11 +184,8 @@ class Directory(Gtk.Box):
             explorer_2.scroll_to(index, None, explorer_1.flags)
 
     def on_press_switch_wd(self, switch: Gtk.Switch, pspec: bool) -> None:
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
 
-        Preferences.SWITCH_WATCHDOG_STATUS = pspec
+        self.SWITCH_WATCHDOG_STATUS = pspec
         self.win.SWITCH_WATCHDOG_STATUS = pspec
 
         explorer_1 = self.win.explorer_1
@@ -196,19 +204,13 @@ class Directory(Gtk.Box):
         """
         Generate FileDialog to select folder
         """
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
 
-        file_dialog = Gtk.FileDialog(title=Preferences.SELECT_FILE_TITLE)
+        file_dialog = Gtk.FileDialog(title=self.SELECT_FILE_TITLE)
         file_dialog.select_folder(self.win, None, self.on_file_selected, entry)
 
     def on_file_selected(
         self, dialog: Gtk.FileDialog, result: Gio.Task, entry: Gtk.Entry
     ) -> None:
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
 
         folder = dialog.select_folder_finish(result)
         if folder:
@@ -216,22 +218,18 @@ class Directory(Gtk.Box):
                 value = folder.get_path()
                 entry.set_text(value)
                 if entry.get_name() == "path_1":
-                    Preferences.EXP_1_PATH = value
+                    self.EXP_1_PATH = value
 
                 if entry.get_name() == "path_2":
-                    Preferences.EXP_2_PATH = value
+                    self.EXP_2_PATH = value
 
     def directory_select_option_last_dir(self, button: Gtk.Button) -> None:
         """
         Change on gui to select last dir option
         """
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
-
         self.select_directory_box_1.set_sensitive(False)
         self.select_directory_box_2.set_sensitive(False)
-        Preferences.SHOW_DIR_LAST = True
+        self.SHOW_DIR_LAST = True
 
     def directory_select_option_set_dir(
         self, button: Gtk.Button, entry_1: Gtk.Entry, entry_2: Gtk.Entry
@@ -239,12 +237,9 @@ class Directory(Gtk.Box):
         """
         Change on gui to select set dir option
         """
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
 
         self.select_directory_box_1.set_sensitive(True)
         self.select_directory_box_2.set_sensitive(True)
-        Preferences.SHOW_DIR_LAST = False
+        self.SHOW_DIR_LAST = False
         self.win.config.EXP_1_PATH = entry_1.get_text()
         self.win.config.EXP_2_PATH = entry_2.get_text()

@@ -32,8 +32,10 @@ class Shortcuts_keys:
         self.explorer_right = explorer_right
         self.action = Actions()
         self.SHORTCUT_FILE = Path(f"{Window.APP_USER_PATH}/shorcuts_file.yaml")
-        self.controller_list = []
-        self.fav_controller_list = []
+        self.controller_list_exp_1 = []
+        self.fav_controller_list_exp_1 = []
+        self.controller_list_exp_2 = []
+        self.fav_controller_list_exp_2 = []
 
         if not self.SHORTCUT_FILE.exists():
             self.reset_shortcuts_config()
@@ -82,8 +84,11 @@ class Shortcuts_keys:
             self.action.show_msg_alert(self.win, text)
 
     def recharge_yaml_shortcuts(self):
-        for controller in self.controller_list:
+
+        for controller in self.controller_list_exp_1:
             self.explorer_left.remove_controller(controller)
+
+        for controller in self.controller_list_exp_2:
             self.explorer_right.remove_controller(controller)
 
         self.controller_list = []
@@ -123,14 +128,22 @@ class Shortcuts_keys:
             )
         else:
             action = Gtk.CallbackAction.new(partial(method, explorer=explorer))
+
         shortcut = Gtk.Shortcut.new(trigger, action)
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(shortcut)
         explorer.add_controller(controller)
+
         if first_key == "<Alt>":
-            self.fav_controller_list.append(controller)
+            if explorer.name == "explorer_1":
+                self.fav_controller_list_exp_1.append(controller)
+            else:
+                self.fav_controller_list_exp_2.append(controller)
         else:
-            self.controller_list.append(controller)
+            if explorer.name == "explorer_1":
+                self.controller_list_exp_1.append(controller)
+            else:
+                self.controller_list_exp_2.append(controller)
 
     def shortcut_mirroring_folder(
         self, widget: Gtk.Widget, *args, explorer: "explorer"  # noqa F821

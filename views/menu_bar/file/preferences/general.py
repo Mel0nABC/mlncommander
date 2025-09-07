@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
+from utilities.i18n import _
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -11,9 +12,23 @@ class General(Gtk.Box):
 
     def __init__(self, win: Gtk.ApplicationWindow):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
+
+        # GENERAL CONSTANTS
+
+        self.GENERAL_TITLE = _("Minimizar al iniciar")
+        self.COPY_LABEL = _("Copiar")
+        self.MOVE_LABEL = _("Mover")
+        self.DUPLICATE_LABEL = _("Duplicar")
+        self.COMPRESS_LABEL = _("Comprimir")
+        self.UNCOMPRESS_LABEL = _("Descomprimir")
+
+        # GENERAL
+
+        self.SWITCH_COPY_STATUS = win.config.SWITCH_COPY_STATUS
+        self.SWITCH_MOVE_STATUS = win.config.SWITCH_MOVE_STATUS
+        self.SWITCH_DUPLICATE_STATUS = win.config.SWITCH_DUPLICATE_STATUS
+        self.SWITCH_COMPRESS_STATUS = win.config.SWITCH_COMPRESS_STATUS
+        self.SWITCH_UNCOMPRESS_STATUS = win.config.SWITCH_UNCOMPRESS_STATUS
 
         self.win = win
         self.set_margin_top(20)
@@ -21,17 +36,23 @@ class General(Gtk.Box):
         self.set_margin_bottom(20)
         self.set_margin_start(20)
 
-        grid = Gtk.Grid(column_spacing=1, row_spacing=5)
+        grid_lenguage = Gtk.Grid(column_spacing=1, row_spacing=5)
+        # copy_label = Gtk.Label.new(Preferences.COPY_LABEL)
 
-        self.append(grid)
+        # Minimize on startup section
 
-        title_label = Gtk.Label.new(Preferences.GENERAL_TITLE)
+        grid_minimize = Gtk.Grid(column_spacing=1, row_spacing=5)
 
-        copy_label = Gtk.Label.new(Preferences.COPY_LABEL)
-        move_label = Gtk.Label.new(Preferences.MOVE_LABEL)
-        duplicate_label = Gtk.Label.new(Preferences.DUPLICATE_LABEL)
-        compress_label = Gtk.Label.new(Preferences.COMPRESS_LABEL)
-        uncompress_label = Gtk.Label.new(Preferences.UNCOMPRESS_LABEL)
+        self.append(grid_lenguage)
+        self.append(grid_minimize)
+
+        title_label = Gtk.Label.new(self.GENERAL_TITLE)
+
+        copy_label = Gtk.Label.new(self.COPY_LABEL)
+        move_label = Gtk.Label.new(self.MOVE_LABEL)
+        duplicate_label = Gtk.Label.new(self.DUPLICATE_LABEL)
+        compress_label = Gtk.Label.new(self.COMPRESS_LABEL)
+        uncompress_label = Gtk.Label.new(self.UNCOMPRESS_LABEL)
 
         copy_label.set_halign(Gtk.Align.START)
         move_label.set_halign(Gtk.Align.START)
@@ -40,23 +61,23 @@ class General(Gtk.Box):
         uncompress_label.set_halign(Gtk.Align.START)
 
         copy_switch = Gtk.Switch.new()
-        copy_switch.set_active(Preferences.SWITCH_COPY_STATUS)
+        copy_switch.set_active(self.SWITCH_COPY_STATUS)
         copy_switch.connect("state-set", self.on_press_any)
 
         move_switch = Gtk.Switch.new()
-        move_switch.set_active(Preferences.SWITCH_MOVE_STATUS)
+        move_switch.set_active(self.SWITCH_MOVE_STATUS)
         move_switch.connect("state-set", self.on_press_any)
 
         duplicate_switch = Gtk.Switch.new()
-        duplicate_switch.set_active(Preferences.SWITCH_DUPLICATE_STATUS)
+        duplicate_switch.set_active(self.SWITCH_DUPLICATE_STATUS)
         duplicate_switch.connect("state-set", self.on_press_any)
 
         comrpess_switch = Gtk.Switch.new()
-        comrpess_switch.set_active(Preferences.SWITCH_COMPRESS_STATUS)
+        comrpess_switch.set_active(self.SWITCH_COMPRESS_STATUS)
         comrpess_switch.connect("state-set", self.on_press_any)
 
         uncompress_switch = Gtk.Switch.new()
-        uncompress_switch.set_active(Preferences.SWITCH_UNCOMPRESS_STATUS)
+        uncompress_switch.set_active(self.SWITCH_UNCOMPRESS_STATUS)
         uncompress_switch.connect("state-set", self.on_press_any)
 
         copy_switch.set_name("copy")
@@ -76,41 +97,37 @@ class General(Gtk.Box):
         uncompress_switch.set_hexpand(True)
         uncompress_switch.set_halign(Gtk.Align.CENTER)
 
-        grid.attach(title_label, 0, 0, 1, 1)
+        grid_minimize.attach(title_label, 0, 0, 1, 1)
 
-        grid.attach(copy_label, 1, 1, 1, 1)
-        grid.attach(copy_switch, 2, 1, 1, 1)
+        grid_minimize.attach(copy_label, 1, 1, 1, 1)
+        grid_minimize.attach(copy_switch, 2, 1, 1, 1)
 
-        grid.attach(move_label, 1, 2, 1, 1)
-        grid.attach(move_switch, 2, 2, 1, 1)
+        grid_minimize.attach(move_label, 1, 2, 1, 1)
+        grid_minimize.attach(move_switch, 2, 2, 1, 1)
 
-        grid.attach(duplicate_label, 1, 3, 1, 1)
-        grid.attach(duplicate_switch, 2, 3, 1, 1)
+        grid_minimize.attach(duplicate_label, 1, 3, 1, 1)
+        grid_minimize.attach(duplicate_switch, 2, 3, 1, 1)
 
-        grid.attach(compress_label, 1, 4, 1, 1)
-        grid.attach(comrpess_switch, 2, 4, 1, 1)
+        grid_minimize.attach(compress_label, 1, 4, 1, 1)
+        grid_minimize.attach(comrpess_switch, 2, 4, 1, 1)
 
-        grid.attach(uncompress_label, 1, 5, 1, 1)
-        grid.attach(uncompress_switch, 2, 5, 1, 1)
+        grid_minimize.attach(uncompress_label, 1, 5, 1, 1)
+        grid_minimize.attach(uncompress_switch, 2, 5, 1, 1)
 
     def on_press_any(self, switch: Gtk.Switch, pspec: bool) -> None:
-        from views.preferences.preferences_options import Preferences
 
         if switch.get_name() == "copy":
-            Preferences.SWITCH_COPY_STATUS = pspec
+            self.SWITCH_COPY_STATUS = pspec
             self.win.SWITCH_COPY_STATUS = pspec
         elif switch.get_name() == "move":
-            Preferences.SWITCH_MOVE_STATUS = pspec
+            self.SWITCH_MOVE_STATUS = pspec
             self.win.SWITCH_MOVE_STATUS = pspec
         elif switch.get_name() == "duplicate":
-            Preferences.SWITCH_DUPLICATE_STATUS = pspec
+            self.SWITCH_DUPLICATE_STATUS = pspec
             self.win.SWITCH_DUPLICATE_STATUS = pspec
         elif switch.get_name() == "compress":
-            Preferences.SWITCH_COMPRESS_STATUS = pspec
+            self.SWITCH_COMPRESS_STATUS = pspec
             self.win.SWITCH_COMPRESS_STATUS = pspec
         elif switch.get_name() == "uncompress":
-            Preferences.SWITCH_UNCOMPRESS_STATUS = pspec
+            self.SWITCH_UNCOMPRESS_STATUS = pspec
             self.win.SWITCH_UNCOMPRESS_STATUS = pspec
-
-        # explorer_1 = self.win.explorer_1
-        # explorer_2 = self.win.explorer_2

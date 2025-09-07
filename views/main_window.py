@@ -515,7 +515,7 @@ class Window(Gtk.ApplicationWindow):
                 # GENERAL
 
                 self.LANGUAGE = data["LANGUAGE"]
-                print(self.LANGUAGE)
+
                 if self.LANGUAGE == "en":
                     print("LALA")
                     os.environ["LANG"] = "en_US.UTF-8"
@@ -755,9 +755,13 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_2.fav_path_btn_list = None
         self.explorer_2.fav_path_btn_list = []
 
-        for controller in self.shortcuts.fav_controller_list:
+        for controller in self.shortcuts.fav_controller_list_exp_1:
             self.remove_controller(controller)
-            self.shortcuts.fav_controller_list.remove(controller)
+            self.shortcuts.fav_controller_list_exp_1.remove(controller)
+
+        for controller in self.shortcuts.fav_controller_list_exp_2:
+            self.remove_controller(controller)
+            self.shortcuts.fav_controller_list_exp_2.remove(controller)
 
         child = None
         for button_box in [self.buttom_horizontal_1, self.buttom_horizontal_2]:
