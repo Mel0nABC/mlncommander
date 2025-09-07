@@ -99,6 +99,11 @@ class Css_explorer_manager:
             .button{{
                 background-image: none;
                 background-color: {color_button};
+                transition: background-color 0.3s ease; /* animación suave */
+            }}
+
+            .button:hover{{
+                filter: brightness(80%);
             }}
 
         """.encode()

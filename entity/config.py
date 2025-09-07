@@ -12,9 +12,7 @@ class ConfigEntity(GObject.Object):
 
     __gtype_name__ = "ConfigEntity"
 
-    def __init__(
-        self,
-    ):
+    def __init__(self):
         super().__init__()
 
         # GENERAL

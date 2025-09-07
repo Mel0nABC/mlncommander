@@ -162,6 +162,8 @@ class Window(Gtk.ApplicationWindow):
         add_fav_btn_2 = Gtk.Button.new_with_label("+")
         add_fav_btn_1.set_hexpand(False)
         add_fav_btn_2.set_hexpand(False)
+        add_fav_btn_1.get_style_context().add_class("button")
+        add_fav_btn_2.get_style_context().add_class("button")
 
         self.button_main_1.append(add_fav_btn_1)
         self.button_main_2.append(add_fav_btn_2)
@@ -170,6 +172,8 @@ class Window(Gtk.ApplicationWindow):
         del_fav_btn_2 = Gtk.Button.new_with_label("-")
         del_fav_btn_1.set_hexpand(False)
         del_fav_btn_2.set_hexpand(False)
+        del_fav_btn_1.get_style_context().add_class("button")
+        del_fav_btn_2.get_style_context().add_class("button")
 
         self.button_main_1.append(del_fav_btn_1)
         self.button_main_2.append(del_fav_btn_2)
