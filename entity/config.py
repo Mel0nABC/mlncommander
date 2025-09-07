@@ -2,13 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 from css.explorer_css import Css_explorer_manager
-import gi
-
-gi.require_version("Gtk", "4.0")
-from gi.repository import GObject  # noqa: E402
 
 
-class ConfigEntity(GObject.Object):
+class ConfigEntity:
 
     __gtype_name__ = "ConfigEntity"
 

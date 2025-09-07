@@ -1,13 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
-import gi
-
-gi.require_version("Gtk", "4.0")
-from gi.repository import GObject  # noqa: E402
-
-
-class SevenZTypeInfo(GObject.Object):
+class SevenZTypeInfo:
 
     __gtype_name__ = "SevenZTypeInfo"
 
