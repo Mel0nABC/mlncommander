@@ -81,7 +81,7 @@ class General(Gtk.Box):
 
             lbl_1 = Gtk.Label.new(flag.country_name.ljust(max_len))
             lbl_1.set_xalign(0.0)
-            lbl_1.set_size_request(150, -1)
+            lbl_1.set_size_request(200, -1)
             lbl_2 = Gtk.Label.new(flag.flag)
 
             grid.attach(lbl_1, 0, 0, 1, 1)
