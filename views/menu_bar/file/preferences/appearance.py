@@ -281,33 +281,22 @@ class Appearance(Gtk.Box):
         name = button.get_name()
 
         if name == "btn_color_explorer_left":
-            self.COLOR_EXPLORER_LEFT = self.win.config.COLOR_EXPLORER_LEFT
             color.parse(self.COLOR_EXPLORER_LEFT)
         elif name == "btn_color_explorer_right":
-            self.COLOR_EXPLORER_RIGHT = self.win.config.COLOR_EXPLORER_RIGHT
             color.parse(self.COLOR_EXPLORER_RIGHT)
         elif name == "btn_color_background_search":
-            self.COLOR_BACKGROUND_SEARCH = (
-                self.win.config.COLOR_BACKGROUND_SEARCH
-            )
             color.parse(self.COLOR_BACKGROUND_SEARCH)
         elif name == "btn_color_search_text":
-            self.COLOR_SEARCH_TEXT = self.win.config.COLOR_SEARCH_TEXT
             color.parse(self.COLOR_SEARCH_TEXT)
         elif name == "btn_color_app":
-            self.COLOR_BACKGROUND_APP = self.win.config.COLOR_BACKGROUND_APP
             color.parse(self.COLOR_BACKGROUND_APP)
         elif name == "btn_color_background_buttons":
-            self.COLOR_BUTTON = self.win.config.COLOR_BUTTON
             color.parse(self.COLOR_BUTTON)
         elif name == "btn_color_entry":
-            self.COLOR_ENTRY = self.win.config.COLOR_ENTRY
             color.parse(self.COLOR_ENTRY)
         elif name == "btn_color_font_color":
-            self.FONT_STYLE_COLOR = self.win.config.FONT_STYLE_COLOR
             color.parse(self.FONT_STYLE_COLOR)
         elif name == "btn_color_background_fav_buttons":
-            self.COLOR_FAV_BUTTON = self.win.config.COLOR_FAV_BUTTON
             color.parse(self.COLOR_FAV_BUTTON)
 
         button.set_rgba(color)
