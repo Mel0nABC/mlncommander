@@ -813,7 +813,7 @@ class Window(Gtk.ApplicationWindow):
         self.menu_bar.open_preferences()
 
     def load_env_language(self):
-        if self.config.LANGUAGE == "en":
+        if self.config.LANGUAGE == "gb" or self.config.LANGUAGE == "us":
             os.environ["LANG"] = "en_US.UTF-8"
 
         elif self.config.LANGUAGE == "es":

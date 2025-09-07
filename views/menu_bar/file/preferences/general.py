@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from pathlib import Path
+from entity.flags import Flags
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GObject  # noqa: E402
+from gi.repository import Gtk, Gio, GObject  # noqa: E402
 
 
 class General(Gtk.Box):
@@ -42,24 +43,59 @@ class General(Gtk.Box):
         grid_language = Gtk.Grid(column_spacing=1, row_spacing=5)
         self.title_language = Gtk.Label.new(self.LANGUAGE_LABEL)
 
-        languages_list = ["es"]
-
         import App
+
+        flags = Flags()
+
+        flags_type = flags.get_flags()
+
+        store_languages = Gio.ListStore.new(item_type=Flags)
+
+        store_languages.append(flags_type["es"])
 
         path_locales = Path(App.LOCALE_DIR)
         for dir in path_locales.iterdir():
             if dir.is_dir() and len(dir.stem) == 2:
-                languages_list.append(str(dir.stem))
+                # creamos objeto flags
+                acronym = dir.stem
+                if acronym == "en":
+                    store_languages.append(flags_type["gb"])
+                    store_languages.append(flags_type["us"])
+                else:
+                    store_languages.append(flags_type[acronym])
 
-        store_languages = Gtk.StringList.new(languages_list)
         dropdown_language = Gtk.DropDown.new(store_languages)
 
-        for index, item in enumerate(store_languages):
-            language = item.get_string()
-            if str(language) == self.LANGUAGE:
-                dropdown_language.set_selected(index)
+        self.set_language_dropdown(store_languages, dropdown_language)
 
-        dropdown_language.connect("notify::selected", self.language_change)
+        factory = Gtk.SignalListItemFactory()
+
+        max_len = max(len(flag.country_name) for flag in store_languages)
+
+        def bind(factory, list_item):
+            flag = list_item.get_item()
+            if flag is None:
+                return
+
+            grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+
+            lbl_1 = Gtk.Label.new(flag.country_name.ljust(max_len))
+            lbl_1.set_xalign(0.0)
+            lbl_1.set_size_request(150, -1)
+            lbl_2 = Gtk.Label.new(flag.flag)
+
+            grid.attach(lbl_1, 0, 0, 1, 1)
+            grid.attach(lbl_2, 1, 0, 1, 1)
+
+            list_item.set_child(grid)
+
+        factory.connect("bind", bind)
+
+        dropdown_language.set_factory(factory)
+
+        dropdown_language.connect(
+            "notify::selected-item", self.language_change
+        )
 
         grid_language.attach(self.title_language, 0, 0, 1, 1)
         grid_language.attach(dropdown_language, 1, 1, 1, 1)
@@ -160,11 +196,14 @@ class General(Gtk.Box):
     def language_change(
         self, dropdrown: Gtk.DropDown, pspec: GObject.GParamSpec
     ) -> None:
-
-        self.LANGUAGE = dropdrown.get_selected_item().get_string()
-
-        self.win.config.LANGUAGE = self.LANGUAGE
-
+        flag = dropdrown.get_selected_item()
+        self.win.config.LANGUAGE = flag.acronym.lower()
         self.win.load_env_language()
-
         self.win.reload_for_language()
+
+    def set_language_dropdown(
+        self, store_languages: Gio.ListStore, dropdown_language: Gtk.DropDown
+    ) -> None:
+        for index, item in enumerate(store_languages):
+            if self.LANGUAGE in item.acronym.lower():
+                dropdown_language.set_selected(index)
