@@ -46,6 +46,13 @@ This started as a project to learn Python. Then, I searched for a native graphic
 - pip install -r requirements.txt
 - ./venv/bin/python App.py
 
+## Licenses
+
+MlnCommander attempts to comply with the SPDX specifications and generally uses the MIT license.
+
+In the LICENSES folder, you'll find several types of licenses, depending on whether you're using a third-party utility.
+
+
 
 ## Download
 
