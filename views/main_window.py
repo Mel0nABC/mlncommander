@@ -46,6 +46,7 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_dst = None
         self.entry_margin = 10
         self.horizontal_button_list_margin = 10
+        self.horizontal_botton_menu = None
         self.scroll_margin = 10
         self.label_left_selected_files = None
         self.label_right_selected_files = None
@@ -56,6 +57,9 @@ class Window(Gtk.ApplicationWindow):
         self.menu_bar = None
         self.explorer_1 = None
         self.explorer_2 = None
+        self.position_x = 0
+        self.position_y = 0
+        self.position_explorer = None
 
         # to use in watchdog
         self.write_error_msg_displayer = False
@@ -309,53 +313,53 @@ class Window(Gtk.ApplicationWindow):
         self.main_vertical_box.append(self.menu_bar.menubar)
 
     def create_horizontal_button(self):
-        horizontal_botton_menu = Gtk.Box(
+        self.horizontal_botton_menu = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        horizontal_botton_menu.set_margin_top(
+        self.horizontal_botton_menu.set_margin_top(
             self.horizontal_button_list_margin
         )
-        horizontal_botton_menu.set_margin_end(
+        self.horizontal_botton_menu.set_margin_end(
             self.horizontal_button_list_margin
         )
-        horizontal_botton_menu.set_margin_bottom(
+        self.horizontal_botton_menu.set_margin_bottom(
             self.horizontal_button_list_margin
         )
-        horizontal_botton_menu.set_margin_start(
+        self.horizontal_botton_menu.set_margin_start(
             self.horizontal_button_list_margin
         )
 
         btn_F2 = Gtk.Button(label=_("Renombrar < F2 >"))
         btn_F2.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F2)
+        self.horizontal_botton_menu.append(btn_F2)
 
         btn_F3 = Gtk.Button(label=_("Nuevo Fichero < F3 >"))
         btn_F3.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F3)
+        self.horizontal_botton_menu.append(btn_F3)
 
         btn_F5 = Gtk.Button(label=_("Copiar < F5 >"))
         btn_F5.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F5)
+        self.horizontal_botton_menu.append(btn_F5)
 
         btn_F6 = Gtk.Button(label=_("Mover < F6 >"))
         btn_F6.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F6)
+        self.horizontal_botton_menu.append(btn_F6)
 
         btn_F7 = Gtk.Button(label=_("Crear dir < F7 >"))
         btn_F7.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F7)
+        self.horizontal_botton_menu.append(btn_F7)
 
         btn_F8 = Gtk.Button(label=_("Eliminar < F8 >"))
         btn_F8.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F8)
+        self.horizontal_botton_menu.append(btn_F8)
 
         btn_F9 = Gtk.Button(label=_("Duplicar < F9 >"))
         btn_F9.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F9)
+        self.horizontal_botton_menu.append(btn_F9)
 
         btn_F10 = Gtk.Button(label=_("Salir < F10 >"))
         btn_F10.get_style_context().add_class("button")
-        horizontal_botton_menu.append(btn_F10)
+        self.horizontal_botton_menu.append(btn_F10)
 
         # Left label show selection info
         label_box_left = Gtk.Box(
@@ -374,7 +378,7 @@ class Window(Gtk.ApplicationWindow):
 
         label_box_right.set_halign(Gtk.Align.END)
 
-        horizontal_botton_menu.set_halign(Gtk.Align.CENTER)
+        self.horizontal_botton_menu.set_halign(Gtk.Align.CENTER)
 
         self.horizontal_bottom = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
@@ -382,7 +386,7 @@ class Window(Gtk.ApplicationWindow):
         self.horizontal_bottom.set_halign(Gtk.Align.CENTER)
 
         self.horizontal_bottom.append(label_box_left)
-        self.horizontal_bottom.append(horizontal_botton_menu)
+        self.horizontal_bottom.append(self.horizontal_botton_menu)
         self.horizontal_bottom.append(label_box_right)
 
         self.horizontal_bottom.set_margin_start(self.scroll_margin + 20)
@@ -461,6 +465,24 @@ class Window(Gtk.ApplicationWindow):
 
         self.connect("realize", self.on_realize)
 
+    def on_realize(self, widget: Gtk.Widget) -> None:
+        """
+        Set browser 1 (left) as default when starting the application
+        """
+        # LOAD DATA DIRECTORY
+        self.explorer_1.load_new_path(self.explorer_1.actual_path)
+        self.explorer_2.load_new_path(self.explorer_2.actual_path)
+
+        # Load favorite folders
+        self.explorer_1.fav_path_list = self.config.FAV_PATH_LIST_1
+        self.explorer_2.fav_path_list = self.config.FAV_PATH_LIST_2
+        self.load_botons_fav()
+
+        # We set the initial focus to explorer_1, left
+        self.action.set_explorer_to_focused(self.explorer_1, self)
+        self.explorer_src = self.explorer_1
+        self.explorer_dst = self.explorer_2
+
     def key_connect(self) -> None:
         self.key_controller_id = self.key_controller.connect(
             "key-pressed", action_keys.on_key_press, self, self.action
@@ -482,6 +504,11 @@ class Window(Gtk.ApplicationWindow):
         )
         self.explorer_dst = explorer_unfocused
 
+    def get_explorer_focused(self) -> Explorer:
+        return [
+            exp for exp in [self.explorer_1, self.explorer_2] if exp.focused
+        ][0]
+
     def exit(self, win: Gtk.ApplicationWindow = None) -> None:
         """
         Close services, save configuration and close application
@@ -496,31 +523,6 @@ class Window(Gtk.ApplicationWindow):
             self.config.EXP_2_PATH = str(self.explorer_2.actual_path)
 
         self.save_config_file(self.config)
-
-    def on_realize(self, widget: Gtk.Widget) -> None:
-        """
-        Set browser 1 (left) as default when starting the application
-        """
-        # LOAD DATA DIRECTORY
-        self.explorer_1.load_new_path(self.explorer_1.actual_path)
-        self.explorer_2.load_new_path(self.explorer_2.actual_path)
-
-        # Load favorite folders
-        self.explorer_1.fav_path_list = self.config.FAV_PATH_LIST_1
-        self.explorer_2.fav_path_list = self.config.FAV_PATH_LIST_2
-        self.load_botons_fav()
-
-        # We set the initial focus to explorer_1, left
-        self.action.set_explorer_to_focused(self.explorer_1, self)
-        self.explorer_src = self.explorer_1
-        self.explorer_dst = self.explorer_2
-
-        gesture_explorer_right_press = Gtk.GestureClick()
-        gesture_explorer_right_press.set_button(3)
-        gesture_explorer_right_press.connect(
-            "pressed", self.right_button_context_menu
-        )
-        self.add_controller(gesture_explorer_right_press)
 
     def load_config_file(self) -> None:
         """
@@ -827,49 +829,3 @@ class Window(Gtk.ApplicationWindow):
 
         elif self.config.LANGUAGE == "es":
             os.environ["LANG"] = "es_ES.UTF-8"
-
-    def right_button_context_menu(
-        self,
-        gesture,
-        n_press,
-        x,
-        y,
-        cell=None,
-    ):
-        from views.pop_up_windows.contextual_menu import ContextMenu
-
-        ContextMenu(self, x, y)
-
-        # self.action.set_explorer_to_focused(self, self.win)
-        # if cell:
-        #     self.scroll_to(
-        #         cell.get_position(), None, Gtk.ListScrollFlags.SELECT
-        #     )
-
-        #     self.get_root().add_controller(self.gesture_explorer_right)
-
-        # path = self.get_selected_items_from_explorer()[1][0]
-        # spinner = Gtk.Spinner()
-        # self.win.main_vertical_box.append(spinner)
-
-        # threading.Thread(
-        #     target=self.path_properties, args=(path, spinner)
-        # ).start()
-
-    def path_properties(self, path_list: list[Path], spinner) -> None:
-        spinner.start()
-
-        folders = 0
-        files = 0
-        total_size = 0
-
-        for path in path_list:
-            result = File_manager.get_dir_or_file_size(path)
-            folders += result["folders"]
-            files += result["files"]
-            total_size += result["size"]
-
-        print(f"Folders: {folders}")
-        print(f"Files: {folders}")
-        print(f"Total size: {total_size}")
-        spinner.stop()

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from views.pop_up_windows.contextual_menu import ContextMenu
 from utilities.file_manager import File_manager
 from entity.File_or_directory_info import File_or_directory_info
 from icons.icon_manager import IconManager
@@ -72,9 +73,13 @@ class Explorer(Gtk.ColumnView):
         ]
         self.icon_manager = IconManager(win)
         self.label_gesture_list = {}
+        self.row_gesture_right_list = {}
         self.showed_msg_network_problem = False
         self.min_size_width = 0
         self.min_size_height = 0
+        self.x = 0
+        self.y = 0
+        self.right_explorer_click_files = False
 
         for property_name in type_list:
 
@@ -152,6 +157,12 @@ class Explorer(Gtk.ColumnView):
         if self.win.config.SWITCH_WATCHDOG_STATUS:
             self.start_watchdog(self.actual_path, self)
 
+        gesture_row_right = Gtk.GestureClick()
+        gesture_row_right.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        gesture_row_right.set_button(3)
+        gesture_row_right.connect("pressed", self.row_gesture_riht_click)
+        self.add_controller(gesture_row_right)
+
     def setup(
         self,
         signal: Gtk.SignalListItemFactory,
@@ -171,13 +182,23 @@ class Explorer(Gtk.ColumnView):
                 cell.set_child(image)
             else:
                 label = Gtk.Label(xalign=0)
+                label.set_margin_top(0)
                 label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
                 label.get_style_context().add_class("explorer_text_size")
+                label.set_hexpand(True)
+                label.set_vexpand(True)
+
                 cell.set_child(label)
+
                 gesture_int, gesture = self.activate_gesture_click_label(
                     cell, label
                 )
                 self.label_gesture_list[gesture_int] = gesture
+
+                gesture_int_right, gesture_right = (
+                    self.activate_gesture_click_label_right_click(cell, label)
+                )
+                self.row_gesture_right_list[gesture_int_right] = gesture_right
 
         GLib.idle_add(setup_when_idle)
 
@@ -196,6 +217,23 @@ class Explorer(Gtk.ColumnView):
         label.add_controller(gesture_row_left)
 
         return gesture_int, gesture_row_left
+
+    def activate_gesture_click_label_right_click(
+        self, cell: Gtk.ColumnViewCell, label: Gtk.Label
+    ) -> dict:
+        """
+        Active gesture click on labels from columnview
+        """
+
+        gesture_row_right = Gtk.GestureClick()
+        # gesture_row_right.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        gesture_row_right.set_button(3)
+        gesture_int_right = gesture_row_right.connect(
+            "pressed", self.row_gesture_riht_click, cell
+        )
+        label.add_controller(gesture_row_right)
+
+        return gesture_int_right, gesture_row_right
 
     def set_focus_pressed(
         self,
@@ -877,3 +915,102 @@ class Explorer(Gtk.ColumnView):
                 fav_btn.get_style_context().add_class("fav")
             else:
                 fav_btn.get_style_context().remove_class("fav")
+
+    def row_gesture_riht_click(
+        self,
+        gesture,
+        n_press,
+        x,
+        y,
+        cell=None,
+    ):
+
+        # Stop all events
+        main_width = self.win.get_allocation().width
+        main_height = self.win.get_allocation().height
+
+        explorer_width = self.get_allocated_width()
+        explorer_height = self.get_allocated_height()
+
+        start_end_margins = self.win.scroll_margin
+        up_down_margin = self.win.entry_margin
+
+        horizontal_bottom = self.win.horizontal_bottom.get_allocation().height
+
+        if cell:
+            final_x = self.x
+            final_y = self.y
+        else:
+            final_x = x
+            final_y = y
+
+        real_position_x = (
+            main_width - start_end_margins - explorer_width + final_x
+        )
+
+        real_position_y = (
+            main_height
+            - horizontal_bottom
+            - up_down_margin
+            - explorer_height
+            + final_y
+        )
+
+        if self.name == "explorer_1":
+            real_position_x = (
+                main_width
+                - 2
+                * (start_end_margins + start_end_margins / 2 + explorer_width)
+                + final_x
+            )
+
+        if cell:
+            # Files selected
+            path_list = self.get_selected_items_from_explorer()[1]
+
+            if not self.focused:
+                self.action.set_explorer_to_focused(self, self.win)
+                self.scroll_to(
+                    cell.get_position(), None, Gtk.ListScrollFlags.SELECT
+                )
+                path_list = self.get_selected_items_from_explorer()[1]
+            else:
+                if len(path_list) > 1:
+                    path_list = self.get_selected_items_from_explorer()[1]
+                else:
+                    self.scroll_to(
+                        cell.get_position(),
+                        None,
+                        Gtk.ListScrollFlags.SELECT,
+                    )
+                    path_list = self.get_selected_items_from_explorer()[1]
+
+            if path_list:
+
+                ContextMenu(
+                    self.win,
+                    real_position_x,
+                    real_position_y,
+                    main_width,
+                    main_height,
+                    True,
+                    self,
+                    path_list,
+                )
+
+        else:
+            # Explorer menú, no files selected
+            self.x = x
+            self.y = y
+
+            if not self.focused:
+                self.action.set_explorer_to_focused(self, self.win)
+            ContextMenu(
+                self.win,
+                real_position_x,
+                real_position_y,
+                main_width,
+                main_height,
+                False,
+                self,
+            )

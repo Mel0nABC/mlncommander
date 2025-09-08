@@ -32,7 +32,6 @@ class Css_explorer_manager:
                 background-color: {app_background_color};
                 border-radius: 10pt;
             }}
-
         """.encode()
 
         self.set_css_to_provider(css)
@@ -45,16 +44,15 @@ class Css_explorer_manager:
         or directories
         """
         css = f"""
-
-            .contextual_menu{{
-                background-color: transparent;
+            columnview cell{{
+                padding: 0;
             }}
-
-            .contextual_content{{
-                border: solid 10px black;
-                background-color: grey;
+            columnview cell image{{
+                padding: 2px;
             }}
-  
+            columnview cell label{{
+                padding: 2px;
+            }}
             .image-preview{{
                 border-radius: 10px;
                 padding: 10px;
@@ -114,7 +112,32 @@ class Css_explorer_manager:
             .button:hover{{
                 filter: brightness(80%);
             }}
+        """.encode()
 
+        self.set_css_to_provider(css)
+
+    def load_css_context_menu(self) -> None:
+        """
+        Set color to all button
+        """
+        css = """
+            .contextual_window{
+                background-color: transparent;
+            }
+            .contextual_menu{
+                background-color: #353535;
+                border-radius: 5pt;
+            }
+            .contextual_content{
+                padding: 10px;
+                margin:10px;
+                border-radius:5pt;
+                background-color: #222226;
+            }
+            .contextual_content button{
+                margin: 0px;
+                min-width: 200px;
+            }
         """.encode()
 
         self.set_css_to_provider(css)
