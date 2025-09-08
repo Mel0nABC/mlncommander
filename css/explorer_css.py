@@ -46,6 +46,15 @@ class Css_explorer_manager:
         """
         css = f"""
 
+            .contextual_menu{{
+                background-color: transparent;
+            }}
+
+            .contextual_content{{
+                border: solid 10px black;
+                background-color: grey;
+            }}
+  
             .image-preview{{
                 border-radius: 10px;
                 padding: 10px;

@@ -53,8 +53,8 @@ class App(Gtk.Application):
         self.window = Window(self, action)
         action.set_parent(self.window)
         self.window.present()
-        self.window.set_explorer_initial()
 
+        # For generate translation lenguaje_template.pot
         # self.generate_project_file_list()
 
     def generate_project_file_list(self):

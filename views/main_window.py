@@ -22,7 +22,7 @@ import os
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib, Pango  # noqa E402
+from gi.repository import Gtk, GLib, Pango, Gdk  # noqa E402
 
 
 class Window(Gtk.ApplicationWindow):
@@ -459,6 +459,8 @@ class Window(Gtk.ApplicationWindow):
             lambda btn: self.exit(self),
         )
 
+        self.connect("realize", self.on_realize)
+
     def key_connect(self) -> None:
         self.key_controller_id = self.key_controller.connect(
             "key-pressed", action_keys.on_key_press, self, self.action
@@ -495,7 +497,7 @@ class Window(Gtk.ApplicationWindow):
 
         self.save_config_file(self.config)
 
-    def set_explorer_initial(self) -> None:
+    def on_realize(self, widget: Gtk.Widget) -> None:
         """
         Set browser 1 (left) as default when starting the application
         """
@@ -512,6 +514,13 @@ class Window(Gtk.ApplicationWindow):
         self.action.set_explorer_to_focused(self.explorer_1, self)
         self.explorer_src = self.explorer_1
         self.explorer_dst = self.explorer_2
+
+        gesture_explorer_right_press = Gtk.GestureClick()
+        gesture_explorer_right_press.set_button(3)
+        gesture_explorer_right_press.connect(
+            "pressed", self.right_button_context_menu
+        )
+        self.add_controller(gesture_explorer_right_press)
 
     def load_config_file(self) -> None:
         """
@@ -818,3 +827,49 @@ class Window(Gtk.ApplicationWindow):
 
         elif self.config.LANGUAGE == "es":
             os.environ["LANG"] = "es_ES.UTF-8"
+
+    def right_button_context_menu(
+        self,
+        gesture,
+        n_press,
+        x,
+        y,
+        cell=None,
+    ):
+        from views.pop_up_windows.contextual_menu import ContextMenu
+
+        ContextMenu(self, x, y)
+
+        # self.action.set_explorer_to_focused(self, self.win)
+        # if cell:
+        #     self.scroll_to(
+        #         cell.get_position(), None, Gtk.ListScrollFlags.SELECT
+        #     )
+
+        #     self.get_root().add_controller(self.gesture_explorer_right)
+
+        # path = self.get_selected_items_from_explorer()[1][0]
+        # spinner = Gtk.Spinner()
+        # self.win.main_vertical_box.append(spinner)
+
+        # threading.Thread(
+        #     target=self.path_properties, args=(path, spinner)
+        # ).start()
+
+    def path_properties(self, path_list: list[Path], spinner) -> None:
+        spinner.start()
+
+        folders = 0
+        files = 0
+        total_size = 0
+
+        for path in path_list:
+            result = File_manager.get_dir_or_file_size(path)
+            folders += result["folders"]
+            files += result["files"]
+            total_size += result["size"]
+
+        print(f"Folders: {folders}")
+        print(f"Files: {folders}")
+        print(f"Total size: {total_size}")
+        spinner.stop()

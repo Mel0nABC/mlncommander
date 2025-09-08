@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from pathlib import Path
+import App
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -31,7 +32,7 @@ class About(Gtk.Window):
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
 
-        path = Path("./icons/mlncommander_transparente.png")
+        path = Path(f"{App.APP_HOME}/icons/mlncommander_transparente.png")
 
         img_preview = Gtk.Image.new_from_file(str(path))
         img_preview.set_size_request(height_percent, height_percent)
@@ -116,8 +117,6 @@ class About(Gtk.Window):
 
         scroll.set_child(text_view)
         vertical_box.append(scroll)
-
-        import App
 
         license_path = Path(f"{App.APP_HOME}/LICENSES/")
 

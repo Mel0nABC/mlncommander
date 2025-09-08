@@ -2,13 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from pathlib import Path
-import shutil
-import threading
-import time
-import os
-import gi
-
 from utilities.file_manager import File_manager
 from entity.File_or_directory_info import File_or_directory_info
 from icons.icon_manager import IconManager
@@ -16,6 +9,13 @@ from css.explorer_css import Css_explorer_manager
 from utilities.access_control import AccessControl
 from controls.actions import Actions
 from utilities.my_watchdog import My_watchdog
+from pathlib import Path
+import shutil
+import threading
+import time
+import os
+import gi
+
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, Gio, GLib, Pango, GObject  # noqa E402
@@ -54,6 +54,7 @@ class Explorer(Gtk.ColumnView):
         self.click_handler = 0
         self.background_list = self.get_last_child()
         self.handler_id_connect = 0
+        self.window = None
         self.flags = (
             Gtk.ListScrollFlags.SELECT
             | Gtk.ListScrollFlags.NONE
@@ -131,16 +132,19 @@ class Explorer(Gtk.ColumnView):
         self.focus_explorer = Gtk.EventControllerFocus()
         self.focus_explorer.connect(
             "enter",
-            lambda controller: self.set_explorer_focus(self.win),
+            lambda controller: self.set_explorer_focus(),
         )
         self.add_controller(self.focus_explorer)
 
         # Activate pressed on explorer event
-        gesture = Gtk.GestureClick()
-        self.gesture_click_int = gesture.connect(
-            "pressed", self.set_explorer_focus, self.win
+
+        gesture_explorer_left = Gtk.GestureClick()
+        gesture_explorer_left.set_button(1)
+        self.gesture_click_int = gesture_explorer_left.connect(
+            "pressed", self.set_explorer_focus
         )
-        self.add_controller(gesture)
+
+        self.add_controller(gesture_explorer_left)
 
         self.activate_drag_source(self)
 
@@ -183,10 +187,15 @@ class Explorer(Gtk.ColumnView):
         """
         Active gesture click on labels from columnview
         """
-        gesture = Gtk.GestureClick()
-        gesture_int = gesture.connect("pressed", self.set_focus_pressed, cell)
-        label.add_controller(gesture)
-        return gesture_int, gesture
+
+        gesture_row_left = Gtk.GestureClick()
+        gesture_row_left.set_button(1)
+        gesture_int = gesture_row_left.connect(
+            "pressed", self.set_focus_pressed, cell
+        )
+        label.add_controller(gesture_row_left)
+
+        return gesture_int, gesture_row_left
 
     def set_focus_pressed(
         self,

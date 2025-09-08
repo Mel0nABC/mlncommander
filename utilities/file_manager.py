@@ -157,3 +157,21 @@ class File_manager:
                                 return "network"
 
             return False
+
+    def get_dir_or_file_size(path: Path) -> int:
+
+        if path.is_dir():
+            folders = 0
+            files = 0
+            size = 0
+
+            for f in path.rglob("*"):
+                if f.is_file():
+                    size += f.stat().st_size
+                    files += 1
+                else:
+                    folders += 1
+
+            return {"folders": folders, "files": files, "size": size}
+        else:
+            return {"folders": 0, "files": 0, "size": path.stat().st_size}
