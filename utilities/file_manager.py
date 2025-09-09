@@ -238,10 +238,21 @@ class File_manager:
             st = os.stat(path)
             user_id = st.st_uid
             group_id = st.st_gid
+            user_name = pwd.getpwuid(user_id).pw_name
+            group_name = grp.getgrgid(group_id).gr_name
+
         except PermissionError as e:
             return {"status": False, "msg": e}
 
-        return {"status": True, "msg": (user_id, group_id)}
+        return {
+            "status": True,
+            "msg": {
+                "user_id": user_id,
+                "user_name": user_name,
+                "group_id": group_id,
+                "group_name": group_name,
+            },
+        }
 
     def change_permissions(path: Path, mode: int) -> bool:
         try:
@@ -401,7 +412,7 @@ class File_manager:
         total_size = 0
 
         for path in path_list:
-            print(path)
+            print(f"FILE MANAGER PATH: {path}")
             result = File_manager.get_dir_or_file_size(path)
             folders += result["folders"]
             files += result["files"]

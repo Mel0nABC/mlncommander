@@ -2,9 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 from css.explorer_css import Css_explorer_manager
-from utilities.file_manager import File_manager
-from pathlib import Path
-import threading
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -22,7 +19,7 @@ class ContextMenu(Gtk.Window):
         height: float,
         file_context: bool,
         explorer: "explorer",  # noqa: F821
-        path_list=None,
+        path_list: list = None,
     ):
         super().__init__()
 
@@ -210,29 +207,7 @@ class ContextMenu(Gtk.Window):
 
     def get_properties(self, button: Gtk.Button) -> None:
         self.destroy()
+        from views.pop_up_windows.properties import Properties
+        import App
 
-        # spinner = Gtk.Spinner()
-        # self.main_window.main_vertical_box.append(spinner)
-
-        def properties_work(path_list: list[Path]) -> None:
-            # spinner.start()
-
-            folders = 0
-            files = 0
-            total_size = 0
-
-            for path in path_list:
-                print(path)
-                result = File_manager.get_dir_or_file_size(path)
-                folders += result["folders"]
-                files += result["files"]
-                total_size += result["size"]
-
-            print(f"Folders: {folders}")
-            print(f"Files: {folders}")
-            print(f"Total size: {total_size}")
-            # spinner.stop()
-
-        threading.Thread(
-            target=properties_work, args=(self.path_list,)
-        ).start()
+        Properties(App.Window, self.path_list)

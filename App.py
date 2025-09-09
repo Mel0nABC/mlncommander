@@ -16,7 +16,8 @@ from gi.repository import Gtk  # noqa: E402
 gbulb.install()  # Integrate asyncio into Gtk
 
 # force tu use dark theme with system env
-os.environ["GTK_THEME"] = "Adwaita-light"
+# os.environ["GTK_THEME"] = "Adwaita-light"
+os.environ["GTK_THEME"] = "Adwaita-dark"
 
 # Configure gettext
 APP_NAME = "mlncommander"
@@ -41,6 +42,7 @@ class App(Gtk.Application):
         Constructor
         """
         super().__init__(application_id="com.mel0n.mlncommander")
+        self.window = None
 
     def do_activate(self) -> None:
         """
@@ -81,3 +83,27 @@ class App(Gtk.Application):
 
         # Para actualizar el .po con el nunevo .pot
         # msgmerge --update en_US.po lenguaje_template.pot
+
+
+app = App()
+app.run()
+
+
+# from pathlib import Path
+# from utilities.file_manager import File_manager
+
+# path = Path("/home/mel0n/Downloads/pruebas_copiar/sticky/sticky_test.sh")
+# path2 = Path(
+#     "/home/mel0n/Downloads/pruebas_copiar/sticky/fichero_no_ssticky.sh"
+# )
+
+# print(File_manager.get_permissions(path))
+# print(File_manager.get_permissions(path2))
+
+
+# print(File_manager.change_permissions(path, 0o7777))
+# # print(File_manager.change_permissions(path2, 0o4755))
+
+
+# print(File_manager.get_permissions(path))
+# print(File_manager.get_permissions(path2))
