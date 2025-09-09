@@ -13,13 +13,10 @@ import os
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk  # noqa: E402
 
-# force tu use dark theme
-settings = Gtk.Settings.get_default()
-settings.set_property("gtk-application-prefer-dark-theme", True)
-
-
 gbulb.install()  # Integrate asyncio into Gtk
 
+# force tu use dark theme with system env
+os.environ["GTK_THEME"] = "Adwaita-light"
 
 # Configure gettext
 APP_NAME = "mlncommander"
@@ -84,7 +81,3 @@ class App(Gtk.Application):
 
         # Para actualizar el .po con el nunevo .pot
         # msgmerge --update en_US.po lenguaje_template.pot
-
-
-app = App()
-app.run()
