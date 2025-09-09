@@ -210,19 +210,6 @@ class Css_explorer_manager:
         """.encode()
         self.set_css_to_provider(css)
 
-    def set_css_to_provider(self, css_code: str) -> None:
-        """
-        Create a provider for CSS and load the provided CSS code.
-        """
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css_code)
-
-        Gtk.StyleContext.add_provider_for_display(
-            self.win.get_display(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER,
-        )
-
     def set_font_size_explorer(self, size: int) -> bool:
         """
         Changes the text size of the file and directory list in Explorer
@@ -269,3 +256,16 @@ class Css_explorer_manager:
             return True
 
         return False
+
+    def set_css_to_provider(self, css_code: str) -> None:
+        """
+        Create a provider for CSS and load the provided CSS code.
+        """
+        provider = Gtk.CssProvider()
+        provider.load_from_data(css_code)
+
+        # Gtk.StyleContext.add_provider_for_display(
+        #     self.win.get_display(),
+        #     provider,
+        #     Gtk.STYLE_PROVIDER_PRIORITY_USER,
+        # )

@@ -19,10 +19,10 @@ from gi.repository import Gtk, GLib  # noqa : E402
 
 class CompressionManager:
 
-    def __init__(self, win: "Window"):  # noqa : F821
+    def __init__(self, compression_win: "Window"):  # noqa : F821
 
         self.uncompress_popen = None
-        self.win = win
+        self.compression_win = compression_win
         self.last_path = None
         self.last_dst_folder = None
         self.EXEC_SEVEN_Z_TYPE = self.validate_7zip_installed()
@@ -87,7 +87,7 @@ class CompressionManager:
 
             if "password" in check_pass.stderr:
                 to_work = Queue()
-                self.win.get_archivo_password(to_work, file)
+                self.compression_win.get_archivo_password(to_work, file)
                 pass_response = to_work.get()
                 if pass_response["status"]:
                     password = pass_response["msg"]
@@ -157,7 +157,7 @@ class CompressionManager:
                 match = re.search(r"(.{2})%", texto)
                 if match:
                     percent = int(match.group(1))
-                    self.win.set_percent(percent)
+                    self.compression_win.set_percent(percent)
             except OSError:
                 continue
         return {

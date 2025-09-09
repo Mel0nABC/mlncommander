@@ -100,11 +100,15 @@ class Actions:
         self.change_path(explorer, path)
 
     def show_msg_alert(
-        self, parent: Gtk.ApplicationWindow, text_input: str
+        self,
+        parent: Gtk.ApplicationWindow,
+        text_input: str,
+        passwd: bool = None,
     ) -> None:
         """
         Generic alert message, the desired text is passed to it
         """
+        # TODO: Change MessageDialog to AlertDialog, is deprecated
         dialog = Gtk.MessageDialog(
             transient_for=parent,
             modal=True,
