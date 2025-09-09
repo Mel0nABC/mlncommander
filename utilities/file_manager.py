@@ -254,8 +254,8 @@ class File_manager:
                 }
 
             str_mode = format(mode, "o")
-            # mode need int, octal type 0o777
-            if len(str_mode) != 3:
+            # mode need int, octal type ex: 0o777 or 0o1777
+            if len(str_mode) < 3 and len(str_mode) > 4:
                 return {
                     "status": False,
                     "msg": _(
@@ -394,3 +394,19 @@ class File_manager:
                 continue
 
         return {"status": True, "msg": True}
+
+    def properties_work(path_list: list[Path]) -> None:
+        folders = 0
+        files = 0
+        total_size = 0
+
+        for path in path_list:
+            print(path)
+            result = File_manager.get_dir_or_file_size(path)
+            folders += result["folders"]
+            files += result["files"]
+            total_size += result["size"]
+
+        print(f"Folders: {folders}")
+        print(f"Files: {folders}")
+        print(f"Total size: {total_size}")
