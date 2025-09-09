@@ -243,9 +243,7 @@ class File_manager:
 
         return {"status": True, "msg": (user_id, group_id)}
 
-    def change_permissions(
-        path: Path, mode: int, root_passwd: bool = None
-    ) -> bool:
+    def change_permissions(path: Path, mode: int) -> bool:
         try:
             if not path.exists():
                 return {
@@ -267,26 +265,42 @@ class File_manager:
                         ),
                     ),
                 }
-            if not root_passwd:
-                os.chmod(path, mode)
+
+            if not shutil.which("pkexec"):
+                actual_user_id = os.getuid()
+                st = os.stat(path)
+                file_user_id = st.st_uid
+                need_passwd = ""
+                sudo = ""
+
+                if not actual_user_id == file_user_id:
+                    # TODO PASSWORD WITH UI
+                    passwd = ""
+                    sudo = "sudo -S"
+                    need_passwd = f"echo '{passwd}' |"
+
+                exec_str = (
+                    "faillock --user $(whoami) --reset;"
+                    f"{need_passwd} "
+                    f"{sudo} chmod {str_mode} {str(path)};"
+                    "sudo -k;"
+                    " exit\n"
+                )
+                print(exec_str)
+                return File_manager.exec_tty_cmd(exec_str)
             else:
-                if not shutil.which("pkexec"):
-                    print("SOLICITUD DE CONTRASEÑA CON PARTE GRÁFICA")
-                    # solicitar contraseña a ventana antes de lanzar cmd
-                    cmd = ["ls", path]
-                else:
-                    cmd = ["pkexec", "chmod", str_mode, path]
+                cmd = ["pkexec", "chmod", str_mode, path]
 
-                res = subprocess.run(cmd, capture_output=True, text=True)
+            res = subprocess.run(cmd, capture_output=True, text=True)
 
-                if res.returncode != 0:
-                    return {"status": False, "msg": res.stderr}
+            if res.returncode != 0:
+                return {"status": False, "msg": res.stderr}
 
         except PermissionError:
             return File_manager.change_permissions(path, mode, True)
         return {"status": True, "msg": True}
 
-    def change_owner_group(path: Path, user_str: str, group_str: str) -> bool:
+    def change_owner_group(path: Path, user_str: str, group_str: str) -> dict:
 
         user = None
         group = None
@@ -316,28 +330,9 @@ class File_manager:
                     "msg": _(f"El grupo {group_str}, no existe"),
                 }
 
-            if shutil.which("pkexec"):
+            if not shutil.which("pkexec"):
                 # When pkexec is not available to request the password.
-
-                import pty
-
-                master_fd, slave_fd = pty.openpty()
-                # cmd = ["ls", path]
-                cmd = ["bash"]
-                process = subprocess.Popen(
-                    cmd,
-                    stdin=slave_fd,
-                    stdout=slave_fd,
-                    stderr=slave_fd,
-                    text=True,
-                )
-
-                # Wait a bit for the initial prompt to appear
-                time.sleep(0.2)
-
-                passwd = (
-                    0  # IN THIS POINT HAVE A FUNCTION TO QUESTION PASSWORD
-                )
+                passwd = "interface gráfica, need passwd"
                 exec_str = (
                     "faillock --user $(whoami) --reset;"
                     f"echo '{passwd}' |"
@@ -345,25 +340,7 @@ class File_manager:
                     "sudo -k;"
                     " exit\n"
                 )
-                os.write(master_fd, exec_str.encode())
-                os.close(slave_fd)
-                while process.poll() is None:
-                    try:
-                        output = os.read(master_fd, 1024)
-                        if not output:
-                            break
-                        text = output.decode("utf-8")
-                        if (
-                            "sudo: no password was provided" in text
-                            or "incorrect password" in text
-                        ):
-                            return {
-                                "status": False,
-                                "msg": _("Password incorrecto"),
-                            }
-                            break
-                    except OSError:
-                        continue
+                return File_manager.exec_tty_cmd(exec_str)
             else:
                 exec = "pkexec"
                 cmd = [exec, "chown", f"{user.pw_uid}:{group.gr_gid}", path]
@@ -373,7 +350,47 @@ class File_manager:
                     return {"status": False, "msg": res.stderr}
 
         except PermissionError as e:
-            print(e)
-            # return File_manager.change_permissions(path, mode, True)
+            return {"status": False, "msg": e}
+
+        return {"status": True, "msg": True}
+
+    def exec_tty_cmd(exec_str: str):
+
+        import pty
+
+        master_fd, slave_fd = pty.openpty()
+        # cmd = ["ls", path]
+        cmd = ["bash"]
+        process = subprocess.Popen(
+            cmd,
+            stdin=slave_fd,
+            stdout=slave_fd,
+            stderr=slave_fd,
+            text=True,
+        )
+
+        # Wait a bit for the initial prompt to appear
+        time.sleep(0.2)
+
+        os.write(master_fd, exec_str.encode())
+        os.close(slave_fd)
+        while process.poll() is None:
+            try:
+                output = os.read(master_fd, 1024)
+                if not output:
+                    break
+                text = output.decode("utf-8")
+                print(text)
+                if (
+                    "sudo: no password was provided" in text
+                    or "incorrect password" in text
+                ):
+                    return {
+                        "status": False,
+                        "msg": _("Password incorrecto"),
+                    }
+                    break
+            except OSError:
+                continue
 
         return {"status": True, "msg": True}
