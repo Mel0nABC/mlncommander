@@ -1,12 +1,20 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
+from utilities.i18n import _
 from entity.File_or_directory_info import File_or_directory_info
-from pathlib import Path
-import gi
-import shutil
 from multiprocessing import Process, Queue
 from queue import Empty
+import subprocess
+from pathlib import Path
+import time
+import shutil
+import pwd
+import grp
+import stat
+import os
+import gi
+
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gio  # noqa: E402
@@ -158,7 +166,7 @@ class File_manager:
 
             return False
 
-    def get_dir_or_file_size(path: Path) -> int:
+    def get_dir_or_file_size(path: Path) -> dict:
 
         if path.is_dir():
             folders = 0
@@ -175,3 +183,197 @@ class File_manager:
             return {"folders": folders, "files": files, "size": size}
         else:
             return {"folders": 0, "files": 0, "size": path.stat().st_size}
+
+    def get_permissions(path: Path) -> dict:
+        try:
+            if not path.exists():
+                return {
+                    "status": False,
+                    "msg": _(
+                        "La ruta no existe",
+                    ),
+                }
+
+            if not os.access(path, os.X_OK):
+                return {
+                    "status": False,
+                    "msg": _(
+                        (
+                            "No dispone de permiso de"
+                            " ejecución en el directorio contenedor"
+                        )
+                    ),
+                }
+
+            st = os.stat(path)
+            file_permissions_bits = stat.S_IMODE(st.st_mode)
+            file_permissions = oct(file_permissions_bits)
+        except PermissionError as e:
+            return {"status": False, "msg": e}
+
+        return {"status": True, "msg": file_permissions}
+
+    def get_owner_group(path: Path) -> dict:
+
+        try:
+
+            if not path.exists():
+                return {
+                    "status": False,
+                    "msg": _(
+                        "La ruta no existe",
+                    ),
+                }
+
+            if not os.access(path, os.X_OK):
+                return {
+                    "status": False,
+                    "msg": _(
+                        (
+                            "No dispone de permiso de"
+                            " ejecución en el directorio contenedor"
+                        )
+                    ),
+                }
+            st = os.stat(path)
+            user_id = st.st_uid
+            group_id = st.st_gid
+        except PermissionError as e:
+            return {"status": False, "msg": e}
+
+        return {"status": True, "msg": (user_id, group_id)}
+
+    def change_permissions(
+        path: Path, mode: int, root_passwd: bool = None
+    ) -> bool:
+        try:
+            if not path.exists():
+                return {
+                    "status": False,
+                    "msg": _(
+                        "La ruta no existe",
+                    ),
+                }
+
+            str_mode = format(mode, "o")
+            # mode need int, octal type 0o777
+            if len(str_mode) != 3:
+                return {
+                    "status": False,
+                    "msg": _(
+                        (
+                            "El modo facilitado es incorrecto"
+                            ", debe ser tipo entero 0o777"
+                        ),
+                    ),
+                }
+            if not root_passwd:
+                os.chmod(path, mode)
+            else:
+                if not shutil.which("pkexec"):
+                    print("SOLICITUD DE CONTRASEÑA CON PARTE GRÁFICA")
+                    # solicitar contraseña a ventana antes de lanzar cmd
+                    cmd = ["ls", path]
+                else:
+                    cmd = ["pkexec", "chmod", str_mode, path]
+
+                res = subprocess.run(cmd, capture_output=True, text=True)
+
+                if res.returncode != 0:
+                    return {"status": False, "msg": res.stderr}
+
+        except PermissionError:
+            return File_manager.change_permissions(path, mode, True)
+        return {"status": True, "msg": True}
+
+    def change_owner_group(path: Path, user_str: str, group_str: str) -> bool:
+
+        user = None
+        group = None
+
+        try:
+            if not path.exists():
+                return {
+                    "status": False,
+                    "msg": _(
+                        "La ruta no existe",
+                    ),
+                }
+
+            try:
+                user = pwd.getpwnam(user_str)
+            except KeyError:
+                return {
+                    "status": False,
+                    "msg": _(f"El usuario {user_str}, no existe"),
+                }
+
+            try:
+                group = grp.getgrnam(group_str)
+            except KeyError:
+                return {
+                    "status": False,
+                    "msg": _(f"El grupo {group_str}, no existe"),
+                }
+
+            if shutil.which("pkexec"):
+                # When pkexec is not available to request the password.
+
+                import pty
+
+                master_fd, slave_fd = pty.openpty()
+                # cmd = ["ls", path]
+                cmd = ["bash"]
+                process = subprocess.Popen(
+                    cmd,
+                    stdin=slave_fd,
+                    stdout=slave_fd,
+                    stderr=slave_fd,
+                    text=True,
+                )
+
+                # Wait a bit for the initial prompt to appear
+                time.sleep(0.2)
+
+                passwd = (
+                    0  # IN THIS POINT HAVE A FUNCTION TO QUESTION PASSWORD
+                )
+                exec_str = (
+                    "faillock --user $(whoami) --reset;"
+                    f"echo '{passwd}' |"
+                    f"sudo -S chown {user.pw_uid}:{group.gr_gid} {str(path)};"
+                    "sudo -k;"
+                    " exit\n"
+                )
+                os.write(master_fd, exec_str.encode())
+                os.close(slave_fd)
+                while process.poll() is None:
+                    try:
+                        output = os.read(master_fd, 1024)
+                        if not output:
+                            break
+                        text = output.decode("utf-8")
+                        if (
+                            "sudo: no password was provided" in text
+                            or "incorrect password" in text
+                        ):
+                            return {
+                                "status": False,
+                                "msg": _("Password incorrecto"),
+                            }
+                            break
+                    except OSError:
+                        continue
+            else:
+                exec = "pkexec"
+                cmd = [exec, "chown", f"{user.pw_uid}:{group.gr_gid}", path]
+                res = subprocess.run(cmd, capture_output=True, text=True)
+
+                if res.returncode != 0:
+                    return {"status": False, "msg": res.stderr}
+
+        except PermissionError as e:
+            print(e)
+            # return File_manager.change_permissions(path, mode, True)
+
+        return {"status": True, "msg": True}
