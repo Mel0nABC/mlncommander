@@ -207,10 +207,11 @@ class File_manager:
 
             mode = os.stat(path).st_mode
             file_permissions = stat.filemode(mode)
+            file_permissions_filtered = file_permissions[1:]
         except PermissionError as e:
             return {"status": False, "msg": e}
 
-        return {"status": True, "msg": file_permissions}
+        return {"status": True, "msg": file_permissions_filtered}
 
     def get_owner_group(path: Path) -> dict:
 
@@ -253,7 +254,7 @@ class File_manager:
             },
         }
 
-    def change_permissions(path: Path, mode: list) -> bool:
+    def change_permissions(path: Path, mode: list, recursive: bool) -> bool:
 
         try:
             penalty_check = False
@@ -289,7 +290,6 @@ class File_manager:
                     break
 
             if penalty_check:
-                print("FALSO")
                 return {
                     "status": False,
                     "msg": _(
@@ -311,10 +311,14 @@ class File_manager:
                         ),
                     ),
                 }
+            recursive_str = ""
+            if recursive:
+                recursive_str = "-R"
 
             actual_user_id = os.getuid()
             st = os.stat(path)
             file_user_id = st.st_uid
+
             if not shutil.which("pkexec"):
 
                 need_passwd = ""
@@ -329,20 +333,21 @@ class File_manager:
                 exec_str = (
                     "faillock --user $(whoami) --reset;"
                     f"{need_passwd} "
-                    f"{sudo} chmod {mode_str} {str(path)};"
+                    f"{sudo} chmod {recursive_str} {mode_str} {str(path)};"
                     "sudo -k;"
                     " exit\n"
                 )
-
+                print(exec_str)
                 return File_manager.exec_tty_cmd(exec_str)
             else:
+                cmd = []
                 if not actual_user_id == file_user_id:
-                    cmd = ["pkexec", "chmod", mode_str, path]
-                else:
-                    cmd = ["chmod", mode_str, path]
-
-                print(cmd)
-
+                    cmd.append("pkexec")
+                cmd.append("chmod")
+                if recursive:
+                    cmd.append("-R")
+                cmd.append(mode_str)
+                cmd.append(path)
             res = subprocess.run(cmd, capture_output=True, text=True)
 
             if res.returncode != 0:
@@ -352,7 +357,9 @@ class File_manager:
             return {"status": False, "msg": e}
         return {"status": True, "msg": True}
 
-    def change_owner_group(path: Path, user_str: str, group_str: str) -> dict:
+    def change_owner_group(
+        path: Path, user_str: str, group_str: str, recursive: bool
+    ) -> dict:
 
         user = None
         group = None
