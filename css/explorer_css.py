@@ -99,6 +99,9 @@ class Css_explorer_manager:
         Set color to all button
         """
         css = f"""
+            .border{{
+                border: solid 1px black;
+            }}
             .fav{{
                 background-image: none;
                 background-color: {color_fav_button};

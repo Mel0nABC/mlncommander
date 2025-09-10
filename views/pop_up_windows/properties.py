@@ -20,6 +20,10 @@ class Properties(Gtk.Window):
             permissions = File_manager.get_permissions(path)
             owner_group = File_manager.get_owner_group(path)
 
+            ##################################################
+            ## HAY QUE HACER VALIDACIONES DE STATUS = FALSE ## noqa :E226
+            ##################################################
+
             if not permissions["status"]:
                 print("permissions FALSE")
                 continue
@@ -28,120 +32,59 @@ class Properties(Gtk.Window):
                 print("Owner group FALSE")
                 continue
 
-            permission_data = permissions["msg"].replace("0o", "")
-
+            permission_data = permissions["msg"]
             uid = owner_group["msg"]["user_id"]
             user_name = owner_group["msg"]["user_name"]
             gid = owner_group["msg"]["group_id"]
             group_name = owner_group["msg"]["group_name"]
 
-            permission_rwt_numbers = list(permission_data)
-            symbolic_result = []
+            properties = PropertiesEnty(
+                path, permission_data, uid, user_name, gid, group_name
+            )
+            self.list_store.append(properties)
 
-            def transform_octal_to_symbolic(octal_numer: str, sticky: bool):
-                if octal_numer == "7":
-                    if sticky:
-                        return "rws"
-                    return "rwx"
-                elif octal_numer == "6":
-                    return "rw-"
-                elif octal_numer == "5":
-                    if sticky:
-                        return "r-s"
-                    return "r-x"
-                elif octal_numer == "4":
-                    return "r--"
-                elif octal_numer == "3":
-                    if sticky:
-                        return "-ws"
-                    return "-wx"
-                elif octal_numer == "2":
-                    return "-w-"
-                elif octal_numer == "1":
-                    if sticky:
-                        return "--s"
-                    return "--x"
-                elif octal_numer == "0":
-                    return "---"
+        columns_header = [
+            "path",
+            "permissions",
+            "uid",
+            "gid",
+        ]
 
-            if len(permission_rwt_numbers) == 3:
-                for num in permission_rwt_numbers:
-                    symbolic_result.append(
-                        transform_octal_to_symbolic(num, False)
-                    )
-            else:
-                sticky = permission_rwt_numbers[0]
-                print(f"STICKY: {sticky}")
-                for index, num in enumerate(permission_rwt_numbers):
-                    if index == 0:
-                        continue
+        selection = Gtk.SingleSelection.new(model=self.list_store)
+        columnview = Gtk.ColumnView.new()
+        columnview.set_model(selection)
 
-                    if sticky == "4" and index == 1:
-                        symbolic_result.append(
-                            transform_octal_to_symbolic(num, True)
-                        )
-                    elif sticky == "2" and index == 2:
-                        symbolic_result.append(
-                            transform_octal_to_symbolic(num, True)
-                        )
-                    elif sticky == "1" and index == 3:
-                        symbolic_result.append(
-                            transform_octal_to_symbolic(num, True)
-                        )
-                    else:
-                        symbolic_result.append(
-                            transform_octal_to_symbolic(num, False)
-                        )
+        for property_name in columns_header:
 
-            print(symbolic_result)
+            if property_name == "path":
+                column_name = _("RUTA")
+            elif property_name == "permissions":
+                column_name = _("PERMISOS")
+            elif property_name == "uid":
+                column_name = _("PROPIETARIO")
+            elif property_name == "gid":
+                column_name = _("GRUPO")
 
-        #     properties = PropertiesEnty(
-        #         path, permission_data, uid, user_name, gid, group_name
-        #     )
-        #     self.list_store.append(properties)
+            self.factory = Gtk.SignalListItemFactory()
+            self.factory.connect("setup", self.setup, property_name)
+            self.factory.connect("bind", self.bind, property_name)
 
-        # columns_header = [
-        #     "path",
-        #     "permissions",
-        #     "uid",
-        #     "gid",
-        # ]
+            column = Gtk.ColumnViewColumn.new(column_name, self.factory)
 
-        # selection = Gtk.SingleSelection.new(model=self.list_store)
-        # columnview = Gtk.ColumnView.new()
-        # columnview.set_model(selection)
+            # For column order
+            property_expression = Gtk.PropertyExpression.new(
+                PropertiesEnty, None, property_name
+            )
 
-        # for property_name in columns_header:
+            sorter = Gtk.StringSorter.new(property_expression)
 
-        #     if property_name == "path":
-        #         column_name = _("RUTA")
-        #     elif property_name == "permissions":
-        #         column_name = _("PERMISOS")
-        #     elif property_name == "uid":
-        #         column_name = _("PROPIETARIO")
-        #     elif property_name == "gid":
-        #         column_name = _("GRUPO")
+            column.set_sorter(sorter)
 
-        #     self.factory = Gtk.SignalListItemFactory()
-        #     self.factory.connect("setup", self.setup, property_name)
-        #     self.factory.connect("bind", self.bind, property_name)
+            columnview.append_column(column)
 
-        #     column = Gtk.ColumnViewColumn.new(column_name, self.factory)
+        self.set_child(columnview)
 
-        #     # For column order
-        #     property_expression = Gtk.PropertyExpression.new(
-        #         PropertiesEnty, None, property_name
-        #     )
-
-        #     sorter = Gtk.StringSorter.new(property_expression)
-
-        #     column.set_sorter(sorter)
-
-        #     columnview.append_column(column)
-
-        # self.set_child(columnview)
-
-        # self.present()
+        self.present()
 
     def setup(
         self,
@@ -154,14 +97,6 @@ class Properties(Gtk.Window):
         else:
             if property_name == "permissions":
                 grid = Gtk.Grid(column_spacing=10, row_spacing=5)
-                lbl_sticky = Gtk.Label.new("Sticky")
-                lbl_user = Gtk.Label.new(_("Usuario"))
-                lbl_group = Gtk.Label.new(_("Grupo"))
-                lbl_other = Gtk.Label.new(_("Otros"))
-                grid.attach(lbl_sticky, 0, 0, 1, 1)
-                grid.attach(lbl_user, 1, 0, 1, 1)
-                grid.attach(lbl_group, 2, 0, 1, 1)
-                grid.attach(lbl_other, 3, 0, 1, 1)
                 cell.set_child(grid)
             else:
                 entry = Gtk.Entry()
@@ -185,25 +120,53 @@ class Properties(Gtk.Window):
         if item:
             widget = cell.get_child()
             if isinstance(widget, Gtk.Grid):
-                permissions = item.permissions
+                permissions = item.permissions[1:]
+                sticky_label = Gtk.Label.new("Sticky")
+                sticky_label.get_style_context().add_class("border")
+                sticky_label.set_vexpand(True)
+                sticky_label.set_valign(Gtk.Align.FILL)
+                widget.attach(sticky_label, 0, 0, 1, 2)
+                for index, char in enumerate(["User", "Group", "Other"]):
+                    result = index * 3
+                    ugo_label = Gtk.Label.new(char)
+                    ugo_label.get_style_context().add_class("border")
+                    widget.attach(ugo_label, result + 1, 0, 3, 1)
+                    for perm_index, perm in enumerate(list(permissions)):
+                        prm_label = Gtk.Label.new(perm)
+                        prm_label.get_style_context().add_class("border")
+                        widget.attach(prm_label, perm_index + 1, 1, 1, 1)
 
-                if len(permissions) == 3:
-                    permissions = f"0{permissions}"
+                sticky_output = ""
+                for i, c in enumerate(list(permissions)):
 
-                entry_sticky = Gtk.Entry.new()
-                entry_user = Gtk.Entry.new()
-                entry_group = Gtk.Entry.new()
-                entry_other = Gtk.Entry.new()
+                    if c == "s" and i == 2:
+                        sticky_output += "U"
+                    elif c == "s" and i == 5:
+                        sticky_output += "G"
+                    elif c == "t":
+                        sticky_output += "O"
 
-                entry_sticky.set_text(permissions[0])
-                entry_user.set_text(permissions[1])
-                entry_group.set_text(permissions[2])
-                entry_other.set_text(permissions[3])
+                    char_check = Gtk.CheckButton.new()
+                    char_check.get_style_context().add_class("border")
+                    if c == "-":
+                        char_check.set_active(False)
+                    else:
+                        char_check.set_active(True)
+                    widget.attach(char_check, i + 1, 2, 1, 1)
 
-                widget.attach(entry_sticky, 0, 1, 1, 1)
-                widget.attach(entry_user, 1, 1, 1, 1)
-                widget.attach(entry_group, 2, 1, 1, 1)
-                widget.attach(entry_other, 3, 1, 1, 1)
+                string_list = Gtk.StringList.new(
+                    ["U", "G", "O", "UG", "UO", "GO", "UGO"]
+                )
+
+                dropdown = Gtk.DropDown.new(model=string_list)
+                widget.attach(dropdown, 0, 2, 1, 1)
+
+                for i, v in enumerate(string_list):
+                    if v.get_string() == sticky_output:
+                        dropdown.set_selected(i)
+                        print(i)
+
+                print(f"STICKY RESULT: {sticky_output}")
             else:
                 value = item.get_property(property_name)
                 text_value = str(value)

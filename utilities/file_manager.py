@@ -205,9 +205,8 @@ class File_manager:
                     ),
                 }
 
-            st = os.stat(path)
-            file_permissions_bits = stat.S_IMODE(st.st_mode)
-            file_permissions = oct(file_permissions_bits)
+            mode = os.stat(path).st_mode
+            file_permissions = stat.filemode(mode)
         except PermissionError as e:
             return {"status": False, "msg": e}
 
@@ -254,8 +253,10 @@ class File_manager:
             },
         }
 
-    def change_permissions(path: Path, mode: int) -> bool:
+    def change_permissions(path: Path, mode: list) -> bool:
+
         try:
+            penalty_check = False
             if not path.exists():
                 return {
                     "status": False,
@@ -264,19 +265,52 @@ class File_manager:
                     ),
                 }
 
-            str_mode = format(mode, "o")
+            for i, c in enumerate(mode):
+                if len(c) != 3:
+                    penalty_check = True
+                    break
+
+                listc = list(c)
+                if listc[0] != "r" and listc[0] != "-":
+                    penalty_check = True
+
+                if listc[1] != "w" and listc[1] != "-":
+                    penalty_check = True
+                    break
+
+                if (
+                    listc[2] != "x"
+                    and listc[2] != "-"
+                    and listc[2] != "s"
+                    and listc[2] != "t"
+                ):
+                    penalty_check = True
+                    break
+
+            if penalty_check:
+                return {
+                    "status": False,
+                    "msg": _(
+                        "Hay alguna incongruencia en los permisos",
+                    ),
+                }
+
+            mode_str = f"u={mode[0]},g={mode[1]},o={mode[2]}".replace("-", "")
+
             # mode need int, octal type ex: 0o777 or 0o1777
-            if len(str_mode) < 3 and len(str_mode) > 4:
+            if any(c.lower() not in ",=ugorwxst" for c in mode_str):
+                print("Algun carácter es inválido")
                 return {
                     "status": False,
                     "msg": _(
                         (
                             "El modo facilitado es incorrecto"
-                            ", debe ser tipo entero 0o777"
+                            ", debe ser tipo entero 'u=rwx,g=rwx,o=rwx'"
+                            " puede incluir sticky bit s o t"
                         ),
                     ),
                 }
-
+            return "NADA DE NADA"
             if not shutil.which("pkexec"):
                 actual_user_id = os.getuid()
                 st = os.stat(path)
@@ -293,14 +327,15 @@ class File_manager:
                 exec_str = (
                     "faillock --user $(whoami) --reset;"
                     f"{need_passwd} "
-                    f"{sudo} chmod {str_mode} {str(path)};"
+                    f"{sudo} chmod {mode_str} {str(path)};"
                     "sudo -k;"
                     " exit\n"
                 )
                 print(exec_str)
                 return File_manager.exec_tty_cmd(exec_str)
             else:
-                cmd = ["pkexec", "chmod", str_mode, path]
+                cmd = ["pkexec", "chmod", mode_str, path]
+                print(cmd)
 
             res = subprocess.run(cmd, capture_output=True, text=True)
 
