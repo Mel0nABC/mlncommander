@@ -208,6 +208,5 @@ class ContextMenu(Gtk.Window):
     def get_properties(self, button: Gtk.Button) -> None:
         self.destroy()
         from views.pop_up_windows.properties import Properties
-        import App
 
-        Properties(App.Window, self.path_list)
+        Properties(self.main_window, self.path_list)

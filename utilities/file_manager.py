@@ -267,15 +267,18 @@ class File_manager:
 
             for i, c in enumerate(mode):
                 if len(c) != 3:
+                    print(0)
                     penalty_check = True
                     break
 
                 listc = list(c)
                 if listc[0] != "r" and listc[0] != "-":
                     penalty_check = True
+                    print(1)
 
                 if listc[1] != "w" and listc[1] != "-":
                     penalty_check = True
+                    print(2)
                     break
 
                 if (
@@ -284,6 +287,7 @@ class File_manager:
                     and listc[2] != "s"
                     and listc[2] != "t"
                 ):
+                    print(3)
                     penalty_check = True
                     break
 

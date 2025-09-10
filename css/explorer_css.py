@@ -99,9 +99,6 @@ class Css_explorer_manager:
         Set color to all button
         """
         css = f"""
-            .border{{
-                border: solid 1px black;
-            }}
             .fav{{
                 background-image: none;
                 background-color: {color_fav_button};
@@ -140,6 +137,23 @@ class Css_explorer_manager:
             .contextual_content button{
                 margin: 0px;
                 min-width: 200px;
+            }
+        """.encode()
+
+        self.set_css_to_provider(css)
+
+    def load_css_properties(self) -> None:
+        """
+        Set color to all button
+        """
+        css = """
+
+            .properties-columnview cell {
+                margin: 5px;
+                
+            }
+            .properties{
+                margin: 20px;
             }
         """.encode()
 

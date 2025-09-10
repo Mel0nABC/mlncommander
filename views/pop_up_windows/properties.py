@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from utilities.file_manager import File_manager
+from css.explorer_css import Css_explorer_manager
 from pathlib import Path
 import gi
 
@@ -12,47 +13,121 @@ from gi.repository import Gtk, Gio, Gdk, GObject  # noqa E402
 
 class Properties(Gtk.Window):
     def __init__(self, win: Gtk.Window, path_list: list = None):
-        super().__init__()
+        super().__init__(transient_for=win)
+
+        header = Gtk.HeaderBar()
+        header.set_title_widget(
+            Gtk.Label(label=_("Propiedades de archivos y carpetas"))
+        )
+        self.set_titlebar(header)
+
+        self.win = win
+        self.path_list = path_list
+
+        # Load css
+        self.css_manager = Css_explorer_manager(self)
+        self.css_manager.load_css_properties()
+
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+
+        main_vertical_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=5
+        )
+
+        notebook = Gtk.Notebook.new()
+
+        notebook.append_page(
+            self.create_permissions(), Gtk.Label.new(_("Permisos"))
+        )
+        notebook.append_page(
+            self.create_information(), Gtk.Label.new(_("Información"))
+        )
+
+        main_vertical_box.append(notebook)
+
+        self.set_child(main_vertical_box)
+
+        self.present()
+
+    def create_information(self) -> Gtk.Box:
+
+        information_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=5
+        )
+
+        information_box.append(
+            Gtk.Label.new("INFORMACION ARCHIVOS Y CARPETAS")
+        )
+
+        image = Gtk.Image.new()
+
+        return information_box
+
+    def create_permissions(self) -> Gtk.Box:
 
         self.list_store = Gio.ListStore.new(PropertiesEnty)
+        from utilities.sistem_info import SistemInformation
 
-        for index, path in enumerate(path_list):
+        self.user_list = Gtk.StringList.new(
+            SistemInformation.get_sistem_users()
+        )
+        # self.store_users = Gio.ListStore.new(item_type=String)
+        self.group_list = Gtk.StringList.new(
+            SistemInformation.get_sistem_groups()
+        )
+
+        for index, path in enumerate(self.path_list):
             permissions = File_manager.get_permissions(path)
             owner_group = File_manager.get_owner_group(path)
 
             ##################################################
             ## HAY QUE HACER VALIDACIONES DE STATUS = FALSE ## noqa :E226
             ##################################################
-
+            print(permissions)
             if not permissions["status"]:
-                print("permissions FALSE")
+                print(
+                    "## HAY QUE HACER VALIDACIONES DE STATUS = FALSE ## noqa :E226"
+                )
                 continue
 
             if not owner_group["status"]:
-                print("Owner group FALSE")
+                print(
+                    "## HAY QUE HACER VALIDACIONES DE STATUS = FALSE ## noqa :E226"
+                )
                 continue
 
             permission_data = permissions["msg"]
-            uid = owner_group["msg"]["user_id"]
             user_name = owner_group["msg"]["user_name"]
-            gid = owner_group["msg"]["group_id"]
             group_name = owner_group["msg"]["group_name"]
 
             properties = PropertiesEnty(
-                path, permission_data, uid, user_name, gid, group_name
+                path, permission_data, user_name, group_name
             )
+
             self.list_store.append(properties)
 
         columns_header = [
             "path",
             "permissions",
-            "uid",
-            "gid",
+            "user_name",
+            "group_name",
         ]
 
-        selection = Gtk.SingleSelection.new(model=self.list_store)
-        columnview = Gtk.ColumnView.new()
-        columnview.set_model(selection)
+        properties_box = Gtk.Box(
+            orientation=Gtk.Orientation.VERTICAL, spacing=5
+        )
+
+        self.selection = Gtk.SingleSelection.new(model=self.list_store)
+        self.columnview = Gtk.ColumnView.new()
+
+        self.columnview.get_style_context().add_class("properties-columnview")
+
+        self.columnview.set_model(self.selection)
+
+        properties_box.append(self.columnview)
+        properties_box.set_hexpand(True)
 
         for property_name in columns_header:
 
@@ -77,14 +152,89 @@ class Properties(Gtk.Window):
             )
 
             sorter = Gtk.StringSorter.new(property_expression)
-
+            column.set_expand(True)
+            column.set_resizable(True)
             column.set_sorter(sorter)
 
-            columnview.append_column(column)
+            self.columnview.append_column(column)
 
-        self.set_child(columnview)
+        horizontal_btn_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=5
+        )
 
-        self.present()
+        horizontal_btn_box.set_halign(Gtk.Align.END)
+        horizontal_btn_box.set_hexpand(True)
+        horizontal_btn_box.set_margin_top(30)
+
+        btn_accept = Gtk.Button.new_with_label(_("Aceptar"))
+        btn_accept.set_margin_end(20)
+        btn_cancel = Gtk.Button.new_with_label(_("Cancelar"))
+
+        def on_accept(button: Gtk.Button):
+            win = Gtk.Window(
+                title=_("Ajustando permisos..."), transient_for=self
+            )
+            # win.set_size_request(300, 300)
+            self.vertical_box = Gtk.Box(
+                orientation=Gtk.Orientation.VERTICAL, spacing=5
+            )
+            self.vertical_box.set_margin_top(50)
+            self.vertical_box.set_margin_end(50)
+            self.vertical_box.set_margin_bottom(50)
+            self.vertical_box.set_margin_start(50)
+            win.set_child(self.vertical_box)
+
+            spinner = Gtk.Spinner.new()
+            spinner.start()
+
+            grid = Gtk.Grid.new()
+
+            self.vertical_box.append(spinner)
+            self.vertical_box.append(grid)
+
+            win.present()
+
+            for i, propertiesenty in enumerate(self.list_store):
+                path_lbl = Gtk.Label.new(propertiesenty.path)
+                path_lbl.set_halign(Gtk.Align.START)
+                grid.attach(path_lbl, 0, i, 1, 1)
+
+                response = propertiesenty.save_data_permissions()
+                response_lbl = Gtk.Label.new()
+                response_lbl.set_margin_start(30)
+
+                if response["status"]:
+                    response_lbl.set_text("✅")
+                else:
+                    response_lbl.set_text("❌")
+                grid.attach(response_lbl, 1, i, 1, 1)
+            spinner.stop()
+
+            btn_close = Gtk.Button.new_with_label(_("Cerrar"))
+            btn_close.set_margin_top(40)
+            btn_close.set_halign(Gtk.Align.END)
+
+            def on_close(btn: Gtk.Button) -> None:
+                win.destroy()
+                self.destroy()
+
+            btn_close.connect("clicked", on_close)
+            self.vertical_box.append(btn_close)
+
+        def on_cancel(button: Gtk.Button):
+            self.destroy()
+
+        btn_accept.connect("clicked", on_accept)
+        btn_cancel.connect("clicked", on_cancel)
+
+        horizontal_btn_box.append(btn_accept)
+        horizontal_btn_box.append(btn_cancel)
+
+        properties_box.append(horizontal_btn_box)
+
+        properties_box.get_style_context().add_class("properties")
+
+        return properties_box
 
     def setup(
         self,
@@ -97,18 +247,23 @@ class Properties(Gtk.Window):
         else:
             if property_name == "permissions":
                 grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+
+                # Sticky section
+                sticky_label = Gtk.Label.new("Sticky")
+                sticky_label.set_vexpand(True)
+                sticky_label.set_valign(Gtk.Align.FILL)
+                grid.attach(sticky_label, 0, 0, 1, 2)
+
+                # Recursive section
+                recursive_label = Gtk.Label.new(_("Recursivo"))
+                recursive_label.set_valign(Gtk.Align.FILL)
+                grid.attach(recursive_label, 10, 0, 1, 2)
+
                 cell.set_child(grid)
             else:
-                entry = Gtk.Entry()
-                cell.set_child(entry)
-
-            def on_changed(entry, cell, property_name):
-                obj = cell.get_item()
-                # old_value = getattr(obj, property_name)
-                new_value = entry.get_text()
-                setattr(obj, property_name, new_value)
-                obj.notify(property_name)
-                entry.connect("changed", on_changed, cell, property_name)
+                drop_user_group = Gtk.DropDown.new()
+                drop_user_group.set_vexpand(False)
+                cell.set_child(drop_user_group)
 
     def bind(
         self,
@@ -116,109 +271,315 @@ class Properties(Gtk.Window):
         cell: Gtk.ColumnViewCell,
         property_name: str,
     ) -> None:
-        item = cell.get_item()
-        if item:
+
+        propertiesenty = cell.get_item()
+        if propertiesenty:
             widget = cell.get_child()
+            controller = Gtk.EventControllerMotion()
+            controller.connect("enter", self.focust_row_with_some_widget, cell)
+            widget.add_controller(controller)
+
             if isinstance(widget, Gtk.Grid):
-                permissions = item.permissions[1:]
-                sticky_label = Gtk.Label.new("Sticky")
-                sticky_label.get_style_context().add_class("border")
-                sticky_label.set_vexpand(True)
-                sticky_label.set_valign(Gtk.Align.FILL)
-                widget.attach(sticky_label, 0, 0, 1, 2)
+                row_labels = 1
                 for index, char in enumerate(["User", "Group", "Other"]):
                     result = index * 3
                     ugo_label = Gtk.Label.new(char)
-                    ugo_label.get_style_context().add_class("border")
                     widget.attach(ugo_label, result + 1, 0, 3, 1)
-                    for perm_index, perm in enumerate(list(permissions)):
+                    for perm_index, perm in enumerate(list("rwx")):
                         prm_label = Gtk.Label.new(perm)
-                        prm_label.get_style_context().add_class("border")
-                        widget.attach(prm_label, perm_index + 1, 1, 1, 1)
+                        propertiesenty.labels_list.append(prm_label)
+                        self.set_names_to_widgets(prm_label, perm_index, perm)
+                        widget.attach(prm_label, row_labels, 1, 1, 1)
+                        row_labels += 1
 
-                sticky_output = ""
-                for i, c in enumerate(list(permissions)):
+                permissions_list = propertiesenty.permissions_list
 
-                    if c == "s" and i == 2:
-                        sticky_output += "U"
-                    elif c == "s" and i == 5:
-                        sticky_output += "G"
-                    elif c == "t":
-                        sticky_output += "O"
-
+                for i, c in enumerate(permissions_list):
                     char_check = Gtk.CheckButton.new()
-                    char_check.get_style_context().add_class("border")
+                    self.set_names_to_widgets(char_check, i, c)
+                    propertiesenty.checks_btn_list.append(char_check)
+
                     if c == "-":
                         char_check.set_active(False)
                     else:
                         char_check.set_active(True)
+
+                    def set_permission_changes(button, cell, property):
+                        propertiesenty = cell.get_item()
+                        coordinate = button.get_name()
+                        checked = button.get_active()
+                        response = propertiesenty.set_changes_permissions(
+                            coordinate, checked
+                        )
+
+                        if response:
+                            self.update_labels_and_propertyenty(propertiesenty)
+
+                    char_check.connect(
+                        "toggled",
+                        set_permission_changes,
+                        cell,
+                        property_name,
+                    )
+
                     widget.attach(char_check, i + 1, 2, 1, 1)
 
                 string_list = Gtk.StringList.new(
-                    ["U", "G", "O", "UG", "UO", "GO", "UGO"]
+                    ["-", "U", "G", "O", "UG", "UO", "GO", "UGO"]
                 )
 
-                dropdown = Gtk.DropDown.new(model=string_list)
-                widget.attach(dropdown, 0, 2, 1, 1)
+                sticky_dropdown = Gtk.DropDown.new(model=string_list)
+                sticky_dropdown.set_size_request(90, -1)
 
-                for i, v in enumerate(string_list):
-                    if v.get_string() == sticky_output:
-                        dropdown.set_selected(i)
-                        print(i)
+                for i, value in enumerate(sticky_dropdown.get_model()):
+                    sticky = value.get_string()
+                    if sticky == propertiesenty.sticky:
+                        sticky_dropdown.set_selected(i)
 
-                print(f"STICKY RESULT: {sticky_output}")
+                def on_changed_sticky(
+                    dropdrown: Gtk.DropDown,
+                    pspec: GObject.GParamSpec,
+                    cell: Gtk.ColumnViewCell,
+                    property_name: str,
+                ) -> None:
+                    propertiesenty = cell.get_item()
+                    response = propertiesenty.set_sticky(
+                        sticky_dropdown.get_selected_item().get_string()
+                    )
+
+                    if response:
+                        self.update_labels_and_propertyenty(propertiesenty)
+
+                sticky_dropdown.connect(
+                    "notify::selected-item",
+                    on_changed_sticky,
+                    cell,
+                    property_name,
+                )
+                widget.attach(sticky_dropdown, 0, 2, 1, 1)
+
+                recursive_check = char_check = Gtk.CheckButton.new()
+                recursive_check.set_name("recursive")
+                recursive_check.set_halign(Gtk.Align.CENTER)
+                recursive_check.set_valign(Gtk.Align.CENTER)
+                widget.attach(recursive_check, 10, 2, 1, 2)
+
+                def update_recursive_check(
+                    button: Gtk.CheckButton = None,
+                    cell: Gtk.ColumnViewCell = None,
+                    property_name: str = None,
+                ) -> None:
+                    if button:
+                        print("HOLA")
+                        propertiesenty = cell.get_item()
+                        response = propertiesenty.set_recursive(
+                            button.get_active()
+                        )
+
+                        print(f"RESPUESTA: {response}")
+
+                recursive_check.connect(
+                    "toggled",
+                    update_recursive_check,
+                    cell,
+                    property_name,
+                )
+
             else:
-                value = item.get_property(property_name)
-                text_value = str(value)
-                if property_name == "uid":
-                    text_value = item.get_property("user_name")
-                elif property_name == "gid":
-                    text_value = item.get_property("group_name")
 
-                widget.set_text(text_value)
+                if property_name == "user_name":
+                    widget.set_model(self.user_list)
 
-    def get_properties(self):
-        print("lala")
-        # threading.Thread(
-        #     target=File_manager.properties_work, args=(self.path_list,)
-        # ).start()
+                    for i, value in enumerate(widget.get_model()):
+                        user = value.get_string()
+                        if user == propertiesenty.user_name:
+                            widget.set_selected(i)
+
+                    def on_changed_user(
+                        dropdrown: Gtk.DropDown,
+                        pspec: GObject.GParamSpec,
+                        cell: Gtk.ColumnViewCell,
+                        property_name: str,
+                    ) -> None:
+                        propertiesenty = cell.get_item()
+                        new_owner = dropdrown.get_selected_item().get_string()
+                        propertiesenty.set_owner(new_owner)
+
+                    widget.connect(
+                        "notify::selected-item",
+                        on_changed_user,
+                        cell,
+                        property_name,
+                    )
+
+                elif property_name == "group_name":
+                    widget.set_model(self.group_list)
+                    for i, value in enumerate(widget.get_model()):
+                        group = value.get_string()
+                        if group == propertiesenty.group_name:
+                            widget.set_selected(i)
+
+                    def on_changed_group(
+                        dropdrown: Gtk.DropDown,
+                        pspec: GObject.GParamSpec,
+                        cell: Gtk.ColumnViewCell,
+                        property_name: str,
+                    ) -> None:
+                        propertiesenty = cell.get_item()
+                        new_group = dropdrown.get_selected_item().get_string()
+                        propertiesenty.set_group(new_group)
+
+                    widget.connect(
+                        "notify::selected-item",
+                        on_changed_group,
+                        cell,
+                        property_name,
+                    )
+                if property_name == "path":
+                    widget.set_text(propertiesenty.path)
+
+                widget.set_hexpand(False)
+                widget.set_valign(Gtk.Align.CENTER)
+                widget.set_halign(Gtk.Align.CENTER)
+                widget.set_size_request(250, -1)
+
+    def focust_row_with_some_widget(self, control, x, y, cell) -> None:
+        flags = (
+            Gtk.ListScrollFlags.SELECT
+            | Gtk.ListScrollFlags.NONE
+            | Gtk.ListScrollFlags.FOCUS
+        )
+        position = cell.get_position()
+        self.columnview.scroll_to(position, None, flags)
+
+    def update_labels_and_propertyenty(
+        self, propertiesenty: GObject.Object
+    ) -> None:
+        for i, value in enumerate(propertiesenty.permissions_list):
+            propertiesenty.labels_list[i].set_text(value)
+
+    def set_names_to_widgets(self, widget, i, c):
+        if i >= 0 and i < 3:
+            widget.set_name(f"{i}={c}")
+        elif i >= 3 and i < 6:
+            widget.set_name(f"{i}={c}")
+        elif i >= 6 and i < 9:
+            widget.set_name(f"{i}={c}")
 
 
 class PropertiesEnty(GObject.Object):
 
     __gtype_name__ = "PropertiesEnty"
 
-    path = GObject.Property(type=GObject.TYPE_STRING, default="default")
-    permissions = GObject.Property(type=GObject.TYPE_STRING, default="default")
-    uid = GObject.Property(type=GObject.TYPE_STRING, default="default")
-    user_name = GObject.Property(type=GObject.TYPE_STRING, default="default")
-    gid = GObject.Property(type=GObject.TYPE_STRING, default="default")
-    group_name = GObject.Property(type=GObject.TYPE_STRING, default="default")
+    path = GObject.Property(type=GObject.TYPE_STRING)
+    permissions = GObject.Property(type=GObject.TYPE_STRING)
+    user_name = GObject.Property(type=GObject.TYPE_STRING)
+    group_name = GObject.Property(type=GObject.TYPE_STRING)
+    sticky = GObject.Property(type=GObject.TYPE_STRING)
+    recursive = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
 
     def __init__(
         self,
         path: Path,
         permissions: str,
-        uid: int,
         user_name: str,
-        gid: int,
         group_name: str,
+        recursive: bool = False,
     ):
         super().__init__()
 
         self.path = path
         self.permissions = permissions
-        self.uid = uid
+        self.permissions_list = list(permissions)
         self.user_name = user_name
-        self.gid = gid
         self.group_name = group_name
+        self.sticky = ""
+        self.recursive = recursive
+        self.labels_list = []
+        self.checks_btn_list = []
+
+    def set_permissions_list(self, permissions_list: list) -> bool:
+        self.permissions_list = permissions_list
+        self.permissions = "".join(self.permissions_list)
+        return True
+
+    def set_changes_permissions(self, coordinate: str, checked: bool) -> None:
+        divid = coordinate.split("=")
+        index = int(divid[0])
+        letter = divid[1]
+        if not checked:
+            letter = "-"
+        else:
+            letter = divid[1]
+            if letter == "-":
+                if index in [0, 3, 6]:
+                    letter = "r"
+                elif index in [1, 4, 7]:
+                    letter = "w"
+                elif index in [3, 5, 8]:
+                    letter = "x"
+        self.permissions_list[index] = letter
+        self.set_sticky(self.sticky)
+        return self.set_permissions_list(self.permissions_list)
+
+    def set_sticky(self, sticky: str) -> True:
+        self.sticky = sticky
+
+        u = self.permissions_list[2]
+        g = self.permissions_list[5]
+        o = self.permissions_list[8]
+
+        if not u == "-":
+            if "u" in self.sticky.lower():
+                self.permissions_list[2] = "s"
+            else:
+                self.permissions_list[2] = "x"
+        if not g == "-":
+            if "g" in self.sticky.lower():
+                self.permissions_list[5] = "s"
+            else:
+                self.permissions_list[5] = "x"
+        if not o == "-":
+            if "o" in self.sticky.lower():
+                self.permissions_list[8] = "t"
+            else:
+                self.permissions_list[8] = "x"
+
+        return self.set_permissions_list(self.permissions_list)
+
+    def set_recursive(self, recursive: bool) -> bool:
+        old_recursive = self.recursive
+        self.recursive = recursive
+        return not old_recursive == self.recursive
+
+    def set_owner(self, new_owner: str) -> bool:
+        old_name = self.user_name
+        self.user_name = new_owner
+        return not old_name == self.user_name
+
+    def set_group(self, new_group: str) -> bool:
+        old_group = self.group_name
+        self.group_name = new_group
+        return not old_group == self.user_name
 
     def to_dict(self):
         return {
             "path": self.path,
             "permissions": self.permissions,
-            "uid": self.uid,
             "user_name": self.user_name,
-            "gid": self.gid,
             "group_name": self.group_name,
+            "sticky": self.sticky,
+            "recursive": self.recursive,
         }
+
+    def save_data_permissions(self) -> dict:
+
+        permission_list = []
+        n = 0
+        for i in [3, 6, 9]:
+            permission_list.append(self.permissions[n:i])
+            n = i
+
+        return File_manager.change_permissions(
+            Path(self.path), permission_list, self.recursive
+        )
