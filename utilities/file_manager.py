@@ -247,9 +247,7 @@ class File_manager:
         return {
             "status": True,
             "msg": {
-                "user_id": user_id,
                 "user_name": user_name,
-                "group_id": group_id,
                 "group_name": group_name,
             },
         }
@@ -337,7 +335,7 @@ class File_manager:
                     "sudo -k;"
                     " exit\n"
                 )
-                print(exec_str)
+
                 return File_manager.exec_tty_cmd(exec_str)
             else:
                 cmd = []
@@ -391,18 +389,27 @@ class File_manager:
 
             if not shutil.which("pkexec"):
                 # When pkexec is not available to request the password.
-                passwd = "interface gráfica, need passwd"
+                passwd = "for question in UI"
+                recursive_str = ""
+                if recursive:
+                    recursive_str = "-R"
                 exec_str = (
                     "faillock --user $(whoami) --reset;"
-                    f"echo '{passwd}' |"
-                    f"sudo -S chown {user.pw_uid}:{group.gr_gid} {str(path)};"
+                    f"echo '{passwd}' | "
+                    f"sudo -S chown {recursive_str} {user.pw_uid}:{group.gr_gid} {str(path)};"  # noqa: E501
                     "sudo -k;"
                     " exit\n"
                 )
+
                 return File_manager.exec_tty_cmd(exec_str)
             else:
-                exec = "pkexec"
-                cmd = [exec, "chown", f"{user.pw_uid}:{group.gr_gid}", path]
+                cmd = ["pkexec", "chown"]
+
+                if recursive:
+                    cmd.append("-R")
+
+                cmd += [f"{user.pw_uid}:{group.gr_gid}", path]
+
                 res = subprocess.run(cmd, capture_output=True, text=True)
 
                 if res.returncode != 0:
