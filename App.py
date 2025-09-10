@@ -1,128 +1,89 @@
-# # SPDX-FileCopyrightText: 2025 Mel0nABC
-# #
-# # SPDX-License-Identifier: MIT
-# from views.main_window import Window
-# from controls.actions import Actions
-# from pathlib import Path
-# import gbulb
-# import subprocess
-# import gettext
-# import gi
-# import os
-
-# gi.require_version("Gtk", "4.0")
-# from gi.repository import Gtk  # noqa: E402
-
-# gbulb.install()  # Integrate asyncio into Gtk
-
-# # force tu use dark theme with system env
-# # os.environ["GTK_THEME"] = "Adwaita-light"
-# os.environ["GTK_THEME"] = "Adwaita-dark"
-
-# # Configure gettext
-# APP_NAME = "mlncommander"
-# APP_HOME = os.path.dirname(__file__)
-# LOCALE_DIR = os.path.join(APP_HOME, "locales")
-
-# # Initialice gettext
-# gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
-# gettext.textdomain(APP_NAME)
-# _ = gettext.gettext
-
-# # trans = gettext.translation(
-# #     APP_NAME, localedir=LOCALE_DIR, languages=["en"], fallback=False
-# # )
-# # trans.install()
-
-
-# class App(Gtk.Application):
-
-#     def __init__(self):
-#         """
-#         Constructor
-#         """
-#         super().__init__(application_id="com.mel0n.mlncommander")
-#         self.window = None
-
-#     def do_activate(self) -> None:
-#         """
-#         Initializes the application when the run() method is executed
-#         """
-#         action = Actions()
-#         self.window = Window(self, action)
-#         action.set_parent(self.window)
-#         self.window.present()
-
-#         # For generate translation lenguaje_template.pot
-#         # self.generate_project_file_list()
-
-#     def generate_project_file_list(self):
-#         py_files = []
-#         project_path = Path(LOCALE_DIR).parent
-
-#         def iter_dir(path: Path):
-#             for item in path.iterdir():
-#                 if item.is_dir():
-#                     if not item.name == "venv":
-#                         iter_dir(item)
-#                 else:
-#                     if item.suffix == ".py":
-#                         py_files.append(str(item))
-
-#         iter_dir(project_path)
-
-#         subprocess.run(
-#             [
-#                 "xgettext",
-#                 "-o",
-#                 f"{str(Path(LOCALE_DIR))}/lenguaje_template.pot",
-#             ]
-#             + py_files,
-#             check=True,
-#         )
-
-#         # Para actualizar el .po con el nunevo .pot
-#         # msgmerge --update en_US.po lenguaje_template.pot
-
-
-# app = App()
-# app.run()
-
-
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
+from views.main_window import Window
+from controls.actions import Actions
 from pathlib import Path
+import gbulb
+import subprocess
+import gettext
+import gi
+import os
 
-from utilities.file_manager import File_manager
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gtk  # noqa: E402
 
+gbulb.install()  # Integrate asyncio into Gtk
 
-def test_get_permisions_list():
+# force tu use dark theme with system env
+# os.environ["GTK_THEME"] = "Adwaita-light"
+os.environ["GTK_THEME"] = "Adwaita-dark"
 
-    path_list_1 = Path(
-        "/home/mel0n/Downloads/pruebas_copiar/sticky/"
-    ).iterdir()
-    path_list_2 = Path("/home/mel0n/Downloads/pruebas_copiar/").iterdir()
+# Configure gettext
+APP_NAME = "mlncommander"
+APP_HOME = os.path.dirname(__file__)
+LOCALE_DIR = os.path.join(APP_HOME, "locales")
 
-    for path in path_list_1:
-        print(f"{File_manager.get_permissions(path)["msg"]} ---> {path}")
+# Initialice gettext
+gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
+gettext.textdomain(APP_NAME)
+_ = gettext.gettext
 
-    for path in path_list_2:
-        print(f"{File_manager.get_permissions(path)["msg"]} ---> {path}")
-
-
-# test_get_permisions_list()
-
-
-def test_get_permisions(path):
-    print(f"{File_manager.get_permissions(path)["msg"]} ---> {path}")
-
-
-def test_change_permissions():
-    path = Path(
-        "/home/mel0n/Downloads/pruebas_copiar/sticky/fichero_no_ssticky.sh"
-    )
-    path2 = Path("/home/mel0n/Downloads/pruebas_copiar/sticky/sticky_test.sh")
-
-    print(File_manager.change_permissions(path, ["rwx", "rws", "r-x"]))
-    print(File_manager.change_permissions(path2, ["rwx", "--x", "--x"]))
+# trans = gettext.translation(
+#     APP_NAME, localedir=LOCALE_DIR, languages=["en"], fallback=False
+# )
+# trans.install()
 
 
-test_change_permissions()
+class App(Gtk.Application):
+
+    def __init__(self):
+        """
+        Constructor
+        """
+        super().__init__(application_id="com.mel0n.mlncommander")
+        self.window = None
+
+    def do_activate(self) -> None:
+        """
+        Initializes the application when the run() method is executed
+        """
+        action = Actions()
+        self.window = Window(self, action)
+        action.set_parent(self.window)
+        self.window.present()
+
+        # For generate translation lenguaje_template.pot
+        # self.generate_project_file_list()
+
+    def generate_project_file_list(self):
+        py_files = []
+        project_path = Path(LOCALE_DIR).parent
+
+        def iter_dir(path: Path):
+            for item in path.iterdir():
+                if item.is_dir():
+                    if not item.name == "venv":
+                        iter_dir(item)
+                else:
+                    if item.suffix == ".py":
+                        py_files.append(str(item))
+
+        iter_dir(project_path)
+
+        subprocess.run(
+            [
+                "xgettext",
+                "-o",
+                f"{str(Path(LOCALE_DIR))}/lenguaje_template.pot",
+            ]
+            + py_files,
+            check=True,
+        )
+
+        # Para actualizar el .po con el nunevo .pot
+        # msgmerge --update en_US.po lenguaje_template.pot
+
+
+app = App()
+app.run()

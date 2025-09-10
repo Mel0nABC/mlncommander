@@ -257,6 +257,7 @@ class File_manager:
 
         try:
             penalty_check = False
+
             if not path.exists():
                 return {
                     "status": False,
@@ -288,6 +289,7 @@ class File_manager:
                     break
 
             if penalty_check:
+                print("FALSO")
                 return {
                     "status": False,
                     "msg": _(
@@ -299,7 +301,6 @@ class File_manager:
 
             # mode need int, octal type ex: 0o777 or 0o1777
             if any(c.lower() not in ",=ugorwxst" for c in mode_str):
-                print("Algun carácter es inválido")
                 return {
                     "status": False,
                     "msg": _(
@@ -310,11 +311,12 @@ class File_manager:
                         ),
                     ),
                 }
-            return "NADA DE NADA"
+
+            actual_user_id = os.getuid()
+            st = os.stat(path)
+            file_user_id = st.st_uid
             if not shutil.which("pkexec"):
-                actual_user_id = os.getuid()
-                st = os.stat(path)
-                file_user_id = st.st_uid
+
                 need_passwd = ""
                 sudo = ""
 
@@ -331,10 +333,14 @@ class File_manager:
                     "sudo -k;"
                     " exit\n"
                 )
-                print(exec_str)
+
                 return File_manager.exec_tty_cmd(exec_str)
             else:
-                cmd = ["pkexec", "chmod", mode_str, path]
+                if not actual_user_id == file_user_id:
+                    cmd = ["pkexec", "chmod", mode_str, path]
+                else:
+                    cmd = ["chmod", mode_str, path]
+
                 print(cmd)
 
             res = subprocess.run(cmd, capture_output=True, text=True)
@@ -342,8 +348,8 @@ class File_manager:
             if res.returncode != 0:
                 return {"status": False, "msg": res.stderr}
 
-        except PermissionError:
-            return File_manager.change_permissions(path, mode, True)
+        except PermissionError as e:
+            return {"status": False, "msg": e}
         return {"status": True, "msg": True}
 
     def change_owner_group(path: Path, user_str: str, group_str: str) -> dict:
@@ -426,7 +432,7 @@ class File_manager:
                 if not output:
                     break
                 text = output.decode("utf-8")
-                print(text)
+
                 if (
                     "sudo: no password was provided" in text
                     or "incorrect password" in text

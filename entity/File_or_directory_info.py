@@ -22,7 +22,7 @@ class File_or_directory_info(GObject.Object):
     size = GObject.Property(type=GObject.TYPE_STRING, default="")
     type_str = GObject.Property(type=GObject.TYPE_STRING, default="")
     is_sys_link = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
-    path_exist = GObject.property(type=GObject.TYPE_BOOLEAN, default=True)
+    path_exist = GObject.Property(type=GObject.TYPE_BOOLEAN, default=True)
 
     def __init__(self, path: Path):
         super().__init__()
