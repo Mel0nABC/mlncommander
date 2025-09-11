@@ -39,6 +39,8 @@ class PropertiesEnty(GObject.Object):
         self.recursive = recursive
         self.labels_list = []
         self.checks_btn_list = []
+        self.old_user_name = user_name
+        self.old_group_name = group_name
 
     def set_permissions_list(self, permissions_list: list) -> bool:
         self.permissions_list = permissions_list
@@ -95,14 +97,14 @@ class PropertiesEnty(GObject.Object):
         return not old_recursive == self.recursive
 
     def set_owner(self, new_owner: str) -> bool:
-        old_name = self.user_name
+        old_user_name = self.user_name
         self.user_name = new_owner
-        return not old_name == self.user_name
+        return not old_user_name == self.user_name
 
     def set_group(self, new_group: str) -> bool:
-        old_group = self.group_name
+        old_group_name = self.group_name
         self.group_name = new_group
-        return not old_group == self.user_name
+        return not old_group_name == self.user_name
 
     def to_dict(self):
         return {
@@ -125,3 +127,12 @@ class PropertiesEnty(GObject.Object):
         return File_manager.change_permissions(
             Path(self.path), permission_list, self.recursive
         )
+
+    def filter_data_owners_changed(self) -> dict:
+        if (
+            self.old_user_name == self.user_name
+            and self.old_group_name == self.group_name
+        ):
+            return True
+
+        return False

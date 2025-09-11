@@ -5,6 +5,7 @@ from utilities.i18n import _
 from utilities.file_manager import File_manager
 from entity.properties_enty import PropertiesEnty
 from css.explorer_css import Css_explorer_manager
+from pathlib import Path
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -119,6 +120,71 @@ class Properties(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL, spacing=5
         )
 
+        # START TOP MENU
+
+        top_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        top_box.set_margin_top(20)
+        top_box.set_margin_end(20)
+        top_box.set_margin_bottom(20)
+        top_box.set_margin_start(20)
+
+        btn = Gtk.Button.new_with_label("BOTON")
+
+        top_box.append(btn)
+
+        all_selection_grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+
+        sticky_lbl = Gtk.Label.new("Sticky")
+        string_list = Gtk.StringList.new(
+            ["-", "U", "G", "O", "UG", "UO", "GO", "UGO"]
+        )
+
+        sticky_dropdown = Gtk.DropDown.new(model=string_list)
+        sticky_dropdown.set_size_request(90, -1)
+
+        all_selection_grid.attach(sticky_lbl, 0, 0, 1, 2)
+        all_selection_grid.attach(sticky_dropdown, 0, 2, 1, 1)
+
+        def on_changed_sticky_all(
+            dropdrown: Gtk.DropDown,
+            pspec: GObject.GParamSpec,
+        ) -> None:
+            print("Cambio sticky para todos")
+
+        sticky_dropdown.connect("notify::selected-item", on_changed_sticky_all)
+
+        all_selection_option_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=5
+        )
+
+        colum_labels = 1
+        for index, char in enumerate(["User", "Group", "Other"]):
+            result = index * 3
+            ugo_label = Gtk.Label.new(char)
+            all_selection_grid.attach(ugo_label, result + 1, 0, 3, 1)
+            for perm_index, perm in enumerate(list("rwx")):
+                prm_label = Gtk.Label.new(perm)
+                check = Gtk.CheckButton()
+                all_selection_grid.attach(prm_label, colum_labels, 1, 1, 1)
+                all_selection_grid.attach(check, colum_labels, 2, 1, 1)
+                colum_labels += 1
+
+        # Recursive section
+        recursive_label = Gtk.Label.new(_("Recursivo"))
+        recursive_label.set_valign(Gtk.Align.FILL)
+        recursive_check = Gtk.CheckButton.new()
+        recursive_check.set_hexpand(False)
+        recursive_check.set_halign(Gtk.Align.CENTER)
+        all_selection_grid.attach(recursive_label, 10, 0, 1, 2)
+        all_selection_grid.attach(recursive_check, 10, 2, 1, 1)
+
+        all_selection_option_box.append(all_selection_grid)
+        all_selection_option_box.get_style_context().add_class("border")
+        top_box.append(all_selection_option_box)
+        properties_box.append(top_box)
+
+        # FINAL TOP MENU
+
         self.selection = Gtk.SingleSelection.new(model=self.list_store)
         self.columnview = Gtk.ColumnView.new()
 
@@ -193,21 +259,67 @@ class Properties(Gtk.Window):
             self.vertical_box.append(grid)
 
             win.present()
+            row = 0
+            # for i, propertiesenty in enumerate(self.list_store):
+            #     if i == 0:
+            #         row = i
+            #     else:
+            #         row += 3
+            #     path_lbl = Gtk.Label.new(propertiesenty.path)
+            #     path_lbl.set_halign(Gtk.Align.START)
+            #     grid.attach(path_lbl, 0, row, 1, 1)
 
-            for i, propertiesenty in enumerate(self.list_store):
-                path_lbl = Gtk.Label.new(propertiesenty.path)
-                path_lbl.set_halign(Gtk.Align.START)
-                grid.attach(path_lbl, 0, i, 1, 1)
+            #     response = propertiesenty.save_data_permissions()
+            #     response_lbl_perm = Gtk.Label.new()
+            #     response_lbl_perm.set_margin_start(30)
+            #     response_lbl_perm.set_margin_top(5)
+            #     response_lbl_perm.set_margin_bottom(10)
+            #     response_lbl_perm.set_halign(Gtk.Align.START)
 
-                response = propertiesenty.save_data_permissions()
-                response_lbl = Gtk.Label.new()
-                response_lbl.set_margin_start(30)
+            #     if response["status"]:
+            #         response_lbl_perm.set_text(
+            #             f"{_("Cambio de permisos")}: ✅"
+            #         )
+            #     else:
+            #         response_lbl_perm.set_text(
+            #             f"{_("Cambio de permisos")}: ❌"
+            #         )
+            #     grid.attach(response_lbl_perm, 0, row + 1, 1, 1)
 
-                if response["status"]:
-                    response_lbl.set_text("✅")
-                else:
-                    response_lbl.set_text("❌")
-                grid.attach(response_lbl, 1, i, 1, 1)
+            response = File_manager.change_owner_group(self.list_store)
+
+            if response:
+                self.list_store
+                for i, propertiesenty in enumerate(self.list_store):
+                    path = propertiesenty.path
+                    permissions = propertiesenty.permissions
+                    if i == 0:
+                        row = i
+                    else:
+                        row += 3
+                    path_lbl = Gtk.Label.new(path)
+                    path_lbl.set_halign(Gtk.Align.START)
+                    grid.attach(path_lbl, 0, row, 1, 1)
+                    response_lbl_owner = Gtk.Label.new()
+                    response_lbl_owner.set_margin_start(30)
+                    response_lbl_owner.set_margin_top(5)
+                    response_lbl_owner.set_margin_bottom(10)
+                    response_lbl_owner.set_halign(Gtk.Align.START)
+
+                    actual_permissions = File_manager.get_permissions(
+                        Path(path)
+                    )["msg"]
+
+                    if permissions == actual_permissions:
+                        response_lbl_owner.set_text(
+                            f"{_("Cambio de propietario y grupo")}: ✅"
+                        )
+                    else:
+                        response_lbl_owner.set_text(
+                            f"{_("Cambio de propietario y grupo")}: ❌"
+                        )
+                    grid.attach(response_lbl_owner, 0, row + 2, 1, 1)
+
             spinner.stop()
 
             btn_close = Gtk.Button.new_with_label(_("Cerrar"))
@@ -362,7 +474,7 @@ class Properties(Gtk.Window):
                 recursive_check.set_name("recursive")
                 recursive_check.set_halign(Gtk.Align.CENTER)
                 recursive_check.set_valign(Gtk.Align.CENTER)
-                widget.attach(recursive_check, 10, 2, 1, 2)
+                widget.attach(recursive_check, 10, 1, 1, 2)
 
                 def update_recursive_check(
                     button: Gtk.CheckButton = None,

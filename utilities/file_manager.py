@@ -267,18 +267,15 @@ class File_manager:
 
             for i, c in enumerate(mode):
                 if len(c) != 3:
-                    print(0)
                     penalty_check = True
                     break
 
                 listc = list(c)
                 if listc[0] != "r" and listc[0] != "-":
                     penalty_check = True
-                    print(1)
 
                 if listc[1] != "w" and listc[1] != "-":
                     penalty_check = True
-                    print(2)
                     break
 
                 if (
@@ -287,7 +284,6 @@ class File_manager:
                     and listc[2] != "s"
                     and listc[2] != "t"
                 ):
-                    print(3)
                     penalty_check = True
                     break
 
@@ -359,65 +355,82 @@ class File_manager:
             return {"status": False, "msg": e}
         return {"status": True, "msg": True}
 
-    def change_owner_group(
-        path: Path, user_str: str, group_str: str, recursive: bool
-    ) -> dict:
-
-        user = None
-        group = None
-
+    def change_owner_group(path_list: list[Path]) -> dict:
         try:
-            if not path.exists():
+            filtered_list = []
+            if not path_list:
                 return {
                     "status": False,
                     "msg": _(
-                        "La ruta no existe",
+                        "La lista de rutas vino vacia",
                     ),
                 }
+            else:
+                for propertyenty in path_list:
+                    path = Path(propertyenty.path)
+                    if not path.exists():
+                        continue
+                    else:
+                        user_str = propertyenty.user_name
+                        group_str = propertyenty.group_name
+                        try:
+                            pwd.getpwnam(user_str)
+                        except KeyError:
+                            return {
+                                "status": False,
+                                "msg": _(f"El usuario {user_str}, no existe"),
+                            }
 
-            try:
-                user = pwd.getpwnam(user_str)
-            except KeyError:
-                return {
-                    "status": False,
-                    "msg": _(f"El usuario {user_str}, no existe"),
-                }
+                        try:
+                            grp.getgrnam(group_str)
+                        except KeyError:
+                            return {
+                                "status": False,
+                                "msg": _(f"El grupo {group_str}, no existe"),
+                            }
 
-            try:
-                group = grp.getgrnam(group_str)
-            except KeyError:
-                return {
-                    "status": False,
-                    "msg": _(f"El grupo {group_str}, no existe"),
-                }
+                        filtered_list.append(propertyenty)
+
+            cmd_paths = ""
+            recursive_str = ""
+            for propertyenty in filtered_list:
+
+                user_name = propertyenty.user_name
+                group_name = propertyenty.group_name
+                path = propertyenty.path
+
+                if propertyenty.recursive:
+                    recursive_str = "-R"
+
+                cmd_paths += (
+                    f"chown {recursive_str} "
+                    f"{user_name}:{group_name} {path} && "
+                )
+
+            cmd_paths = cmd_paths.rstrip(" &&")
 
             if not shutil.which("pkexec"):
+                cmd_paths = f"'{cmd_paths}'"
                 # When pkexec is not available to request the password.
-                passwd = "for question in UI"
-                recursive_str = ""
-                if recursive:
-                    recursive_str = "-R"
+                # TODO PASSWORD WITH UI
+                passwd = ""
                 exec_str = (
                     "faillock --user $(whoami) --reset;"
                     f"echo '{passwd}' | "
-                    f"sudo -S chown {recursive_str} {user.pw_uid}:{group.gr_gid} {str(path)};"  # noqa: E501
+                    f"sudo -S bash -c {cmd_paths};"  # noqa: E501
                     "sudo -k;"
                     " exit\n"
                 )
-
                 return File_manager.exec_tty_cmd(exec_str)
             else:
-                cmd = ["pkexec", "chown"]
 
-                if recursive:
-                    cmd.append("-R")
+                cmd = ["pkexec", "bash", "-c"]
+                cmd.append(cmd_paths)
 
-                cmd += [f"{user.pw_uid}:{group.gr_gid}", path]
+            res = subprocess.run(cmd, capture_output=True, text=True)
 
-                res = subprocess.run(cmd, capture_output=True, text=True)
-
-                if res.returncode != 0:
-                    return {"status": False, "msg": res.stderr}
+            if res.returncode != 0:
+                return {"status": False, "msg": res.stderr}
 
         except PermissionError as e:
             return {"status": False, "msg": e}

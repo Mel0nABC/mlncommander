@@ -121,6 +121,10 @@ class Css_explorer_manager:
         Set color to all button
         """
         css = """
+
+            .border{
+                border: solid 1px green;
+            }
             .contextual_menu{
                 background-color: #353535;
                 border-radius: 5pt;
@@ -147,7 +151,6 @@ class Css_explorer_manager:
 
             .properties-columnview cell {
                 margin: 5px;
-                
             }
             .properties{
                 margin: 20px;
