@@ -176,15 +176,16 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_1.append(self.button_main_1)
         self.vertical_screen_2.append(self.button_main_2)
 
-        add_fav_btn_1 = Gtk.Button.new_with_label("+")
-        add_fav_btn_2 = Gtk.Button.new_with_label("+")
-        add_fav_btn_1.set_hexpand(False)
-        add_fav_btn_2.set_hexpand(False)
-        add_fav_btn_1.get_style_context().add_class("button")
-        add_fav_btn_2.get_style_context().add_class("button")
+        self.add_fav_btn_1 = Gtk.Button.new_with_label("+")
+        self.add_fav_btn_2 = Gtk.Button.new_with_label("+")
 
-        self.button_main_1.append(add_fav_btn_1)
-        self.button_main_2.append(add_fav_btn_2)
+        self.add_fav_btn_1.set_hexpand(False)
+        self.add_fav_btn_2.set_hexpand(False)
+        self.add_fav_btn_1.get_style_context().add_class("button")
+        self.add_fav_btn_2.get_style_context().add_class("button")
+
+        self.button_main_1.append(self.add_fav_btn_1)
+        self.button_main_2.append(self.add_fav_btn_2)
 
         del_fav_btn_1 = Gtk.Button.new_with_label("-")
         del_fav_btn_2 = Gtk.Button.new_with_label("-")
@@ -217,8 +218,11 @@ class Window(Gtk.ApplicationWindow):
             self,
             self.config.EXP_1_PATH,
             Window.APP_USER_PATH,
+            self.add_fav_btn_1,
         )
         self.vertical_entry_1.set_text(str(self.explorer_1.actual_path))
+
+        # Set position for popover
 
         self.explorer_2 = Explorer(
             "explorer_2",
@@ -226,6 +230,7 @@ class Window(Gtk.ApplicationWindow):
             self,
             self.config.EXP_2_PATH,
             Window.APP_USER_PATH,
+            self.add_fav_btn_2,
         )
         self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
 
@@ -288,12 +293,12 @@ class Window(Gtk.ApplicationWindow):
 
         from functools import partial
 
-        add_fav_btn_1.connect(
+        self.add_fav_btn_1.connect(
             "clicked",
             partial(self.shortcuts.add_fav_path, explorer=self.explorer_1),
         )
 
-        add_fav_btn_2.connect(
+        self.add_fav_btn_2.connect(
             "clicked",
             partial(self.shortcuts.add_fav_path, explorer=self.explorer_2),
         )

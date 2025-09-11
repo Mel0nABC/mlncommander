@@ -121,9 +121,6 @@ class Css_explorer_manager:
         Set color to all button
         """
         css = """
-            .contextual_window{
-                background-color: transparent;
-            }
             .contextual_menu{
                 background-color: #353535;
                 border-radius: 5pt;
@@ -208,6 +205,12 @@ class Css_explorer_manager:
             else "normal"
         )
         css = f"""
+
+
+            .border_orange{{
+                border:solid 1px orange;
+            }}
+
             .border-style{{
                 border: solid 1pt {font_style_color};
                 border-radius: 20pt;

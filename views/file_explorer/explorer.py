@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from views.pop_up_windows.contextual_menu import ContextMenu
+from views.pop_up_windows.contextual_menu import ContextBox
 from utilities.file_manager import File_manager
 from entity.File_or_directory_info import File_or_directory_info
 from icons.icon_manager import IconManager
@@ -30,6 +30,7 @@ class Explorer(Gtk.ColumnView):
         win: Gtk.ApplicationWindow,
         initial_path: Path,
         APP_USER_PATH: Path,
+        add_fav_btn,
     ):
         super().__init__()
         self.win = win
@@ -75,11 +76,7 @@ class Explorer(Gtk.ColumnView):
         self.label_gesture_list = {}
         self.row_gesture_right_list = {}
         self.showed_msg_network_problem = False
-        self.min_size_width = 0
-        self.min_size_height = 0
-        self.x = 0
-        self.y = 0
-        self.right_explorer_click_files = False
+        self.add_fav_btn = add_fav_btn
 
         for property_name in type_list:
 
@@ -141,8 +138,7 @@ class Explorer(Gtk.ColumnView):
         )
         self.add_controller(self.focus_explorer)
 
-        # Activate pressed on explorer event
-
+        # Activate focus in explorer
         gesture_explorer_left = Gtk.GestureClick()
         gesture_explorer_left.set_button(1)
         self.gesture_click_int = gesture_explorer_left.connect(
@@ -157,11 +153,7 @@ class Explorer(Gtk.ColumnView):
         if self.win.config.SWITCH_WATCHDOG_STATUS:
             self.start_watchdog(self.actual_path, self)
 
-        gesture_row_right = Gtk.GestureClick()
-        gesture_row_right.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
-        gesture_row_right.set_button(3)
-        gesture_row_right.connect("pressed", self.row_gesture_riht_click)
-        self.add_controller(gesture_row_right)
+        self.activate_gesture_click_label_right_click(None, self)
 
     def setup(
         self,
@@ -177,33 +169,37 @@ class Explorer(Gtk.ColumnView):
             """
             Depent of type, set Gtk.Image for icons or Gtk.Label for text
             """
+            main_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            fixed = Gtk.Fixed()
+            main_box.append(fixed)
             if property_name == "type_str":
-                image = Gtk.Image()
-                cell.set_child(image)
+                img = Gtk.Image()
+
+                img_box = Gtk.Box()
+                img_box.append(img)
+
+                fixed.put(img_box, 0, 0)
             else:
+
                 label = Gtk.Label(xalign=0)
                 label.set_margin_top(0)
-                label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
-                label.get_style_context().add_class("explorer_text_size")
-                label.set_hexpand(True)
-                label.set_vexpand(True)
+                fixed.put(label, 0, 0)
 
-                cell.set_child(label)
+            cell.set_child(main_box)
+            gesture_int, gesture = self.activate_gesture_click_label(
+                cell, fixed
+            )
+            self.label_gesture_list[gesture_int] = gesture
 
-                gesture_int, gesture = self.activate_gesture_click_label(
-                    cell, label
-                )
-                self.label_gesture_list[gesture_int] = gesture
-
-                gesture_int_right, gesture_right = (
-                    self.activate_gesture_click_label_right_click(cell, label)
-                )
-                self.row_gesture_right_list[gesture_int_right] = gesture_right
+            gesture_int_right, gesture_right = (
+                self.activate_gesture_click_label_right_click(cell, fixed)
+            )
+            self.row_gesture_right_list[gesture_int_right] = gesture_right
 
         GLib.idle_add(setup_when_idle)
 
     def activate_gesture_click_label(
-        self, cell: Gtk.ColumnViewCell, label: Gtk.Label
+        self, cell: Gtk.ColumnViewCell, widget: Gtk.Widget
     ) -> dict:
         """
         Active gesture click on labels from columnview
@@ -214,24 +210,40 @@ class Explorer(Gtk.ColumnView):
         gesture_int = gesture_row_left.connect(
             "pressed", self.set_focus_pressed, cell
         )
-        label.add_controller(gesture_row_left)
+        widget.add_controller(gesture_row_left)
 
         return gesture_int, gesture_row_left
 
     def activate_gesture_click_label_right_click(
-        self, cell: Gtk.ColumnViewCell, label: Gtk.Label
+        self, cell: Gtk.ColumnViewCell, widget: Gtk.Widget
     ) -> dict:
         """
         Active gesture click on labels from columnview
         """
 
+        popover = Gtk.Popover()
+        point_box = Gtk.Box()
+        point_box.set_size_request(-1, -1)
+
+        if isinstance(widget, Gtk.Fixed):
+            fixed = widget
+            fixed.put(point_box, 0, 0)
+            popover.set_parent(point_box)
+        else:
+            popover.set_parent(self.add_fav_btn)
+
         gesture_row_right = Gtk.GestureClick()
-        # gesture_row_right.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         gesture_row_right.set_button(3)
         gesture_int_right = gesture_row_right.connect(
-            "pressed", self.row_gesture_riht_click, cell
+            "pressed",
+            self.select_gesture_right_click,
+            cell,
+            widget,
+            popover,
+            point_box,
         )
-        label.add_controller(gesture_row_right)
+
+        widget.add_controller(gesture_row_right)
 
         return gesture_int_right, gesture_row_right
 
@@ -269,7 +281,7 @@ class Explorer(Gtk.ColumnView):
             """
             item = cell.get_item()
             if item:
-                output_column = cell.get_child()
+                main_box = cell.get_child()
                 value = item.get_property(property_name)
                 if property_name == "type_str":
                     if item.type == "DIR":
@@ -281,9 +293,24 @@ class Explorer(Gtk.ColumnView):
                         pintable = self.icon_manager.get_icon_for_file(path)
                     else:
                         pintable = self.icon_manager.get_back_icon()
-                    output_column.set_from_paintable(pintable)
+
+                    main_box.set_hexpand(True)
+                    main_box.set_halign(Gtk.Align.FILL)
+
+                    fixed = main_box.get_first_child()
+                    box_img = fixed.get_first_child()
+                    box_img.set_hexpand(True)
+                    box_img.set_halign(Gtk.Align.FILL)
+
+                    image = box_img.get_first_child()
+                    image.set_from_paintable(pintable)
+                    image.set_hexpand(True)
+                    image.set_halign(Gtk.Align.FILL)
                 else:
-                    output_column.set_text(str(value))
+                    fixed = main_box.get_first_child()
+                    label = fixed.get_first_child()
+                    label.set_text(str(value))
+                    label.set_hexpand(True)
 
         GLib.idle_add(bind_when_idle)
 
@@ -916,54 +943,27 @@ class Explorer(Gtk.ColumnView):
             else:
                 fav_btn.get_style_context().remove_class("fav")
 
-    def row_gesture_riht_click(
-        self,
-        gesture,
-        n_press,
-        x,
-        y,
-        cell=None,
+    def select_gesture_right_click(
+        self, gesture, n_press, x, y, cell, widget, popover, point
     ):
-
         # Stop all events
-        main_width = self.win.get_allocation().width
-        main_height = self.win.get_allocation().height
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
-        explorer_width = self.get_allocated_width()
-        explorer_height = self.get_allocated_height()
-
-        start_end_margins = self.win.scroll_margin
-        up_down_margin = self.win.entry_margin
-
-        horizontal_bottom = self.win.horizontal_bottom.get_allocation().height
-
+        contextbox = None
         if cell:
-            final_x = self.x
-            final_y = self.y
+            fixed = widget
+            fixed.move(point, x, y)
+
+            contextbox = self.open_file_contextual_menu(cell, popover)
         else:
-            final_x = x
-            final_y = y
+            contextbox = self.open_explorer_contextual_menu(popover)
 
-        real_position_x = (
-            main_width - start_end_margins - explorer_width + final_x
-        )
+        popover.set_child(contextbox)
+        popover.popup()
 
-        real_position_y = (
-            main_height
-            - horizontal_bottom
-            - up_down_margin
-            - explorer_height
-            + final_y
-        )
-
-        if self.name == "explorer_1":
-            real_position_x = (
-                main_width
-                - 2
-                * (start_end_margins + start_end_margins / 2 + explorer_width)
-                + final_x
-            )
-
+    def open_file_contextual_menu(self, cell, popover) -> None:
+        # OPEN WITH FILE CLICKED
+        path_list = self.get_selected_items_from_explorer()[1]
         if cell:
             # Files selected
             path_list = self.get_selected_items_from_explorer()[1]
@@ -986,31 +986,11 @@ class Explorer(Gtk.ColumnView):
                     path_list = self.get_selected_items_from_explorer()[1]
 
             if path_list:
+                return ContextBox(self.win, True, self, popover, path_list)
 
-                ContextMenu(
-                    self.win,
-                    real_position_x,
-                    real_position_y,
-                    main_width,
-                    main_height,
-                    True,
-                    self,
-                    path_list,
-                )
-
-        else:
-            # Explorer menú, no files selected
-            self.x = x
-            self.y = y
-
-            if not self.focused:
-                self.action.set_explorer_to_focused(self, self.win)
-            ContextMenu(
-                self.win,
-                real_position_x,
-                real_position_y,
-                main_width,
-                main_height,
-                False,
-                self,
-            )
+    def open_explorer_contextual_menu(self, popover) -> None:
+        # OPEN WITH NOT FILE CLICKED
+        # Explorer menú, no files selected
+        if not self.focused:
+            self.action.set_explorer_to_focused(self, self.win)
+        return ContextBox(self.win, False, self, popover)
