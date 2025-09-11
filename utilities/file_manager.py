@@ -324,6 +324,8 @@ class File_manager:
                 if not actual_user_id == file_user_id:
                     if "pkexec" not in cmd:
                         cmd = ["pkexec", "/bin/bash", "-c"]
+                else:
+                    cmd = ["/bin/bash", "-c"]
                 recursive_str = " "
                 if propertieenty.recursive:
                     recursive_str += " -R "
@@ -353,6 +355,7 @@ class File_manager:
                 return File_manager.exec_tty_cmd(exec_str)
             else:
                 cmd.append(cmd_str)
+                print(cmd)
                 res = subprocess.run(cmd, capture_output=True, text=True)
 
                 if res.returncode != 0:
