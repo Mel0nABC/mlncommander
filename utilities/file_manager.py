@@ -252,77 +252,92 @@ class File_manager:
             },
         }
 
-    def change_permissions(path: Path, mode: list, recursive: bool) -> bool:
+    def change_permissions(path_list: list[Path]) -> bool:
 
         try:
-            penalty_check = False
+            cmd_str = ""
+            for propertieenty in path_list:
+                path = Path(propertieenty.path)
+                permissions = propertieenty.permissions
+                mode = []
+                n = 0
+                for i in [3, 6, 9]:
+                    mode.append(permissions[n:i])
+                    n = i
 
-            if not path.exists():
-                return {
-                    "status": False,
-                    "msg": _(
-                        "La ruta no existe",
-                    ),
-                }
+                penalty_check = False
+                if not path.exists():
+                    continue
 
-            for i, c in enumerate(mode):
-                if len(c) != 3:
-                    penalty_check = True
-                    break
+                for i, c in enumerate(mode):
+                    if len(c) != 3:
+                        penalty_check = True
+                        break
 
-                listc = list(c)
-                if listc[0] != "r" and listc[0] != "-":
-                    penalty_check = True
+                    listc = list(c)
+                    if listc[0] != "r" and listc[0] != "-":
+                        penalty_check = True
 
-                if listc[1] != "w" and listc[1] != "-":
-                    penalty_check = True
-                    break
+                    if listc[1] != "w" and listc[1] != "-":
+                        penalty_check = True
+                        break
 
-                if (
-                    listc[2] != "x"
-                    and listc[2] != "-"
-                    and listc[2] != "s"
-                    and listc[2] != "t"
-                ):
-                    penalty_check = True
-                    break
+                    if (
+                        listc[2] != "x"
+                        and listc[2] != "-"
+                        and listc[2] != "s"
+                        and listc[2] != "t"
+                    ):
+                        penalty_check = True
+                        break
 
-            if penalty_check:
-                return {
-                    "status": False,
-                    "msg": _(
-                        "Hay alguna incongruencia en los permisos",
-                    ),
-                }
-
-            mode_str = f"u={mode[0]},g={mode[1]},o={mode[2]}".replace("-", "")
-
-            # mode need int, octal type ex: 0o777 or 0o1777
-            if any(c.lower() not in ",=ugorwxst" for c in mode_str):
-                return {
-                    "status": False,
-                    "msg": _(
-                        (
-                            "El modo facilitado es incorrecto"
-                            ", debe ser tipo entero 'u=rwx,g=rwx,o=rwx'"
-                            " puede incluir sticky bit s o t"
+                if penalty_check:
+                    return {
+                        "status": False,
+                        "msg": _(
+                            "Hay alguna incongruencia en los permisos",
                         ),
-                    ),
-                }
-            recursive_str = ""
-            if recursive:
-                recursive_str = "-R"
+                    }
 
-            actual_user_id = os.getuid()
-            st = os.stat(path)
-            file_user_id = st.st_uid
+                mode_str = f"u={mode[0]},g={mode[1]},o={mode[2]}".replace(
+                    "-", ""
+                )
+
+                # mode need int, octal type ex: 0o777 or 0o1777
+                if any(c.lower() not in ",=ugorwxst" for c in mode_str):
+                    return {
+                        "status": False,
+                        "msg": _(
+                            (
+                                "El modo facilitado es incorrecto"
+                                ", debe ser tipo entero 'u=rwx,g=rwx,o=rwx'"
+                                " puede incluir sticky bit s o t"
+                            ),
+                        ),
+                    }
+
+                actual_user_id = os.getuid()
+                st = os.stat(path)
+                file_user_id = st.st_uid
+
+                cmd = []
+                if not actual_user_id == file_user_id:
+                    if "pkexec" not in cmd:
+                        cmd = ["pkexec", "/bin/bash", "-c"]
+                recursive_str = " "
+                if propertieenty.recursive:
+                    recursive_str += " -R "
+
+                cmd_str += f"chmod{recursive_str}{mode_str} {path} && "
+
+            cmd_str = cmd_str.rstrip(" &&")
 
             if not shutil.which("pkexec"):
-
                 need_passwd = ""
                 sudo = ""
 
                 if not actual_user_id == file_user_id:
+                    cmd_str = f'"{cmd_str}"'
                     # TODO PASSWORD WITH UI
                     passwd = ""
                     sudo = "sudo -S"
@@ -331,25 +346,17 @@ class File_manager:
                 exec_str = (
                     "faillock --user $(whoami) --reset;"
                     f"{need_passwd} "
-                    f"{sudo} chmod {recursive_str} {mode_str} {str(path)};"
+                    f"{sudo} bash -c {cmd_str};"
                     "sudo -k;"
                     " exit\n"
                 )
-
                 return File_manager.exec_tty_cmd(exec_str)
             else:
-                cmd = []
-                if not actual_user_id == file_user_id:
-                    cmd.append("pkexec")
-                cmd.append("chmod")
-                if recursive:
-                    cmd.append("-R")
-                cmd.append(mode_str)
-                cmd.append(path)
-            res = subprocess.run(cmd, capture_output=True, text=True)
+                cmd.append(cmd_str)
+                res = subprocess.run(cmd, capture_output=True, text=True)
 
-            if res.returncode != 0:
-                return {"status": False, "msg": res.stderr}
+                if res.returncode != 0:
+                    return {"status": False, "msg": res.stderr}
 
         except PermissionError as e:
             return {"status": False, "msg": e}
