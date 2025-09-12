@@ -23,13 +23,13 @@ class OverwriteWindow(Gtk.Window):
             modal=True,
         )
 
-        # Load css
-
         header = Gtk.HeaderBar()
         header.set_title_widget(
             Gtk.Label(label=_("Elige una opción para sobre escribir"))
         )
         self.set_titlebar(header)
+
+        # Load css
 
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")

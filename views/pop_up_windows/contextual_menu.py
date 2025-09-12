@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
-from css.explorer_css import Css_explorer_manager
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -48,19 +47,6 @@ class ContextBox(Gtk.Box):
         else:
             self.create_explorer_context_menu()
 
-        # Load CSS
-
-        css_explorer_manager = Css_explorer_manager(self.main_window)
-        css_explorer_manager.load_css_context_menu()
-
-        # Menu container, set transparent on css
-        self.get_style_context().add_class("font")
-        self.get_style_context().add_class("font-color")
-
-        self.get_style_context().add_class("contextual_menu")
-
-        self.main_box.get_style_context().add_class("contextual_content")
-
     def disable_gesture_click(self, widget, x, y) -> None:
 
         self.close_contextual_menu_1.disconnect(
@@ -83,9 +69,7 @@ class ContextBox(Gtk.Box):
             "Propiedades6": self.get_properties,
         }
         for key in file_list_btn.keys():
-
             btn = Gtk.Button.new_with_label(key)
-            btn.get_style_context().add_class("button")
             btn.connect("clicked", file_list_btn[key])
             self.main_box.append(btn)
 

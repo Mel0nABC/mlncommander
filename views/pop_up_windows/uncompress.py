@@ -25,11 +25,11 @@ class UncompressWindow(Gtk.Window):
     ):
         super().__init__(transient_for=win)
 
-        # Load css
-
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Descomprimir ficheros")))
         self.set_titlebar(header)
+
+        # Load css
 
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")

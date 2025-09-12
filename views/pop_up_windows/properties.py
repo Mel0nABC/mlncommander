@@ -4,7 +4,6 @@
 from utilities.i18n import _
 from utilities.file_manager import File_manager
 from entity.properties_enty import PropertiesEnty
-from css.explorer_css import Css_explorer_manager
 from pathlib import Path
 import gi
 
@@ -30,8 +29,6 @@ class Properties(Gtk.Window):
         self.path_list = path_list
 
         # Load css
-        self.css_manager = Css_explorer_manager(self)
-        self.css_manager.load_css_properties()
 
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")
@@ -124,8 +121,6 @@ class Properties(Gtk.Window):
 
         ScreenInfo.horizontal
 
-        print(ScreenInfo.vertical)
-
         properties_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=5
         )
@@ -191,8 +186,8 @@ class Properties(Gtk.Window):
 
         all_selection_option_box.append(all_selection_grid)
         all_selection_option_box.get_style_context().add_class("border")
+
         top_box.append(all_selection_option_box)
-        properties_box.append(top_box)
 
         # FINAL TOP MENU
 
@@ -200,16 +195,21 @@ class Properties(Gtk.Window):
         self.columnview = Gtk.ColumnView.new()
         self.columnview.get_style_context().add_class("properties-columnview")
         self.columnview.set_model(self.selection)
+        self.columnview.set_margin_end(20)
+        self.columnview.set_margin_start(20)
 
         column_scroll = Gtk.ScrolledWindow.new()
         column_scroll.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
+        column_scroll.set_margin_end(20)
+        column_scroll.set_margin_start(20)
+
         column_scroll.set_vexpand(True)
         column_scroll.set_hexpand(True)
+
         column_scroll.set_child(self.columnview)
 
-        properties_box.append(column_scroll)
         properties_box.set_hexpand(True)
 
         for property_name in columns_header:
@@ -433,9 +433,24 @@ class Properties(Gtk.Window):
         horizontal_btn_box.append(btn_accept)
         horizontal_btn_box.append(btn_cancel)
 
-        properties_box.append(horizontal_btn_box)
-
         properties_box.get_style_context().add_class("properties")
+
+        top_separator = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
+        top_separator.get_style_context().add_class("separator")
+        top_separator.set_margin_top(30)
+        top_separator.set_margin_bottom(30)
+
+        bottom_separator = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
+        bottom_separator.get_style_context().add_class("separator")
+        bottom_separator.set_margin_top(30)
+        bottom_separator.set_margin_bottom(30)
+
+        # add widgets
+        properties_box.append(top_box)
+        properties_box.append(top_separator)
+        properties_box.append(column_scroll)
+        properties_box.append(bottom_separator)
+        properties_box.append(horizontal_btn_box)
 
         return properties_box
 

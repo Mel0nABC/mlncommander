@@ -25,11 +25,11 @@ class Selected_for_delete(Gtk.Window):
             modal=True,
         )
 
-        # Load css
-
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Lista para eliminar")))
         self.set_titlebar(header)
+
+        # Load css
 
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")

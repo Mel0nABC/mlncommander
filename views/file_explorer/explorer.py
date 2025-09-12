@@ -6,7 +6,6 @@ from views.pop_up_windows.contextual_menu import ContextBox
 from utilities.file_manager import File_manager
 from entity.File_or_directory_info import File_or_directory_info
 from icons.icon_manager import IconManager
-from css.explorer_css import Css_explorer_manager
 from utilities.access_control import AccessControl
 from controls.actions import Actions
 from utilities.my_watchdog import My_watchdog
@@ -42,7 +41,6 @@ class Explorer(Gtk.ColumnView):
         self.entry = entry
         self.my_watchdog = None
         self.action = Actions()
-        self.css_manager = Css_explorer_manager(win)
         self.selection = None
         self.n_row = 0
         self.n_row_old = 0
@@ -126,8 +124,16 @@ class Explorer(Gtk.ColumnView):
 
         self.activate_drop_source()
 
-        # Load css and set classes
-        self.load_css_background()
+        # Load css
+
+        if self.name == "explorer_1":
+            class_name = "explorer_background_left"
+        else:
+            class_name = "explorer_background_right"
+
+        self.background_list.get_style_context().add_class(class_name)
+        self.get_style_context().add_class("column_view_borders")
+
         self.get_style_context().add_class("font-color")
 
         # Focus event
@@ -595,22 +601,10 @@ class Explorer(Gtk.ColumnView):
             "selection-changed", self.reset_count_rst_int
         )
 
-        self.load_css_search()
-
-        self.scroll_to(0, None, self.flags)
-
-    def load_css_search(self) -> None:
-        """
-        Load css search
-        """
-        # tempòral values.
         self.get_style_context().remove_class("font-color")
         self.get_style_context().add_class("background_search")
 
-        self.css_manager.load_css_search(
-            self.win.config.COLOR_BACKGROUND_SEARCH,
-            self.win.config.COLOR_SEARCH_TEXT,
-        )
+        self.scroll_to(0, None, self.flags)
 
     def stop_background_search(self):
         """
@@ -908,23 +902,6 @@ class Explorer(Gtk.ColumnView):
                     return True
 
         return False
-
-    def load_css_background(self) -> None:
-        """
-        Load background explorers color
-        """
-        self.css_manager.load_css_explorer_background(
-            self.win.config.COLOR_EXPLORER_LEFT,
-            self.win.config.COLOR_EXPLORER_RIGHT,
-        )
-
-        if self.name == "explorer_1":
-            class_name = "explorer_background_left"
-        else:
-            class_name = "explorer_background_right"
-
-        self.background_list.get_style_context().add_class(class_name)
-        self.get_style_context().add_class("column_view_borders")
 
     def insert_log_line(
         self, operation: str, src_path: Path, dst_path: Path

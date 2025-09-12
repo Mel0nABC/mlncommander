@@ -65,19 +65,7 @@ class Window(Gtk.ApplicationWindow):
         self.load_config_file()
 
         # Load css
-        self.get_style_context().add_class("app_background")
-        self.get_style_context().add_class("font")
-        self.get_style_context().add_class("font-color")
-        self.css_manager = Css_explorer_manager(self)
-        self.css_manager.load_css_app_background(
-            self.config.COLOR_BACKGROUND_APP
-        )
-        self.css_manager.load_css_buttons(
-            self.config.COLOR_BUTTON, self.config.COLOR_FAV_BUTTON
-        )
-        self.css_manager.load_css_entrys(self.config.COLOR_ENTRY)
-        font_desc = Pango.FontDescription.from_string(self.config.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc, self.config.FONT_STYLE_COLOR)
+        self.load_css_application()
 
         # We get information from the screen
 
@@ -110,6 +98,31 @@ class Window(Gtk.ApplicationWindow):
         self.add_controller(self.key_controller)
 
         self.connect("close-request", self.exit)
+
+    def load_css_application(self):
+        # Load css
+        self.get_style_context().add_class("app_background")
+        self.get_style_context().add_class("font")
+        self.get_style_context().add_class("font-color")
+        self.css_manager = Css_explorer_manager(self)
+        self.css_manager.load_css_app_background(
+            self.config.COLOR_BACKGROUND_APP
+        )
+        self.css_manager.load_css_buttons(
+            self.config.COLOR_BUTTON, self.config.COLOR_FAV_BUTTON
+        )
+        self.css_manager.load_css_entrys(self.config.COLOR_ENTRY)
+        font_desc = Pango.FontDescription.from_string(self.config.FONT_STYLE)
+        self.css_manager.load_css_font(font_desc, self.config.FONT_STYLE_COLOR)
+        self.css_manager.load_css_properties(self.config.FONT_STYLE_COLOR)
+        self.css_manager.load_css_explorer_background(
+            self.config.COLOR_EXPLORER_LEFT,
+            self.config.COLOR_EXPLORER_RIGHT,
+        )
+        self.css_manager.load_css_search(
+            self.config.COLOR_BACKGROUND_SEARCH,
+            self.config.COLOR_SEARCH_TEXT,
+        )
 
     def create_explorers(self):
 

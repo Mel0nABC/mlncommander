@@ -22,6 +22,7 @@ class Css_explorer_manager:
 
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
+        self.font_style_color = None
 
     def load_css_app_background(self, app_background_color: str) -> None:
         """
@@ -121,10 +122,6 @@ class Css_explorer_manager:
         Set color to all button
         """
         css = """
-
-            .border{
-                border: solid 1px green;
-            }
             .contextual_menu{
                 background-color: #353535;
                 border-radius: 5pt;
@@ -143,18 +140,22 @@ class Css_explorer_manager:
 
         self.set_css_to_provider(css)
 
-    def load_css_properties(self) -> None:
+    def load_css_properties(self, font_style_color) -> None:
         """
         Set color to all button
         """
-        css = """
-
-            .properties-columnview cell {
+        print("load_css_properties")
+        css = f"""
+            .separator{{
+                min-height: 2px;
+                background-color: {font_style_color};
+            }}
+            .properties-columnview cell {{
                 margin: 5px;
-            }
-            .properties{
+            }}
+            .properties{{
                 margin: 20px;
-            }
+            }}
         """.encode()
 
         self.set_css_to_provider(css)
@@ -199,6 +200,9 @@ class Css_explorer_manager:
         """
         Sets app font
         """
+        print("load_css_font")
+
+        self.font_style_color = font_style_color
         family = font_desc.get_family()
         size = font_desc.get_size() / Pango.SCALE
         weight = self.pango_weight_to_css(font_desc.get_weight())
@@ -287,8 +291,8 @@ class Css_explorer_manager:
         provider = Gtk.CssProvider()
         provider.load_from_data(css_code)
 
-        # Gtk.StyleContext.add_provider_for_display(
-        #     self.win.get_display(),
-        #     provider,
-        #     Gtk.STYLE_PROVIDER_PRIORITY_USER,
-        # )
+        Gtk.StyleContext.add_provider_for_display(
+            self.win.get_display(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_USER,
+        )

@@ -7,11 +7,10 @@ from views.menu_bar.file.preferences.directory import Directory
 from views.menu_bar.file.preferences.general import General
 from views.menu_bar.file.preferences.appearance import Appearance
 from views.menu_bar.file.preferences.shortcuts import Shortcuts
-from css.explorer_css import Css_explorer_manager
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Pango  # noqa: E402
+from gi.repository import Gtk  # noqa: E402
 
 
 class Preferences(Gtk.Window):
@@ -32,11 +31,11 @@ class Preferences(Gtk.Window):
         self.horizontal_option_box = None
         self.horizontal_option_btn = None
 
-        # Load css
-
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Preferencias")))
         self.set_titlebar(header)
+
+        # Load css
 
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")
@@ -44,7 +43,6 @@ class Preferences(Gtk.Window):
 
         self.parent = parent
         self.win = win
-        self.css_manager = Css_explorer_manager(self.win)
 
         # Sections
 
@@ -153,26 +151,7 @@ class Preferences(Gtk.Window):
         """
         Close preferencesc window
         """
-
-        self.css_manager.load_css_app_background(
-            self.win.config.COLOR_BACKGROUND_APP
-        )
-        self.css_manager.load_css_buttons(
-            self.win.config.COLOR_BUTTON, self.win.config.COLOR_FAV_BUTTON
-        )
-        self.css_manager.load_css_entrys(self.win.config.COLOR_ENTRY)
-        font_desc = Pango.FontDescription.from_string(
-            self.win.config.FONT_STYLE
-        )
-        self.css_manager.load_css_font(
-            font_desc, self.win.config.FONT_STYLE_COLOR
-        )
-
-        self.css_manager.load_css_explorer_background(
-            self.win.config.COLOR_EXPLORER_LEFT,
-            self.win.config.COLOR_EXPLORER_RIGHT,
-        )
-
+        self.win.load_css_application()
         self.on_close()
 
     def on_accept(self, button: Gtk.Button) -> None:

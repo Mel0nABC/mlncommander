@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from css.explorer_css import Css_explorer_manager
 from controls.actions import Actions
 import gi
 
@@ -16,7 +15,6 @@ class Shortcuts(Gtk.Box):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         self.win = win
-        self.css_manager = Css_explorer_manager(self.win)
         self.action = Actions()
         self.list_shortcuts = self.win.shortcuts.list_shortcuts
         self.actual_character_second_key = ""
