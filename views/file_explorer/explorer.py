@@ -15,10 +15,9 @@ import threading
 import time
 import os
 import gi
-
+from gi.repository import Gtk, Gdk, GLib, GObject, Pango
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib, Pango, GObject  # noqa E402
 
 
 class Explorer(Gtk.ColumnView):
@@ -317,6 +316,10 @@ class Explorer(Gtk.ColumnView):
                     label = fixed.get_first_child()
                     label.set_text(str(value))
                     label.set_hexpand(True)
+                    if property_name == "name":
+                        label.set_width_chars(35)
+                        label.set_max_width_chars(35)
+                        label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
         GLib.idle_add(bind_when_idle)
 
