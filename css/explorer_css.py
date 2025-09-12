@@ -287,8 +287,8 @@ class Css_explorer_manager:
         provider = Gtk.CssProvider()
         provider.load_from_data(css_code)
 
-        Gtk.StyleContext.add_provider_for_display(
-            self.win.get_display(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER,
-        )
+        # Gtk.StyleContext.add_provider_for_display(
+        #     self.win.get_display(),
+        #     provider,
+        #     Gtk.STYLE_PROVIDER_PRIORITY_USER,
+        # )

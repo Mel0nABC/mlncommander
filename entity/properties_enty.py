@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
-from utilities.file_manager import File_manager
 from pathlib import Path
 import gi
 
@@ -39,6 +38,7 @@ class PropertiesEnty(GObject.Object):
         self.recursive = recursive
         self.labels_list = []
         self.checks_btn_list = []
+        self.old_permissions = permissions
         self.old_user_name = user_name
         self.old_group_name = group_name
 
@@ -116,23 +116,17 @@ class PropertiesEnty(GObject.Object):
             "recursive": self.recursive,
         }
 
-    def save_data_permissions(self) -> dict:
-
-        permission_list = []
-        n = 0
-        for i in [3, 6, 9]:
-            permission_list.append(self.permissions[n:i])
-            n = i
-
-        return File_manager.change_permissions(
-            Path(self.path), permission_list, self.recursive
-        )
-
-    def filter_data_owners_changed(self) -> dict:
+    def filter_data_owners_changed(self) -> bool:
         if (
             self.old_user_name == self.user_name
             and self.old_group_name == self.group_name
         ):
+            return True
+
+        return False
+
+    def filter_data_permission(self) -> bool:
+        if self.old_permissions == self.permissions:
             return True
 
         return False

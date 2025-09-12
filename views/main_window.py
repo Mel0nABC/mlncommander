@@ -57,9 +57,6 @@ class Window(Gtk.ApplicationWindow):
         self.menu_bar = None
         self.explorer_1 = None
         self.explorer_2 = None
-        self.position_x = 0
-        self.position_y = 0
-        self.position_explorer = None
 
         # to use in watchdog
         self.write_error_msg_displayer = False

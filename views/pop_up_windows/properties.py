@@ -22,6 +22,10 @@ class Properties(Gtk.Window):
         )
         self.set_titlebar(header)
 
+        self.set_vexpand(True)
+        self.set_hexpand(True)
+        self.set_resizable(True)
+
         self.win = win
         self.path_list = path_list
 
@@ -116,9 +120,16 @@ class Properties(Gtk.Window):
             "group_name",
         ]
 
+        from utilities.screen_info import ScreenInfo
+
+        ScreenInfo.horizontal
+
+        print(ScreenInfo.vertical)
+
         properties_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=5
         )
+        properties_box.set_size_request(1024, ScreenInfo.vertical * 0.66)
 
         # START TOP MENU
 
@@ -187,12 +198,18 @@ class Properties(Gtk.Window):
 
         self.selection = Gtk.SingleSelection.new(model=self.list_store)
         self.columnview = Gtk.ColumnView.new()
-
         self.columnview.get_style_context().add_class("properties-columnview")
-
         self.columnview.set_model(self.selection)
 
-        properties_box.append(self.columnview)
+        column_scroll = Gtk.ScrolledWindow.new()
+        column_scroll.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
+        )
+        column_scroll.set_vexpand(True)
+        column_scroll.set_hexpand(True)
+        column_scroll.set_child(self.columnview)
+
+        properties_box.append(column_scroll)
         properties_box.set_hexpand(True)
 
         for property_name in columns_header:
@@ -237,89 +254,162 @@ class Properties(Gtk.Window):
         btn_cancel = Gtk.Button.new_with_label(_("Cancelar"))
 
         def on_accept(button: Gtk.Button):
-            win = Gtk.Window(
-                title=_("Ajustando permisos..."), transient_for=self
+            info_win = Gtk.Window()
+
+            header = Gtk.HeaderBar()
+            header.set_title_widget(
+                Gtk.Label(label=_("Resultado de los cambios"))
             )
-            # win.set_size_request(300, 300)
+            info_win.set_titlebar(header)
+
+            info_win.set_transient_for(self)
+            info_win.set_modal(True)
+
+            info_win.get_style_context().add_class("app_background")
+            info_win.get_style_context().add_class("font")
+            info_win.get_style_context().add_class("font-color")
+
             self.vertical_box = Gtk.Box(
                 orientation=Gtk.Orientation.VERTICAL, spacing=5
             )
+
+            self.vertical_box.set_hexpand(True)
+            self.vertical_box.set_vexpand(True)
+
             self.vertical_box.set_margin_top(50)
             self.vertical_box.set_margin_end(50)
             self.vertical_box.set_margin_bottom(50)
             self.vertical_box.set_margin_start(50)
-            win.set_child(self.vertical_box)
+
+            grid = Gtk.Grid.new()
+
+            information_container = Gtk.Box(
+                orientation=Gtk.Orientation.VERTICAL, spacing=5
+            )
+            information_container.append(grid)
+
+            main_scroll = Gtk.ScrolledWindow.new()
+            main_scroll.set_policy(
+                Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
+            )
+            main_scroll.set_vexpand(True)
+            main_scroll.set_hexpand(True)
+            main_scroll.set_child(information_container)
+
+            info_win.set_child(self.vertical_box)
 
             spinner = Gtk.Spinner.new()
             spinner.start()
 
-            grid = Gtk.Grid.new()
+            self.vertical_box.append(main_scroll)
 
             self.vertical_box.append(spinner)
-            self.vertical_box.append(grid)
 
-            win.present()
-            row = 0
-            # for i, propertiesenty in enumerate(self.list_store):
-            #     if i == 0:
-            #         row = i
-            #     else:
-            #         row += 3
-            #     path_lbl = Gtk.Label.new(propertiesenty.path)
-            #     path_lbl.set_halign(Gtk.Align.START)
-            #     grid.attach(path_lbl, 0, row, 1, 1)
+            info_win.present()
 
-            #     response = propertiesenty.save_data_permissions()
-            #     response_lbl_perm = Gtk.Label.new()
-            #     response_lbl_perm.set_margin_start(30)
-            #     response_lbl_perm.set_margin_top(5)
-            #     response_lbl_perm.set_margin_bottom(10)
-            #     response_lbl_perm.set_halign(Gtk.Align.START)
+            # Check changes
+            owner_group_changes = False
+            permissions_changes = False
+            for propertiesenty in self.list_store:
 
-            #     if response["status"]:
-            #         response_lbl_perm.set_text(
-            #             f"{_("Cambio de permisos")}: ✅"
-            #         )
-            #     else:
-            #         response_lbl_perm.set_text(
-            #             f"{_("Cambio de permisos")}: ❌"
-            #         )
-            #     grid.attach(response_lbl_perm, 0, row + 1, 1, 1)
+                if not propertiesenty.filter_data_permission():
+                    permissions_changes = True
 
-            response = File_manager.change_owner_group(self.list_store)
+                if not propertiesenty.filter_data_owners_changed():
+                    owner_group_changes = True
 
-            if response:
-                self.list_store
-                for i, propertiesenty in enumerate(self.list_store):
-                    path = propertiesenty.path
-                    permissions = propertiesenty.permissions
-                    if i == 0:
-                        row = i
-                    else:
-                        row += 3
-                    path_lbl = Gtk.Label.new(path)
-                    path_lbl.set_halign(Gtk.Align.START)
-                    grid.attach(path_lbl, 0, row, 1, 1)
-                    response_lbl_owner = Gtk.Label.new()
-                    response_lbl_owner.set_margin_start(30)
-                    response_lbl_owner.set_margin_top(5)
-                    response_lbl_owner.set_margin_bottom(10)
-                    response_lbl_owner.set_halign(Gtk.Align.START)
+            if permissions_changes or owner_group_changes:
+                self.vertical_box.set_size_request(500, 500)
 
-                    actual_permissions = File_manager.get_permissions(
-                        Path(path)
-                    )["msg"]
+            if permissions_changes:
 
-                    if permissions == actual_permissions:
-                        response_lbl_owner.set_text(
-                            f"{_("Cambio de propietario y grupo")}: ✅"
-                        )
-                    else:
-                        response_lbl_owner.set_text(
-                            f"{_("Cambio de propietario y grupo")}: ❌"
-                        )
-                    grid.attach(response_lbl_owner, 0, row + 2, 1, 1)
+                response = File_manager.change_permissions(self.list_store)
 
+                if response:
+                    row = 0
+                    for i, propertiesenty in enumerate(self.list_store):
+                        path = propertiesenty.path
+                        if i == 0:
+                            row = i
+                        else:
+                            row += 3
+                        path_lbl = Gtk.Label.new(propertiesenty.path)
+                        path_lbl.set_halign(Gtk.Align.START)
+                        grid.attach(path_lbl, 0, row, 1, 1)
+
+                        response_lbl_perm = Gtk.Label.new()
+                        response_lbl_perm.set_margin_start(30)
+                        response_lbl_perm.set_margin_top(5)
+                        response_lbl_perm.set_margin_bottom(10)
+                        response_lbl_perm.set_halign(Gtk.Align.START)
+
+                        actual_permissions = File_manager.get_permissions(
+                            Path(path)
+                        )["msg"]
+
+                        permissions = propertiesenty.permissions
+
+                        if permissions == actual_permissions:
+                            response_lbl_perm.set_text(
+                                f"{_("Cambio de permisos")}: ✅"
+                            )
+                        else:
+                            response_lbl_perm.set_text(
+                                f"{_("Cambio de permisos")}: ❌"
+                            )
+                        grid.attach(response_lbl_perm, 0, row + 1, 1, 1)
+
+            # Changes owner and group
+
+            if owner_group_changes:
+
+                response = File_manager.change_owner_group(self.list_store)
+
+                if response:
+                    self.list_store
+                    for i, propertiesenty in enumerate(self.list_store):
+                        path = propertiesenty.path
+                        permissions = propertiesenty.permissions
+                        if i == 0:
+                            row = i
+                        else:
+                            row += 3
+                        path_lbl = Gtk.Label.new(path)
+                        path_lbl.set_halign(Gtk.Align.START)
+                        grid.attach(path_lbl, 0, row, 1, 1)
+                        response_lbl_owner = Gtk.Label.new()
+                        response_lbl_owner.set_margin_start(30)
+                        response_lbl_owner.set_margin_top(5)
+                        response_lbl_owner.set_margin_bottom(10)
+                        response_lbl_owner.set_halign(Gtk.Align.START)
+
+                        owner_group = File_manager.get_owner_group(Path(path))[
+                            "msg"
+                        ]
+
+                        actual_user_name = owner_group["user_name"]
+                        actual_group_name = owner_group["group_name"]
+                        user_name = propertiesenty.user_name
+                        group_name = propertiesenty.group_name
+
+                        if (
+                            actual_user_name == user_name
+                            and actual_group_name == group_name
+                        ):
+                            response_lbl_owner.set_text(
+                                f"{_("Cambio de propietario y grupo")}: ✅"
+                            )
+                        else:
+                            response_lbl_owner.set_text(
+                                f"{_("Cambio de propietario y grupo")}: ❌"
+                            )
+                        grid.attach(response_lbl_owner, 0, row + 2, 1, 1)
+
+            if not owner_group_changes and not permissions_changes:
+                self.vertical_box.remove(main_scroll)
+                self.vertical_box.set_size_request(-1, -1)
+                not_changes_lbl = Gtk.Label.new(_("No han habido cambios."))
+                self.vertical_box.append(not_changes_lbl)
             spinner.stop()
 
             btn_close = Gtk.Button.new_with_label(_("Cerrar"))
@@ -327,11 +417,12 @@ class Properties(Gtk.Window):
             btn_close.set_halign(Gtk.Align.END)
 
             def on_close(btn: Gtk.Button) -> None:
-                win.destroy()
+                info_win.destroy()
                 self.destroy()
 
             btn_close.connect("clicked", on_close)
             self.vertical_box.append(btn_close)
+            print("FINAL")
 
         def on_cancel(button: Gtk.Button):
             self.destroy()
