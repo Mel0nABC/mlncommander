@@ -14,10 +14,9 @@ import grp
 import stat
 import os
 import gi
-
+from gi.repository import Gio, Gtk, GLib
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gio  # noqa: E402
 
 
 class File_manager:
@@ -182,7 +181,7 @@ class File_manager:
 
             return {"folders": folders, "files": files, "size": size}
         else:
-            return {"folders": 0, "files": 0, "size": path.stat().st_size}
+            return {"folders": 0, "files": 1, "size": path.stat().st_size}
 
     def get_permissions(path: Path) -> dict:
         try:
@@ -252,7 +251,7 @@ class File_manager:
             },
         }
 
-    def change_permissions(path_list: list[Path]) -> bool:
+    def change_permissions(win: Gtk.Window, path_list: list[Path]) -> bool:
 
         try:
             cmd_str = ""
@@ -303,7 +302,6 @@ class File_manager:
                     "-", ""
                 )
 
-                # mode need int, octal type ex: 0o777 or 0o1777
                 if any(c.lower() not in ",=ugorwxst" for c in mode_str):
                     return {
                         "status": False,
@@ -340,8 +338,19 @@ class File_manager:
 
                 if not actual_user_id == file_user_id:
                     cmd_str = f'"{cmd_str}"'
-                    # TODO PASSWORD WITH UI
-                    passwd = ""
+                    q = Queue()
+                    from views.pop_up_windows.password_entry import (
+                        PasswordWindow,
+                    )
+
+                    def work():
+                        PasswordWindow(
+                            win, q, "Es necesario que te identifique como root"
+                        )
+
+                    GLib.idle_add(work)
+
+                    passwd = q.get()["msg"]
                     sudo = "sudo -S"
                     need_passwd = f"echo '{passwd}' |"
 
@@ -355,7 +364,7 @@ class File_manager:
                 return File_manager.exec_tty_cmd(exec_str)
             else:
                 cmd.append(cmd_str)
-                print(cmd)
+
                 res = subprocess.run(cmd, capture_output=True, text=True)
 
                 if res.returncode != 0:
@@ -365,7 +374,7 @@ class File_manager:
             return {"status": False, "msg": e}
         return {"status": True, "msg": True}
 
-    def change_owner_group(path_list: list[Path]) -> dict:
+    def change_owner_group(win: Gtk.Window, path_list: list[Path]) -> dict:
         try:
             filtered_list = []
             if not path_list:
@@ -422,8 +431,19 @@ class File_manager:
             if not shutil.which("pkexec"):
                 cmd_paths = f"'{cmd_paths}'"
                 # When pkexec is not available to request the password.
-                # TODO PASSWORD WITH UI
-                passwd = ""
+                q = Queue()
+                from views.pop_up_windows.password_entry import (
+                    PasswordWindow,
+                )
+
+                def work():
+                    PasswordWindow(
+                        win, q, "Es necesario que te identifique como root"
+                    )
+
+                GLib.idle_add(work)
+
+                passwd = q.get()["msg"]
                 exec_str = (
                     "faillock --user $(whoami) --reset;"
                     f"echo '{passwd}' | "
@@ -452,7 +472,6 @@ class File_manager:
         import pty
 
         master_fd, slave_fd = pty.openpty()
-        # cmd = ["ls", path]
         cmd = ["bash"]
         process = subprocess.Popen(
             cmd,
@@ -488,18 +507,54 @@ class File_manager:
 
         return {"status": True, "msg": True}
 
-    def properties_work(path_list: list[Path]) -> None:
+    def properties_work(path_list: list[Path]) -> dict:
         folders = 0
         files = 0
         total_size = 0
 
         for path in path_list:
-            print(f"FILE MANAGER PATH: {path}")
             result = File_manager.get_dir_or_file_size(path)
+
             folders += result["folders"]
             files += result["files"]
             total_size += result["size"]
 
-        print(f"Folders: {folders}")
-        print(f"Files: {folders}")
-        print(f"Total size: {total_size}")
+        return {"folders": folders, "files": files, "total_size": total_size}
+
+    def get_size_and_unit(bytes_int: int) -> str:
+        """
+        Transforms bytes to the unit immediately preceding having decimal
+        type 0.9 and assigns the unit
+        """
+        KBYTES = 1024
+        start = True
+        count = 0
+        unit = ""
+        while start:
+
+            if not bytes_int > KBYTES:
+                start = False
+                continue
+
+            bytes_int = bytes_int / KBYTES
+            if bytes_int > 1:
+                count += 1
+            else:
+                start = False
+
+        if count == 0:
+            unit = "Bytes"
+
+        if count == 1:
+            unit = "KB"
+
+        if count == 2:
+            unit = "MB"
+
+        if count == 3:
+            unit = "GB"
+
+        if count == 4:
+            unit = "TB"
+
+        return f"{round(bytes_int, 2)}{unit}"

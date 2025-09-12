@@ -57,7 +57,7 @@ class Window(Gtk.ApplicationWindow):
         self.menu_bar = None
         self.explorer_1 = None
         self.explorer_2 = None
-        self.ENABLE_CSS = 1
+        self.ENABLE_CSS = True
 
         # to use in watchdog
         self.write_error_msg_displayer = False

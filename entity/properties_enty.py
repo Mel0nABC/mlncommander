@@ -37,7 +37,13 @@ class PropertiesEnty(GObject.Object):
         self.sticky = ""
         self.recursive = recursive
         self.labels_list = []
-        self.checks_btn_list = []
+        self.checks_btn_list = {}
+
+        self.sticky_dropdown = None
+        self.user_dropdown = None
+        self.group_dropdown = None
+        self.recursive_check_button = None
+
         self.old_permissions = permissions
         self.old_user_name = user_name
         self.old_group_name = group_name
@@ -54,13 +60,12 @@ class PropertiesEnty(GObject.Object):
         if not checked:
             letter = "-"
         else:
-            letter = divid[1]
             if letter == "-":
                 if index in [0, 3, 6]:
                     letter = "r"
                 elif index in [1, 4, 7]:
                     letter = "w"
-                elif index in [3, 5, 8]:
+                elif index in [2, 5, 8]:
                     letter = "x"
         self.permissions_list[index] = letter
         self.set_sticky(self.sticky)
@@ -104,7 +109,7 @@ class PropertiesEnty(GObject.Object):
     def set_group(self, new_group: str) -> bool:
         old_group_name = self.group_name
         self.group_name = new_group
-        return not old_group_name == self.user_name
+        return not old_group_name == self.group_name
 
     def to_dict(self):
         return {

@@ -117,6 +117,9 @@ class Actions:
             text=text_input,
         )
         dialog.connect("response", lambda d, r: d.destroy())
+        dialog.get_style_context().add_class("app_background")
+        dialog.get_style_context().add_class("font")
+        dialog.get_style_context().add_class("font-color")
         dialog.present()
 
     def set_explorer_to_focused(

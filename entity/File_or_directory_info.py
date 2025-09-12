@@ -33,7 +33,6 @@ class File_or_directory_info(GObject.Object):
         self.is_sys_link: bool = self.path_file.is_symlink()
         self.path_exist: bool = self.path_file.exists()
         self.selected = False
-        self.KBYTES = 1024
 
         self.filter_file_or_sys_link()
 
@@ -72,41 +71,6 @@ class File_or_directory_info(GObject.Object):
                 self.size = self.path_file.stat().st_size
                 self.type = "FILE"
 
-                self.size = self.get_size_and_unit(int(self.size))
+                from utilities.file_manager import File_manager
 
-    def get_size_and_unit(self, bytes_int: int) -> str:
-        """
-        Transforms bytes to the unit immediately preceding having decimal
-        type 0.9 and assigns the unit
-        """
-        start = True
-        count = 0
-        unit = ""
-        while start:
-
-            if not bytes_int > self.KBYTES:
-                start = False
-                continue
-
-            bytes_int = bytes_int / self.KBYTES
-            if bytes_int > 1:
-                count += 1
-            else:
-                start = False
-
-        if count == 0:
-            unit = "Bytes"
-
-        if count == 1:
-            unit = "KB"
-
-        if count == 2:
-            unit = "MB"
-
-        if count == 3:
-            unit = "GB"
-
-        if count == 4:
-            unit = "TB"
-
-        return f"{round(bytes_int, 2)}{unit}"
+                self.size = File_manager.get_size_and_unit(int(self.size))

@@ -109,7 +109,6 @@ class Preferences(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
         self.vertical_option_box.set_vexpand(True)
-
         self.horizontal_main.append(self.vertical_option_box)
 
     def create_option_box(self) -> None:
@@ -117,6 +116,10 @@ class Preferences(Gtk.Window):
         self.horizontal_option_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
+        self.horizontal_option_box.set_margin_top(20)
+        self.horizontal_option_box.set_margin_end(20)
+        self.horizontal_option_box.set_margin_bottom(20)
+        self.horizontal_option_box.set_margin_start(20)
         self.horizontal_option_box.set_hexpand(True)
         self.horizontal_option_box.set_vexpand(True)
         self.horizontal_option_box.get_style_context().add_class(

@@ -6,6 +6,7 @@ from pathlib import Path
 from entity.shortcut import Shortcut
 from utilities.access_control import AccessControl
 from utilities.compression import CompressionManager
+from views.properties.properties import Properties
 from controls.actions import Actions
 import yaml
 import gi
@@ -13,6 +14,9 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, GLib  # noqa E402
+
+
+# /usr/include/gtk-4.0/gdk/gdkkeysyms.h
 
 
 class Shortcuts_keys:
@@ -426,4 +430,28 @@ class Shortcuts_keys:
                 "show_shortcut",
                 "Muestra información sobre atajos de teclado",
             ),
+            Shortcut(
+                "<Alt>",
+                "Return",
+                "show_propeties",
+                (
+                    "Muestra los permisos, propietario"
+                    " y grupo de archivos y carpetas"
+                ),
+            ),
         ]
+
+    def show_propeties(
+        self,
+        widget: Gtk.Widget,
+        *args,
+        index: str,
+        explorer: "explorer" = None,  # noqa : F821
+    ) -> bool:
+        # Disconnect key controller from main window
+        self.win.key_disconnect()
+        explorer = self.win.get_explorer_focused()
+        path_list = explorer.get_selected_items_from_explorer()[1]
+        Properties(self.win, path_list)
+        GLib.idle_add(self.win.key_connect)
+        return True

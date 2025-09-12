@@ -2,10 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from views.menu_bar.file.preferences.preferences_options import (
+    Preferences,
+)
+from views.properties.properties import Properties
 import gi
+from gi.repository import Gtk, Gio  # noqa: E402
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio  # noqa: E402
 
 
 class Menu_bar(Gio.Menu):
@@ -45,6 +49,14 @@ class Menu_bar(Gio.Menu):
         self.win.add_action(action_preferences)
         menu_file.append_section(None, menu_preferences)
 
+        # Option Preferences
+        menu_propieties = Gio.Menu()
+        menu_propieties.append(_("Propiedades"), "win.propieties")
+        action_propieties = Gio.SimpleAction.new("propieties", None)
+        action_propieties.connect("activate", self.open_propieties)
+        self.win.add_action(action_propieties)
+        menu_file.append_section(None, menu_propieties)
+
         # Option Exit
         menu_exit = Gio.Menu()
         menu_exit.append(_("Salir"), "win.exit")
@@ -57,12 +69,15 @@ class Menu_bar(Gio.Menu):
         self, action: Gio.SimpleAction = None, parameter=None
     ) -> None:
 
-        from views.menu_bar.file.preferences.preferences_options import (
-            Preferences,
-        )
-
         if not self.preferences:
             self.preferences = Preferences(self.win, self)
+
+    def open_propieties(
+        self, action: Gio.SimpleAction = None, parameter=None
+    ) -> None:
+        explorer = self.win.get_explorer_focused()
+        path_list = explorer.get_selected_items_from_explorer()[1]
+        Properties(self.win, path_list)
 
     def create_help_submenu(self) -> None:
 

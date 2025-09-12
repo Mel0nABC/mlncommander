@@ -515,8 +515,7 @@ class Explorer(Gtk.ColumnView):
                     if item.exists():
                         total_size_items += item.stat().st_size
 
-        temp_file_or_directory = File_or_directory_info("/")
-        total_size_items_reduced = temp_file_or_directory.get_size_and_unit(
+        total_size_items_reduced = File_manager.get_size_and_unit(
             total_size_items
         )
 

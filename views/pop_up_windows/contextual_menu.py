@@ -60,14 +60,7 @@ class ContextBox(Gtk.Box):
         )
 
     def create_file_context_menu(self) -> None:
-        file_list_btn = {
-            "Propiedades": self.get_properties,
-            "Propiedades2": self.get_properties,
-            "Propiedades3": self.get_properties,
-            "Propiedades4": self.get_properties,
-            "Propiedades5": self.get_properties,
-            "Propiedades6": self.get_properties,
-        }
+        file_list_btn = {"Propiedades": self.get_properties}
         for key in file_list_btn.keys():
             btn = Gtk.Button.new_with_label(key)
             btn.connect("clicked", file_list_btn[key])
@@ -79,7 +72,7 @@ class ContextBox(Gtk.Box):
             def btn_action(button):
                 print("HOLA BOTON:")
 
-            btn = Gtk.Button.new_with_label(f"BOTON - {i}")
+            btn = Gtk.Button.new_with_label(f"Btn test - {i}")
             btn.connect("clicked", btn_action)
             self.main_box.append(btn)
 

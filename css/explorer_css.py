@@ -205,10 +205,13 @@ class Css_explorer_manager:
             else "normal"
         )
         css = f"""
+
+            .border{{
+                border:solid 1px green;
+            }}
             .border-style{{
                 border: solid 1pt {font_style_color};
                 border-radius: 20pt;
-                # margin: 20pt;
             }}
 
             .font-color *{{

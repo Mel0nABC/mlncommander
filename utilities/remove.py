@@ -86,6 +86,8 @@ class Remove:
             parent, explorer_src.actual_path
         )
 
+        print(f"ELIMINANDO: {response}")
+
         if not response:
             self.stop_deleting = True
             self.action.show_msg_alert(
