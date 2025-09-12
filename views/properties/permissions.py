@@ -5,67 +5,18 @@ from utilities.i18n import _
 from utilities.file_manager import File_manager
 from entity.properties_enty import PropertiesEnty
 from pathlib import Path
+from utilities.screen_info import ScreenInfo
 import gi
+from gi.repository import Gtk, Gio, GObject
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk, GObject  # noqa E402
 
 
-class Properties(Gtk.Window):
-    def __init__(self, win: Gtk.Window, path_list: list = None):
-        super().__init__(transient_for=win)
+class Permissions:
 
-        header = Gtk.HeaderBar()
-        header.set_title_widget(
-            Gtk.Label(label=_("Propiedades de archivos y carpetas"))
-        )
-        self.set_titlebar(header)
-
-        self.set_vexpand(True)
-        self.set_hexpand(True)
-        self.set_resizable(True)
-
-        self.win = win
+    def __init__(self, path_list: list[Path], win):
         self.path_list = path_list
-
-        # Load css
-
-        self.get_style_context().add_class("app_background")
-        self.get_style_context().add_class("font")
-        self.get_style_context().add_class("font-color")
-
-        main_vertical_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=5
-        )
-
-        notebook = Gtk.Notebook.new()
-
-        notebook.append_page(
-            self.create_permissions(), Gtk.Label.new(_("Permisos"))
-        )
-        notebook.append_page(
-            self.create_information(), Gtk.Label.new(_("Información"))
-        )
-
-        main_vertical_box.append(notebook)
-
-        self.set_child(main_vertical_box)
-
-        self.present()
-
-    def create_information(self) -> Gtk.Box:
-
-        information_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=5
-        )
-
-        information_box.append(
-            Gtk.Label.new("INFORMACION ARCHIVOS Y CARPETAS")
-        )
-
-        # image = Gtk.Image.new()
-
-        return information_box
+        self.win = win
 
     def create_permissions(self) -> Gtk.Box:
 
@@ -117,14 +68,16 @@ class Properties(Gtk.Window):
             "group_name",
         ]
 
-        from utilities.screen_info import ScreenInfo
-
         ScreenInfo.horizontal
 
-        properties_box = Gtk.Box(
+        self.properties_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=5
         )
-        properties_box.set_size_request(1024, ScreenInfo.vertical * 0.66)
+        self.properties_box.set_size_request(1024, ScreenInfo.vertical * 0.6)
+        self.properties_box.set_margin_top(20)
+        self.properties_box.set_margin_end(20)
+        self.properties_box.set_margin_bottom(20)
+        self.properties_box.set_margin_start(20)
 
         # START TOP MENU
 
@@ -198,19 +151,28 @@ class Properties(Gtk.Window):
         self.columnview.set_margin_end(20)
         self.columnview.set_margin_start(20)
 
-        column_scroll = Gtk.ScrolledWindow.new()
-        column_scroll.set_policy(
+        self.column_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=5
+        )
+
+        self.column_scroll = Gtk.ScrolledWindow.new()
+        self.column_scroll.set_policy(
             Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
         )
-        column_scroll.set_margin_end(20)
-        column_scroll.set_margin_start(20)
+        scroll_margin = 20
+        self.column_scroll.set_margin_top(scroll_margin)
+        self.column_scroll.set_margin_end(scroll_margin)
+        self.column_scroll.set_margin_bottom(scroll_margin)
+        self.column_scroll.set_margin_start(scroll_margin)
 
-        column_scroll.set_vexpand(True)
-        column_scroll.set_hexpand(True)
+        self.column_box.append(self.column_scroll)
 
-        column_scroll.set_child(self.columnview)
+        self.column_scroll.set_vexpand(True)
+        self.column_scroll.set_hexpand(True)
 
-        properties_box.set_hexpand(True)
+        self.column_scroll.set_child(self.columnview)
+
+        self.properties_box.set_hexpand(True)
 
         for property_name in columns_header:
 
@@ -262,7 +224,7 @@ class Properties(Gtk.Window):
             )
             info_win.set_titlebar(header)
 
-            info_win.set_transient_for(self)
+            info_win.set_transient_for(self.win)
             info_win.set_modal(True)
 
             info_win.get_style_context().add_class("app_background")
@@ -418,14 +380,14 @@ class Properties(Gtk.Window):
 
             def on_close(btn: Gtk.Button) -> None:
                 info_win.destroy()
-                self.destroy()
+                self.win.destroy()
 
             btn_close.connect("clicked", on_close)
             self.vertical_box.append(btn_close)
             print("FINAL")
 
         def on_cancel(button: Gtk.Button):
-            self.destroy()
+            self.win.destroy()
 
         btn_accept.connect("clicked", on_accept)
         btn_cancel.connect("clicked", on_cancel)
@@ -433,26 +395,17 @@ class Properties(Gtk.Window):
         horizontal_btn_box.append(btn_accept)
         horizontal_btn_box.append(btn_cancel)
 
-        properties_box.get_style_context().add_class("properties")
+        # Load css
 
-        top_separator = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
-        top_separator.get_style_context().add_class("separator")
-        top_separator.set_margin_top(30)
-        top_separator.set_margin_bottom(30)
+        self.properties_box.get_style_context().add_class("properties")
+        self.column_box.get_style_context().add_class("border-style")
 
-        bottom_separator = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
-        bottom_separator.get_style_context().add_class("separator")
-        bottom_separator.set_margin_top(30)
-        bottom_separator.set_margin_bottom(30)
+        # Add widgets
+        self.properties_box.append(top_box)
+        self.properties_box.append(self.column_box)
+        self.properties_box.append(horizontal_btn_box)
 
-        # add widgets
-        properties_box.append(top_box)
-        properties_box.append(top_separator)
-        properties_box.append(column_scroll)
-        properties_box.append(bottom_separator)
-        properties_box.append(horizontal_btn_box)
-
-        return properties_box
+        return self.properties_box
 
     def setup(
         self,
