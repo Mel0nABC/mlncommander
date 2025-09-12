@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Mel0nABC
+#
+# SPDX-License-Identifier: MIT
 import pytest
 from pathlib import Path
 from utilities.file_manager import File_manager
