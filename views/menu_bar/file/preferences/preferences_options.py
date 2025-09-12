@@ -151,7 +151,9 @@ class Preferences(Gtk.Window):
         """
         Close preferencesc window
         """
-        self.win.load_css_application()
+
+        if self.win.ENABLE_CSS:
+            self.win.load_css_application()
         self.on_close()
 
     def on_accept(self, button: Gtk.Button) -> None:

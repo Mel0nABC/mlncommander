@@ -57,6 +57,7 @@ class Window(Gtk.ApplicationWindow):
         self.menu_bar = None
         self.explorer_1 = None
         self.explorer_2 = None
+        self.ENABLE_CSS = 1
 
         # to use in watchdog
         self.write_error_msg_displayer = False
@@ -65,7 +66,8 @@ class Window(Gtk.ApplicationWindow):
         self.load_config_file()
 
         # Load css
-        self.load_css_application()
+        if self.ENABLE_CSS:
+            self.load_css_application()
 
         # We get information from the screen
 

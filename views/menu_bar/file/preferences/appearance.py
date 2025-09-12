@@ -229,51 +229,57 @@ class Appearance(Gtk.Box):
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
     ) -> None:
-
-        font_desc = button.get_font_desc()
-        if font_desc:
-            self.FONT_STYLE = font_desc.to_string()
-            self.css_manager.load_css_font(font_desc, self.FONT_STYLE_COLOR)
+        if self.win.ENABLE_CSS:
+            font_desc = button.get_font_desc()
+            if font_desc:
+                self.FONT_STYLE = font_desc.to_string()
+                self.css_manager.load_css_font(
+                    font_desc, self.FONT_STYLE_COLOR
+                )
 
     def set_color(
         self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
     ) -> None:
+        if self.win.ENABLE_CSS:
+            color = button.get_rgba().to_string()
+            name = button.get_name()
 
-        color = button.get_rgba().to_string()
-        name = button.get_name()
+            if name == "btn_color_explorer_left":
+                self.COLOR_EXPLORER_LEFT = color
+            elif name == "btn_color_explorer_right":
+                self.COLOR_EXPLORER_RIGHT = color
+            elif name == "btn_color_background_search":
+                self.COLOR_BACKGROUND_SEARCH = color
+            elif name == "btn_color_search_text":
+                self.COLOR_SEARCH_TEXT = color
+            elif name == "btn_color_app":
+                self.COLOR_BACKGROUND_APP = color
+                self.css_manager.load_css_app_background(
+                    self.COLOR_BACKGROUND_APP
+                )
+            elif name == "btn_color_background_buttons":
+                self.COLOR_BUTTON = color
+                self.css_manager.load_css_buttons(
+                    self.COLOR_BUTTON, self.COLOR_FAV_BUTTON
+                )
+            elif name == "btn_color_entry":
+                self.COLOR_ENTRY = color
+                self.css_manager.load_css_entrys(self.COLOR_ENTRY)
+            elif name == "btn_color_font_color":
+                self.FONT_STYLE_COLOR = color
+                font_desc = Pango.FontDescription.from_string(self.FONT_STYLE)
+                self.css_manager.load_css_font(
+                    font_desc, self.FONT_STYLE_COLOR
+                )
+            elif name == "btn_color_background_fav_buttons":
+                self.COLOR_FAV_BUTTON = color
+                self.css_manager.load_css_buttons(
+                    self.COLOR_BUTTON, self.COLOR_FAV_BUTTON
+                )
 
-        if name == "btn_color_explorer_left":
-            self.COLOR_EXPLORER_LEFT = color
-        elif name == "btn_color_explorer_right":
-            self.COLOR_EXPLORER_RIGHT = color
-        elif name == "btn_color_background_search":
-            self.COLOR_BACKGROUND_SEARCH = color
-        elif name == "btn_color_search_text":
-            self.COLOR_SEARCH_TEXT = color
-        elif name == "btn_color_app":
-            self.COLOR_BACKGROUND_APP = color
-            self.css_manager.load_css_app_background(self.COLOR_BACKGROUND_APP)
-        elif name == "btn_color_background_buttons":
-            self.COLOR_BUTTON = color
-            self.css_manager.load_css_buttons(
-                self.COLOR_BUTTON, self.COLOR_FAV_BUTTON
+            self.css_manager.load_css_explorer_background(
+                self.COLOR_EXPLORER_LEFT, self.COLOR_EXPLORER_RIGHT
             )
-        elif name == "btn_color_entry":
-            self.COLOR_ENTRY = color
-            self.css_manager.load_css_entrys(self.COLOR_ENTRY)
-        elif name == "btn_color_font_color":
-            self.FONT_STYLE_COLOR = color
-            font_desc = Pango.FontDescription.from_string(self.FONT_STYLE)
-            self.css_manager.load_css_font(font_desc, self.FONT_STYLE_COLOR)
-        elif name == "btn_color_background_fav_buttons":
-            self.COLOR_FAV_BUTTON = color
-            self.css_manager.load_css_buttons(
-                self.COLOR_BUTTON, self.COLOR_FAV_BUTTON
-            )
-
-        self.css_manager.load_css_explorer_background(
-            self.COLOR_EXPLORER_LEFT, self.COLOR_EXPLORER_RIGHT
-        )
 
     def set_color_dialog_button(self, button: Gtk.ColorDialogButton) -> None:
 
@@ -321,8 +327,8 @@ class Appearance(Gtk.Box):
         color_dialog = Gtk.ColorDialog()
         btn_color = Gtk.ColorDialogButton.new(color_dialog)
         btn_color.set_name(btn_name)
-        btn_color.connect("notify::rgba", self.set_color)
         self.set_color_dialog_button(btn_color)
+        btn_color.connect("notify::rgba", self.set_color)
         btn_color.set_hexpand(True)
         btn_color.set_halign(Gtk.Align.CENTER)
         self.btn_color_list.append(btn_color)

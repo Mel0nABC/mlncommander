@@ -84,7 +84,7 @@ class ContextBox(Gtk.Box):
             self.main_box.append(btn)
 
     def get_properties(self, button: Gtk.Button) -> None:
-        from views.pop_up_windows.properties import Properties
+        from views.properties.properties import Properties
 
         Properties(self.main_window, self.path_list)
         self.popover.popdown()
