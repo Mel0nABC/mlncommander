@@ -4,23 +4,25 @@
 from utilities.i18n import _
 from views.properties.permissions import Permissions
 from views.properties.information import Information
-
+from utilities.screen_info import ScreenInfo
 import gi
+from gi.repository import Gtk, Gio, Gdk, GLib, GObject  # noqa E402
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk, GLib, GObject  # noqa E402
 
 
 class Properties(Gtk.Window):
-    def __init__(self, win: Gtk.Window, path_list: list = None):
+    def __init__(self, win: Gtk.Window, path_list: list):
         super().__init__()
 
         header = Gtk.HeaderBar()
         header.set_title_widget(
             Gtk.Label(label=_("Propiedades de archivos y carpetas"))
         )
+        self.set_size_request(
+            ScreenInfo.horizontal * 0.33, ScreenInfo.vertical * 0.6
+        )
 
-        # self.set_transient_for(win)
         self.set_titlebar(header)
 
         self.set_vexpand(True)
@@ -40,13 +42,13 @@ class Properties(Gtk.Window):
 
         notebook = Gtk.Notebook.new()
 
-        permissions = Permissions(self.path_list, self)
-        information = Information()
+        permissions = Permissions(self, self.path_list)
+        information = Information(self, self.path_list)
 
-        notebook.append_page(permissions, Gtk.Label.new(_("Permisos")))
         notebook.append_page(
             information.create_information(), Gtk.Label.new(_("Información"))
         )
+        notebook.append_page(permissions, Gtk.Label.new(_("Permisos")))
 
         main_vertical_box.append(notebook)
 

@@ -4,7 +4,6 @@
 from utilities.i18n import _
 from utilities.file_manager import File_manager
 from entity.properties_enty import PropertiesEnty
-from utilities.screen_info import ScreenInfo
 from utilities.sistem_info import SistemInformation
 from controls.actions import Actions
 from pathlib import Path
@@ -16,18 +15,13 @@ gi.require_version("Gtk", "4.0")
 
 class Permissions(Gtk.Box):
 
-    def __init__(self, path_list: list[Path], win):
+    def __init__(self, win: Gtk.Window, path_list: list[Path]):
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
         self.path_list = path_list
         self.win = win
         self.action = Actions()
         self.path_list = path_list
         self.list_store = None
-        self.set_size_request(1024, ScreenInfo.vertical * 0.6)
-        self.set_margin_top(20)
-        self.set_margin_end(20)
-        self.set_margin_bottom(20)
-        self.set_margin_start(20)
         self.set_hexpand(True)
 
         self.list_store = Gio.ListStore.new(PropertiesEnty)
@@ -52,45 +46,43 @@ class Permissions(Gtk.Box):
         self.main_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=5
         )
+        self.main_center = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=5
+        )
+        self.main_center.set_halign(Gtk.Align.CENTER)
+        self.main_box.set_size_request(-1, 200)
+        self.main_box.set_margin_bottom(20)
 
         self.main_box.get_style_context().add_class("border-style")
-
-        self.main_box.set_margin_top(20)
-        self.main_box.set_margin_end(20)
-        self.main_box.set_margin_bottom(20)
-        self.main_box.set_margin_start(20)
-
-        self.main_box.set_halign(Gtk.Align.CENTER)
 
         left_box = self.create_left_content()
         right_boxk = self.create_right_content()
 
-        self.main_box.append(left_box)
-        self.main_box.append(right_boxk)
+        self.main_center.append(left_box)
+        self.main_center.append(right_boxk)
+        self.main_box.append(self.main_center)
         return self.main_box
         # FINAL TOP MENU
 
     def create_left_content(self) -> Gtk.Box:
         left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-
-        left_box.set_margin_top(20)
-        left_box.set_margin_end(20)
-        left_box.set_margin_bottom(20)
-        left_box.set_margin_start(20)
+        left_box.set_valign(Gtk.Align.CENTER)
 
         left_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         left_content.set_margin_top(20)
         left_content.set_margin_end(20)
         left_content.set_margin_bottom(20)
         left_content.set_margin_start(20)
+        left_content.set_hexpand(True)
 
         title_label = Gtk.Label.new(_("Información del contenido"))
         title_label.set_halign(Gtk.Align.START)
+        title_label.set_valign(Gtk.Align.CENTER)
         title_label.set_margin_bottom(20)
 
         left_content.append(title_label)
 
-        result_dict = File_manager.properties_work(self.path_list)
+        result_dict = File_manager.properties_path_list(self.path_list)
 
         folders_str_lsb = Gtk.Label.new(_("Subcarpetas totales:"))
         files_str_lsb = Gtk.Label.new(_("Archivos totales:"))
@@ -130,16 +122,15 @@ class Permissions(Gtk.Box):
         right_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
         right_box.set_margin_top(20)
-        right_box.set_margin_end(20)
         right_box.set_margin_bottom(20)
         right_box.set_margin_start(20)
 
         right_content = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=5
         )
+        right_content.set_hexpand(True)
 
         right_content.set_margin_top(20)
-        right_content.set_margin_end(20)
         right_content.set_margin_bottom(20)
         right_content.set_margin_start(20)
 
@@ -336,20 +327,11 @@ class Permissions(Gtk.Box):
         self.selection = Gtk.SingleSelection.new(model=self.list_store)
 
         self.columnview.set_model(self.selection)
-        self.columnview.set_margin_top(20)
-        self.columnview.set_margin_end(20)
-        self.columnview.set_margin_bottom(20)
-        self.columnview.set_margin_start(20)
 
         self.column_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=5
         )
-
-        scroll_margin = 20
-        self.column_box.set_margin_top(scroll_margin)
-        self.column_box.set_margin_end(scroll_margin)
-        self.column_box.set_margin_bottom(scroll_margin)
-        self.column_box.set_margin_start(scroll_margin)
+        self.column_box.set_margin_bottom(20)
 
         self.column_scroll = Gtk.ScrolledWindow.new()
         self.column_scroll.set_policy(
@@ -615,7 +597,25 @@ class Permissions(Gtk.Box):
                         property_name,
                     )
                 if property_name == "path":
-                    widget.set_text(propertiesenty.path)
+                    path = propertiesenty.path
+                    no_read_permissios = "---------"
+                    if propertiesenty.permissions == no_read_permissios:
+                        no_access = _(
+                            (
+                                "No tiene acceso a los permisos,"
+                                " si dispones contraseña root,"
+                                " puedes cambiarlos"
+                            )
+                        )
+                        widget.set_markup(
+                            (
+                                f"{path}\n<span foreground='#AC161C'>"
+                                f"{no_access}</span>"
+                            )
+                        )
+                    else:
+                        widget.set_text(path)
+
                     widget.set_ellipsize(Pango.EllipsizeMode.START)
 
     def focust_row_with_some_widget(self, control, x, y, cell) -> None:
@@ -649,7 +649,6 @@ class Permissions(Gtk.Box):
 
         horizontal_btn_box.set_halign(Gtk.Align.END)
         horizontal_btn_box.set_hexpand(True)
-        horizontal_btn_box.set_margin_top(30)
 
         btn_accept = Gtk.Button.new_with_label(_("Aceptar"))
         btn_accept.set_margin_end(20)
@@ -773,8 +772,8 @@ class Permissions(Gtk.Box):
             _(
                 (
                     f"{msg_test}\n\n"
-                    f"  Permisos: {"✅" if resp_permissions["msg"] else _("Sin cambios")}\n"
-                    f"  Propietario y grupos: {"✅" if resp_owner_group["msg"] else _("Sin cambios")}"
+                    f"  Permisos: {"✅" if resp_permissions["msg"] else _("Sin cambios")}\n"  # noqa: E501
+                    f"  Propietario y grupos: {"✅" if resp_owner_group["msg"] else _("Sin cambios")}"  # noqa: E501
                 )
             )
         )

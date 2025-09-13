@@ -5,7 +5,7 @@ from utilities.i18n import _
 from views.file_explorer.explorer import Explorer
 import gi
 from gi.repository import Gtk, Gio
-from entity.File_or_directory_info import File_or_directory_info
+from entity.file_or_directory_info import File_or_directory_info
 import asyncio
 
 gi.require_version("Gtk", "4.0")

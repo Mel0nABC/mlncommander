@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from entity.File_or_directory_info import File_or_directory_info
+from entity.file_or_directory_info import File_or_directory_info
 from multiprocessing import Process, Queue
 from queue import Empty
 import subprocess
@@ -167,24 +167,6 @@ class File_manager:
                                 return "network"
 
             return False
-
-    def get_dir_or_file_size(path: Path) -> dict:
-
-        if path.is_dir():
-            folders = 0
-            files = 0
-            size = 0
-
-            for f in path.rglob("*"):
-                if f.is_file():
-                    size += f.stat().st_size
-                    files += 1
-                else:
-                    folders += 1
-
-            return {"folders": folders, "files": files, "size": size}
-        else:
-            return {"folders": 0, "files": 1, "size": path.stat().st_size}
 
     def get_permissions(path: Path) -> dict:
         try:
@@ -399,7 +381,7 @@ class File_manager:
     def execute_cmd(
         win: Gtk.Window, cmd_to_execute: str, with_pass: bool
     ) -> dict:
-        if shutil.which("pkexec"):
+        if not shutil.which("pkexec"):
             cmd_to_execute = f"'{cmd_to_execute}'"
             # When pkexec is not available to request the password.
             q = Queue()
@@ -488,19 +470,41 @@ class File_manager:
 
         return {"status": True, "msg": True}
 
-    def properties_work(path_list: list[Path]) -> dict:
+    def properties_path_list(path_list: list[Path]) -> dict:
         folders = 0
         files = 0
         total_size = 0
 
         for path in path_list:
-            result = File_manager.get_dir_or_file_size(path)
+            result = File_manager.properties_path(path)
 
             folders += result["folders"]
             files += result["files"]
-            total_size += result["size"]
+            total_size += result["total_size"]
 
         return {"folders": folders, "files": files, "total_size": total_size}
+
+    def properties_path(path: Path) -> dict:
+
+        if path.is_dir():
+            folders = 0
+            files = 0
+            size = 0
+
+            for f in path.rglob("*"):
+                if f.is_file():
+                    size += f.stat().st_size
+                    files += 1
+                else:
+                    folders += 1
+
+            return {"folders": folders, "files": files, "total_size": size}
+        else:
+            return {
+                "folders": 0,
+                "files": 1,
+                "total_size": path.stat().st_size,
+            }
 
     def get_size_and_unit(bytes_int: int) -> str:
         """
