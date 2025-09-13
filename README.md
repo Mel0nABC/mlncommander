@@ -21,6 +21,8 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Watchdog, monitors changes in browsers, both local and external
 - Favorite directories for each browser
 - Settings to automatically minimize copy, move, duplicate, compress and decompress options
+- Managing permissions, owners, and groups of files and folders.
+
 
 ## Motivation
 
