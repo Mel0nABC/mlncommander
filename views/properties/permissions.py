@@ -751,17 +751,17 @@ class Permissions(Gtk.Box):
             if not propertiesenty.filter_data_owners_changed():
                 owner_group_changes = True
 
-        resp_permissions = {"status": True, "msg": False}
-        if permissions_changes:
-
-            resp_permissions = File_manager.change_permissions(
-                win, self.list_store
-            )
-
         resp_owner_group = {"status": True, "msg": False}
         if owner_group_changes:
 
             resp_owner_group = File_manager.change_owner_group(
+                win, self.list_store
+            )
+
+        resp_permissions = {"status": True, "msg": False}
+        if permissions_changes:
+
+            resp_permissions = File_manager.change_permissions(
                 win, self.list_store
             )
 

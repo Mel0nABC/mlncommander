@@ -115,7 +115,7 @@ class Information:
         window.append(scrolled)
 
         for path in self.path_list:
-            print(type(path))
+
             path_enty = File_or_directory_info(Path(path))
             result_dict = File_manager.properties_path(path_enty.path_file)
 
