@@ -154,8 +154,7 @@ class Preferences(Gtk.Window):
         """
         Close preferencesc window
         """
-
-        if self.win.SWITCH_CSS_STATUS:
+        if self.win.config.SWITCH_CSS_STATUS:
             self.win.load_css_application()
         self.on_close()
 
