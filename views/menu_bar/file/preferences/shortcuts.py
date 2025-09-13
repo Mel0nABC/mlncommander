@@ -11,7 +11,7 @@ from gi.repository import Gtk, Gio, Pango, GObject  # noqa: E402
 
 class Shortcuts(Gtk.Box):
 
-    def __init__(self, win: Gtk.ApplicationWindow):
+    def __init__(self, win: Gtk.ApplicationWindow, parent: Gtk.Window):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         self.win = win

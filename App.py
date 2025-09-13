@@ -17,8 +17,17 @@ gbulb.install()  # Integrate asyncio into Gtk
 
 # force tu use dark theme with system env
 # os.environ["GTK_THEME"] = "Adwaita-light"
-os.environ["GTK_THEME"] = "Adwaita-dark"
+# os.environ["GTK_THEME"] = "Adwaita-dark"
+
+# os.environ["GTK_THEME"] = "Space-dark"
+# os.environ["GTK_THEME"] = "Materia-compact"
+# os.environ["GTK_THEME"] = "Materia-dark-compact"
+# os.environ["GTK_THEME"] = "Materia"
+# os.environ["GTK_THEME"] = "Materia-light"
+# os.environ["GTK_THEME"] = "Materia-light-compact"
+# os.environ["GTK_THEME"] = "Materia-dark"
 # os.environ["GTK_THEME"] = "Viola-Dark-GTK"
+
 
 # Configure gettext
 APP_NAME = "mlncommander"

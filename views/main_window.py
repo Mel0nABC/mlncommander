@@ -622,10 +622,10 @@ class Window(Gtk.ApplicationWindow):
         Saves the settings to the current location
         where the browsers are located
         """
+        print("SAVE")
         try:
-            print("SALVAMOS CONFIG")
             self.config = config
-
+            print(self.config.to_dict())
             # Config is deleted and the entire configuration is saved.
             with open(self.CONFIG_FILE, "w") as config_file:
                 yaml.dump(config.to_dict(), config_file, sort_keys=False)

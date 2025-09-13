@@ -3,25 +3,27 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from css.explorer_css import Css_explorer_manager
-import gi
+from pathlib import Path
 import asyncio
+import gi
+from gi.repository import Gtk, Gdk, Gio, GObject, Pango  # noqa: E402
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GObject, Pango  # noqa: E402
 
 
 class Appearance(Gtk.Box):
 
-    def __init__(self, win: Gtk.ApplicationWindow):
+    def __init__(self, win: Gtk.ApplicationWindow, parent: Gtk.Window):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
         # APPEARANCE
 
         # General
 
-        self.GENERAL_TITLE = _("Opciones generales de apariencia")
+        self.GENERAL_TITLE = _("Opciones generales")
         self.ENABLE_CSS_TITLE = _("Activar decoración en css")
         self.SWITCH_CSS_STATUS = win.config.SWITCH_CSS_STATUS
+        self.SELECT_THEME_TITLE = _("Temas")
 
         # Application colors
 
@@ -75,6 +77,7 @@ class Appearance(Gtk.Box):
         self.FONT_STYLE_COLOR = win.config.FONT_STYLE_COLOR
 
         self.win = win
+        self.parent = parent
         # self.css_manager = Css_explorer_manager(self.win)
         self.css_manager = self.win.css_manager
         self.btn_color_list = []
@@ -99,9 +102,22 @@ class Appearance(Gtk.Box):
         self.switch_css.set_halign(Gtk.Align.CENTER)
 
         self.switch_css.connect("state-set", self.on_press_switch_css)
+
+        lbl_enable_themes = self.create_label_for_title_section(
+            self.SELECT_THEME_TITLE
+        )
+
+        theme_list = self.load_themes_list()
+        theme_store = Gtk.StringList.new(theme_list)
+        theme_drop_down = Gtk.DropDown.new(model=theme_store)
+
         grid_enable_css.attach(lbl_general, 0, 0, 1, 1)
-        grid_enable_css.attach(lbl_enable_css, 1, 1, 1, 1)
-        grid_enable_css.attach(self.switch_css, 2, 1, 1, 1)
+
+        grid_enable_css.attach(lbl_enable_themes, 1, 1, 1, 1)
+        grid_enable_css.attach(theme_drop_down, 2, 1, 1, 1)
+
+        grid_enable_css.attach(lbl_enable_css, 1, 2, 1, 1)
+        grid_enable_css.attach(self.switch_css, 2, 2, 1, 1)
 
         self.append(grid_enable_css)
 
@@ -264,7 +280,7 @@ class Appearance(Gtk.Box):
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
     ) -> None:
-        if self.win.ENABLE_CSS:
+        if self.SWITCH_CSS_STATUS:
             font_desc = button.get_font_desc()
             if font_desc:
                 self.FONT_STYLE = font_desc.to_string()
@@ -275,8 +291,10 @@ class Appearance(Gtk.Box):
     def set_color(
         self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
     ) -> None:
+        print("SER COLOR")
 
         if self.SWITCH_CSS_STATUS:
+            print("CSS ACTIVADO")
             color = button.get_rgba().to_string()
             name = button.get_name()
 
@@ -372,8 +390,6 @@ class Appearance(Gtk.Box):
 
     def reset_css_values(self, button: Gtk.Button):
         if self.SWITCH_CSS_STATUS:
-            self.switch_css.set_active(False)
-            self.SWITCH_CSS_STATUS = False
             self.COLOR_BACKGROUND_APP = (
                 Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
             )
@@ -432,7 +448,8 @@ class Appearance(Gtk.Box):
                 self.set_color_dialog_button(btn)
 
     def on_press_switch_css(self, switch: Gtk.Switch, state: bool) -> None:
-
+        self.SWITCH_CSS_STATUS = state
+        self.win.config.SWITCH_CSS_STATUS = state
         if state:
             self.css_manager.load_css()
             self.grid.set_sensitive(True)
@@ -443,7 +460,6 @@ class Appearance(Gtk.Box):
         response = dialog.choose_finish(task)
 
         if not response:  # Accept
-            self.SWITCH_CSS_STATUS = False
             self.win.stop_to_close()
             self.css_manager.unload_css_and_restart()
         else:
@@ -462,4 +478,17 @@ class Appearance(Gtk.Box):
         alert.set_buttons(["Aceptar", "Cancelar"])
         alert.set_cancel_button(0)
         alert.set_default_button(1)
-        await alert.choose(self.win, None, self.on_response_alarm)
+
+        await alert.choose(self.parent, None, self.on_response_alarm)
+
+    def load_themes_list(self) -> list[str]:
+        themes_path = Path("/usr/share/themes")
+        list_str = []
+        list_str.append(_("Por defecto"))
+        if themes_path.exists():
+            for path in themes_path.iterdir():
+                checked_gtk_4 = Path(f"{path}/gtk-4.0")
+                if checked_gtk_4.exists():
+                    list_str.append(str(checked_gtk_4).split("/")[4])
+
+        return list_str

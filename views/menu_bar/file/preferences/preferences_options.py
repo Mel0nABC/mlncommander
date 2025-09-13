@@ -47,9 +47,9 @@ class Preferences(Gtk.Window):
         # Sections
 
         self.general = General(self.win, self)
-        self.directory_box = Directory(self.win)
-        self.appearance = Appearance(self.win)
-        self.shortcuts_view = Shortcuts(self.win)
+        self.directory_box = Directory(self.win, self)
+        self.appearance = Appearance(self.win, self)
+        self.shortcuts_view = Shortcuts(self.win, self)
 
         self.set_default_size(self.win.horizontal / 4, self.win.vertical / 2)
 
