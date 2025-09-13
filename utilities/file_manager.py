@@ -254,7 +254,7 @@ class File_manager:
     def change_permissions(win: Gtk.Window, path_list: list[Path]) -> bool:
 
         try:
-            cmd_str = ""
+            cmd_to_execute = ""
             for propertieenty in path_list:
                 path = Path(propertieenty.path)
                 permissions = propertieenty.permissions
@@ -318,57 +318,59 @@ class File_manager:
                 st = os.stat(path)
                 file_user_id = st.st_uid
 
-                cmd = []
-                if not actual_user_id == file_user_id:
-                    if "pkexec" not in cmd:
-                        cmd = ["pkexec", "/bin/bash", "-c"]
-                else:
-                    cmd = ["/bin/bash", "-c"]
                 recursive_str = " "
                 if propertieenty.recursive:
                     recursive_str += " -R "
 
-                cmd_str += f"chmod{recursive_str}{mode_str} {path} && "
+                cmd_to_execute += f"chmod{recursive_str}{mode_str} {path} && "
 
-            cmd_str = cmd_str.rstrip(" &&")
+            cmd_to_execute = cmd_to_execute.rstrip(" &&")
 
-            if not shutil.which("pkexec"):
-                need_passwd = ""
-                sudo = ""
+            with_pass = not actual_user_id == file_user_id
 
-                if not actual_user_id == file_user_id:
-                    cmd_str = f'"{cmd_str}"'
-                    q = Queue()
-                    from views.pop_up_windows.password_entry import (
-                        PasswordWindow,
-                    )
+            print(f"{actual_user_id} -- {file_user_id}")
 
-                    def work():
-                        PasswordWindow(
-                            win, q, "Es necesario que te identifique como root"
-                        )
+            print(f"WITH PASSWORD? -> {with_pass}")
 
-                    GLib.idle_add(work)
+            return File_manager.execute_cmd(win, cmd_to_execute, with_pass)
 
-                    passwd = q.get()["msg"]
-                    sudo = "sudo -S"
-                    need_passwd = f"echo '{passwd}' |"
+            # if not shutil.which("pkexec"):
+            #     need_passwd = ""
+            #     sudo = ""
 
-                exec_str = (
-                    "faillock --user $(whoami) --reset;"
-                    f"{need_passwd} "
-                    f"{sudo} bash -c {cmd_str};"
-                    "sudo -k;"
-                    " exit\n"
-                )
-                return File_manager.exec_tty_cmd(exec_str)
-            else:
-                cmd.append(cmd_str)
+            #     if not actual_user_id == file_user_id:
+            #         cmd_str = f'"{cmd_str}"'
+            #         q = Queue()
+            #         from views.pop_up_windows.password_entry import (
+            #             PasswordWindow,
+            #         )
 
-                res = subprocess.run(cmd, capture_output=True, text=True)
+            #         def work():
+            #             PasswordWindow(
+            #                 win, q, "Es necesario que te identifique como root"
+            #             )
 
-                if res.returncode != 0:
-                    return {"status": False, "msg": res.stderr}
+            #         GLib.idle_add(work)
+
+            #         passwd = q.get()["msg"]
+            #         sudo = "sudo -S"
+            #         need_passwd = f"echo '{passwd}' |"
+
+            #     exec_str = (
+            #         "faillock --user $(whoami) --reset;"
+            #         f"{need_passwd} "
+            #         f"{sudo} bash -c {cmd_str};"
+            #         "sudo -k;"
+            #         " exit\n"
+            #     )
+            #     return File_manager.exec_tty_cmd(exec_str)
+            # else:
+            #     cmd.append(cmd_str)
+
+            #     res = subprocess.run(cmd, capture_output=True, text=True)
+
+            #     if res.returncode != 0:
+            #         return {"status": False, "msg": res.stderr}
 
         except PermissionError as e:
             return {"status": False, "msg": e}
@@ -410,7 +412,7 @@ class File_manager:
 
                         filtered_list.append(propertyenty)
 
-            cmd_paths = ""
+            cmd_to_execute = ""
             recursive_str = ""
             for propertyenty in filtered_list:
 
@@ -421,20 +423,33 @@ class File_manager:
                 if propertyenty.recursive:
                     recursive_str = "-R"
 
-                cmd_paths += (
+                cmd_to_execute += (
                     f"chown {recursive_str} "
                     f"{user_name}:{group_name} {path} && "
                 )
 
-            cmd_paths = cmd_paths.rstrip(" &&")
+            cmd_to_execute = cmd_to_execute.rstrip(" &&")
 
-            if not shutil.which("pkexec"):
-                cmd_paths = f"'{cmd_paths}'"
-                # When pkexec is not available to request the password.
-                q = Queue()
-                from views.pop_up_windows.password_entry import (
-                    PasswordWindow,
-                )
+            return File_manager.execute_cmd(win, cmd_to_execute, True)
+
+        except PermissionError as e:
+            return {"status": False, "msg": e}
+
+    def execute_cmd(
+        win: Gtk.Window, cmd_to_execute: str, with_pass: bool
+    ) -> dict:
+
+        if not shutil.which("pkexec"):
+            cmd_to_execute = f"'{cmd_to_execute}'"
+            # When pkexec is not available to request the password.
+            q = Queue()
+            from views.pop_up_windows.password_entry import (
+                PasswordWindow,
+            )
+
+            passwd = ""
+            with_root_str = ""
+            if with_pass:
 
                 def work():
                     PasswordWindow(
@@ -442,28 +457,32 @@ class File_manager:
                     )
 
                 GLib.idle_add(work)
-
+                with_root_str = "sudo -S "
                 passwd = q.get()["msg"]
-                exec_str = (
-                    "faillock --user $(whoami) --reset;"
-                    f"echo '{passwd}' | "
-                    f"sudo -S bash -c {cmd_paths};"  # noqa: E501
-                    "sudo -k;"
-                    " exit\n"
-                )
-                return File_manager.exec_tty_cmd(exec_str)
-            else:
 
+            exec_str = (
+                "faillock --user $(whoami) --reset;"
+                f"echo '{passwd}' | "
+                f"{with_root_str}bash -c {cmd_to_execute};"  # noqa: E501
+                "sudo -k;"
+                " exit\n"
+            )
+
+            print(exec_str)
+
+            return File_manager.exec_tty_cmd(exec_str)
+        else:
+            if with_pass:
                 cmd = ["pkexec", "bash", "-c"]
-                cmd.append(cmd_paths)
+            else:
+                cmd = ["bash", "-c"]
 
-            res = subprocess.run(cmd, capture_output=True, text=True)
+            cmd.append(cmd_to_execute)
+        print(cmd)
+        res = subprocess.run(cmd, capture_output=True, text=True)
 
-            if res.returncode != 0:
-                return {"status": False, "msg": res.stderr}
-
-        except PermissionError as e:
-            return {"status": False, "msg": e}
+        if res.returncode != 0:
+            return {"status": False, "msg": res.stderr}
 
         return {"status": True, "msg": True}
 
