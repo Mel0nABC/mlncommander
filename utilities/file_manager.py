@@ -45,11 +45,14 @@ class File_manager:
                     ordered_list = sorted(
                         path.iterdir(), key=File_manager.custom_key
                     )
-                    q.put({"ok": True, "data": ordered_list})
-                except OSError:
-                    q.put({"ok": False, "data": None})
-                except Exception:
-                    q.put({"ok": False, "data": None})
+
+                    q.put({"status": True, "data": ordered_list})
+                except OSError as e:
+                    print(e)
+                    q.put({"status": False, "data": e})
+                except Exception as e:
+                    print(e)
+                    q.put({"status": False, "data": e})
 
             q = Queue()
             p = Process(target=get_sorted_dir, args=(path, q))
@@ -65,7 +68,7 @@ class File_manager:
                 else:
                     return False
 
-            if msg["ok"]:
+            if msg["status"]:
                 ordered_list = msg["data"]
                 for content in ordered_list:
                     new_info = File_or_directory_info(content.absolute())
@@ -328,49 +331,7 @@ class File_manager:
 
             with_pass = not actual_user_id == file_user_id
 
-            print(f"{actual_user_id} -- {file_user_id}")
-
-            print(f"WITH PASSWORD? -> {with_pass}")
-
             return File_manager.execute_cmd(win, cmd_to_execute, with_pass)
-
-            # if not shutil.which("pkexec"):
-            #     need_passwd = ""
-            #     sudo = ""
-
-            #     if not actual_user_id == file_user_id:
-            #         cmd_str = f'"{cmd_str}"'
-            #         q = Queue()
-            #         from views.pop_up_windows.password_entry import (
-            #             PasswordWindow,
-            #         )
-
-            #         def work():
-            #             PasswordWindow(
-            #                 win, q, "Es necesario que te identifique como root"
-            #             )
-
-            #         GLib.idle_add(work)
-
-            #         passwd = q.get()["msg"]
-            #         sudo = "sudo -S"
-            #         need_passwd = f"echo '{passwd}' |"
-
-            #     exec_str = (
-            #         "faillock --user $(whoami) --reset;"
-            #         f"{need_passwd} "
-            #         f"{sudo} bash -c {cmd_str};"
-            #         "sudo -k;"
-            #         " exit\n"
-            #     )
-            #     return File_manager.exec_tty_cmd(exec_str)
-            # else:
-            #     cmd.append(cmd_str)
-
-            #     res = subprocess.run(cmd, capture_output=True, text=True)
-
-            #     if res.returncode != 0:
-            #         return {"status": False, "msg": res.stderr}
 
         except PermissionError as e:
             return {"status": False, "msg": e}
@@ -438,27 +399,30 @@ class File_manager:
     def execute_cmd(
         win: Gtk.Window, cmd_to_execute: str, with_pass: bool
     ) -> dict:
-
-        if not shutil.which("pkexec"):
+        if shutil.which("pkexec"):
             cmd_to_execute = f"'{cmd_to_execute}'"
             # When pkexec is not available to request the password.
             q = Queue()
-            from views.pop_up_windows.password_entry import (
-                PasswordWindow,
-            )
 
             passwd = ""
             with_root_str = ""
             if with_pass:
 
-                def work():
+                def work(win, q):
+                    from views.pop_up_windows.password_entry import (
+                        PasswordWindow,
+                    )
+
                     PasswordWindow(
                         win, q, "Es necesario que te identifique como root"
                     )
 
-                GLib.idle_add(work)
-                with_root_str = "sudo -S "
+                GLib.idle_add(work, win, q)
                 passwd = q.get()["msg"]
+                with_root_str = "sudo -S "
+
+                if passwd.lower() == "cancel":
+                    return {"status": False, "msg": "Operación cancelada"}
 
             exec_str = (
                 "faillock --user $(whoami) --reset;"
@@ -468,8 +432,6 @@ class File_manager:
                 " exit\n"
             )
 
-            print(exec_str)
-
             return File_manager.exec_tty_cmd(exec_str)
         else:
             if with_pass:
@@ -478,13 +440,13 @@ class File_manager:
                 cmd = ["bash", "-c"]
 
             cmd.append(cmd_to_execute)
-        print(cmd)
+
         res = subprocess.run(cmd, capture_output=True, text=True)
 
         if res.returncode != 0:
             return {"status": False, "msg": res.stderr}
 
-        return {"status": True, "msg": True}
+        return {"status": True, "msg": res.stdout}
 
     def exec_tty_cmd(exec_str: str):
 

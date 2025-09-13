@@ -752,14 +752,14 @@ class Permissions(Gtk.Box):
             if not propertiesenty.filter_data_owners_changed():
                 owner_group_changes = True
 
-        resp_permissions = True
+        resp_permissions = {"status": True, "msg": False}
         if permissions_changes:
 
             resp_permissions = File_manager.change_permissions(
                 win, self.list_store
             )
 
-        resp_owner_group = True
+        resp_owner_group = {"status": True, "msg": False}
         if owner_group_changes:
 
             resp_owner_group = File_manager.change_owner_group(
@@ -768,13 +768,26 @@ class Permissions(Gtk.Box):
 
         response_lbl_perm = Gtk.Label.new()
 
+        msg_test = _("Operación realizada satisfactoriamente:")
         response_lbl_perm.set_text(
-            _(("Cambio realizado satisfactoriamente ✅"))
+            _(
+                (
+                    f"{msg_test}\n\n"
+                    f"  Permisos: {"✅" if resp_permissions["msg"] else _("Sin cambios")}\n"
+                    f"  Propietario y grupos: {"✅" if resp_owner_group["msg"] else _("Sin cambios")}"
+                )
+            )
         )
 
-        if not resp_permissions or not resp_owner_group:
+        if not resp_permissions["status"] or not resp_owner_group["status"]:
             response_lbl_perm.set_text(
-                _("Hubo algún problema en los cambios de permisos ❌")
+                _(
+                    (
+                        "Hubo algún problema:\n\n"
+                        f"  Permisos: {resp_permissions["msg"]}\n"
+                        f"  Propietario y grupos: {resp_owner_group["msg"]}"
+                    )
+                )
             )
 
         grid.attach(response_lbl_perm, 0, 0, 1, 1)
