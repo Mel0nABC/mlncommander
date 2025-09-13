@@ -11,28 +11,21 @@ from gi.repository import Gtk
 gi.require_version("Gtk", "4.0")
 
 
-class Information:
+class Information(Gtk.Box):
 
     def __init__(self, win: Gtk.Window, path_list: list[Path]):
+        super().__init__()
         self.win = win
         self.path_list = path_list
 
-    def create_information(self) -> Gtk.Box:
-
-        self.information_box = Gtk.Box(
-            orientation=Gtk.Orientation.VERTICAL, spacing=0
-        )
-
-        self.information_box.set_margin_top(20)
-        self.information_box.set_margin_end(20)
-        self.information_box.set_margin_bottom(20)
-        self.information_box.set_margin_start(20)
-
-        self.information_box.append(self.add_header_resumen())
-        self.information_box.append(self.add_list_path())
-        self.information_box.append(self.create_bottom_menu())
-
-        return self.information_box
+        self.set_orientation(Gtk.Orientation.VERTICAL)
+        self.set_margin_top(20)
+        self.set_margin_end(20)
+        self.set_margin_bottom(20)
+        self.set_margin_start(20)
+        self.append(self.add_header_resumen())
+        self.append(self.add_list_path())
+        self.append(self.create_bottom_menu())
 
     def add_header_resumen(self) -> Gtk.Box:
 

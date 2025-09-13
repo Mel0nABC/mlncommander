@@ -45,9 +45,7 @@ class Properties(Gtk.Window):
         permissions = Permissions(self, self.path_list)
         information = Information(self, self.path_list)
 
-        notebook.append_page(
-            information.create_information(), Gtk.Label.new(_("Información"))
-        )
+        notebook.append_page(information, Gtk.Label.new(_("Información")))
         notebook.append_page(permissions, Gtk.Label.new(_("Permisos")))
 
         main_vertical_box.append(notebook)
@@ -61,3 +59,12 @@ class Properties(Gtk.Window):
         self.get_style_context().add_class("font-color")
 
         self.present()
+
+        def on_unrealize(widget: Gtk.Window) -> None:
+            explorer_1 = self.win.explorer_1
+            explorer_2 = self.win.explorer_2
+
+            explorer_1.load_new_path(explorer_1.actual_path)
+            explorer_2.load_new_path(explorer_2.actual_path)
+
+        self.connect("unrealize", on_unrealize)
