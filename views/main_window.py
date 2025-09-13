@@ -57,7 +57,7 @@ class Window(Gtk.ApplicationWindow):
         self.menu_bar = None
         self.explorer_1 = None
         self.explorer_2 = None
-        self.ENABLE_CSS = True
+        self.css_manager = Css_explorer_manager(self)
 
         # to use in watchdog
         self.write_error_msg_displayer = False
@@ -66,7 +66,8 @@ class Window(Gtk.ApplicationWindow):
         self.load_config_file()
 
         # Load css
-        if self.ENABLE_CSS:
+        if self.config.SWITCH_CSS_STATUS:
+            print("CARGAMOS CSS")
             self.load_css_application()
 
         # We get information from the screen
@@ -106,25 +107,7 @@ class Window(Gtk.ApplicationWindow):
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
-        self.css_manager = Css_explorer_manager(self)
-        self.css_manager.load_css_app_background(
-            self.config.COLOR_BACKGROUND_APP
-        )
-        self.css_manager.load_css_buttons(
-            self.config.COLOR_BUTTON, self.config.COLOR_FAV_BUTTON
-        )
-        self.css_manager.load_css_entrys(self.config.COLOR_ENTRY)
-        font_desc = Pango.FontDescription.from_string(self.config.FONT_STYLE)
-        self.css_manager.load_css_font(font_desc, self.config.FONT_STYLE_COLOR)
-        self.css_manager.load_css_properties(self.config.FONT_STYLE_COLOR)
-        self.css_manager.load_css_explorer_background(
-            self.config.COLOR_EXPLORER_LEFT,
-            self.config.COLOR_EXPLORER_RIGHT,
-        )
-        self.css_manager.load_css_search(
-            self.config.COLOR_BACKGROUND_SEARCH,
-            self.config.COLOR_SEARCH_TEXT,
-        )
+        self.css_manager.load_css()
 
     def create_explorers(self):
 
@@ -531,7 +514,10 @@ class Window(Gtk.ApplicationWindow):
         Close services, save configuration and close application
         """
         self.close()
+        self.stop_to_close()
+        self.destroy()
 
+    def stop_to_close(self) -> None:
         self.explorer_1.my_watchdog.stop()
         self.explorer_2.my_watchdog.stop()
 
@@ -607,7 +593,7 @@ class Window(Gtk.ApplicationWindow):
                 )
 
                 # APPEARANCE
-
+                self.config.SWITCH_CSS_STATUS = data["SWITCH_CSS_STATUS"]
                 self.config.COLOR_BACKGROUND_APP = data["COLOR_BACKGROUND_APP"]
                 self.config.COLOR_EXPLORER_LEFT = data["COLOR_EXPLORER_LEFT"]
                 self.config.COLOR_EXPLORER_RIGHT = data["COLOR_EXPLORER_RIGHT"]
@@ -622,7 +608,6 @@ class Window(Gtk.ApplicationWindow):
                 self.config.FONT_STYLE_COLOR = data["FONT_STYLE_COLOR"]
 
         except Exception as e:
-            print(f"ERROR en LOAD CONFIG FILE: {e}")
             text = _(
                 (
                     "Ha ocurrido algún error al abrir el archivo de configuración:\n\n"  # noqa : E501
@@ -638,6 +623,7 @@ class Window(Gtk.ApplicationWindow):
         where the browsers are located
         """
         try:
+            print("SALVAMOS CONFIG")
             self.config = config
 
             # Config is deleted and the entire configuration is saved.

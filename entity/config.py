@@ -31,7 +31,7 @@ class ConfigEntity:
         self.SWITCH_WATCHDOG_STATUS = None
 
         # APPEARANCE
-
+        self.SWITCH_CSS_STATUS = None
         self.COLOR_BACKGROUND_APP = None
         self.COLOR_ENTRY = None
         self.COLOR_EXPLORER_LEFT = None
@@ -60,6 +60,7 @@ class ConfigEntity:
             "SWITCH_IMG_STATUS": self.SWITCH_IMG_STATUS,
             "SWITCH_WATCHDOG_STATUS": self.SWITCH_WATCHDOG_STATUS,
             # APPEARANCE
+            "SWITCH_CSS_STATUS": self.SWITCH_CSS_STATUS,
             "COLOR_BACKGROUND_APP": self.COLOR_BACKGROUND_APP,
             "COLOR_ENTRY": self.COLOR_ENTRY,
             "COLOR_EXPLORER_LEFT": self.COLOR_EXPLORER_LEFT,
@@ -96,6 +97,7 @@ class ConfigEntity:
         self.SWITCH_WATCHDOG_STATUS = True
 
         # APPEARANCE
+        self.SWITCH_CSS_STATUS = False
         self.COLOR_BACKGROUND_APP = (
             Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
         )

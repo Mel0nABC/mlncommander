@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MIT
 import gi
 from gi.repository import Gtk, Gdk, Pango  # noqa: F401
+import os
+import sys
 
 gi.require_version("Gtk", "4.0")
 
@@ -23,6 +25,7 @@ class Css_explorer_manager:
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
         self.font_style_color = None
+        self.provider = None
 
     def load_css_app_background(self, app_background_color: str) -> None:
         """
@@ -278,11 +281,38 @@ class Css_explorer_manager:
         """
         Create a provider for CSS and load the provided CSS code.
         """
-        provider = Gtk.CssProvider()
-        provider.load_from_data(css_code)
+        self.provider = Gtk.CssProvider()
+        self.provider.load_from_data(css_code)
 
         Gtk.StyleContext.add_provider_for_display(
             self.win.get_display(),
-            provider,
+            self.provider,
             Gtk.STYLE_PROVIDER_PRIORITY_USER,
         )
+
+    def load_css(self):
+        self.load_css_app_background(self.win.config.COLOR_BACKGROUND_APP)
+        self.load_css_buttons(
+            self.win.config.COLOR_BUTTON, self.win.config.COLOR_FAV_BUTTON
+        )
+        self.load_css_entrys(self.win.config.COLOR_ENTRY)
+        font_desc = Pango.FontDescription.from_string(
+            self.win.config.FONT_STYLE
+        )
+        self.load_css_font(font_desc, self.win.config.FONT_STYLE_COLOR)
+        self.load_css_properties(self.win.config.FONT_STYLE_COLOR)
+        self.load_css_explorer_background(
+            self.win.config.COLOR_EXPLORER_LEFT,
+            self.win.config.COLOR_EXPLORER_RIGHT,
+        )
+        self.load_css_search(
+            self.win.config.COLOR_BACKGROUND_SEARCH,
+            self.win.config.COLOR_SEARCH_TEXT,
+        )
+
+    def unload_css_and_restart(self):
+        Gtk.StyleContext.remove_provider_for_display(
+            self.win.get_display(), self.provider
+        )
+        python = sys.executable
+        os.execl(python, python, *sys.argv)

@@ -4,9 +4,10 @@
 from utilities.i18n import _
 from css.explorer_css import Css_explorer_manager
 import gi
+import asyncio
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, GObject, Pango  # noqa: E402
+from gi.repository import Gtk, Gdk, Gio, GObject, Pango  # noqa: E402
 
 
 class Appearance(Gtk.Box):
@@ -16,7 +17,11 @@ class Appearance(Gtk.Box):
 
         # APPEARANCE
 
-        self.BTN_RST_LABEL = _("Resetear")
+        # General
+
+        self.GENERAL_TITLE = _("Opciones generales de apariencia")
+        self.ENABLE_CSS_TITLE = _("Activar decoración en css")
+        self.SWITCH_CSS_STATUS = win.config.SWITCH_CSS_STATUS
 
         # Application colors
 
@@ -53,6 +58,9 @@ class Appearance(Gtk.Box):
         self.BACKGROUND_FAV_TITLE = _("Color de los botones de favoritos")
         self.BACKGROUND_FAV_LABEL = _("Fondo de los botones")
 
+        # Reset
+        self.BTN_RST_LABEL = _("Resetear")
+
         # Colors
 
         self.COLOR_BACKGROUND_APP = win.config.COLOR_BACKGROUND_APP
@@ -67,7 +75,8 @@ class Appearance(Gtk.Box):
         self.FONT_STYLE_COLOR = win.config.FONT_STYLE_COLOR
 
         self.win = win
-        self.css_manager = Css_explorer_manager(self.win)
+        # self.css_manager = Css_explorer_manager(self.win)
+        self.css_manager = self.win.css_manager
         self.btn_color_list = []
 
         # Configure margin Box
@@ -76,7 +85,27 @@ class Appearance(Gtk.Box):
         self.set_margin_bottom(20)
         self.set_margin_start(20)
 
-        grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+        grid_enable_css = Gtk.Grid(column_spacing=10, row_spacing=5)
+
+        lbl_general = self.create_label_for_title_section(self.GENERAL_TITLE)
+
+        lbl_enable_css = self.create_label_for_title_section(
+            self.ENABLE_CSS_TITLE
+        )
+
+        self.switch_css = Gtk.Switch.new()
+        self.switch_css.set_active(self.SWITCH_CSS_STATUS)
+        self.switch_css.set_hexpand(True)
+        self.switch_css.set_halign(Gtk.Align.CENTER)
+
+        self.switch_css.connect("state-set", self.on_press_switch_css)
+        grid_enable_css.attach(lbl_general, 0, 0, 1, 1)
+        grid_enable_css.attach(lbl_enable_css, 1, 1, 1, 1)
+        grid_enable_css.attach(self.switch_css, 2, 1, 1, 1)
+
+        self.append(grid_enable_css)
+
+        self.grid = Gtk.Grid(column_spacing=10, row_spacing=5)
 
         # Background application
 
@@ -90,11 +119,11 @@ class Appearance(Gtk.Box):
 
         btn_color_app = self.create_btn_color("btn_color_app")
 
-        grid.attach(lbl_back_app_title, 0, 0, 1, 1)
-        grid.attach(lbl_application_background, 1, 1, 1, 1)
-        grid.attach(btn_color_app, 2, 1, 1, 1)
+        self.grid.attach(lbl_back_app_title, 0, 0, 1, 1)
+        self.grid.attach(lbl_application_background, 1, 1, 1, 1)
+        self.grid.attach(btn_color_app, 2, 1, 1, 1)
 
-        self.append(grid)
+        self.append(self.grid)
 
         # Background entrys
 
@@ -108,9 +137,9 @@ class Appearance(Gtk.Box):
 
         btn_color_entry = self.create_btn_color("btn_color_entry")
 
-        grid.attach(lbl_back_entry_title, 0, 2, 1, 1)
-        grid.attach(lbl_application_background, 1, 3, 1, 1)
-        grid.attach(btn_color_entry, 2, 3, 1, 1)
+        self.grid.attach(lbl_back_entry_title, 0, 2, 1, 1)
+        self.grid.attach(lbl_application_background, 1, 3, 1, 1)
+        self.grid.attach(btn_color_entry, 2, 3, 1, 1)
 
         # Background explorers
 
@@ -130,11 +159,11 @@ class Appearance(Gtk.Box):
             "btn_color_explorer_right"
         )
 
-        grid.attach(lbl_explorer_title, 0, 4, 1, 1)
-        grid.attach(lbl_explorer_left, 1, 5, 1, 1)
-        grid.attach(btn_color_explorer_left, 2, 5, 1, 1)
-        grid.attach(lbl_explorer_right, 1, 6, 1, 1)
-        grid.attach(btn_color_explorer_right, 2, 6, 1, 1)
+        self.grid.attach(lbl_explorer_title, 0, 4, 1, 1)
+        self.grid.attach(lbl_explorer_left, 1, 5, 1, 1)
+        self.grid.attach(btn_color_explorer_left, 2, 5, 1, 1)
+        self.grid.attach(lbl_explorer_right, 1, 6, 1, 1)
+        self.grid.attach(btn_color_explorer_right, 2, 6, 1, 1)
 
         # Search section
 
@@ -152,11 +181,11 @@ class Appearance(Gtk.Box):
 
         btn_color_search_text = self.create_btn_color("btn_color_search_text")
 
-        grid.attach(lbl_search_title, 0, 7, 1, 1)
-        grid.attach(lbl_search_background, 1, 8, 1, 1)
-        grid.attach(btn_color_background_search, 2, 8, 1, 1)
-        grid.attach(lbl_search_font, 1, 9, 1, 1)
-        grid.attach(btn_color_search_text, 2, 9, 1, 1)
+        self.grid.attach(lbl_search_title, 0, 7, 1, 1)
+        self.grid.attach(lbl_search_background, 1, 8, 1, 1)
+        self.grid.attach(btn_color_background_search, 2, 8, 1, 1)
+        self.grid.attach(lbl_search_font, 1, 9, 1, 1)
+        self.grid.attach(btn_color_search_text, 2, 9, 1, 1)
 
         # Set color button
 
@@ -172,9 +201,9 @@ class Appearance(Gtk.Box):
             "btn_color_background_buttons"
         )
 
-        grid.attach(lbl_button_title, 0, 10, 1, 1)
-        grid.attach(lbl_button_background, 1, 11, 1, 1)
-        grid.attach(btn_color_background_buttons, 2, 11, 1, 1)
+        self.grid.attach(lbl_button_title, 0, 10, 1, 1)
+        self.grid.attach(lbl_button_background, 1, 11, 1, 1)
+        self.grid.attach(btn_color_background_buttons, 2, 11, 1, 1)
 
         # Font selector
 
@@ -194,11 +223,11 @@ class Appearance(Gtk.Box):
         lbl_font_color = self.create_label(self.FONT_SELECT_COLOR)
         btn_color_font_color = self.create_btn_color("btn_color_font_color")
 
-        grid.attach(lbl_font_title, 0, 12, 1, 1)
-        grid.attach(lbl_font_type, 1, 13, 1, 1)
-        grid.attach(self.btn_font, 2, 13, 1, 1)
-        grid.attach(lbl_font_color, 1, 14, 1, 1)
-        grid.attach(btn_color_font_color, 2, 14, 1, 1)
+        self.grid.attach(lbl_font_title, 0, 12, 1, 1)
+        self.grid.attach(lbl_font_type, 1, 13, 1, 1)
+        self.grid.attach(self.btn_font, 2, 13, 1, 1)
+        self.grid.attach(lbl_font_color, 1, 14, 1, 1)
+        self.grid.attach(btn_color_font_color, 2, 14, 1, 1)
 
         # Fav button
 
@@ -212,9 +241,9 @@ class Appearance(Gtk.Box):
             "btn_color_background_fav_buttons"
         )
 
-        grid.attach(lbl_fav_title, 0, 15, 1, 1)
-        grid.attach(lbl_fav_background, 1, 16, 1, 1)
-        grid.attach(btn_color_background_fav_buttons, 2, 16, 1, 1)
+        self.grid.attach(lbl_fav_title, 0, 15, 1, 1)
+        self.grid.attach(lbl_fav_background, 1, 16, 1, 1)
+        self.grid.attach(btn_color_background_fav_buttons, 2, 16, 1, 1)
 
         # Button reset
 
@@ -225,6 +254,12 @@ class Appearance(Gtk.Box):
         btn_rst.connect("clicked", self.reset_css_values)
 
         self.append(btn_rst)
+
+        self.connect("realize", self.on_realize)
+
+    def on_realize(self, widget: Gtk.Widget) -> None:
+        if not self.SWITCH_CSS_STATUS:
+            self.grid.set_sensitive(False)
 
     def set_font(
         self, button: Gtk.FontDialogButton, pspec: GObject.GParamSpec
@@ -240,7 +275,8 @@ class Appearance(Gtk.Box):
     def set_color(
         self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
     ) -> None:
-        if self.win.ENABLE_CSS:
+
+        if self.SWITCH_CSS_STATUS:
             color = button.get_rgba().to_string()
             name = button.get_name()
 
@@ -335,58 +371,95 @@ class Appearance(Gtk.Box):
         return btn_color
 
     def reset_css_values(self, button: Gtk.Button):
+        if self.SWITCH_CSS_STATUS:
+            self.switch_css.set_active(False)
+            self.SWITCH_CSS_STATUS = False
+            self.COLOR_BACKGROUND_APP = (
+                Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
+            )
 
-        self.COLOR_BACKGROUND_APP = (
-            Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
+            self.COLOR_ENTRY = Css_explorer_manager.PREDE_COLOR_ENTRY
+
+            self.COLOR_EXPLORER_LEFT = (
+                Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT
+            )
+            self.COLOR_EXPLORER_RIGHT = (
+                Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT
+            )
+
+            self.COLOR_BUTTON = Css_explorer_manager.PREDE_COLOR_BUTTON
+
+            self.COLOR_BACKGROUND_SEARCH = (
+                Css_explorer_manager.PREDE_COLOR_BACKGROUND_SEARCH
+            )
+            self.COLOR_SEARCH_TEXT = (
+                Css_explorer_manager.PREDE_COLOR_SEARCH_TEXT
+            )
+            self.FONT_STYLE = Css_explorer_manager.PREDE_FONT_STYLE
+            self.FONT_STYLE_COLOR = Css_explorer_manager.PREDE_FONT_STYLE_COLOR
+            self.COLOR_FAV_BUTTON = Css_explorer_manager.PREDE_COLOR_FAV_BUTTON
+
+            self.css_manager.load_css_app_background(
+                Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
+            )
+
+            self.css_manager.load_css_entrys(
+                Css_explorer_manager.PREDE_COLOR_ENTRY
+            )
+
+            self.css_manager.load_css_explorer_background(
+                Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT,
+                Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT,
+            )
+
+            self.css_manager.load_css_buttons(
+                Css_explorer_manager.PREDE_COLOR_BUTTON,
+                Css_explorer_manager.PREDE_COLOR_FAV_BUTTON,
+            )
+
+            font_desc = Pango.FontDescription.from_string(
+                Css_explorer_manager.PREDE_FONT_STYLE
+            )
+
+            self.css_manager.load_css_font(
+                font_desc, Css_explorer_manager.PREDE_FONT_STYLE_COLOR
+            )
+
+            self.font_desc = Pango.FontDescription.from_string(self.FONT_STYLE)
+            self.btn_font.set_font_desc(self.font_desc)
+
+            for btn in self.btn_color_list:
+                self.set_color_dialog_button(btn)
+
+    def on_press_switch_css(self, switch: Gtk.Switch, state: bool) -> None:
+
+        if state:
+            self.css_manager.load_css()
+            self.grid.set_sensitive(True)
+        else:
+            asyncio.ensure_future(self.on_alarm())
+
+    def on_response_alarm(self, dialog: Gtk.AlertDialog, task: Gio.Task):
+        response = dialog.choose_finish(task)
+
+        if not response:  # Accept
+            self.SWITCH_CSS_STATUS = False
+            self.win.stop_to_close()
+            self.css_manager.unload_css_and_restart()
+        else:
+            self.switch_css.set_active(True)
+
+    async def on_alarm(self):
+        alert = Gtk.AlertDialog()
+        alert.set_message(
+            _(
+                (
+                    "Si se desactiva el css, tienes"
+                    " que reiniciar la aplicación, ¿Continuar?"
+                )
+            )
         )
-
-        self.COLOR_ENTRY = Css_explorer_manager.PREDE_COLOR_ENTRY
-
-        self.COLOR_EXPLORER_LEFT = (
-            Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT
-        )
-        self.COLOR_EXPLORER_RIGHT = (
-            Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT
-        )
-
-        self.COLOR_BUTTON = Css_explorer_manager.PREDE_COLOR_BUTTON
-
-        self.COLOR_BACKGROUND_SEARCH = (
-            Css_explorer_manager.PREDE_COLOR_BACKGROUND_SEARCH
-        )
-        self.COLOR_SEARCH_TEXT = Css_explorer_manager.PREDE_COLOR_SEARCH_TEXT
-        self.FONT_STYLE = Css_explorer_manager.PREDE_FONT_STYLE
-        self.FONT_STYLE_COLOR = Css_explorer_manager.PREDE_FONT_STYLE_COLOR
-        self.COLOR_FAV_BUTTON = Css_explorer_manager.PREDE_COLOR_FAV_BUTTON
-
-        self.css_manager.load_css_app_background(
-            Css_explorer_manager.PREDE_COLOR_BACKGROUND_APP
-        )
-
-        self.css_manager.load_css_entrys(
-            Css_explorer_manager.PREDE_COLOR_ENTRY
-        )
-
-        self.css_manager.load_css_explorer_background(
-            Css_explorer_manager.PREDE_COLOR_EXPLORER_LEFT,
-            Css_explorer_manager.PREDE_COLOR_EXPLORER_RIGHT,
-        )
-
-        self.css_manager.load_css_buttons(
-            Css_explorer_manager.PREDE_COLOR_BUTTON,
-            Css_explorer_manager.PREDE_COLOR_FAV_BUTTON,
-        )
-
-        font_desc = Pango.FontDescription.from_string(
-            Css_explorer_manager.PREDE_FONT_STYLE
-        )
-
-        self.css_manager.load_css_font(
-            font_desc, Css_explorer_manager.PREDE_FONT_STYLE_COLOR
-        )
-
-        self.font_desc = Pango.FontDescription.from_string(self.FONT_STYLE)
-        self.btn_font.set_font_desc(self.font_desc)
-
-        for btn in self.btn_color_list:
-            self.set_color_dialog_button(btn)
+        alert.set_buttons(["Aceptar", "Cancelar"])
+        alert.set_cancel_button(0)
+        alert.set_default_button(1)
+        await alert.choose(self.win, None, self.on_response_alarm)

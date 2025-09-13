@@ -155,7 +155,7 @@ class Preferences(Gtk.Window):
         Close preferencesc window
         """
 
-        if self.win.ENABLE_CSS:
+        if self.win.SWITCH_CSS_STATUS:
             self.win.load_css_application()
         self.on_close()
 
@@ -186,7 +186,7 @@ class Preferences(Gtk.Window):
         )
 
         # APPEARANCE
-
+        config.SWITCH_CSS_STATUS = self.appearance.SWITCH_CSS_STATUS
         config.COLOR_BACKGROUND_APP = self.appearance.COLOR_BACKGROUND_APP
         config.COLOR_ENTRY = self.appearance.COLOR_ENTRY
         config.COLOR_EXPLORER_LEFT = self.appearance.COLOR_EXPLORER_LEFT
