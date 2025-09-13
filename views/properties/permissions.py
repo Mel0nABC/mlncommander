@@ -768,6 +768,10 @@ class Permissions(Gtk.Box):
         response_lbl_perm = Gtk.Label.new()
 
         msg_test = _("Operación realizada satisfactoriamente:")
+
+        print(resp_owner_group)
+        print(resp_permissions)
+
         response_lbl_perm.set_text(
             _(
                 (

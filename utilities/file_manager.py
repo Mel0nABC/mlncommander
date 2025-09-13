@@ -428,7 +428,7 @@ class File_manager:
         if res.returncode != 0:
             return {"status": False, "msg": res.stderr}
 
-        return {"status": True, "msg": res.stdout}
+        return {"status": True, "msg": True}
 
     def exec_tty_cmd(exec_str: str):
 
