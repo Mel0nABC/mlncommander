@@ -570,7 +570,7 @@ class Window(Gtk.ApplicationWindow):
                 self.config.FAV_PATH_LIST_2 = data["FAV_PATH_LIST_2"]
 
                 EXP_1_PATH = Path(data["EXP_1_PATH"])
-                result = File_manager.get_path_list(EXP_1_PATH)
+                result = File_manager().get_path_list(EXP_1_PATH)
                 if result:
                     if not EXP_1_PATH.exists():
                         self.config.EXP_1_PATH = "/"
@@ -580,7 +580,7 @@ class Window(Gtk.ApplicationWindow):
                     self.config.EXP_1_PATH = Path("/")
 
                 EXP_2_PATH = Path(data["EXP_2_PATH"])
-                result = File_manager.get_path_list(EXP_2_PATH)
+                result = File_manager().get_path_list(EXP_2_PATH)
                 if result:
                     if not EXP_2_PATH.exists():
                         self.config.EXP_2_PATH = "/"

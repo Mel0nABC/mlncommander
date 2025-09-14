@@ -76,7 +76,7 @@ class Information(Gtk.Box):
 
         self.header_content.append(title_label)
 
-        self.result_total_files = File_manager.properties_path_list(
+        self.result_total_files = File_manager().properties_path_list(
             self.path_list, lbl_loading_header
         )
 
@@ -95,7 +95,7 @@ class Information(Gtk.Box):
         folders_lsb = Gtk.Label.new(str(self.result_total_files["folders"]))
         files_lsb = Gtk.Label.new(str(self.result_total_files["files"]))
         total_size_lsb = Gtk.Label.new(
-            File_manager.get_size_and_unit(
+            File_manager().get_size_and_unit(
                 self.result_total_files["total_size"]
             )
         )
@@ -152,7 +152,7 @@ class Information(Gtk.Box):
             file_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
 
             path_enty = File_or_directory_info(Path(path))
-            result_dict = File_manager.properties_path(
+            result_dict = File_manager().properties_path(
                 path_enty.path_file, lbl_loading
             )
 
@@ -189,7 +189,7 @@ class Information(Gtk.Box):
             folders_lbl = Gtk.Label.new(str(result_dict["folders"]))
             files_lbl = Gtk.Label.new(str(result_dict["files"]))
             total_size_lbl = Gtk.Label.new(
-                File_manager.get_size_and_unit(result_dict["total_size"])
+                File_manager().get_size_and_unit(result_dict["total_size"])
             )
 
             permission_str_lbl = Gtk.Label.new(_("Permisos:"))
@@ -197,7 +197,7 @@ class Information(Gtk.Box):
             permission_str_lbl.set_width_chars(25)
 
             permission_lbl = Gtk.Label.new(
-                File_manager.get_permissions(path_enty.path_file)["msg"]
+                File_manager().get_permissions(path_enty.path_file)["msg"]
             )
 
             grid = Gtk.Grid()

@@ -21,7 +21,10 @@ gi.require_version("Gtk", "4.0")
 
 class File_manager:
 
-    def get_path_list(path: Path) -> Gio.ListStore:
+    def __init__(self):
+        pass
+
+    def get_path_list(self, path: Path) -> Gio.ListStore:
         """
         Returns io.ListStore of files and directorys from path "path"
         or False is have any problem.
@@ -43,7 +46,7 @@ class File_manager:
             def get_sorted_dir(path: Path, q: Queue):
                 try:
                     ordered_list = sorted(
-                        path.iterdir(), key=File_manager.custom_key
+                        path.iterdir(), key=File_manager().custom_key
                     )
 
                     q.put({"status": True, "data": ordered_list})
@@ -80,7 +83,7 @@ class File_manager:
         except Exception as e:
             print(f"Excepción {e}")
 
-    def custom_key(path: Path) -> tuple[int, str]:
+    def custom_key(self, path: Path) -> tuple[int, str]:
         """
         Sort first list_content, '..' first, directorys on midle and files last
         """
@@ -168,7 +171,7 @@ class File_manager:
 
             return False
 
-    def get_permissions(path: Path) -> dict:
+    def get_permissions(self, path: Path) -> dict:
         try:
             if not path.exists():
                 return {
@@ -197,7 +200,7 @@ class File_manager:
 
         return {"status": True, "msg": file_permissions_filtered}
 
-    def get_owner_group(path: Path) -> dict:
+    def get_owner_group(self, path: Path) -> dict:
 
         try:
 
@@ -236,8 +239,9 @@ class File_manager:
             },
         }
 
-    def change_permissions(win: Gtk.Window, path_list: list[Path]) -> bool:
-
+    def change_permissions(
+        self, win: Gtk.Window, path_list: list[Path]
+    ) -> bool:
         try:
             cmd_to_execute = ""
             for propertieenty in path_list:
@@ -313,13 +317,15 @@ class File_manager:
 
             with_pass = not actual_user_id == file_user_id
 
-            return File_manager.execute_cmd(win, cmd_to_execute, with_pass)
+            return File_manager().execute_cmd(win, cmd_to_execute, with_pass)
 
         except PermissionError as e:
             return {"status": False, "msg": e}
         return {"status": True, "msg": True}
 
-    def change_owner_group(win: Gtk.Window, path_list: list[Path]) -> dict:
+    def change_owner_group(
+        self, win: Gtk.Window, path_list: list[Path]
+    ) -> dict:
         try:
             filtered_list = []
             if not path_list:
@@ -373,13 +379,13 @@ class File_manager:
 
             cmd_to_execute = cmd_to_execute.rstrip(" &&")
 
-            return File_manager.execute_cmd(win, cmd_to_execute, True)
+            return File_manager().execute_cmd(win, cmd_to_execute, True)
 
         except PermissionError as e:
             return {"status": False, "msg": e}
 
     def execute_cmd(
-        win: Gtk.Window, cmd_to_execute: str, with_pass: bool
+        self, win: Gtk.Window, cmd_to_execute: str, with_pass: bool
     ) -> dict:
         if not shutil.which("pkexec"):
             cmd_to_execute = f"'{cmd_to_execute}'"
@@ -414,7 +420,7 @@ class File_manager:
                 " exit\n"
             )
 
-            return File_manager.exec_tty_cmd(exec_str)
+            return File_manager().exec_tty_cmd(exec_str)
         else:
             if with_pass:
                 cmd = ["pkexec", "bash", "-c"]
@@ -430,7 +436,7 @@ class File_manager:
 
         return {"status": True, "msg": True}
 
-    def exec_tty_cmd(exec_str: str):
+    def exec_tty_cmd(self, exec_str: str):
 
         import pty
 
@@ -471,7 +477,7 @@ class File_manager:
         return {"status": True, "msg": True}
 
     def properties_path_list(
-        path_list: list[Path], loading_label: Gtk.Label
+        self, path_list: list[Path], loading_label: Gtk.Label
     ) -> dict:
         folders = 0
         files = 0
@@ -479,7 +485,7 @@ class File_manager:
 
         for path in path_list:
 
-            result = File_manager.properties_path(path, loading_label)
+            result = File_manager().properties_path(path, loading_label)
 
             folders += result["folders"]
             files += result["files"]
@@ -487,7 +493,7 @@ class File_manager:
 
         return {"folders": folders, "files": files, "total_size": total_size}
 
-    def properties_path(path: Path, loading_label: Gtk.Label) -> dict:
+    def properties_path(self, path: Path, loading_label: Gtk.Label) -> dict:
 
         if path.is_dir():
             folders = 0
@@ -510,7 +516,7 @@ class File_manager:
                 "total_size": path.stat().st_size,
             }
 
-    def get_size_and_unit(bytes_int: int) -> str:
+    def get_size_and_unit(self, bytes_int: int) -> str:
         """
         Transforms bytes to the unit immediately preceding having decimal
         type 0.9 and assigns the unit

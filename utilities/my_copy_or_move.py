@@ -38,7 +38,6 @@ class MyCopyMove:
         self.all_files = False
         self.stop_all = False
         self.access_control = AccessControl()
-        self.file_manager = File_manager()
         self.parent = None
         self.thread_copy = None
         self.explorer_src = None
@@ -74,7 +73,7 @@ class MyCopyMove:
         src_dir = explorer_src.actual_path
         dst_dir = explorer_dst.actual_path
 
-        if not self.file_manager.check_free_space(selected_items, dst_dir):
+        if not File_manager().check_free_space(selected_items, dst_dir):
             self.action.show_msg_alert(
                 parent, _("No hay suficiente espacio en destino")
             )
@@ -598,11 +597,11 @@ class MyCopyMove:
                     dst_store = True
                     if src_info:
                         src_dir = src_info.parent
-                        src_store = File_manager.get_path_list(src_dir)
+                        src_store = File_manager().get_path_list(src_dir)
 
                     if dst_info:
                         dst_dir = dst_info.parent
-                        dst_store = File_manager.get_path_list(dst_dir)
+                        dst_store = File_manager().get_path_list(dst_dir)
 
                     if not src_store or not dst_store:
 

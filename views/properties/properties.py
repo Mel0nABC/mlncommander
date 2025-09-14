@@ -44,6 +44,9 @@ class Properties(Gtk.Window):
 
         information = Information(self, self.path_list)
 
+        self.thread_header = information.header_thread
+        self.thread_list = information.list_thread
+
         permissions = Permissions(self, self.path_list, information)
 
         notebook.append_page(information, Gtk.Label.new(_("Información")))
@@ -62,6 +65,10 @@ class Properties(Gtk.Window):
         self.present()
 
         def on_unrealize(widget: Gtk.Window) -> None:
+            print("LALA")
+            self.thread_header
+            self.thread_list
+
             explorer_1 = self.win.explorer_1
             explorer_2 = self.win.explorer_2
 

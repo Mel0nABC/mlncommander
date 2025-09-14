@@ -73,4 +73,4 @@ class File_or_directory_info(GObject.Object):
 
                 from utilities.file_manager import File_manager
 
-                self.size = File_manager.get_size_and_unit(int(self.size))
+                self.size = File_manager().get_size_and_unit(int(self.size))

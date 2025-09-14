@@ -119,7 +119,7 @@ class Permissions(Gtk.Box):
                         str(self.result_total_files["files"])
                     )
                     total_size_lsb = Gtk.Label.new(
-                        File_manager.get_size_and_unit(
+                        File_manager().get_size_and_unit(
                             self.result_total_files["total_size"]
                         )
                     )
@@ -323,8 +323,8 @@ class Permissions(Gtk.Box):
         group_name = None
         user_name = None
         for index, path in enumerate(self.path_list):
-            permissions = File_manager.get_permissions(path)
-            owner_group = File_manager.get_owner_group(path)
+            permissions = File_manager().get_permissions(path)
+            owner_group = File_manager().get_owner_group(path)
 
             if not permissions["status"]:
                 permission_data = "---------"
@@ -784,14 +784,14 @@ class Permissions(Gtk.Box):
         resp_owner_group = {"status": True, "msg": False}
         if owner_group_changes:
 
-            resp_owner_group = File_manager.change_owner_group(
+            resp_owner_group = File_manager().change_owner_group(
                 win, self.list_store
             )
 
         resp_permissions = {"status": True, "msg": False}
         if permissions_changes:
 
-            resp_permissions = File_manager.change_permissions(
+            resp_permissions = File_manager().change_permissions(
                 win, self.list_store
             )
 

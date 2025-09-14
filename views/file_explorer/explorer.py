@@ -361,7 +361,7 @@ class Explorer(Gtk.ColumnView):
         """
         if self.selection:
             self.selection.unselect_all()
-        self.store = File_manager.get_path_list(path)
+        self.store = File_manager().get_path_list(path)
         if not self.store:
             # self.showed_msg_network_problem is only to
             # display the message once
@@ -475,7 +475,7 @@ class Explorer(Gtk.ColumnView):
         """
 
         # Check if actual_path don't have problems to list
-        store = File_manager.get_path_list(self.actual_path)
+        store = File_manager().get_path_list(self.actual_path)
 
         if not store:
             self.load_new_path(Path("/"))
@@ -524,7 +524,7 @@ class Explorer(Gtk.ColumnView):
                     if item.exists():
                         total_size_items += item.stat().st_size
 
-        total_size_items_reduced = File_manager.get_size_and_unit(
+        total_size_items_reduced = File_manager().get_size_and_unit(
             total_size_items
         )
 
