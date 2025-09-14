@@ -9,7 +9,7 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 
 ## Features
 
-# v1.00
+#### v1.00
 - Copy, move, duplicate and rename actions
 - Create a new directory
 - Create office files: *.docx, *.odt, *.xlsx, *.ods, *.txt, and *.csv
@@ -23,7 +23,7 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Favorite directories for each browser
 - Settings to automatically minimize copy, move, duplicate, compress and decompress options
 
-# V1.01
+#### V1.01
 
 - Managing permissions, owners, and groups of files and folders.
 - Options on the right button, on files or explorers
