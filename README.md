@@ -29,6 +29,14 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Options on the right button, on files or explorers
 - Select themes, new ones should go to /usr/share/themes
 
+
+#### V1.02
+
+- Select themes, new ones should go to /usr/share/themes
+- Stop loading data process on path properties in properties section
+- Added more action buttons on right click on explorer and files
+
+
 ## Motivation
 
 This started as a project to learn Python. Then, I searched for a native graphical environment for Linux and found Gtk. I realized I could adapt it to my needs, since despite excellent similar programs, I had specific needs, such as image previews.
