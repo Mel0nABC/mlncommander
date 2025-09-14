@@ -311,7 +311,6 @@ class Explorer(Gtk.ColumnView):
 
                     fixed = main_box.get_first_child()
                     fixed.set_size_request(self.WIDTH_TYPE, -1)
-                    fixed.get_style_context().add_class("border")
 
                     box_img = fixed.get_first_child()
                     box_img.set_hexpand(False)
@@ -323,7 +322,6 @@ class Explorer(Gtk.ColumnView):
                     image.set_from_paintable(pintable)
                 else:
                     fixed = main_box.get_first_child()
-                    fixed.get_style_context().add_class("border")
                     label = fixed.get_first_child()
                     label.set_text(str(value))
                     label.set_hexpand(True)

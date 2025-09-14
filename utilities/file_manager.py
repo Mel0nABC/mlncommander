@@ -470,13 +470,16 @@ class File_manager:
 
         return {"status": True, "msg": True}
 
-    def properties_path_list(path_list: list[Path]) -> dict:
+    def properties_path_list(
+        path_list: list[Path], loading_label: Gtk.Label
+    ) -> dict:
         folders = 0
         files = 0
         total_size = 0
 
         for path in path_list:
-            result = File_manager.properties_path(path)
+
+            result = File_manager.properties_path(path, loading_label)
 
             folders += result["folders"]
             files += result["files"]
@@ -484,7 +487,7 @@ class File_manager:
 
         return {"folders": folders, "files": files, "total_size": total_size}
 
-    def properties_path(path: Path) -> dict:
+    def properties_path(path: Path, loading_label: Gtk.Label) -> dict:
 
         if path.is_dir():
             folders = 0
@@ -492,6 +495,7 @@ class File_manager:
             size = 0
 
             for f in path.rglob("*"):
+                GLib.idle_add(loading_label.set_text, str(f.name))
                 if f.is_file():
                     size += f.stat().st_size
                     files += 1
