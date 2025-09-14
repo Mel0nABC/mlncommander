@@ -67,7 +67,6 @@ class Window(Gtk.ApplicationWindow):
 
         # Load css
         if self.config.SWITCH_CSS_STATUS:
-            print("CARGAMOS CSS")
             self.load_css_application()
 
         # We get information from the screen
@@ -622,10 +621,8 @@ class Window(Gtk.ApplicationWindow):
         Saves the settings to the current location
         where the browsers are located
         """
-        print("SAVE")
         try:
             self.config = config
-            print(self.config.to_dict())
             # Config is deleted and the entire configuration is saved.
             with open(self.CONFIG_FILE, "w") as config_file:
                 yaml.dump(config.to_dict(), config_file, sort_keys=False)

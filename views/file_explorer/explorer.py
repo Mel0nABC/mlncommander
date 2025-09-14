@@ -74,6 +74,7 @@ class Explorer(Gtk.ColumnView):
         self.row_gesture_right_list = {}
         self.showed_msg_network_problem = False
         self.add_fav_btn = add_fav_btn
+        self.WIDTH_TYPE = 70
 
         for property_name in type_list:
 
@@ -107,9 +108,15 @@ class Explorer(Gtk.ColumnView):
 
             # Column visual configuration
 
+            if property_name == "type_str":
+                column.set_expand(False)
+                column.set_resizable(False)
+                column.set_fixed_width(self.WIDTH_TYPE)
+            else:
+                column.set_expand(True)
+                column.set_resizable(True)
+
             column.set_sorter(sorter)
-            column.set_expand(True)
-            column.set_resizable(True)
 
             self.append_column(column)
 
@@ -299,20 +306,24 @@ class Explorer(Gtk.ColumnView):
                     else:
                         pintable = self.icon_manager.get_back_icon()
 
-                    main_box.set_hexpand(True)
-                    main_box.set_halign(Gtk.Align.FILL)
+                    main_box.set_hexpand(False)
+                    # main_box.set_halign(Gtk.Align.CENTER)
 
                     fixed = main_box.get_first_child()
+                    fixed.set_size_request(self.WIDTH_TYPE, -1)
+                    fixed.get_style_context().add_class("border")
+
                     box_img = fixed.get_first_child()
-                    box_img.set_hexpand(True)
-                    box_img.set_halign(Gtk.Align.FILL)
+                    box_img.set_hexpand(False)
+                    box_img.set_halign(Gtk.Align.CENTER)
 
                     image = box_img.get_first_child()
-                    image.set_from_paintable(pintable)
+                    image.set_margin_start(25)
                     image.set_hexpand(True)
-                    image.set_halign(Gtk.Align.FILL)
+                    image.set_from_paintable(pintable)
                 else:
                     fixed = main_box.get_first_child()
+                    fixed.get_style_context().add_class("border")
                     label = fixed.get_first_child()
                     label.set_text(str(value))
                     label.set_hexpand(True)
