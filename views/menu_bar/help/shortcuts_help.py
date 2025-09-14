@@ -26,18 +26,19 @@ class ShortCutsHelp(Gtk.Window):
 
         self.set_titlebar(header)
 
-        main_margin = 50
+        main_margin = 20
 
-        grid_right = Gtk.Grid(column_spacing=10, row_spacing=20)
         grid_left = Gtk.Grid(column_spacing=10, row_spacing=20)
+        grid_left.set_margin_end(30)
+        grid_right = Gtk.Grid(column_spacing=10, row_spacing=20)
 
         main_horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         main_horizontal_box.set_margin_top(main_margin)
         main_horizontal_box.set_margin_end(main_margin)
         main_horizontal_box.set_margin_bottom(main_margin)
         main_horizontal_box.set_margin_start(main_margin)
-        main_horizontal_box.append(grid_right)
         main_horizontal_box.append(grid_left)
+        main_horizontal_box.append(grid_right)
 
         self.set_child(main_horizontal_box)
 
@@ -74,6 +75,9 @@ class ShortCutsHelp(Gtk.Window):
         add_fav_path_short = shortcut_dict["add_fav_path"]
         del_fav_path_short = shortcut_dict["del_fav_path"]
         show_shortcut_short = shortcut_dict["show_shortcut"]
+        show_propeties = shortcut_dict["show_propeties"]
+
+        # Aplication events
 
         grid_right.attach(lbl_event_app, 1, 0, 1, 1)
         grid_right.attach(
@@ -109,6 +113,8 @@ class ShortCutsHelp(Gtk.Window):
             1,
             1,
         )
+
+        # Explorer events
 
         grid_right.attach(lbl_event_explorer, 1, 4, 1, 1)
 
@@ -157,8 +163,8 @@ class ShortCutsHelp(Gtk.Window):
                 "n",
                 "+",
                 _(
-                    "Entrada al directorio de favoritos del explorador,\n"
-                    "donde n, es un nº comprendido del 1 al 9"
+                    "Entrada al directorio de favoritos del explorador,"
+                    "n es nº comprendido 1-9"
                 ),
             ),
             1,
@@ -166,6 +172,8 @@ class ShortCutsHelp(Gtk.Window):
             1,
             1,
         )
+
+        # Actions on files and folders
 
         grid_left.attach(lbl_event_files, 1, 9, 1, 1)
 
@@ -276,6 +284,19 @@ class ShortCutsHelp(Gtk.Window):
             1,
         )
 
+        grid_left.attach(
+            self.create_buttons(
+                show_propeties.first_key,
+                show_propeties.second_key,
+                "+",
+                show_propeties.description,
+            ),
+            1,
+            20,
+            1,
+            1,
+        )
+
         self.present()
 
     def create_buttons(
@@ -287,20 +308,26 @@ class ShortCutsHelp(Gtk.Window):
     ) -> Gtk.Box:
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        main_box.set_vexpand(False)
+        main_box.set_size_request(400, -1)
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         btn_box.set_size_request(250, -1)
 
         if first_key == "<Control>":
             first_key = "Ctrl"
 
+        if first_key == "<Alt>":
+            first_key = "Alt"
+
         if second_key == "apostrophe":
             second_key = "?"
 
         margin = 20
-
+        btn_width = 60
         btn = Gtk.Button.new_with_label(_(first_key))
+        btn.set_vexpand(False)
         btn.set_sensitive(False)
-        btn.set_size_request(80, -1)
+        btn.set_size_request(btn_width, -1)
         btn.set_margin_end(margin)
         btn.set_margin_start(margin)
 
@@ -310,8 +337,9 @@ class ShortCutsHelp(Gtk.Window):
             lbl = Gtk.Label.new(simbol)
 
             btn2 = Gtk.Button.new_with_label(_(second_key))
+            btn2.set_vexpand(False)
             btn2.set_sensitive(False)
-            btn2.set_size_request(80, -1)
+            btn2.set_size_request(btn_width, -1)
             btn2.set_margin_end(margin)
             btn2.set_margin_start(margin)
 
@@ -319,6 +347,10 @@ class ShortCutsHelp(Gtk.Window):
             btn_box.append(btn2)
 
         lbl_description = Gtk.Label.new(description)
+        lbl_description.set_max_width_chars(30)
+        lbl_description.set_wrap(True)
+        lbl_description.set_natural_wrap_mode(Gtk.NaturalWrapMode.INHERIT)
+        lbl_description.set_vexpand(False)
 
         main_box.append(btn_box)
         main_box.append(lbl_description)
