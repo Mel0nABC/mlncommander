@@ -42,8 +42,10 @@ class Properties(Gtk.Window):
 
         notebook = Gtk.Notebook.new()
 
-        permissions = Permissions(self, self.path_list)
         information = Information(self, self.path_list)
+        result_total_files = information.result_total_files
+
+        permissions = Permissions(self, self.path_list, information)
 
         notebook.append_page(information, Gtk.Label.new(_("Información")))
         notebook.append_page(permissions, Gtk.Label.new(_("Permisos")))

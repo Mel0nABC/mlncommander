@@ -6,16 +6,20 @@ from utilities.file_manager import File_manager
 from entity.properties_enty import PropertiesEnty
 from utilities.sistem_info import SistemInformation
 from controls.actions import Actions
+import threading
+import time
 from pathlib import Path
 import gi
-from gi.repository import Gtk, Gio, GObject, Pango
+from gi.repository import Gtk, Gio, GLib, GObject, Pango
 
 gi.require_version("Gtk", "4.0")
 
 
 class Permissions(Gtk.Box):
 
-    def __init__(self, win: Gtk.Window, path_list: list[Path]):
+    def __init__(
+        self, win: Gtk.Window, path_list: list[Path], information: Gtk.Box
+    ):
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
         self.path_list = path_list
         self.win = win
@@ -23,6 +27,9 @@ class Permissions(Gtk.Box):
         self.path_list = path_list
         self.list_store = None
         self.set_hexpand(True)
+
+        self.information = information
+        self.result_total_files = self.information.result_total_files
 
         self.list_store = Gio.ListStore.new(PropertiesEnty)
 
@@ -56,66 +63,89 @@ class Permissions(Gtk.Box):
         self.main_box.get_style_context().add_class("border-style")
 
         left_box = self.create_left_content()
-        right_boxk = self.create_right_content()
+        right_box = self.create_right_content()
 
         self.main_center.append(left_box)
-        self.main_center.append(right_boxk)
+        self.main_center.append(right_box)
         self.main_box.append(self.main_center)
         return self.main_box
         # FINAL TOP MENU
 
     def create_left_content(self) -> Gtk.Box:
-        left_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        left_box.set_valign(Gtk.Align.CENTER)
 
-        left_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        left_content.set_margin_top(20)
-        left_content.set_margin_end(20)
-        left_content.set_margin_bottom(20)
-        left_content.set_margin_start(20)
-        left_content.set_hexpand(True)
+        def waiting_to_create(loading_box: Gtk.Box):
+            checking = True
+            while checking:
+                time.sleep(0.2)
+                self.result_total_files = self.information.result_total_files
+                if self.result_total_files:
+                    left_box = Gtk.Box(
+                        orientation=Gtk.Orientation.VERTICAL, spacing=5
+                    )
+                    left_box.set_valign(Gtk.Align.CENTER)
 
-        title_label = Gtk.Label.new(_("Información del contenido"))
-        title_label.set_halign(Gtk.Align.START)
-        title_label.set_valign(Gtk.Align.CENTER)
-        title_label.set_margin_bottom(20)
+                    left_content = Gtk.Box(
+                        orientation=Gtk.Orientation.VERTICAL, spacing=5
+                    )
+                    left_content.set_margin_top(20)
+                    left_content.set_margin_end(20)
+                    left_content.set_margin_bottom(20)
+                    left_content.set_margin_start(20)
+                    left_content.set_hexpand(True)
 
-        left_content.append(title_label)
+                    title_label = Gtk.Label.new(_("Información del contenido"))
+                    title_label.set_halign(Gtk.Align.START)
+                    title_label.set_valign(Gtk.Align.CENTER)
+                    title_label.set_margin_bottom(20)
 
-        result_dict = File_manager.properties_path_list(self.path_list)
+                    left_content.append(title_label)
 
-        folders_str_lsb = Gtk.Label.new(_("Subcarpetas totales:"))
-        files_str_lsb = Gtk.Label.new(_("Archivos totales:"))
-        total_size_str_lsb = Gtk.Label.new(_("Tamaño total:"))
+                    folders_str_lsb = Gtk.Label.new(_("Subcarpetas totales:"))
+                    files_str_lsb = Gtk.Label.new(_("Archivos totales:"))
+                    total_size_str_lsb = Gtk.Label.new(_("Tamaño total:"))
 
-        folders_str_lsb.set_xalign(0.0)
-        files_str_lsb.set_xalign(0.0)
-        total_size_str_lsb.set_xalign(0.0)
+                    folders_str_lsb.set_xalign(0.0)
+                    files_str_lsb.set_xalign(0.0)
+                    total_size_str_lsb.set_xalign(0.0)
 
-        folders_str_lsb.set_width_chars(25)
-        files_str_lsb.set_width_chars(25)
-        total_size_str_lsb.set_width_chars(25)
+                    folders_str_lsb.set_width_chars(25)
+                    files_str_lsb.set_width_chars(25)
+                    total_size_str_lsb.set_width_chars(25)
 
-        folders_lsb = Gtk.Label.new(str(result_dict["folders"]))
-        files_lsb = Gtk.Label.new(str(result_dict["files"]))
-        total_size_lsb = Gtk.Label.new(
-            File_manager.get_size_and_unit(result_dict["total_size"])
-        )
+                    folders_lsb = Gtk.Label.new(
+                        str(self.result_total_files["folders"])
+                    )
+                    files_lsb = Gtk.Label.new(
+                        str(self.result_total_files["files"])
+                    )
+                    total_size_lsb = Gtk.Label.new(
+                        File_manager.get_size_and_unit(
+                            self.result_total_files["total_size"]
+                        )
+                    )
 
-        grid = Gtk.Grid(column_spacing=10, row_spacing=5)
+                    grid = Gtk.Grid(column_spacing=10, row_spacing=5)
 
-        grid.attach(folders_str_lsb, 0, 0, 1, 1)
-        grid.attach(files_str_lsb, 0, 1, 1, 1)
-        grid.attach(total_size_str_lsb, 0, 2, 1, 1)
-        grid.attach(folders_lsb, 1, 0, 1, 1)
-        grid.attach(files_lsb, 1, 1, 1, 1)
-        grid.attach(total_size_lsb, 1, 2, 1, 1)
+                    grid.attach(folders_str_lsb, 0, 0, 1, 1)
+                    grid.attach(files_str_lsb, 0, 1, 1, 1)
+                    grid.attach(total_size_str_lsb, 0, 2, 1, 1)
+                    grid.attach(folders_lsb, 1, 0, 1, 1)
+                    grid.attach(files_lsb, 1, 1, 1, 1)
+                    grid.attach(total_size_lsb, 1, 2, 1, 1)
 
-        left_content.append(grid)
+                    left_content.append(grid)
 
-        left_box.append(left_content)
+                    left_box.append(left_content)
 
-        return left_box
+                    GLib.idle_add(self.main_center.remove, loading_box)
+                    GLib.idle_add(self.main_center.prepend, left_box)
+                    checking = False
+
+        loading_box = self.add_loading_box()
+        threading.Thread(target=waiting_to_create, args=(loading_box,)).start()
+
+        if not self.result_total_files:
+            return loading_box
 
     def create_right_content(self) -> Gtk.Box:
 
@@ -796,3 +826,24 @@ class Permissions(Gtk.Box):
             response_lbl_perm.set_text(_("No han habido cambios."))
 
         spinner.stop()
+
+    def add_loading_box(self) -> Gtk.Box:
+        loading_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        loading_box.set_valign(Gtk.Align.CENTER)
+        loading_box.set_size_request(400, 50)
+
+        spinner_header = Gtk.Spinner.new()
+        spinner_header.set_size_request(50, 50)
+        spinner_header.set_hexpand(False)
+        spinner_header.set_valign(Gtk.Align.CENTER)
+        spinner_header.start()
+
+        lbl_loading_header = Gtk.Label.new(_("Cargando ..."))
+        lbl_loading_header.set_ellipsize(Pango.EllipsizeMode.START)
+        lbl_loading_header.set_max_width_chars(200)
+        lbl_loading_header.set_margin_top(20)
+
+        loading_box.append(spinner_header)
+        loading_box.append(lbl_loading_header)
+
+        return loading_box

@@ -27,6 +27,8 @@ class Information(Gtk.Box):
         self.set_margin_bottom(20)
         self.set_margin_start(20)
 
+        self.result_total_files = None
+
         self.spinner_list = []
         self.lbl_loading_header_list = []
 
@@ -74,7 +76,7 @@ class Information(Gtk.Box):
 
         self.header_content.append(title_label)
 
-        result_dict = File_manager.properties_path_list(
+        self.result_total_files = File_manager.properties_path_list(
             self.path_list, lbl_loading_header
         )
 
@@ -90,10 +92,12 @@ class Information(Gtk.Box):
         files_str_lsb.set_width_chars(25)
         total_size_str_lsb.set_width_chars(25)
 
-        folders_lsb = Gtk.Label.new(str(result_dict["folders"]))
-        files_lsb = Gtk.Label.new(str(result_dict["files"]))
+        folders_lsb = Gtk.Label.new(str(self.result_total_files["folders"]))
+        files_lsb = Gtk.Label.new(str(self.result_total_files["files"]))
         total_size_lsb = Gtk.Label.new(
-            File_manager.get_size_and_unit(result_dict["total_size"])
+            File_manager.get_size_and_unit(
+                self.result_total_files["total_size"]
+            )
         )
 
         grid = Gtk.Grid(column_spacing=10, row_spacing=5)

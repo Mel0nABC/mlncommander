@@ -208,7 +208,6 @@ class Css_explorer_manager:
             else "normal"
         )
         css = f"""
-
             .border{{
                 border:solid 1px green;
             }}
