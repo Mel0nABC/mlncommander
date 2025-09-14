@@ -22,6 +22,7 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Favorite directories for each browser
 - Settings to automatically minimize copy, move, duplicate, compress and decompress options
 - Managing permissions, owners, and groups of files and folders.
+- Options on the right button, on files or explorers
 
 
 ## Motivation
@@ -58,6 +59,6 @@ In the LICENSES folder, you'll find several types of licenses, depending on whet
 
 ## Download
 
-[Download AppImage](https://github.com/Mel0nABC/mlncommander/releases/download/v1.0/mlnCommander-x86_64.AppImage)
+[Download AppImage v1.01](https://github.com/Mel0nABC/mlncommander/releases/download/v1.01/mlnCommander_v1.01.AppImage)
 
 
