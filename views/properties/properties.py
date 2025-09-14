@@ -42,14 +42,14 @@ class Properties(Gtk.Window):
 
         notebook = Gtk.Notebook.new()
 
-        information = Information(self, self.path_list)
+        self.information = Information(self, self.path_list)
 
-        self.thread_header = information.header_thread
-        self.thread_list = information.list_thread
+        self.thread_header = self.information.header_thread
+        self.thread_list = self.information.list_thread
 
-        permissions = Permissions(self, self.path_list, information)
+        permissions = Permissions(self, self.path_list, self.information)
 
-        notebook.append_page(information, Gtk.Label.new(_("Información")))
+        notebook.append_page(self.information, Gtk.Label.new(_("Información")))
         notebook.append_page(permissions, Gtk.Label.new(_("Permisos")))
 
         main_vertical_box.append(notebook)
@@ -65,7 +65,7 @@ class Properties(Gtk.Window):
         self.present()
 
         def on_unrealize(widget: Gtk.Window) -> None:
-            print("LALA")
+
             self.thread_header
             self.thread_list
 
@@ -74,5 +74,8 @@ class Properties(Gtk.Window):
 
             explorer_1.load_new_path(explorer_1.actual_path)
             explorer_2.load_new_path(explorer_2.actual_path)
+
+            # Stop loading data process
+            self.information.file_manager.set_stop(True)
 
         self.connect("unrealize", on_unrealize)

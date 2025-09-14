@@ -22,7 +22,7 @@ gi.require_version("Gtk", "4.0")
 class File_manager:
 
     def __init__(self):
-        pass
+        self.STOP_PROCESS = False
 
     def get_path_list(self, path: Path) -> Gio.ListStore:
         """
@@ -45,9 +45,7 @@ class File_manager:
 
             def get_sorted_dir(path: Path, q: Queue):
                 try:
-                    ordered_list = sorted(
-                        path.iterdir(), key=File_manager().custom_key
-                    )
+                    ordered_list = sorted(path.iterdir(), key=self.custom_key)
 
                     q.put({"status": True, "data": ordered_list})
                 except OSError as e:
@@ -317,7 +315,7 @@ class File_manager:
 
             with_pass = not actual_user_id == file_user_id
 
-            return File_manager().execute_cmd(win, cmd_to_execute, with_pass)
+            return self.execute_cmd(win, cmd_to_execute, with_pass)
 
         except PermissionError as e:
             return {"status": False, "msg": e}
@@ -379,7 +377,7 @@ class File_manager:
 
             cmd_to_execute = cmd_to_execute.rstrip(" &&")
 
-            return File_manager().execute_cmd(win, cmd_to_execute, True)
+            return self.execute_cmd(win, cmd_to_execute, True)
 
         except PermissionError as e:
             return {"status": False, "msg": e}
@@ -420,7 +418,7 @@ class File_manager:
                 " exit\n"
             )
 
-            return File_manager().exec_tty_cmd(exec_str)
+            return self.exec_tty_cmd(exec_str)
         else:
             if with_pass:
                 cmd = ["pkexec", "bash", "-c"]
@@ -484,8 +482,9 @@ class File_manager:
         total_size = 0
 
         for path in path_list:
-
-            result = File_manager().properties_path(path, loading_label)
+            if self.STOP_PROCESS:
+                break
+            result = self.properties_path(path, loading_label)
 
             folders += result["folders"]
             files += result["files"]
@@ -501,6 +500,8 @@ class File_manager:
             size = 0
 
             for f in path.rglob("*"):
+                if self.STOP_PROCESS:
+                    break
                 GLib.idle_add(loading_label.set_text, str(f.name))
                 if f.is_file():
                     size += f.stat().st_size
@@ -553,3 +554,6 @@ class File_manager:
             unit = "TB"
 
         return f"{round(bytes_int, 2)}{unit}"
+
+    def set_stop(self, stop: bool) -> None:
+        self.STOP_PROCESS = stop
