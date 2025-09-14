@@ -42,6 +42,7 @@ class ConfigEntity:
         self.COLOR_SEARCH_TEXT = None
         self.FONT_STYLE = None
         self.FONT_STYLE_COLOR = None
+        self.THEME_NAME = None
 
     def to_dict(self) -> dict:
         return {
@@ -72,6 +73,7 @@ class ConfigEntity:
             "FONT_STYLE": self.FONT_STYLE,
             "FONT_STYLE_COLOR": self.FONT_STYLE_COLOR,
             "LANGUAGE": self.LANGUAGE,
+            "THEME_NAME": self.THEME_NAME,
         }
 
     def get_param_list(self) -> list:
@@ -117,3 +119,4 @@ class ConfigEntity:
         self.COLOR_SEARCH_TEXT = Css_explorer_manager.PREDE_COLOR_SEARCH_TEXT
         self.FONT_STYLE = Css_explorer_manager.PREDE_FONT_STYLE
         self.FONT_STYLE_COLOR = Css_explorer_manager.PREDE_FONT_STYLE_COLOR
+        self.THEME_NAME = "Adwaita-dark"

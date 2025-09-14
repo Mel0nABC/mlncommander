@@ -605,6 +605,7 @@ class Window(Gtk.ApplicationWindow):
                 self.config.COLOR_FAV_BUTTON = data["COLOR_FAV_BUTTON"]
                 self.config.FONT_STYLE = data["FONT_STYLE"]
                 self.config.FONT_STYLE_COLOR = data["FONT_STYLE_COLOR"]
+                self.config.THEME_NAME = data["THEME_NAME"]
 
         except Exception as e:
             text = _(
@@ -623,6 +624,7 @@ class Window(Gtk.ApplicationWindow):
         """
         try:
             self.config = config
+            print(f"THEME NAME TO SAVE: {self.config.THEME_NAME}")
             # Config is deleted and the entire configuration is saved.
             with open(self.CONFIG_FILE, "w") as config_file:
                 yaml.dump(config.to_dict(), config_file, sort_keys=False)

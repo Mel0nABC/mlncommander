@@ -7,6 +7,7 @@ from pathlib import Path
 import gbulb
 import subprocess
 import gettext
+import yaml
 import gi
 import os
 
@@ -58,6 +59,7 @@ class App(Gtk.Application):
         """
         Initializes the application when the run() method is executed
         """
+
         action = Actions()
         self.window = Window(self, action)
         action.set_parent(self.window)
@@ -94,6 +96,26 @@ class App(Gtk.Application):
         # Para actualizar el .po con el nunevo .pot
         # msgmerge --update en_US.po lenguaje_template.pot
 
+
+def load_theme():
+    """
+    load theme from config file
+    """
+    CONFIG_FILE = Path(f"{Window.APP_USER_PATH}/config.yaml")
+    try:
+
+        # We open configuration and load the from your variable.
+        with open(CONFIG_FILE, "r+") as config_file:
+            data = yaml.safe_load(config_file)
+            os.environ["GTK_THEME"] = data["THEME_NAME"]
+            print(f"THEME NAME LOADED: {os.environ["GTK_THEME"]}")
+
+    except Exception as e:
+        print(f"ERROR ON LOADING THEME: {e}")
+
+
+if __name__ == "__main__":
+    load_theme()
 
 app = App()
 app.run()

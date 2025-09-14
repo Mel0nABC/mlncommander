@@ -198,6 +198,7 @@ class Preferences(Gtk.Window):
         config.COLOR_SEARCH_TEXT = self.appearance.COLOR_SEARCH_TEXT
         config.FONT_STYLE = self.appearance.FONT_STYLE
         config.FONT_STYLE_COLOR = self.appearance.FONT_STYLE_COLOR
+        config.THEME_NAME = self.appearance.THEME_NAME
 
         # Save shortcuts values.
         self.win.shortcuts.save_yaml_config(self.shortcuts_view.store)

@@ -23,7 +23,10 @@ class Appearance(Gtk.Box):
         self.GENERAL_TITLE = _("Opciones generales")
         self.ENABLE_CSS_TITLE = _("Activar decoración en css")
         self.SWITCH_CSS_STATUS = win.config.SWITCH_CSS_STATUS
-        self.SELECT_THEME_TITLE = _("Temas")
+        self.SELECT_THEME_TITLE = _(
+            "Temas, directorio\n/usr/share/themes para Gtk 4"
+        )
+        self.THEME_NAME = win.config.THEME_NAME
 
         # Application colors
 
@@ -92,29 +95,46 @@ class Appearance(Gtk.Box):
 
         lbl_general = self.create_label_for_title_section(self.GENERAL_TITLE)
 
-        lbl_enable_css = self.create_label_for_title_section(
-            self.ENABLE_CSS_TITLE
-        )
-
-        self.switch_css = Gtk.Switch.new()
-        self.switch_css.set_active(self.SWITCH_CSS_STATUS)
-        self.switch_css.set_hexpand(True)
-        self.switch_css.set_halign(Gtk.Align.CENTER)
-
-        self.switch_css.connect("state-set", self.on_press_switch_css)
-
-        lbl_enable_themes = self.create_label_for_title_section(
-            self.SELECT_THEME_TITLE
-        )
+        lbl_select_themes = self.create_label(self.SELECT_THEME_TITLE)
 
         theme_list = self.load_themes_list()
         theme_store = Gtk.StringList.new(theme_list)
-        theme_drop_down = Gtk.DropDown.new(model=theme_store)
+        self.theme_drop_down = Gtk.DropDown.new(model=theme_store)
+        self.theme_drop_down.set_hexpand(True)
+
+        self.old_theme_name = self.THEME_NAME
+
+        self.change_theme_drop_selected(self.THEME_NAME)
+
+        def theme_selected(
+            dropdown: Gtk.DropDown, pspec: GObject.GParamSpec
+        ) -> None:
+            self.THEME_NAME = dropdown.get_selected_item().get_string()
+            text = _(
+                (
+                    "Va a cambiar de tema, se recomienda, desactivar el css.\n"
+                    "Será necesario reiniciar la aplicación, ¿Continuar?"
+                )
+            )
+            asyncio.ensure_future(self.on_alarm(text, "theme"))
+
+        self.theme_drop_connector_int = self.theme_drop_down.connect(
+            "notify::selected-item", theme_selected
+        )
+
+        lbl_enable_css = self.create_label(self.ENABLE_CSS_TITLE)
+
+        self.switch_css = Gtk.Switch.new()
+        self.switch_css.set_hexpand(True)
+        self.switch_css.set_halign(Gtk.Align.CENTER)
+        self.switch_css.set_active(self.SWITCH_CSS_STATUS)
+
+        self.switch_css.connect("state-set", self.on_press_switch_css)
 
         grid_enable_css.attach(lbl_general, 0, 0, 1, 1)
 
-        grid_enable_css.attach(lbl_enable_themes, 1, 1, 1, 1)
-        grid_enable_css.attach(theme_drop_down, 2, 1, 1, 1)
+        grid_enable_css.attach(lbl_select_themes, 1, 1, 1, 1)
+        grid_enable_css.attach(self.theme_drop_down, 2, 1, 1, 1)
 
         grid_enable_css.attach(lbl_enable_css, 1, 2, 1, 1)
         grid_enable_css.attach(self.switch_css, 2, 2, 1, 1)
@@ -291,10 +311,8 @@ class Appearance(Gtk.Box):
     def set_color(
         self, button: Gtk.ColorButton, pspec: GObject.GParamSpec
     ) -> None:
-        print("SER COLOR")
 
         if self.SWITCH_CSS_STATUS:
-            print("CSS ACTIVADO")
             color = button.get_rgba().to_string()
             name = button.get_name()
 
@@ -366,9 +384,9 @@ class Appearance(Gtk.Box):
         Create label for title section
         """
         label = Gtk.Label()
+        label.set_width_chars(25)
         label.set_markup(text_label)
-        label.set_halign(Gtk.Align.START)
-
+        label.set_xalign(0.0)
         return label
 
     def create_label(self, label_text: str) -> Gtk.Label:
@@ -448,15 +466,38 @@ class Appearance(Gtk.Box):
                 self.set_color_dialog_button(btn)
 
     def on_press_switch_css(self, switch: Gtk.Switch, state: bool) -> None:
+
         self.SWITCH_CSS_STATUS = state
         self.win.config.SWITCH_CSS_STATUS = state
         if state:
             self.css_manager.load_css()
             self.grid.set_sensitive(True)
         else:
-            asyncio.ensure_future(self.on_alarm())
+            text = _(
+                (
+                    "Si se desactiva el css, tienes"
+                    " que reiniciar la aplicación, ¿Continuar?"
+                )
+            )
+            asyncio.ensure_future(self.on_alarm(text, "css"))
 
-    def on_response_alarm(self, dialog: Gtk.AlertDialog, task: Gio.Task):
+    def on_theme_alarm(self, dialog: Gtk.AlertDialog, task: Gio.Task):
+        response = dialog.choose_finish(task)
+
+        if not response:  # Accept
+            self.win.config.THEME_NAME = self.THEME_NAME
+            self.win.stop_to_close()
+            import os
+            import sys
+
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
+        else:
+            self.theme_drop_down.handler_block(self.theme_drop_connector_int)
+            self.change_theme_drop_selected(self.old_theme_name)
+            self.theme_drop_down.handler_unblock(self.theme_drop_connector_int)
+
+    def on_css_alarm(self, dialog: Gtk.AlertDialog, task: Gio.Task):
         response = dialog.choose_finish(task)
 
         if not response:  # Accept
@@ -465,26 +506,22 @@ class Appearance(Gtk.Box):
         else:
             self.switch_css.set_active(True)
 
-    async def on_alarm(self):
+    async def on_alarm(self, text: str, reboot_type: str):
         alert = Gtk.AlertDialog()
-        alert.set_message(
-            _(
-                (
-                    "Si se desactiva el css, tienes"
-                    " que reiniciar la aplicación, ¿Continuar?"
-                )
-            )
-        )
+        alert.set_message(text)
         alert.set_buttons(["Aceptar", "Cancelar"])
         alert.set_cancel_button(0)
         alert.set_default_button(1)
-
-        await alert.choose(self.parent, None, self.on_response_alarm)
+        if reboot_type == "css":
+            await alert.choose(self.parent, None, self.on_css_alarm)
+        if reboot_type == "theme":
+            await alert.choose(self.parent, None, self.on_theme_alarm)
 
     def load_themes_list(self) -> list[str]:
         themes_path = Path("/usr/share/themes")
         list_str = []
-        list_str.append(_("Por defecto"))
+        list_str.append(_("Adwaita-dark"))
+        list_str.append(_("Adwaita-light"))
         if themes_path.exists():
             for path in themes_path.iterdir():
                 checked_gtk_4 = Path(f"{path}/gtk-4.0")
@@ -492,3 +529,9 @@ class Appearance(Gtk.Box):
                     list_str.append(str(checked_gtk_4).split("/")[4])
 
         return list_str
+
+    def change_theme_drop_selected(self, name):
+        for i, theme in enumerate(self.theme_drop_down.get_model()):
+            theme_name = theme.get_string()
+            if theme_name == name:
+                self.theme_drop_down.set_selected(i)
