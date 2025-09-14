@@ -63,6 +63,6 @@ In the LICENSES folder, you'll find several types of licenses, depending on whet
 
 ## Download
 
-[Download AppImage v1.01](https://github.com/Mel0nABC/mlncommander/releases/download/v1.01/mlnCommander_v1.01.AppImage)
+[Download AppImage v1.02](https://github.com/Mel0nABC/mlncommander/releases/download/v1.02/mlnCommander_v1.02.AppImage)
 
 
