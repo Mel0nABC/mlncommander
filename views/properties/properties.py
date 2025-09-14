@@ -43,7 +43,6 @@ class Properties(Gtk.Window):
         notebook = Gtk.Notebook.new()
 
         information = Information(self, self.path_list)
-        result_total_files = information.result_total_files
 
         permissions = Permissions(self, self.path_list, information)
 
