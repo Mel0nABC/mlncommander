@@ -313,6 +313,7 @@ class Appearance(Gtk.Box):
     ) -> None:
 
         if self.SWITCH_CSS_STATUS:
+            self.win.load_css_application()
             color = button.get_rgba().to_string()
             name = button.get_name()
 
@@ -471,6 +472,7 @@ class Appearance(Gtk.Box):
         self.win.config.SWITCH_CSS_STATUS = state
         if state:
             self.css_manager.load_css()
+            self.win.load_css_application()
             self.grid.set_sensitive(True)
         else:
             text = _(
@@ -530,7 +532,7 @@ class Appearance(Gtk.Box):
 
         return list_str
 
-    def change_theme_drop_selected(self, name):
+    def change_theme_drop_selected(self, name: str) -> None:
         for i, theme in enumerate(self.theme_drop_down.get_model()):
             theme_name = theme.get_string()
             if theme_name == name:

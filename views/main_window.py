@@ -65,10 +65,6 @@ class Window(Gtk.ApplicationWindow):
         # We load the configuration, to send necessary variables
         self.load_config_file()
 
-        # Load css
-        if self.config.SWITCH_CSS_STATUS:
-            self.load_css_application()
-
         # We get information from the screen
 
         from utilities.screen_info import ScreenInfo
@@ -99,6 +95,10 @@ class Window(Gtk.ApplicationWindow):
         self.key_connect()
         self.add_controller(self.key_controller)
 
+        # Load css
+        if self.config.SWITCH_CSS_STATUS:
+            self.load_css_application()
+
         self.connect("close-request", self.exit)
 
     def load_css_application(self):
@@ -106,6 +106,24 @@ class Window(Gtk.ApplicationWindow):
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
+
+        self.vertical_entry_1.get_style_context().add_class("entry")
+        self.vertical_entry_2.get_style_context().add_class("entry")
+
+        self.add_fav_btn_1.get_style_context().add_class("button")
+        self.add_fav_btn_2.get_style_context().add_class("button")
+        self.del_fav_btn_1.get_style_context().add_class("button")
+        self.del_fav_btn_2.get_style_context().add_class("button")
+
+        self.btn_F10.get_style_context().add_class("button")
+        self.btn_F7.get_style_context().add_class("button")
+        self.btn_F6.get_style_context().add_class("button")
+        self.btn_F5.get_style_context().add_class("button")
+        self.btn_F3.get_style_context().add_class("button")
+        self.btn_F2.get_style_context().add_class("button")
+        self.btn_F8.get_style_context().add_class("button")
+        self.btn_F9.get_style_context().add_class("button")
+
         self.css_manager.load_css()
 
     def create_explorers(self):
@@ -127,9 +145,7 @@ class Window(Gtk.ApplicationWindow):
         self.vertical_screen_2.set_vexpand(True)
 
         self.vertical_entry_1 = Gtk.Entry()
-        self.vertical_entry_1.get_style_context().add_class("entry")
         self.vertical_entry_2 = Gtk.Entry()
-        self.vertical_entry_2.get_style_context().add_class("entry")
 
         # Entry to show search text. Hiden
         self.search_str_entry = Gtk.Entry()
@@ -175,21 +191,17 @@ class Window(Gtk.ApplicationWindow):
 
         self.add_fav_btn_1.set_hexpand(False)
         self.add_fav_btn_2.set_hexpand(False)
-        self.add_fav_btn_1.get_style_context().add_class("button")
-        self.add_fav_btn_2.get_style_context().add_class("button")
 
         self.button_main_1.append(self.add_fav_btn_1)
         self.button_main_2.append(self.add_fav_btn_2)
 
-        del_fav_btn_1 = Gtk.Button.new_with_label("-")
-        del_fav_btn_2 = Gtk.Button.new_with_label("-")
-        del_fav_btn_1.set_hexpand(False)
-        del_fav_btn_2.set_hexpand(False)
-        del_fav_btn_1.get_style_context().add_class("button")
-        del_fav_btn_2.get_style_context().add_class("button")
+        self.del_fav_btn_1 = Gtk.Button.new_with_label("-")
+        self.del_fav_btn_2 = Gtk.Button.new_with_label("-")
+        self.del_fav_btn_1.set_hexpand(False)
+        self.del_fav_btn_2.set_hexpand(False)
 
-        self.button_main_1.append(del_fav_btn_1)
-        self.button_main_2.append(del_fav_btn_2)
+        self.button_main_1.append(self.del_fav_btn_1)
+        self.button_main_2.append(self.del_fav_btn_2)
 
         self.buttom_horizontal_1 = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
@@ -297,12 +309,12 @@ class Window(Gtk.ApplicationWindow):
             partial(self.shortcuts.add_fav_path, explorer=self.explorer_2),
         )
 
-        del_fav_btn_1.connect(
+        self.del_fav_btn_1.connect(
             "clicked",
             partial(self.shortcuts.del_fav_path, explorer=self.explorer_1),
         )
 
-        del_fav_btn_2.connect(
+        self.del_fav_btn_2.connect(
             "clicked",
             partial(self.shortcuts.del_fav_path, explorer=self.explorer_2),
         )
@@ -328,37 +340,29 @@ class Window(Gtk.ApplicationWindow):
             self.horizontal_button_list_margin
         )
 
-        btn_F2 = Gtk.Button(label=_("Renombrar < F2 >"))
-        btn_F2.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F2)
+        self.btn_F2 = Gtk.Button(label=_("Renombrar < F2 >"))
+        self.horizontal_botton_menu.append(self.btn_F2)
 
-        btn_F3 = Gtk.Button(label=_("Nuevo Fichero < F3 >"))
-        btn_F3.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F3)
+        self.btn_F3 = Gtk.Button(label=_("Nuevo Fichero < F3 >"))
+        self.horizontal_botton_menu.append(self.btn_F3)
 
-        btn_F5 = Gtk.Button(label=_("Copiar < F5 >"))
-        btn_F5.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F5)
+        self.btn_F5 = Gtk.Button(label=_("Copiar < F5 >"))
+        self.horizontal_botton_menu.append(self.btn_F5)
 
-        btn_F6 = Gtk.Button(label=_("Mover < F6 >"))
-        btn_F6.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F6)
+        self.btn_F6 = Gtk.Button(label=_("Mover < F6 >"))
+        self.horizontal_botton_menu.append(self.btn_F6)
 
-        btn_F7 = Gtk.Button(label=_("Crear dir < F7 >"))
-        btn_F7.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F7)
+        self.btn_F7 = Gtk.Button(label=_("Crear dir < F7 >"))
+        self.horizontal_botton_menu.append(self.btn_F7)
 
-        btn_F8 = Gtk.Button(label=_("Eliminar < F8 >"))
-        btn_F8.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F8)
+        self.btn_F8 = Gtk.Button(label=_("Eliminar < F8 >"))
+        self.horizontal_botton_menu.append(self.btn_F8)
 
-        btn_F9 = Gtk.Button(label=_("Duplicar < F9 >"))
-        btn_F9.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F9)
+        self.btn_F9 = Gtk.Button(label=_("Duplicar < F9 >"))
+        self.horizontal_botton_menu.append(self.btn_F9)
 
-        btn_F10 = Gtk.Button(label=_("Salir < F10 >"))
-        btn_F10.get_style_context().add_class("button")
-        self.horizontal_botton_menu.append(btn_F10)
+        self.btn_F10 = Gtk.Button(label=_("Salir < F10 >"))
+        self.horizontal_botton_menu.append(self.btn_F10)
 
         # Left label show selection info
         label_box_left = Gtk.Box(
@@ -394,19 +398,19 @@ class Window(Gtk.ApplicationWindow):
         self.main_vertical_box.append(self.horizontal_bottom)
 
         rename_logic = Rename_Logic()
-        btn_F2.connect(
+        self.btn_F2.connect(
             "clicked",
             lambda btn: rename_logic.on_rename(self.explorer_src, self),
         )
 
         new_file = NewFile()
-        btn_F3.connect(
+        self.btn_F3.connect(
             "clicked",
             lambda btn: new_file.on_new_file(self.explorer_src, self),
         )
 
         my_copy_move = MyCopyMove()
-        btn_F5.connect(
+        self.btn_F5.connect(
             "clicked",
             lambda btn: my_copy_move.on_copy_or_move(
                 self.explorer_src,
@@ -418,7 +422,7 @@ class Window(Gtk.ApplicationWindow):
             ),
         )
 
-        btn_F6.connect(
+        self.btn_F6.connect(
             "clicked",
             lambda btn: my_copy_move.on_copy_or_move(
                 self.explorer_src,
@@ -431,21 +435,21 @@ class Window(Gtk.ApplicationWindow):
         )
 
         create = Create()
-        btn_F7.connect(
+        self.btn_F7.connect(
             "clicked",
             lambda btn: create.on_create_dir(
                 self.explorer_src, self.explorer_dst, self
             ),
         )
         remove = Remove()
-        btn_F8.connect(
+        self.btn_F8.connect(
             "clicked",
             lambda btn: remove.on_delete(
                 self.explorer_src, self.explorer_dst, self
             ),
         )
 
-        btn_F9.connect(
+        self.btn_F9.connect(
             "clicked",
             lambda btn: my_copy_move.on_copy_or_move(
                 self.explorer_src,
@@ -457,7 +461,7 @@ class Window(Gtk.ApplicationWindow):
             ),
         )
 
-        btn_F10.connect(
+        self.btn_F10.connect(
             "clicked",
             lambda btn: self.exit(self),
         )
