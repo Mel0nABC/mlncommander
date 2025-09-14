@@ -974,11 +974,27 @@ class Explorer(Gtk.ColumnView):
                     path_list = self.get_selected_items_from_explorer()[1]
 
             if path_list:
-                return ContextBox(self.win, True, self, popover, path_list)
+                return ContextBox(
+                    self.win,
+                    True,
+                    self,
+                    popover,
+                    path_list,
+                    self,
+                    self.win.get_other_explorer_with_name(self.name),
+                )
 
     def open_explorer_contextual_menu(self, popover) -> None:
         # OPEN WITH NOT FILE CLICKED
         # Explorer menú, no files selected
         if not self.focused:
             self.action.set_explorer_to_focused(self, self.win)
-        return ContextBox(self.win, False, self, popover)
+        return ContextBox(
+            self.win,
+            False,
+            self,
+            popover,
+            None,
+            self,
+            self.win.get_other_explorer_with_name(self.name),
+        )

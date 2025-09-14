@@ -19,6 +19,7 @@ from gi.repository import GLib, Gtk  # noqa: E402
 class Rename_Logic:
 
     def __init__(self):
+        print("OBJETO RENAME")
         self.response = None
         self.action = Actions()
 
@@ -28,7 +29,7 @@ class Rename_Logic:
         """
         Rename file or directory
         """
-
+        print("ON RENAME")
         if not explorer_src:
             self.action.show_msg_alert(
                 parent,

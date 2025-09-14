@@ -142,13 +142,13 @@ def handle_file_operation(
     Manage shortkeys, keyboard and GUI button actions
     """
     if key_pressed_name == _F2_KEY:
-        # Copy
+        # Rename
         rename_logic = Rename_Logic()
         rename_logic.on_rename(explorer_src, win)
         return True
 
     if key_pressed_name == _F3_KEY:
-        # Copy
+        # New file
         new_file = NewFile()
         new_file.on_new_file(explorer_src, win)
         return True

@@ -150,7 +150,10 @@ class Shortcuts_keys:
                 self.controller_list_exp_2.append(controller)
 
     def shortcut_mirroring_folder(
-        self, widget: Gtk.Widget, *args, explorer: "explorer"  # noqa F821
+        self,
+        widget: Gtk.Widget = None,
+        *args,
+        explorer: "explorer" = None,  # noqa F821
     ) -> None:
         """
         Actions when shortcuts is utilized
