@@ -144,29 +144,6 @@ class Window(Gtk.ApplicationWindow):
         )
         self.vertical_screen_2.set_vexpand(True)
 
-        self.vertical_entry_1 = Gtk.Entry()
-        self.vertical_entry_2 = Gtk.Entry()
-
-        # Entry to show search text. Hiden
-        self.search_str_entry = Gtk.Entry()
-        self.search_str_entry.set_editable(False)
-
-        self.vertical_entry_1.set_focusable(False)
-        self.vertical_entry_2.set_focusable(False)
-
-        self.vertical_entry_1.set_margin_top(self.entry_margin)
-        self.vertical_entry_1.set_margin_end(self.entry_margin / 2)
-        self.vertical_entry_1.set_margin_bottom(self.entry_margin)
-        self.vertical_entry_1.set_margin_start(self.entry_margin)
-
-        self.vertical_entry_2.set_margin_top(self.entry_margin)
-        self.vertical_entry_2.set_margin_end(self.entry_margin)
-        self.vertical_entry_2.set_margin_bottom(self.entry_margin)
-        self.vertical_entry_2.set_margin_start(self.entry_margin / 2)
-
-        self.vertical_screen_1.append(self.vertical_entry_1)
-        self.vertical_screen_2.append(self.vertical_entry_2)
-
         # Fav path start
 
         self.button_main_1 = Gtk.Box(
@@ -176,6 +153,8 @@ class Window(Gtk.ApplicationWindow):
         self.button_main_1.set_margin_end(self.entry_margin / 2)
         self.button_main_1.set_margin_bottom(self.entry_margin)
 
+        self.button_main_1.set_hexpand(True)
+
         self.button_main_2 = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
@@ -183,8 +162,9 @@ class Window(Gtk.ApplicationWindow):
         self.button_main_2.set_margin_end(self.entry_margin)
         self.button_main_2.set_margin_bottom(self.entry_margin)
 
-        self.vertical_screen_1.append(self.button_main_1)
-        self.vertical_screen_2.append(self.button_main_2)
+        self.button_main_2.set_hexpand(True)
+
+        # Add btn
 
         self.add_fav_btn_1 = Gtk.Button.new_with_label("+")
         self.add_fav_btn_2 = Gtk.Button.new_with_label("+")
@@ -192,31 +172,60 @@ class Window(Gtk.ApplicationWindow):
         self.add_fav_btn_1.set_hexpand(False)
         self.add_fav_btn_2.set_hexpand(False)
 
-        self.button_main_1.append(self.add_fav_btn_1)
-        self.button_main_2.append(self.add_fav_btn_2)
+        # Del btn
 
         self.del_fav_btn_1 = Gtk.Button.new_with_label("-")
         self.del_fav_btn_2 = Gtk.Button.new_with_label("-")
         self.del_fav_btn_1.set_hexpand(False)
         self.del_fav_btn_2.set_hexpand(False)
 
-        self.button_main_1.append(self.del_fav_btn_1)
-        self.button_main_2.append(self.del_fav_btn_2)
-
         self.buttom_horizontal_1 = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        self.buttom_horizontal_1.set_homogeneous(True)
+        self.buttom_horizontal_1.set_hexpand(True)
 
         self.buttom_horizontal_2 = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        self.buttom_horizontal_2.set_homogeneous(True)
+        self.buttom_horizontal_2.set_hexpand(True)
+
+        self.vertical_screen_1.append(self.button_main_1)
+        self.vertical_screen_2.append(self.button_main_2)
 
         self.button_main_1.append(self.buttom_horizontal_1)
         self.button_main_2.append(self.buttom_horizontal_2)
 
+        self.button_main_1.append(self.add_fav_btn_1)
+        self.button_main_1.append(self.del_fav_btn_1)
+
+        self.button_main_2.append(self.add_fav_btn_2)
+        self.button_main_2.append(self.del_fav_btn_2)
+
         # Fav path final
+
+        # Entrys section start
+
+        self.vertical_entry_1 = Gtk.Entry()
+        self.vertical_entry_2 = Gtk.Entry()
+
+        self.search_str_entry = Gtk.Entry()  # Entry to show search text. Hiden
+        self.search_str_entry.set_editable(False)
+
+        self.vertical_entry_1.set_focusable(False)
+        self.vertical_entry_2.set_focusable(False)
+
+        self.vertical_entry_1.set_margin_end(self.entry_margin / 2)
+        self.vertical_entry_1.set_margin_bottom(self.entry_margin)
+        self.vertical_entry_1.set_margin_start(self.entry_margin)
+
+        self.vertical_entry_2.set_margin_end(self.entry_margin)
+        self.vertical_entry_2.set_margin_bottom(self.entry_margin)
+        self.vertical_entry_2.set_margin_start(self.entry_margin / 2)
+
+        self.vertical_screen_1.append(self.vertical_entry_1)
+        self.vertical_screen_2.append(self.vertical_entry_2)
+
+        # Entrys section final
 
         self.explorer_1 = Explorer(
             "explorer_1",
@@ -628,7 +637,6 @@ class Window(Gtk.ApplicationWindow):
         """
         try:
             self.config = config
-            print(f"THEME NAME TO SAVE: {self.config.THEME_NAME}")
             # Config is deleted and the entire configuration is saved.
             with open(self.CONFIG_FILE, "w") as config_file:
                 yaml.dump(config.to_dict(), config_file, sort_keys=False)
@@ -682,11 +690,11 @@ class Window(Gtk.ApplicationWindow):
         ) -> Gtk.Button:
             text_lbl = f"[ {position+1} ] : {str(path)}"
             lbl = Gtk.Label.new(text_lbl)
-            lbl.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+            lbl.set_ellipsize(Pango.EllipsizeMode.START)
             btn = Gtk.Button.new()
             btn.set_child(lbl)
             btn.set_hexpand(False)
-            btn.set_halign(Gtk.Align.FILL)
+            btn.set_halign(Gtk.Align.START)
             btn.connect(
                 "clicked",
                 lambda btn: explorer.load_new_path(path),
