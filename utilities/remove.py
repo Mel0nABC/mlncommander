@@ -86,8 +86,6 @@ class Remove:
             parent, explorer_src.actual_path
         )
 
-        print(f"ELIMINANDO: {response}")
-
         if not response:
             self.stop_deleting = True
             self.action.show_msg_alert(
@@ -156,15 +154,28 @@ class Remove:
                                 )
                             item.rmdir()
                         except Exception as e:
-                            print(
-                                f"❌ Error al eliminar directorio {item}: {e}"
+                            print(f"Error al eliminar directorio ❌ \n{e}")
+                            GLib.idle_add(
+                                self.action.show_msg_alert,
+                                parent,
+                                _(
+                                    f"Error al eliminar directorio ❌ \n{e}"  # noqa : E501
+                                ),
                             )
 
                     else:
                         try:
                             item.unlink()
                         except Exception as e:
-                            print(f"❌ Error al eliminar archivo {item}: {e}")
+
+                            print(f" Error al eliminar archivo ❌\n{e}")
+                            GLib.idle_add(
+                                self.action.show_msg_alert,
+                                parent,
+                                _(
+                                    f"Error al eliminar archivo ❌\n{e}"  # noqa : E501
+                                ),
+                            )
 
         delete_worker(selected_items, explorer_src, explorer_dst, parent)
         for item in selected_items:
