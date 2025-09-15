@@ -806,12 +806,8 @@ class Explorer(Gtk.ColumnView):
         """
 
         # Set explorer scroll min size
-        self.win.scroll_1.set_size_request(
-            1, (self.get_allocated_height() / 3) * 2
-        )
-        self.win.scroll_2.set_size_request(
-            1, (self.get_allocated_height() / 3) * 2
-        )
+        self.win.scroll_1.set_size_request(1, self.get_allocated_height() / 2)
+        self.win.scroll_2.set_size_request(1, self.get_allocated_height() / 2)
 
         if not selected_items:
             self.disable_img_box()
