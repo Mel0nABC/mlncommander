@@ -336,6 +336,7 @@ class Window(Gtk.ApplicationWindow):
         self.horizontal_botton_menu = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
+        # self.horizontal_botton_menu = Gtk.FlowBox.new()
         self.horizontal_botton_menu.set_margin_top(
             self.horizontal_button_list_margin
         )

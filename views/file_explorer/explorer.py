@@ -858,7 +858,6 @@ class Explorer(Gtk.ColumnView):
         from gi.repository import GdkPixbuf
 
         box_width = self.win.explorer_1.get_allocated_width()
-        # box_height = self.win.explorer_1.get_allocated_height() / 3
 
         self.img_file = GdkPixbuf.Pixbuf.new_from_file(str(path))
         img_width = self.img_file.get_width()
@@ -946,7 +945,7 @@ class Explorer(Gtk.ColumnView):
         popover.popup()
 
     def open_file_contextual_menu(self, cell, popover) -> None:
-        # OPEN WITH FILE CLICKED
+        # Open with file clicked
         path_list = self.get_selected_items_from_explorer()[1]
         if cell:
             # Files selected
@@ -981,7 +980,6 @@ class Explorer(Gtk.ColumnView):
                 )
 
     def open_explorer_contextual_menu(self, popover) -> None:
-        # OPEN WITH NOT FILE CLICKED
         # Explorer menú, no files selected
         if not self.focused:
             self.action.set_explorer_to_focused(self, self.win)
