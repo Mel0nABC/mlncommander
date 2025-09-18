@@ -719,7 +719,9 @@ class Window(Gtk.ApplicationWindow):
 
                     disable_btn = False
 
-                    if not path.exists():
+                    self.store = File_manager().get_path_list(path)
+
+                    if not self.store:
                         self.path_fav_no_exist_list.append(path)
                         disable_btn = True
                     elif not os.access(path, os.R_OK):
@@ -780,7 +782,7 @@ class Window(Gtk.ApplicationWindow):
             text += _(
                 (
                     "\nHan sido deshabilitadas para esta sesión.\n\n"
-                    "Este mensaje sólo saldrá al iniciar la aplicación."
+                    "Este mensaje sólo saldrá al iniciar la aplicación.\n\n"
                 )
             )
 
