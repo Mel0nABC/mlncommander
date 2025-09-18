@@ -75,6 +75,7 @@ class Explorer(Gtk.ColumnView):
         self.showed_msg_network_problem = False
         self.add_fav_btn = add_fav_btn
         self.WIDTH_TYPE = 70
+        self.lost_conn_retry = 0
 
         for property_name in type_list:
 
@@ -478,19 +479,24 @@ class Explorer(Gtk.ColumnView):
         store = File_manager().get_path_list(self.actual_path)
 
         if not store:
-            self.load_new_path(Path("/"))
-            if not self.showed_msg_network_problem:
-                self.showed_msg_network_problem = True
-                text = _(
-                    "Ha ocurrido algún problema con la ubicación"
-                    " actual y se ha redirigido al inicio."
-                )
-                GLib.idle_add(self.action.show_msg_alert, self.win, text)
-            else:
-                self.showed_msg_network_problem = False
+            if self.lost_conn_retry == 3:
+
+                if not self.showed_msg_network_problem:
+                    self.showed_msg_network_problem = True
+                    text = _(
+                        "Se ha detectado una pérdida de "
+                        "conexión con la ruta actual\n\n"
+                        "Se redirige a / para no bloquear la aplicación."
+                    )
+                    GLib.idle_add(self.action.show_msg_alert, self.win, text)
+                    self.load_new_path(Path("/"))
+                else:
+                    self.showed_msg_network_problem = False
+            self.lost_conn_retry += 1
 
             return
-
+        # Reset self.lost_conn_retry
+        self.lost_conn_retry = 0
         selected = self.get_selected_items_from_explorer()
         selected_items = list(selected[1])
         selected_size = len(selected_items)
