@@ -27,7 +27,14 @@ from gi.repository import Gtk, GLib, Pango, Gdk  # noqa E402
 
 class Window(Gtk.ApplicationWindow):
 
-    APP_USER_PATH = Path(f"{os.environ["HOME"]}/.mlncommander")
+    # Use XDG config user path.
+    USER_HOME = ""
+    try:
+        USER_HOME = os.environ["XDG_CONFIG_HOME"]
+    except KeyError:
+        USER_HOME = Path(f"{os.environ["HOME"]}/.config")
+
+    APP_USER_PATH = Path(f"{USER_HOME}/.mlncommander")
 
     def __init__(self, app: Gtk.Application, action: actions):
         super().__init__(application=app)
