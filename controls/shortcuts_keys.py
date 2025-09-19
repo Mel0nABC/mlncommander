@@ -454,7 +454,6 @@ class Shortcuts_keys:
         self.win.key_disconnect()
         explorer = self.win.get_explorer_focused()
         path_list = explorer.get_selected_items_from_explorer()[1]
-        print(path_list)
         Properties(self.win, path_list)
         GLib.idle_add(self.win.key_connect)
         return True
