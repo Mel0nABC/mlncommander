@@ -137,8 +137,7 @@ class Shortcuts_keys:
         controller = Gtk.ShortcutController.new()
         controller.add_shortcut(shortcut)
         explorer.add_controller(controller)
-
-        if first_key == "<Alt>":
+        if "change_fav_explorer_path" in str(method):
             if explorer.name == "explorer_1":
                 self.fav_controller_list_exp_1.append(controller)
             else:
@@ -455,6 +454,7 @@ class Shortcuts_keys:
         self.win.key_disconnect()
         explorer = self.win.get_explorer_focused()
         path_list = explorer.get_selected_items_from_explorer()[1]
+        print(path_list)
         Properties(self.win, path_list)
         GLib.idle_add(self.win.key_connect)
         return True
