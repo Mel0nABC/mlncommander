@@ -209,7 +209,7 @@ class Explorer(Gtk.ColumnView):
             )
             self.row_gesture_right_list[gesture_int_right] = gesture_right
 
-        GLib.idle_add(setup_when_idle)
+        setup_when_idle()
 
     def activate_gesture_click_label(
         self, cell: Gtk.ColumnViewCell, widget: Gtk.Widget
