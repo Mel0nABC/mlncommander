@@ -58,10 +58,9 @@ class File_manager:
             q = Queue()
             p = Process(target=get_sorted_dir, args=(path, q))
             p.start()
-            p.join(0.3)
 
             try:
-                msg = q.get_nowait()
+                msg = q.get()
             except Empty:
 
                 if p.exitcode == 0:

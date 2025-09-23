@@ -19,7 +19,6 @@ from gi.repository import GLib, Gtk  # noqa: E402
 class Rename_Logic:
 
     def __init__(self):
-        print("OBJETO RENAME")
         self.response = None
         self.action = Actions()
 

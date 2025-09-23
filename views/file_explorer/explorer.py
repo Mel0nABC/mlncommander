@@ -72,7 +72,6 @@ class Explorer(Gtk.ColumnView):
         self.icon_manager = IconManager(win)
         self.label_gesture_list = {}
         self.row_gesture_right_list = {}
-        self.showed_msg_network_problem = False
         self.add_fav_btn = add_fav_btn
         self.WIDTH_TYPE = 70
         self.lost_conn_retry = 0
@@ -363,19 +362,6 @@ class Explorer(Gtk.ColumnView):
         if self.selection:
             self.selection.unselect_all()
         self.store = File_manager().get_path_list(path)
-        if not self.store:
-            # self.showed_msg_network_problem is only to
-            # display the message once
-            if not self.showed_msg_network_problem:
-                self.action.show_msg_alert(
-                    self.win,
-                    _("Ha ocurrido un problema para acceder al directorio"),
-                )
-                self.showed_msg_network_problem = True
-            else:
-                self.showed_msg_network_problem = False
-
-            return
 
         if self.actual_path != path:
             self.start_watchdog(path, self)
@@ -475,28 +461,6 @@ class Explorer(Gtk.ColumnView):
         Update bottom information, selected files and size
         """
 
-        # Check if actual_path don't have problems to list
-        store = File_manager().get_path_list(self.actual_path)
-
-        if not store:
-            if self.lost_conn_retry == 3:
-
-                if not self.showed_msg_network_problem:
-                    self.showed_msg_network_problem = True
-                    text = _(
-                        "Se ha detectado una pérdida de "
-                        "conexión con la ruta actual\n\n"
-                        "Se redirige a / para no bloquear la aplicación."
-                    )
-                    GLib.idle_add(self.action.show_msg_alert, self.win, text)
-                    self.load_new_path(Path("/"))
-                else:
-                    self.showed_msg_network_problem = False
-            self.lost_conn_retry += 1
-
-            return
-        # Reset self.lost_conn_retry
-        self.lost_conn_retry = 0
         selected = self.get_selected_items_from_explorer()
         selected_items = list(selected[1])
         selected_size = len(selected_items)
