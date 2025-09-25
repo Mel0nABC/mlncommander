@@ -180,7 +180,7 @@ class Shortcuts_keys:
             if not path.is_dir():
                 path = path.parent
 
-        other_explorer.load_data(path)
+        other_explorer.load_new_path(path)
 
         GLib.idle_add(self.win.key_connect)
 

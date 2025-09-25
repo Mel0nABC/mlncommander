@@ -106,7 +106,7 @@ def handle_navitation_keys(
     if key_pressed_name == _TAB:
         if explorer_src.focused:
             # Explorer 2, focused
-            n_row_dst = explorer_dst.n_row
+            n_row_dst = explorer_dst.path_history[explorer_dst.actual_path]
             explorer_dst.set_can_focus(True)
             explorer_dst.grab_focus()
             explorer_dst.scroll_to(n_row_dst, None, flags)
@@ -298,7 +298,6 @@ def find_name_path(
 
     sorter_model = explorer_src.sort_model.get_sorter()
     sorter_model.changed(0)
-    # explorer_src.set_background_search()
 
     # When there are no results in filtering
     if len(list(store)) == 1:

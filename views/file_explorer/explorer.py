@@ -42,7 +42,7 @@ class Explorer(Gtk.ColumnView):
         self.action = Actions()
         self.selection = None
         self.n_row = 0
-        self.n_row_old = 0
+        self.path_history = {}
         self.search_str = ""
         self.thread_reset_str = threading.Thread(target=self.str_search_start)
         self.count_rst_int = 0
@@ -74,7 +74,6 @@ class Explorer(Gtk.ColumnView):
         self.row_gesture_right_list = {}
         self.add_fav_btn = add_fav_btn
         self.WIDTH_TYPE = 70
-        self.lost_conn_retry = 0
 
         for property_name in type_list:
 
@@ -398,49 +397,30 @@ class Explorer(Gtk.ColumnView):
         if not self.access_control.validate_src_read(path, self.win):
             return
 
-        if self.actual_path_old:
-            if not self.actual_path_old.is_relative_to(path):
-                self.actual_path_old = self.actual_path
-                self.n_row_old = self.n_row
-        else:
-            self.actual_path_old = self.actual_path
-
         self.load_data(path)
 
-        # We reconnect if it was disconnected when entering
-        # new folder
+        for k in list(self.path_history.keys()):
+            if k.is_relative_to(path):
+                if k != path:
+                    del self.path_history[k]
+                    continue
+
+        if path not in self.path_history:
+            self.path_history[path] = 0
+
+        GLib.idle_add(
+            self.scroll_to,
+            self.path_history[path],
+            None,
+            self.flags
+            )
+
+        # We reconnect if it was disconnected when entering new folder
+
         if not self.selection.handler_is_connected(self.handler_id_connect):
             self.handler_id_connect = self.selection.connect(
                 "selection-changed", self.on_item_change, self.win
             )
-
-        lista_path = list(path.iterdir())
-        if len(lista_path) == 0:
-            GLib.idle_add(self.scroll_to, 0, None, self.flags)
-
-        # Managing which list number to start a directory at
-        # Whether to move forward or backward
-        # You need to change the way you manage it, perhaps with a list,
-        # Dictionary or similar
-        if self.actual_path_old.is_relative_to(path):
-            # Step back
-            if self.focused:
-                self.grab_focus()
-                GLib.idle_add(self.scroll_to, self.n_row_old, None, self.flags)
-        else:
-            # Keep it up
-            store = self.store
-
-            if not store:
-                return
-            size = len(list(store))
-            if size == 1:
-                file = 0
-            else:
-                file = 1
-
-            if self.focused:
-                self.scroll_to(file, None, self.flags)
 
         if self.count_rst_int > 0:
             self.stop_background_search()
@@ -457,7 +437,7 @@ class Explorer(Gtk.ColumnView):
     ) -> None:
         """
         Selecting another row in a browser changes
-        the value of the self.n_row variable.
+        the value of the self.path_history variable.
         Update bottom information, selected files and size
         """
 
@@ -474,6 +454,8 @@ class Explorer(Gtk.ColumnView):
                 self.open_img_preview(selected_items)
         else:
             self.disable_img_box()
+
+        self.path_history[self.actual_path] = self.n_row
 
     def update_info_explorer(
         self,
@@ -558,7 +540,6 @@ class Explorer(Gtk.ColumnView):
         Initialize proccess to search word in explorer list
         """
         self.set_background_search()
-        self.n_row_old = self.n_row
 
         while self.count_rst_int < self.COUNT_RST_TIME:
             time.sleep(0.001)

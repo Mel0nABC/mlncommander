@@ -519,9 +519,8 @@ class Window(Gtk.ApplicationWindow):
         """
         self.explorer_src = explorer_focused
         self.explorer_src.grab_focus()
-        self.explorer_src.scroll_to(
-            self.explorer_src.n_row, None, self.explorer_src.flags
-        )
+        n_row = self.explorer_src.path_history[self.explorer_src.actual_path]
+        self.explorer_src.scroll_to(n_row, None, self.explorer_src.flags)
         self.explorer_dst = explorer_unfocused
 
     def get_explorer_focused(self) -> Explorer:

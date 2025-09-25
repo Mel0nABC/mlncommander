@@ -50,6 +50,8 @@ class Actions:
         """
         path = Path(entry.get_text())
         self.change_path(explorer, path)
+        win = explorer.get_root()
+        self.set_explorer_to_focused(explorer, win)
 
     def on_doble_click_or_enter(
         self,
