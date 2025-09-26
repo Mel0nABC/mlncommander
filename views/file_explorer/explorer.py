@@ -457,9 +457,6 @@ class Explorer(Gtk.ColumnView):
 
         self.path_history[self.actual_path] = self.n_row
 
-        if not selected_items:
-            self.path_history[self.actual_path] = 0
-
     def update_info_explorer(
         self,
         selected_items: list,
