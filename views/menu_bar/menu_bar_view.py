@@ -6,6 +6,7 @@ from views.menu_bar.file.preferences.preferences_options import (
     Preferences,
 )
 from views.properties.properties import Properties
+import subprocess
 import gi
 from gi.repository import Gtk, Gio  # noqa: E402
 
@@ -99,6 +100,13 @@ class Menu_bar(Gio.Menu):
         self.win.add_action(action_about)
         menu_help.append_section(None, menu_about)
 
+        menu_log = Gio.Menu()
+        menu_log.append(_("Abrir log"), "win.log")
+        action_log = Gio.SimpleAction.new("log", None)
+        action_log.connect("activate", self.open_log)
+        self.win.add_action(action_log)
+        menu_help.append_section(None, menu_log)
+
     def shortcut_window(self, action: Gio.SimpleAction, parameter):
         from views.menu_bar.help.shortcuts_help import ShortCutsHelp
 
@@ -108,3 +116,17 @@ class Menu_bar(Gio.Menu):
         from views.menu_bar.help.about import About
 
         About(self.win)
+
+    def open_log(self, action: Gio.SimpleAction, parameter):
+        print("OPEN LOG")
+        try:
+            log_file = f"{self.win.APP_USER_PATH}/log/mlncommander.log"
+            subprocess.run(["xdg-open", log_file])
+        except Exception:
+            self.show_msg_alert(
+                self.parent,
+                _(
+                    f"""Ha ocurrido algun problema al intentar ejecutar el
+                    archivo:\n{log_file}"""
+                ),
+            )
