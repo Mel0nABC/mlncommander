@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from views.pop_up_windows.confirm_window import ConfirmWindow
+from controls.actions import Actions
 import time
 import gi
 import asyncio
@@ -18,6 +19,7 @@ class Transfering(Gtk.Window):
         self,
         parent: Gtk.ApplicationWindow,
         action_to_exec: str,
+        src_explorer: Gtk.Window,
         dst_explorer: Gtk.Window,
     ):
         margin = 20
@@ -45,7 +47,9 @@ class Transfering(Gtk.Window):
         self.get_style_context().add_class("font-color")
 
         self.win = parent
+        self.src_explorer = src_explorer
         self.dst_explorer = dst_explorer
+        self.actions = Actions()
         self.src_size = 0
         self.dst_size = 0
         self.old_dst_size = 0
@@ -199,8 +203,11 @@ class Transfering(Gtk.Window):
         asyncio.ensure_future(response())
 
     def on_finish_close(self) -> None:
+        print("FINISH")
         self.finish_background()
         self.destroy()
+        self.dst_explorer.load_new_path(self.dst_explorer.actual_path)
+        self.actions.set_explorer_to_focused(self.src_explorer, self.win)
 
     def to_background(self, button: Gtk.Button = None) -> None:
         if self.grid is not None:

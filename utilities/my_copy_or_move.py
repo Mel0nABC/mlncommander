@@ -531,7 +531,7 @@ class MyCopyMove:
         Creates dialog showing information about the file being copied
         """
         self.transfering_window = Transfering(
-            parent, self.action_to_exec, self.explorer_dst
+            parent, self.action_to_exec, self.explorer_src, self.explorer_dst
         )
 
         if (

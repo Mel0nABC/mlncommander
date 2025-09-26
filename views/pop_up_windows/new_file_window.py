@@ -132,10 +132,9 @@ class NewFileWindow(Gtk.Window):
                 _("Ha surgido algún problema al crear el archivo."),
             )
             return
-
+        self.exit()
         self.src_dir.load_new_path(self.src_dir.actual_path)
+        self.actions.set_explorer_to_focused(self.src_dir, self.win)
 
-        self.destroy()
-
-    def exit(self, botton: Gtk.Button) -> None:
+    def exit(self, botton: Gtk.Button = None) -> None:
         self.destroy()
