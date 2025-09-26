@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from utilities.file_manager import File_manager
+from utilities.log_manager import LogManager
 from entity.properties_enty import PropertiesEnty
 from utilities.sistem_info import SistemInformation
 from controls.actions import Actions
@@ -23,6 +24,7 @@ class Permissions(Gtk.Box):
         super().__init__(orientation=Gtk.Orientation.VERTICAL)
         self.path_list = path_list
         self.win = win
+        self.log_manager = LogManager(self.win)
         self.action = Actions()
         self.path_list = path_list
         self.list_store = None
@@ -788,12 +790,18 @@ class Permissions(Gtk.Box):
                 win, self.list_store
             )
 
+            if resp_owner_group["status"]:
+                self.log_manager.print_status_on_log("OWNER_GROUP",None,None, self.list_store) # Noqa : E501
+
         resp_permissions = {"status": True, "msg": False}
         if permissions_changes:
 
             resp_permissions = File_manager().change_permissions(
                 win, self.list_store
             )
+
+            if resp_permissions["status"]:
+                self.log_manager.print_status_on_log("PERMISSIONS",None,None, self.list_store) # Noqa : E501
 
         response_lbl_perm = Gtk.Label.new()
 

@@ -4,6 +4,7 @@
 from utilities.i18n import _
 from views.pop_up_windows.contextual_menu import ContextBox
 from utilities.file_manager import File_manager
+from utilities.log_manager import LogManager
 from entity.file_or_directory_info import File_or_directory_info
 from icons.icon_manager import IconManager
 from utilities.access_control import AccessControl
@@ -39,6 +40,7 @@ class Explorer(Gtk.ColumnView):
         self.actual_path_old = None
         self.entry = entry
         self.my_watchdog = None
+        self.log_manager = LogManager(self.win)
         self.action = Actions()
         self.selection = None
         self.n_row = 0
@@ -863,9 +865,7 @@ class Explorer(Gtk.ColumnView):
     def insert_log_line(
         self, operation: str, src_path: Path, dst_path: Path
     ) -> None:
-        self.my_watchdog.mihandler.print_status_on_log(
-            operation, src_path, dst_path
-        )
+        self.log_manager.print_status_on_log(operation, src_path, dst_path)
 
     def set_on_path_fav_button(self) -> None:
         for fav_btn in self.fav_path_btn_list:
