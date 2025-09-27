@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 from pathlib import Path
 from datetime import datetime
-import os
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -50,13 +49,11 @@ class File_or_directory_info(GObject.Object):
             self.date_created_str = "01/01/1970 00:00"
             self.permissions = "l---"
         else:
+            from utilities.file_manager import File_manager
 
-            t = "-" if os.path.isfile(self.path_file) else "d"
-            r = "r" if os.access(self.path_file, os.R_OK) else "-"
-            w = "w" if os.access(self.path_file, os.W_OK) else "-"
-            x = "x" if os.access(self.path_file, os.X_OK) else "-"
-
-            self.permissions = f"{t}{r}{w}{x}"
+            self.permissions = File_manager().get_permissions(self.path_file)[
+                "msg"
+            ]
 
             _date_created = datetime.fromtimestamp(
                 self.path_file.stat().st_ctime
@@ -70,7 +67,5 @@ class File_or_directory_info(GObject.Object):
             else:
                 self.size = self.path_file.stat().st_size
                 self.type = "FILE"
-
-                from utilities.file_manager import File_manager
 
                 self.size = File_manager().get_size_and_unit(int(self.size))
