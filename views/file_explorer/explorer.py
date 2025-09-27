@@ -183,29 +183,24 @@ class Explorer(Gtk.ColumnView):
             Depent of type, set Gtk.Image for icons or Gtk.Label for text
             """
             main_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-            fixed = Gtk.Fixed()
-            main_box.append(fixed)
+
             if property_name == "type_str":
                 img = Gtk.Image()
-
-                img_box = Gtk.Box()
-                img_box.append(img)
-
-                fixed.put(img_box, 0, 0)
+                main_box.append(img)
             else:
 
                 label = Gtk.Label(xalign=0)
                 label.set_margin_top(0)
-                fixed.put(label, 0, 0)
+                main_box.append(label)
 
             cell.set_child(main_box)
             gesture_int, gesture = self.activate_gesture_click_label(
-                cell, fixed
+                cell, main_box
             )
             self.label_gesture_list[gesture_int] = gesture
 
             gesture_int_right, gesture_right = (
-                self.activate_gesture_click_label_right_click(cell, fixed)
+                self.activate_gesture_click_label_right_click(cell, main_box)
             )
             self.row_gesture_right_list[gesture_int_right] = gesture_right
 
@@ -233,27 +228,10 @@ class Explorer(Gtk.ColumnView):
         """
         Active gesture click on labels from columnview
         """
-
-        popover = Gtk.Popover()
-        point_box = Gtk.Box()
-        point_box.set_size_request(-1, -1)
-
-        if isinstance(widget, Gtk.Fixed):
-            fixed = widget
-            fixed.put(point_box, 0, 0)
-            popover.set_parent(point_box)
-        else:
-            popover.set_parent(self.add_fav_btn)
-
         gesture_row_right = Gtk.GestureClick()
         gesture_row_right.set_button(3)
         gesture_int_right = gesture_row_right.connect(
-            "pressed",
-            self.select_gesture_right_click,
-            cell,
-            widget,
-            popover,
-            point_box,
+            "pressed", self.select_gesture_right_click, cell, widget
         )
 
         widget.add_controller(gesture_row_right)
@@ -307,23 +285,12 @@ class Explorer(Gtk.ColumnView):
                     else:
                         pintable = self.icon_manager.get_back_icon()
 
-                    main_box.set_hexpand(False)
-                    # main_box.set_halign(Gtk.Align.CENTER)
-
-                    fixed = main_box.get_first_child()
-                    fixed.set_size_request(self.WIDTH_TYPE, -1)
-
-                    box_img = fixed.get_first_child()
-                    box_img.set_hexpand(False)
-                    box_img.set_halign(Gtk.Align.CENTER)
-
-                    image = box_img.get_first_child()
+                    image = main_box.get_first_child()
                     image.set_margin_start(25)
                     image.set_hexpand(True)
                     image.set_from_paintable(pintable)
                 else:
-                    fixed = main_box.get_first_child()
-                    label = fixed.get_first_child()
+                    label = main_box.get_first_child()
                     label.set_text(str(value))
                     label.set_hexpand(True)
                     if property_name == "name":
@@ -411,11 +378,8 @@ class Explorer(Gtk.ColumnView):
             self.path_history[path] = 0
 
         GLib.idle_add(
-            self.scroll_to,
-            self.path_history[path],
-            None,
-            self.flags
-            )
+            self.scroll_to, self.path_history[path], None, self.flags
+        )
 
         # We reconnect if it was disconnected when entering new folder
 
@@ -877,25 +841,37 @@ class Explorer(Gtk.ColumnView):
             else:
                 fav_btn.get_style_context().remove_class("fav")
 
-    def select_gesture_right_click(
-        self, gesture, n_press, x, y, cell, widget, popover, point
-    ):
+    def select_gesture_right_click(self, gesture, n_press, x, y, cell, widget):
         # Stop all events
         gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
         contextbox = None
         if cell:
-            fixed = widget
-            fixed.move(point, x, y)
-
-            contextbox = self.open_file_contextual_menu(cell, popover)
+            contextbox = self.open_file_contextual_menu(cell)
         else:
-            contextbox = self.open_explorer_contextual_menu(popover)
+            contextbox = self.open_explorer_contextual_menu()
 
-        popover.set_child(contextbox)
-        popover.popup()
+        rect = Gdk.Rectangle()
+        rect.x = int(x)
+        rect.y = int(y)
+        rect.width = 1
+        rect.height = 1
 
-    def open_file_contextual_menu(self, cell, popover) -> None:
+        popovermenu = Gtk.PopoverMenu.new_from_model(contextbox)
+        popovermenu.get_style_context().add_class("contextual_menu")
+
+        popovermenu.set_has_arrow(False)  # no show arrow
+        popovermenu.set_autohide(True)
+        popovermenu.set_cascade_popdown(True)
+
+        popovermenu.set_parent(widget)
+        popovermenu.set_pointing_to(rect)
+
+        time.sleep(0.1)
+
+        popovermenu.popup()
+
+    def open_file_contextual_menu(self, cell) -> None:
         # Open with file clicked
         path_list = self.get_selected_items_from_explorer()[1]
         if cell:
@@ -924,13 +900,12 @@ class Explorer(Gtk.ColumnView):
                     self.win,
                     True,
                     self,
-                    popover,
                     path_list,
                     self,
                     self.win.get_other_explorer_with_name(self.name),
                 )
 
-    def open_explorer_contextual_menu(self, popover) -> None:
+    def open_explorer_contextual_menu(self) -> None:
         # Explorer menú, no files selected
         if not self.focused:
             self.action.set_explorer_to_focused(self, self.win)
@@ -938,7 +913,6 @@ class Explorer(Gtk.ColumnView):
             self.win,
             False,
             self,
-            popover,
             None,
             self,
             self.win.get_other_explorer_with_name(self.name),

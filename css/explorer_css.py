@@ -125,20 +125,10 @@ class Css_explorer_manager:
         Set color to all button
         """
         css = """
-            .contextual_menu{
-                background-color: #353535;
-                border-radius: 5pt;
-            }
-            .contextual_content{
+            .contextual_menu contents{
                 padding: 10px;
-                margin:10px;
-                border-radius:5pt;
-                background-color: #222226;
             }
-            .contextual_content button{
-                margin: 0px;
-                min-width: 200px;
-            }
+
         """.encode()
 
         self.set_css_to_provider(css)
@@ -308,6 +298,8 @@ class Css_explorer_manager:
             self.win.config.COLOR_BACKGROUND_SEARCH,
             self.win.config.COLOR_SEARCH_TEXT,
         )
+
+        self.load_css_context_menu()
 
     def unload_css_and_restart(self):
         Gtk.StyleContext.remove_provider_for_display(

@@ -340,10 +340,10 @@ class Window(Gtk.ApplicationWindow):
         self.main_vertical_box.append(self.menu_bar.menubar)
 
     def create_horizontal_button(self):
-        self.horizontal_botton_menu = Gtk.Box(
-            orientation=Gtk.Orientation.HORIZONTAL, spacing=6
-        )
-        # self.horizontal_botton_menu = Gtk.FlowBox.new()
+
+        self.horizontal_botton_menu = Gtk.FlowBox(orientation=Gtk.Orientation.HORIZONTAL) # Noqa E501
+        self.horizontal_botton_menu.set_max_children_per_line(10)
+
         self.horizontal_botton_menu.set_margin_top(
             self.horizontal_button_list_margin
         )
