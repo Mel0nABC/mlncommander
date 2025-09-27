@@ -75,7 +75,6 @@ class Explorer(Gtk.ColumnView):
         self.label_gesture_list = {}
         self.row_gesture_right_list = {}
         self.add_fav_btn = add_fav_btn
-        self.WIDTH_TYPE = 70
 
         for property_name in type_list:
 
@@ -112,7 +111,6 @@ class Explorer(Gtk.ColumnView):
             if property_name == "type_str":
                 column.set_expand(False)
                 column.set_resizable(False)
-                column.set_fixed_width(self.WIDTH_TYPE)
             else:
                 column.set_expand(True)
                 column.set_resizable(True)
@@ -286,17 +284,13 @@ class Explorer(Gtk.ColumnView):
                         pintable = self.icon_manager.get_back_icon()
 
                     image = main_box.get_first_child()
-                    image.set_margin_start(25)
                     image.set_hexpand(True)
                     image.set_from_paintable(pintable)
                 else:
                     label = main_box.get_first_child()
                     label.set_text(str(value))
                     label.set_hexpand(True)
-                    if property_name == "name":
-                        label.set_width_chars(35)
-                        label.set_max_width_chars(35)
-                        label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+                    label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
         GLib.idle_add(bind_when_idle)
 
