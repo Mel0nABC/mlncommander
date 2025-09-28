@@ -313,6 +313,6 @@ def set_search_word(
 ) -> None:
     search_entry_text = f"Buscando: {search_word}"
     if explorer_src.name == "explorer_1":
-        win.box_entry_1.searchEntry.set_text(search_entry_text)
+        win.path_bar_1.searchEntry.set_text(search_entry_text)
     else:
-        win.box_entry_2.searchEntry.set_text(search_entry_text)
+        win.path_bar_2.searchEntry.set_text(search_entry_text)
