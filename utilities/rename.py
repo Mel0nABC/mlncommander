@@ -5,7 +5,7 @@ from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
 from views.pop_up_windows.rename_window import RenameWindow
-from views.file_explorer.explorer import Explorer
+from views.mlncommander_explorer import Explorer
 import gi
 import os
 import asyncio

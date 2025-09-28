@@ -9,7 +9,7 @@ from datetime import datetime
 from views.pop_up_windows.overwrite_window import OverwriteWindow
 from views.pop_up_windows.selected_for_copy_move import Selected_for_copy_move
 from views.pop_up_windows.transfering_data import Transfering
-from views.file_explorer.explorer import Explorer
+from views.mlncommander_explorer import Explorer
 from utilities.rename import Rename_Logic
 from utilities.access_control import AccessControl
 from utilities.file_manager import File_manager

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from entity.file_or_directory_info import File_or_directory_info
-from views.file_explorer.explorer import Explorer
+from views.mlncommander_explorer import Explorer
 import asyncio
 import gi
 

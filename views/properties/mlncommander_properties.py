@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from views.properties.permissions import Permissions
-from views.properties.information import Information
+from views.properties.mlncommander_permissions import Permissions
+from views.properties.mlncommander_information import Information
 from utilities.screen_info import ScreenInfo
 import gi
 from gi.repository import Gtk, Gio, Gdk, GLib, GObject  # noqa E402

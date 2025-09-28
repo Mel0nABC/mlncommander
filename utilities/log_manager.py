@@ -15,7 +15,8 @@ class LogManager:
     def __init__(self, win: Gtk.ApplicationWindow):
         self.win = win
         self.action = Actions()
-        from views.main_window import Window
+        from views.mlncommander_main_window import Window
+
         self.APP_USER_PATH = Window.APP_USER_PATH
         self.log_file = Path(f"{self.APP_USER_PATH}/log/mlncommander.log")
         self.date_str = time.strftime("%A, %d/%m/%Y - %H:%M:%S")
@@ -50,11 +51,12 @@ class LogManager:
             return False
 
     def print_status_on_log(
-        self, operation: str,
+        self,
+        operation: str,
         src_path: Path = None,
         dst_path: Path = None,
-        propertyList: Gio.ListStore = None
-            ) -> None:
+        propertyList: Gio.ListStore = None,
+    ) -> None:
 
         if not self.print_title_on_log():
             return
@@ -71,21 +73,21 @@ class LogManager:
                     row = _(
                         f"{operation}: {self.date_str} -- {src_path} to {dst_path}\n"  # noqa: E501
                     )
-                elif (operation == "DELETED" or operation == "CREATED"):
+                elif operation == "DELETED" or operation == "CREATED":
                     row = _(f"{operation}: {self.date_str} -- {src_path} \n")
-                elif (operation == "PERMISSIONS"):
+                elif operation == "PERMISSIONS":
                     for item in propertyList:
                         row = _(
-                                f"{operation}: {self.date_str} -- {item.path}:\n"  # noqa: E501
-                                f"\t\tPERMISSIONS: {item.old_permissions} to {item.permissions}\n"  # noqa: E501
-                                )
-                elif (operation == "OWNER_GROUP"):
+                            f"{operation}: {self.date_str} -- {item.path}:\n"  # noqa: E501
+                            f"\t\tPERMISSIONS: {item.old_permissions} to {item.permissions}\n"  # noqa: E501
+                        )
+                elif operation == "OWNER_GROUP":
                     for item in propertyList:
                         row = _(
-                                f"{operation}: {self.date_str} -- {item.path}:\n"  # noqa: E501
-                                f"\t\tOWNER: {item.old_user_name} to {item.user_name}\n"  # noqa: E501
-                                f"\t\tGROUP: {item.old_group_name} to {item.group_name}\n"  # noqa: E501
-                                )
+                            f"{operation}: {self.date_str} -- {item.path}:\n"  # noqa: E501
+                            f"\t\tOWNER: {item.old_user_name} to {item.user_name}\n"  # noqa: E501
+                            f"\t\tGROUP: {item.old_group_name} to {item.group_name}\n"  # noqa: E501
+                        )
 
                 file.write(row)
         except Exception as e:

@@ -6,7 +6,7 @@ from pathlib import Path
 from entity.shortcut import Shortcut
 from utilities.access_control import AccessControl
 from utilities.compression import CompressionManager
-from views.properties.properties import Properties
+from views.properties.mlncommander_properties import Properties
 from controls.actions import Actions
 import yaml
 import gi
@@ -28,7 +28,7 @@ class Shortcuts_keys:
         explorer_right: "Explorer" = None,  # noqa F821
     ):  # noqa F821
 
-        from views.main_window import Window
+        from views.mlncommander_main_window import Window
 
         self.win = win
         self.compression_manager = CompressionManager(self.win)

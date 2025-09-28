@@ -5,7 +5,6 @@ from utilities.i18n import _
 from views.pop_up_windows.contextual_menu import ContextBox
 from utilities.file_manager import File_manager
 from utilities.log_manager import LogManager
-from entity.file_or_directory_info import File_or_directory_info
 from icons.icon_manager import IconManager
 from utilities.access_control import AccessControl
 from controls.actions import Actions
@@ -350,7 +349,7 @@ class Explorer(Gtk.ColumnView):
             self.start_watchdog(path, self)
 
         self.actual_path = path
-        self.entry.set_text(str(path))
+        self.entry.set_text(f"{str(path)}/")
 
         self.sorter = Gtk.ColumnView.get_sorter(self)
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)

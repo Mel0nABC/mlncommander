@@ -5,7 +5,7 @@ from utilities.i18n import _
 from views.menu_bar.file.preferences.preferences_options import (
     Preferences,
 )
-from views.properties.properties import Properties
+from views.properties.mlncommander_properties import Properties
 import subprocess
 import gi
 from gi.repository import Gtk, Gio  # noqa: E402

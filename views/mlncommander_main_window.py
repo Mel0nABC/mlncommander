@@ -5,9 +5,9 @@ from utilities.i18n import _
 from controls import action_keys
 from controls import actions
 from entity.config import ConfigEntity
-from views.menu_bar.menu_bar_view import Menu_bar
+from views.menu_bar.mlncommander_menu_bar_view import Menu_bar
 from views.pop_up_windows.header import header
-from views.file_explorer.explorer import Explorer
+from views.mlncommander_explorer import Explorer
 from utilities.my_copy_or_move import MyCopyMove
 from utilities.create import Create
 from utilities.remove import Remove
@@ -22,7 +22,7 @@ import os
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib, Pango, Gdk  # noqa E402
+from gi.repository import Gtk, Gio, GLib, Pango, Gdk  # noqa E402
 
 
 class Window(Gtk.ApplicationWindow):
@@ -212,8 +212,8 @@ class Window(Gtk.ApplicationWindow):
 
         # Entrys section start
 
-        self.vertical_entry_1 = Gtk.Entry()
-        self.vertical_entry_2 = Gtk.Entry()
+        self.vertical_entry_1 = Gtk.SearchEntry()
+        self.vertical_entry_2 = Gtk.SearchEntry()
 
         self.search_str_entry = Gtk.Entry()  # Entry to show search text. Hiden
         self.search_str_entry.set_editable(False)
@@ -341,7 +341,9 @@ class Window(Gtk.ApplicationWindow):
 
     def create_horizontal_button(self):
 
-        self.horizontal_botton_menu = Gtk.FlowBox(orientation=Gtk.Orientation.HORIZONTAL) # Noqa E501
+        self.horizontal_botton_menu = Gtk.FlowBox(
+            orientation=Gtk.Orientation.HORIZONTAL
+        )  # Noqa E501
         self.horizontal_botton_menu.set_max_children_per_line(10)
 
         self.horizontal_botton_menu.set_margin_top(

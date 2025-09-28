@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
-from views.main_window import Window
+from views.mlncommander_main_window import Window
 from controls.actions import Actions
 from pathlib import Path
 import gbulb

@@ -5,7 +5,7 @@ from utilities.i18n import _
 from controls.actions import Actions
 from pathlib import Path
 from views.pop_up_windows.new_file_window import NewFileWindow
-from views.file_explorer.explorer import Explorer
+from views.mlncommander_explorer import Explorer
 import gi
 from utilities.access_control import AccessControl
 from docx import Document  # docx

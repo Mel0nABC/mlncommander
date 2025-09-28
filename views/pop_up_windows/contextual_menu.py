@@ -140,7 +140,7 @@ class ContextBox(Gio.Menu):
         )
 
     def get_properties(self, *args) -> None:
-        from views.properties.properties import Properties
+        from views.properties.mlncommander_properties import Properties
 
         Properties(self.main_window, self.path_list)
 

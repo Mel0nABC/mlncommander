@@ -6,7 +6,7 @@ from controls.actions import Actions
 from pathlib import Path
 from asyncio import Future
 from utilities.access_control import AccessControl
-from views.file_explorer.explorer import Explorer
+from views.mlncommander_explorer import Explorer
 from views.pop_up_windows.selected_for_delete import Selected_for_delete
 from views.pop_up_windows.deleting import Deleting
 import asyncio
@@ -182,7 +182,9 @@ class Remove:
             if not item.exists():
                 explorer_src.insert_log_line("DELETED", item, None)
         self.stop_remove_dialog(explorer_src, explorer_dst)
-        GLib.idle_add(self.action.set_explorer_to_focused, explorer_src, parent) # noqa : F501
+        GLib.idle_add(
+            self.action.set_explorer_to_focused, explorer_src, parent
+        )  # noqa : F501
 
     def stop_remove_dialog(
         self, explorer_src: Explorer, explorer_dst: Explorer
