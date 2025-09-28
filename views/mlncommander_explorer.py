@@ -24,7 +24,6 @@ class Explorer(Gtk.ColumnView):
     def __init__(
         self,
         name: str,
-        entry: Gtk.Entry,
         win: Gtk.ApplicationWindow,
         initial_path: Path,
         APP_USER_PATH: Path,
@@ -37,7 +36,7 @@ class Explorer(Gtk.ColumnView):
         self.focused = False
         self.actual_path = Path(initial_path)
         self.actual_path_old = None
-        self.entry = entry
+        self.entry = None
         self.my_watchdog = None
         self.log_manager = LogManager(self.win)
         self.action = Actions()
@@ -48,7 +47,7 @@ class Explorer(Gtk.ColumnView):
         self.thread_reset_str = threading.Thread(target=self.str_search_start)
         self.count_rst_int = 0
         self.COUNT_RST_TIME = 5000
-        self.search_str_entry = win.search_str_entry
+        self.search_str_entry = None
         self.store = None
         self.img_box = None
         self.click_handler = 0

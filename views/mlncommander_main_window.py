@@ -6,6 +6,7 @@ from controls import action_keys
 from controls import actions
 from entity.config import ConfigEntity
 from views.menu_bar.mlncommander_menu_bar_view import Menu_bar
+from views.search_bar.mlncommander_pathbar import PathBar
 from views.pop_up_windows.header import header
 from views.mlncommander_explorer import Explorer
 from utilities.my_copy_or_move import MyCopyMove
@@ -114,9 +115,6 @@ class Window(Gtk.ApplicationWindow):
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
 
-        self.vertical_entry_1.get_style_context().add_class("entry")
-        self.vertical_entry_2.get_style_context().add_class("entry")
-
         self.add_fav_btn_1.get_style_context().add_class("button")
         self.add_fav_btn_2.get_style_context().add_class("button")
         self.del_fav_btn_1.get_style_context().add_class("button")
@@ -210,51 +208,44 @@ class Window(Gtk.ApplicationWindow):
 
         # Fav path final
 
-        # Entrys section start
-
-        self.vertical_entry_1 = Gtk.SearchEntry()
-        self.vertical_entry_2 = Gtk.SearchEntry()
-
-        self.search_str_entry = Gtk.Entry()  # Entry to show search text. Hiden
-        self.search_str_entry.set_editable(False)
-
-        self.vertical_entry_1.set_focusable(False)
-        self.vertical_entry_2.set_focusable(False)
-
-        self.vertical_entry_1.set_margin_end(self.entry_margin / 2)
-        self.vertical_entry_1.set_margin_bottom(self.entry_margin)
-        self.vertical_entry_1.set_margin_start(self.entry_margin)
-
-        self.vertical_entry_2.set_margin_end(self.entry_margin)
-        self.vertical_entry_2.set_margin_bottom(self.entry_margin)
-        self.vertical_entry_2.set_margin_start(self.entry_margin / 2)
-
-        self.vertical_screen_1.append(self.vertical_entry_1)
-        self.vertical_screen_2.append(self.vertical_entry_2)
-
-        # Entrys section final
-
         self.explorer_1 = Explorer(
             "explorer_1",
-            self.vertical_entry_1,
             self,
             self.config.EXP_1_PATH,
             Window.APP_USER_PATH,
             self.add_fav_btn_1,
         )
-        self.vertical_entry_1.set_text(str(self.explorer_1.actual_path))
-
-        # Set position for popover
 
         self.explorer_2 = Explorer(
             "explorer_2",
-            self.vertical_entry_2,
             self,
             self.config.EXP_2_PATH,
             Window.APP_USER_PATH,
             self.add_fav_btn_2,
         )
-        self.vertical_entry_2.set_text(str(self.explorer_2.actual_path))
+
+        # Entrys section start
+
+        self.search_str_entry = Gtk.Entry()  # Entry to show search text. Hiden
+        self.search_str_entry.set_editable(False)
+
+        self.path_bar_1 = PathBar(
+            self.entry_margin, str(self.config.EXP_1_PATH), self.explorer_1
+        )
+        self.path_bar_2 = PathBar(
+            self.entry_margin, str(self.config.EXP_2_PATH), self.explorer_2
+        )
+
+        self.vertical_screen_1.append(self.path_bar_1)
+        self.vertical_screen_2.append(self.path_bar_2)
+
+        # Entrys section final
+
+        self.explorer_1.search_str_entry = self.search_str_entry
+        self.explorer_2.search_str_entry = self.search_str_entry
+
+        self.explorer_1.entry = self.path_bar_1.searchEntry
+        self.explorer_2.entry = self.path_bar_2.searchEntry
 
         # load shortcuts
         self.shortcuts = Shortcuts_keys(self, self.explorer_1, self.explorer_2)
@@ -291,24 +282,17 @@ class Window(Gtk.ApplicationWindow):
 
         # Signals and events area
 
-        self.vertical_entry_1.connect(
-            "activate", self.action.entry_change_path, self.explorer_1
-        )
-        self.vertical_entry_2.connect(
-            "activate", self.action.entry_change_path, self.explorer_2
-        )
-
         self.explorer_1.connect(
             "activate",
             self.action.on_doble_click_or_enter,
             self.explorer_1,
-            self.vertical_entry_1,
+            self.path_bar_1.searchEntry,
         )
         self.explorer_2.connect(
             "activate",
             self.action.on_doble_click_or_enter,
             self.explorer_2,
-            self.vertical_entry_2,
+            self.path_bar_2.searchEntry,
         )
 
         # fav buttons signals

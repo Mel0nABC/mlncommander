@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Mel0nABC
 #
 # SPDX-License-Identifier: MIT
+from controls.actions import Actions
 from pathlib import Path
 
 # from functools import partial
@@ -11,8 +12,32 @@ from gi.repository import Gtk, Gio, GLib, Pango, Gdk  # noqa E402
 
 
 class PathBar(Gtk.Box):
-    def __init__(self):
-        print("LALA")
+
+    def __init__(
+        self, entry_margin: int, path_text: str, explorer: Gtk.ColumnView
+    ):
+        super().__init__()
+
+        self.action = Actions()
+        self.explorer = explorer
+
+        self.set_hexpand(True)
+        self.entry_margin = entry_margin
+
+        self.searchEntry = Gtk.SearchEntry()
+        self.searchEntry.set_hexpand(True)
+        self.searchEntry.set_text(path_text)
+        self.searchEntry.set_focusable(False)
+        self.searchEntry.set_margin_end(self.entry_margin / 2)
+        self.searchEntry.set_margin_bottom(self.entry_margin)
+        self.searchEntry.set_margin_start(self.entry_margin)
+        self.searchEntry.get_style_context().add_class("entry")
+
+        self.append(self.searchEntry)
+
+        self.searchEntry.connect(
+            "activate", self.action.entry_change_path, self.explorer
+        )
 
     def search_started(self, searchEntry, explorer):
 
@@ -37,6 +62,6 @@ class PathBar(Gtk.Box):
         print(dir_list)
         print(folder_search)
 
-    # self.vertical_entry_1.connect(
+    # self.searchEntry.connect(
     #     "search-changed", partial(search_started, explorer=self.explorer_1)
     # )
