@@ -26,14 +26,9 @@ class Permissions(Gtk.Box):
         self.win = win
         self.log_manager = LogManager(self.win)
         self.action = Actions()
-        self.path_list = path_list
-        self.list_store = None
-        self.set_hexpand(True)
-
+        self.list_store = Gio.ListStore.new(PropertiesEnty)
         self.information = information
         self.result_total_files = self.information.result_total_files
-
-        self.list_store = Gio.ListStore.new(PropertiesEnty)
 
         self.user_list = Gtk.StringList.new(
             SistemInformation.get_sistem_users()
@@ -44,6 +39,8 @@ class Permissions(Gtk.Box):
         )
 
         self.get_style_context().add_class("properties")
+        self.set_hexpand(True)
+
         # Add widgets
         self.append(self.create_top_menu())
         self.append(self.create_permissions())
@@ -261,6 +258,7 @@ class Permissions(Gtk.Box):
         drop_user.set_halign(Gtk.Align.CENTER)
 
         drop_user.set_model(self.user_list)
+        self.set_dropdown_search_mode(drop_user)
 
         def on_changed_user_all(
             dropdrown: Gtk.DropDown, pspec: GObject.GParamSpec
@@ -282,6 +280,7 @@ class Permissions(Gtk.Box):
         drop_group.set_halign(Gtk.Align.CENTER)
 
         drop_group.set_model(self.group_list)
+        self.set_dropdown_search_mode(drop_group)
 
         def on_changed_group_all(
             dropdrown: Gtk.DropDown, pspec: GObject.GParamSpec
@@ -628,6 +627,9 @@ class Permissions(Gtk.Box):
                         cell,
                         property_name,
                     )
+
+                self.set_dropdown_search_mode(widget)
+
                 if property_name == "path":
                     path = propertiesenty.path
                     no_read_permissios = "---------"
@@ -791,7 +793,9 @@ class Permissions(Gtk.Box):
             )
 
             if resp_owner_group["status"]:
-                self.log_manager.print_status_on_log("OWNER_GROUP",None,None, self.list_store) # Noqa : E501
+                self.log_manager.print_status_on_log(
+                    "OWNER_GROUP", None, None, self.list_store
+                )  # Noqa : E501
 
         resp_permissions = {"status": True, "msg": False}
         if permissions_changes:
@@ -801,7 +805,9 @@ class Permissions(Gtk.Box):
             )
 
             if resp_permissions["status"]:
-                self.log_manager.print_status_on_log("PERMISSIONS",None,None, self.list_store) # Noqa : E501
+                self.log_manager.print_status_on_log(
+                    "PERMISSIONS", None, None, self.list_store
+                )  # Noqa : E501
 
         response_lbl_perm = Gtk.Label.new()
 
@@ -855,3 +861,18 @@ class Permissions(Gtk.Box):
         loading_box.append(lbl_loading_header)
 
         return loading_box
+
+    def set_dropdown_search_mode(self, dropdown: Gtk.DropDown) -> None:
+        """
+        Set search mode in Gtk.Dropdown
+        """
+
+        if not isinstance(dropdown, Gtk.DropDown):
+            return
+
+        pro_ext = Gtk.PropertyExpression.new(Gtk.StringObject, None, "string")
+
+        dropdown.set_enable_search(True)
+        dropdown.set_search_match_mode(Gtk.StringFilterMatchMode.PREFIX)
+
+        dropdown.set_expression(pro_ext)

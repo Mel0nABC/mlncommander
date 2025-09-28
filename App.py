@@ -49,6 +49,9 @@ class App(Gtk.Application):
         # For generate translation lenguaje_template.pot
         # self.generate_project_file_list()
 
+        # Para actualizar el .po con el nunevo .pot
+        # msgmerge --update en_US.po lenguaje_template.pot
+
     def generate_project_file_list(self):
         py_files = []
         project_path = Path(LOCALE_DIR).parent
@@ -73,9 +76,6 @@ class App(Gtk.Application):
             + py_files,
             check=True,
         )
-
-        # Para actualizar el .po con el nunevo .pot
-        # msgmerge --update en_US.po lenguaje_template.pot
 
 
 def load_theme():
