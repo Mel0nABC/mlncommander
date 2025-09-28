@@ -82,29 +82,52 @@ class Explorer(Gtk.ColumnView):
             factory.connect("setup", self.setup, property_name)
             factory.connect("bind", self.bind, property_name)
 
+            def customSort(a, b, *user_data):
+
+                attr = user_data[0]
+
+                val_a = getattr(a, attr)
+                val_b = getattr(b, attr)
+
+                if a.name == "..":
+                    return -1
+
+                if b.name == "..":
+                    return 0
+
+                if a.type == "DIR" and b.type != "DIR":
+                    return -1
+                if a.type != "DIR" and b.type == "DIR":
+                    return 0
+
+                return (val_a > val_b) - (val_a < val_b)
+
             column_header_title = ""
+            customSortType = ""
 
             if property_name == "type_str":
                 column_header_title = _("TIPO")
             if property_name == "name":
                 column_header_title = _("NOMBRE")
+                customSortType = "name"
             if property_name == "size":
                 column_header_title = _("TAMAÑO")
+                customSortType = "size_number"
             if property_name == "date_created_str":
                 column_header_title = _("FECHA CREACIÓN")
+                customSortType = "date_created_float"
             if property_name == "permissions":
                 column_header_title = _("PERMISOS")
+                customSortType = "permissions"
+            sorter = None
+            if customSortType:
+                sorter = Gtk.CustomSorter.new(customSort, customSortType)
 
             column = Gtk.ColumnViewColumn.new(column_header_title, factory)
 
             # TODO: Center headers title
 
-            # Create a Gtk.Expression for the property
-            property_expression = Gtk.PropertyExpression.new(
-                File_or_directory_info, None, property_name
-            )
-
-            sorter = Gtk.StringSorter.new(property_expression)
+            column.set_sorter(sorter)
 
             # Column visual configuration
 
@@ -114,8 +137,6 @@ class Explorer(Gtk.ColumnView):
             else:
                 column.set_expand(True)
                 column.set_resizable(True)
-
-            column.set_sorter(sorter)
 
             self.append_column(column)
 
@@ -330,6 +351,7 @@ class Explorer(Gtk.ColumnView):
 
         self.actual_path = path
         self.entry.set_text(str(path))
+
         self.sorter = Gtk.ColumnView.get_sorter(self)
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)
         self.selection = Gtk.MultiSelection.new(self.sort_model)

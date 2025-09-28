@@ -18,7 +18,9 @@ class File_or_directory_info(GObject.Object):
     is_directory = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
     permissions = GObject.Property(type=GObject.TYPE_STRING, default="")
     date_created_str = GObject.Property(type=GObject.TYPE_STRING, default="")
+    date_created_float = GObject.Property(type=GObject.TYPE_FLOAT)
     size = GObject.Property(type=GObject.TYPE_STRING, default="")
+    size_number = GObject.Property(type=GObject.TYPE_INT)
     type_str = GObject.Property(type=GObject.TYPE_STRING, default="")
     is_sys_link = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
     path_exist = GObject.Property(type=GObject.TYPE_BOOLEAN, default=True)
@@ -61,11 +63,14 @@ class File_or_directory_info(GObject.Object):
             self.date_created_str: str = _date_created.strftime(
                 "%d/%m/%Y %H:%M"
             )
+
+            self.date_created_float = self.path_file.stat().st_ctime
+
             if self.is_directory:
                 self.size = "DIR"
                 self.type = "DIR"
             else:
                 self.size = self.path_file.stat().st_size
                 self.type = "FILE"
-
+                self.size_number = int(self.size)
                 self.size = File_manager().get_size_and_unit(int(self.size))
