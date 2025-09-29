@@ -36,7 +36,7 @@ class Explorer(Gtk.ColumnView):
         self.focused = False
         self.actual_path = Path(initial_path)
         self.actual_path_old = None
-        self.entry = None
+        self.entry_box = None
         self.my_watchdog = None
         self.log_manager = LogManager(self.win)
         self.action = Actions()
@@ -138,7 +138,17 @@ class Explorer(Gtk.ColumnView):
 
             self.append_column(column)
 
+        # Header text configure, with al_SeveR @Chete
+
+        first_row = self.get_first_child()
+        list_list_model = first_row.observe_children()
+
+        for column_title in list_list_model:
+            box = column_title.get_first_child()
+            box.set_halign(Gtk.Align.CENTER)
+
         # Configure Gtk.ColumnView
+
         self.set_show_column_separators(True)
         self.set_can_focus(True)
         self.set_focusable(True)
@@ -348,7 +358,7 @@ class Explorer(Gtk.ColumnView):
             self.start_watchdog(path, self)
 
         self.actual_path = path
-        self.entry.set_text(f"{str(path)}/")
+        self.entry_box.change_entry_text(str(path))
 
         self.sorter = Gtk.ColumnView.get_sorter(self)
         self.sort_model = Gtk.SortListModel.new(self.store, self.sorter)

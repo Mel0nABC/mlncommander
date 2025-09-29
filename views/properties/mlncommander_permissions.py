@@ -410,6 +410,15 @@ class Permissions(Gtk.Box):
 
             self.columnview.append_column(column)
 
+        # Header text configure, with al_SeveR @Chete
+
+        first_row = self.columnview.get_first_child()
+        list_list_model = first_row.observe_children()
+
+        for column_title in list_list_model:
+            box = column_title.get_first_child()
+            box.set_halign(Gtk.Align.CENTER)
+
         # Load css
         self.column_box.get_style_context().add_class("border-style")
 
