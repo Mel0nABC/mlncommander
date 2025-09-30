@@ -512,7 +512,7 @@ class Appearance(Gtk.Box):
         alert = Gtk.AlertDialog()
         alert.set_message(text)
         alert.set_buttons(["Aceptar", "Cancelar"])
-        alert.set_cancel_button(0)
+        alert.set_cancel_button(1)
         alert.set_default_button(1)
         if reboot_type == "css":
             await alert.choose(self.parent, None, self.on_css_alarm)
