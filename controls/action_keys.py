@@ -14,14 +14,18 @@ from controls.actions import Actions
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib  # noqa: E402
 
+_F1_KEY = Gdk.keyval_name(Gdk.KEY_F1)  # Nothing
 _F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Rename
 _F3_KEY = Gdk.keyval_name(Gdk.KEY_F3)  # New file
+_F4_KEY = Gdk.keyval_name(Gdk.KEY_F4)  # Nothing
 _F5_KEY = Gdk.keyval_name(Gdk.KEY_F5)  # Copy
 _F6_KEY = Gdk.keyval_name(Gdk.KEY_F6)  # Move
 _F7_KEY = Gdk.keyval_name(Gdk.KEY_F7)  # Create directory
 _F8_KEY = Gdk.keyval_name(Gdk.KEY_F8)  # Delete
 _F9_KEY = Gdk.keyval_name(Gdk.KEY_F9)  # Update
-_F10_KEY = Gdk.keyval_name(Gdk.KEY_F10)  # Exit
+_F10_KEY = Gdk.keyval_name(Gdk.KEY_F10)  # Nothing
+_F11_KEY = Gdk.keyval_name(Gdk.KEY_F11)  # Nothing
+_F12_KEY = Gdk.keyval_name(Gdk.KEY_F12)  # Exit
 _TAB = Gdk.keyval_name(Gdk.KEY_Tab)  # Tabulator
 _BACKSPACE = Gdk.keyval_name(Gdk.KEY_BackSpace)  # Borrar
 _ESCAPE = Gdk.keyval_name(Gdk.KEY_Escape)  # Escape
@@ -143,6 +147,9 @@ def handle_file_operation(
     """
     Manage shortkeys, keyboard and GUI button actions
     """
+    if key_pressed_name == _F1_KEY:
+        return True
+
     if key_pressed_name == _F2_KEY:
         # Rename
         rename_logic = Rename_Logic()
@@ -153,6 +160,9 @@ def handle_file_operation(
         # New file
         new_file = NewFile()
         new_file.on_new_file(explorer_src, win)
+        return True
+
+    if key_pressed_name == _F4_KEY:
         return True
 
     if key_pressed_name == _F5_KEY:
@@ -192,6 +202,12 @@ def handle_file_operation(
         return True
 
     if key_pressed_name == _F10_KEY:
+        return True
+
+    if key_pressed_name == _F11_KEY:
+        return True
+
+    if key_pressed_name == _F12_KEY:
         Actions().close_with_question(win=win)
         return True
 

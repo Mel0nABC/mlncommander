@@ -125,7 +125,7 @@ class Window(Gtk.ApplicationWindow):
         self.del_fav_btn_1.get_style_context().add_class("button")
         self.del_fav_btn_2.get_style_context().add_class("button")
 
-        self.btn_F10.get_style_context().add_class("button")
+        self.btn_F12.get_style_context().add_class("button")
         self.btn_F7.get_style_context().add_class("button")
         self.btn_F6.get_style_context().add_class("button")
         self.btn_F5.get_style_context().add_class("button")
@@ -373,8 +373,8 @@ class Window(Gtk.ApplicationWindow):
         self.btn_F9 = Gtk.Button(label=_("Duplicar < F9 >"))
         self.horizontal_botton_menu.append(self.btn_F9)
 
-        self.btn_F10 = Gtk.Button(label=_("Salir < F10 >"))
-        self.horizontal_botton_menu.append(self.btn_F10)
+        self.btn_F12 = Gtk.Button(label=_("Salir < F12 >"))
+        self.horizontal_botton_menu.append(self.btn_F12)
 
         # Left label show selection info
         label_box_left = Gtk.Box(
@@ -473,7 +473,7 @@ class Window(Gtk.ApplicationWindow):
             ),
         )
 
-        self.btn_F10.connect(
+        self.btn_F12.connect(
             "clicked", partial(self.action.close_with_question, win=self)
         )
 
