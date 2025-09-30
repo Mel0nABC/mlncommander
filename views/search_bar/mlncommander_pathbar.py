@@ -112,6 +112,8 @@ class PathBar(Gtk.Box):
         if self.search_entry.get_text()[-1] != "/":
             self.change_entry_text(f"{self.search_entry.get_text()}/")
 
+        self.win.key_disconnect()
+
     def on_changed(
         self, widget: Gtk.SearchEntry, explorer: Gtk.ColumnView
     ) -> None:
@@ -217,6 +219,7 @@ class PathBar(Gtk.Box):
         self.change_entry_text(str(self.explorer.actual_path))
         self.search_popover.popdown()
         self.last_entry_total_chars = 0
+        self.win.key_connect()
 
     def menu_action(
         self,
