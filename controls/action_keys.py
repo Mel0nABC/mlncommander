@@ -194,9 +194,9 @@ def handle_file_operation(
 
     if key_pressed_name == _F10_KEY:
 
-        def on_css_alarm(dialog: Gtk.AlertDialog, task: Gio.Task):
+        def on_close_response(dialog: Gtk.AlertDialog, task: Gio.Task):
             response = dialog.choose_finish(task)
-
+            print(f"RESPONSE: {response}")
             if not response:  # Accept
                 win.exit()
 
@@ -204,9 +204,9 @@ def handle_file_operation(
             alert = Gtk.AlertDialog()
             alert.set_message(text)
             alert.set_buttons(["Aceptar", "Cancelar"])
-            alert.set_cancel_button(0)
+            alert.set_cancel_button(1)
             alert.set_default_button(1)
-            await alert.choose(win, None, on_css_alarm)
+            await alert.choose(win, None, on_close_response)
 
         text = _("¿Confirma que quieres cerrar la aplicación?")
         asyncio.ensure_future(on_alarm(text))
