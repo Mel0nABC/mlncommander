@@ -204,6 +204,7 @@ class PathBar(Gtk.Box):
         self.column_view = Gtk.ColumnView()
         self.column_view.set_can_focus(True)
         self.column_view.set_hexpand(True)
+        self.column_view.set_show_row_separators(True)
 
         self.column_view.get_first_child().set_visible(False)
 
