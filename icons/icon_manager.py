@@ -125,3 +125,7 @@ class IconManager:
         return paintable_icon
 
         # action-unavailable-symbolic  nombre del icono de prohibido
+        # /usr/share/icons/Adwaita/symbolic/status/network-wired-acquiring-symbolic.svg
+        # network-wired-acquiring-symbolic.svg
+        #  network-wired-no-route-symbolic.svg
+        # network-wired-disconnected-symbolic.svg para carpetas sin montar

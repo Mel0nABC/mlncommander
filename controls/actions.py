@@ -4,12 +4,13 @@
 
 from utilities.i18n import _
 from pathlib import Path
-import gi
-import sys
 import subprocess
+import asyncio
+import sys
+import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, GLib  # noqa:")
+from gi.repository import Gtk, Gio, GLib  # noqa:")
 
 
 class Actions:
@@ -153,3 +154,21 @@ class Actions:
                 win.set_explorer_focused(explorer_right, explorer_left)
         except AttributeError as e:
             print(f"Error inicialización: {e}")
+
+    def close_with_question(self, *args, win: Gtk.ApplicationWindow) -> None:
+        def on_close_response(dialog: Gtk.AlertDialog, task: Gio.Task):
+            response = dialog.choose_finish(task)
+            if not response:  # Accept
+                win.exit()
+
+        async def on_alarm(text: str):
+            alert = Gtk.AlertDialog()
+            alert.set_message(text)
+            alert.set_buttons(["Aceptar", "Cancelar"])
+            alert.set_cancel_button(1)
+            alert.set_default_button(1)
+            await alert.choose(win, None, on_close_response)
+
+        text = _("¿Confirma que quieres cerrar la aplicación?")
+
+        asyncio.ensure_future(on_alarm(text))

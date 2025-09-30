@@ -108,7 +108,11 @@ class Window(Gtk.ApplicationWindow):
         if self.config.SWITCH_CSS_STATUS:
             self.load_css_application()
 
-        self.connect("close-request", self.exit)
+        def on_close(signal):
+            self.action.close_with_question(win=self)
+            return True
+
+        self.connect("close-request", on_close)
 
     def load_css_application(self):
         # Load css
@@ -470,8 +474,7 @@ class Window(Gtk.ApplicationWindow):
         )
 
         self.btn_F10.connect(
-            "clicked",
-            lambda btn: self.exit(self),
+            "clicked", partial(self.action.close_with_question, win=self)
         )
 
         self.connect("realize", self.on_realize)
@@ -495,10 +498,10 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_dst = self.explorer_2
 
     def key_connect(self) -> None:
+
         self.key_controller_id = self.key_controller.connect(
             "key-pressed", action_keys.on_key_press, self, self.action
         )
-        self.key_controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 
     def key_disconnect(self) -> None:
         self.key_controller.disconnect(self.key_controller_id)

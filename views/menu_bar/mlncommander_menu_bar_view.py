@@ -34,7 +34,7 @@ class Menu_bar(Gio.Menu):
         self.create_help_submenu()
 
     def exit(self, action: Gio.SimpleAction, parameter) -> None:
-        self.win.exit()
+        self.win.action.close_with_question(win=self.win)
 
     def create_file_submenu(self) -> None:
 

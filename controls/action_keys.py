@@ -9,11 +9,10 @@ from utilities.remove import Remove
 from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from controls.actions import Actions
-import asyncio
 
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, Gdk, GLib  # noqa: E402
+from gi.repository import Gtk, Gdk, GLib  # noqa: E402
 
 _F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Rename
 _F3_KEY = Gdk.keyval_name(Gdk.KEY_F3)  # New file
@@ -193,25 +192,7 @@ def handle_file_operation(
         return True
 
     if key_pressed_name == _F10_KEY:
-
-        def on_close_response(dialog: Gtk.AlertDialog, task: Gio.Task):
-            response = dialog.choose_finish(task)
-            print(f"RESPONSE: {response}")
-            if not response:  # Accept
-                win.exit()
-
-        async def on_alarm(text: str):
-            alert = Gtk.AlertDialog()
-            alert.set_message(text)
-            alert.set_buttons(["Aceptar", "Cancelar"])
-            alert.set_cancel_button(1)
-            alert.set_default_button(1)
-            await alert.choose(win, None, on_close_response)
-
-        text = _("¿Confirma que quieres cerrar la aplicación?")
-        asyncio.ensure_future(on_alarm(text))
-
-        # win.exit()
+        Actions().close_with_question(win=win)
         return True
 
     return False
