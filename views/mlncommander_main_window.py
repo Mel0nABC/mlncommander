@@ -498,6 +498,7 @@ class Window(Gtk.ApplicationWindow):
         self.key_controller_id = self.key_controller.connect(
             "key-pressed", action_keys.on_key_press, self, self.action
         )
+        self.key_controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 
     def key_disconnect(self) -> None:
         self.key_controller.disconnect(self.key_controller_id)

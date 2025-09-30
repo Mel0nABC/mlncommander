@@ -9,9 +9,11 @@ from utilities.remove import Remove
 from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from controls.actions import Actions
+import asyncio
+
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, GLib  # noqa: E402
+from gi.repository import Gtk, Gio, Gdk, GLib  # noqa: E402
 
 _F2_KEY = Gdk.keyval_name(Gdk.KEY_F2)  # Rename
 _F3_KEY = Gdk.keyval_name(Gdk.KEY_F3)  # New file
@@ -67,12 +69,12 @@ def on_key_press(
         | Gtk.ListScrollFlags.FOCUS
     )
 
-    # print(
-    #     (
-    #         f"Keyval: {keyval}  - keycode: {keycode}"
-    #         f"- keypressed: {key_pressed_name}"
-    #     )
-    # )
+    print(
+        (
+            f"Keyval: {keyval}  - keycode: {keycode}"
+            f"- keypressed: {key_pressed_name}"
+        )
+    )
 
     return {
         handle_navitation_keys(
@@ -191,7 +193,25 @@ def handle_file_operation(
         return True
 
     if key_pressed_name == _F10_KEY:
-        print("F10")
+
+        def on_css_alarm(dialog: Gtk.AlertDialog, task: Gio.Task):
+            response = dialog.choose_finish(task)
+
+            if not response:  # Accept
+                win.exit()
+
+        async def on_alarm(text: str):
+            alert = Gtk.AlertDialog()
+            alert.set_message(text)
+            alert.set_buttons(["Aceptar", "Cancelar"])
+            alert.set_cancel_button(0)
+            alert.set_default_button(1)
+            await alert.choose(win, None, on_css_alarm)
+
+        text = _("¿Confirma que quieres cerrar la aplicación?")
+        asyncio.ensure_future(on_alarm(text))
+
+        # win.exit()
         return True
 
     return False
