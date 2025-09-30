@@ -100,7 +100,8 @@ def handle_navitation_keys(
     """
 
     if key_pressed_name == _BACKSLASH:
-        explorer_src.entry.grab_focus()
+        explorer_src.entry_box.search_entry.grab_focus()
+        explorer_src.entry_box.search_entry.set_position(-1)
         return True
 
     if key_pressed_name == _TAB:
@@ -313,6 +314,6 @@ def set_search_word(
 ) -> None:
     search_entry_text = f"Buscando: {search_word}"
     if explorer_src.name == "explorer_1":
-        win.path_bar_1.searchEntry.set_text(search_entry_text)
+        win.path_bar_1.search_entry.set_text(search_entry_text)
     else:
-        win.path_bar_2.searchEntry.set_text(search_entry_text)
+        win.path_bar_2.search_entry.set_text(search_entry_text)

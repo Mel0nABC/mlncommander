@@ -173,6 +173,22 @@ class ShortCutsHelp(Gtk.Window):
             1,
         )
 
+        grid_right.attach(
+            self.create_buttons(
+                "/",
+                "",
+                "",
+                _(
+                    "Con / teclado númerico, se entra en el "
+                    "entry de la ruta del explorador actual"
+                ),
+            ),
+            1,
+            9,
+            1,
+            1,
+        )
+
         # Actions on files and folders
 
         grid_left.attach(lbl_event_files, 1, 9, 1, 1)

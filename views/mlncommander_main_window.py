@@ -17,6 +17,7 @@ from utilities.new_file import NewFile
 from utilities.file_manager import File_manager
 from css.explorer_css import Css_explorer_manager
 from controls.shortcuts_keys import Shortcuts_keys
+from functools import partial
 from pathlib import Path
 import yaml
 import os
@@ -230,10 +231,16 @@ class Window(Gtk.ApplicationWindow):
         self.search_str_entry.set_editable(False)
 
         self.path_bar_1 = PathBar(
-            self.entry_margin, str(self.config.EXP_1_PATH), self.explorer_1
+            self,
+            self.entry_margin,
+            str(self.config.EXP_1_PATH),
+            self.explorer_1,
         )
         self.path_bar_2 = PathBar(
-            self.entry_margin, str(self.config.EXP_2_PATH), self.explorer_2
+            self,
+            self.entry_margin,
+            str(self.config.EXP_2_PATH),
+            self.explorer_2,
         )
 
         self.vertical_screen_1.append(self.path_bar_1)
@@ -244,8 +251,8 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_1.search_str_entry = self.search_str_entry
         self.explorer_2.search_str_entry = self.search_str_entry
 
-        self.explorer_1.entry = self.path_bar_1.searchEntry
-        self.explorer_2.entry = self.path_bar_2.searchEntry
+        self.explorer_1.entry_box = self.path_bar_1
+        self.explorer_2.entry_box = self.path_bar_2
 
         # load shortcuts
         self.shortcuts = Shortcuts_keys(self, self.explorer_1, self.explorer_2)
@@ -286,18 +293,16 @@ class Window(Gtk.ApplicationWindow):
             "activate",
             self.action.on_doble_click_or_enter,
             self.explorer_1,
-            self.path_bar_1.searchEntry,
+            self.path_bar_1.search_entry,
         )
         self.explorer_2.connect(
             "activate",
             self.action.on_doble_click_or_enter,
             self.explorer_2,
-            self.path_bar_2.searchEntry,
+            self.path_bar_2.search_entry,
         )
 
         # fav buttons signals
-
-        from functools import partial
 
         self.add_fav_btn_1.connect(
             "clicked",

@@ -358,6 +358,11 @@ class Explorer(Gtk.ColumnView):
             self.start_watchdog(path, self)
 
         self.actual_path = path
+        if self.name == "explorer_1":
+            self.win.path_bar_1.actual_path_temp = self.actual_path
+        else:
+            self.win.path_bar_2.actual_path_temp = self.actual_path
+
         self.entry_box.change_entry_text(str(path))
 
         self.sorter = Gtk.ColumnView.get_sorter(self)
