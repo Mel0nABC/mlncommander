@@ -3,17 +3,13 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from controls.actions import Actions
-from pathlib import Path
-from views.pop_up_windows.rename_window import RenameWindow
 from views.mlncommander_explorer import Explorer
-import gi
+from pathlib import Path
 import os
-import asyncio
-from asyncio import Future
-import threading
+import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import GLib, Gtk  # noqa: E402
+from gi.repository import Gtk  # noqa: E402
 
 
 class Rename_Logic:
@@ -28,85 +24,47 @@ class Rename_Logic:
         """
         Rename file or directory
         """
-        print("ON RENAME")
-        if not explorer_src:
-            self.action.show_msg_alert(
-                parent,
-                """Debe seleccionar un archivo o carpeta
-                 antes de intentar copiar.""",
+
+        msg_text = _(
+            (
+                "Debe seleccionar un archivo o"
+                " carpeta antes de intentar renombrar."
             )
+        )
+        if not explorer_src:
+            self.action.show_msg_alert(parent, msg_text)
             return
 
         selected_items = explorer_src.get_selected_items_from_explorer()[1]
 
         if not selected_items:
-            self.action.show_msg_alert(
-                parent,
-                """Debe seleccionar un archivo o carpeta
-                 antes de intentar copiar.""",
-            )
+            self.action.show_msg_alert(parent, msg_text)
             return
 
-        self.iterator_thread = threading.Thread(
-            target=self.iterator_items,
-            args=(parent, selected_items, explorer_src),
-        )
-        self.iterator_thread.start()
+        src_info = selected_items[0]
+        from views.pop_up_windows.rename_window import RenameWindow
 
-    def iterator_items(
-        self,
-        parent: Gtk.ApplicationWindow,
-        selected_items: list,
-        explorer_src: Explorer,
-    ) -> None:
-        """
-        Allows multiple name changes
-        """
-        for src_info in selected_items:
-            self.wait_event = threading.Event()
+        src_name = src_info.name
+        for i in explorer_src.get_last_child():
+            for index, value in enumerate(i.observe_children()):
+                if index == 1:
+                    widget = value.get_first_child().get_first_child()
+                    if isinstance(widget, Gtk.Label):
+                        label_text = widget.get_text()
+                        if src_name == label_text:
+                            RenameWindow(
+                                explorer_src.win, widget, src_info, self
+                            )
 
-            def run_window(parent, src_info):
-                asyncio.ensure_future(
-                    self.create_response_window(parent, src_info)
-                )
+    def rename(self, path_src: Path, new_name: str) -> dict:
+        new_path = Path(f"{path_src.parent}/{new_name}")
+        if new_path.exists():
+            return {"status": False, "msg": _("El nombre destino, ya existe")}
 
-            GLib.idle_add(run_window, parent, src_info)
-            self.wait_event.wait()
+        try:
+            os.rename(path_src, new_path)
+        except Exception as e:
+            return {"status": False, "msg": e}
 
-            if self.response is None or self.response == src_info.name:
-                return
-
-            if not self.response == src_info.name:
-                new_path = Path(f"{src_info.parent}/{self.response}")
-                if new_path.exists():
-                    text = f"El archivo con nombre {new_path.name}, ya existe."
-                    GLib.idle_add(self.action.show_msg_alert, parent, _(text))
-                    continue
-                os.rename(src_info, new_path)
-                explorer_src.insert_log_line("RENAMED", src_info, new_path)
-
-        GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
-        GLib.idle_add(
-            explorer_src.scroll_to,
-            explorer_src.n_row,
-            None,
-            explorer_src.flags,
-        )
-
-    async def create_response_window(
-        self, parent: Gtk.ApplicationWindow, src_info: Path
-    ) -> None:
-        """
-        Create window to set new name
-        """
-        self.response = await self.create_rename_window(parent, src_info)
-        self.wait_event.set()
-
-    async def create_rename_window(
-        self, parent: Gtk.ApplicationWindow, src_info: Path
-    ) -> Future[str]:
-        """
-        Window rename
-        """
-        rename_window = RenameWindow(parent, str(src_info))
-        return await rename_window.wait_response_async()
+        if new_path.exists():
+            return {"status": True, "msg": "ok"}

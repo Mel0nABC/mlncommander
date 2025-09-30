@@ -123,8 +123,6 @@ class Explorer(Gtk.ColumnView):
 
             column = Gtk.ColumnViewColumn.new(column_header_title, factory)
 
-            # TODO: Center headers title
-
             column.set_sorter(sorter)
 
             # Column visual configuration
