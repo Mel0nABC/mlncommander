@@ -120,19 +120,6 @@ class Css_explorer_manager:
 
         self.set_css_to_provider(css)
 
-    def load_css_context_menu(self) -> None:
-        """
-        Set color to all button
-        """
-        css = """
-            .contextual_menu contents{
-                padding: 10px;
-            }
-
-        """.encode()
-
-        self.set_css_to_provider(css)
-
     def load_css_properties(self, font_style_color) -> None:
         """
         Set color to all button
@@ -298,8 +285,6 @@ class Css_explorer_manager:
             self.win.config.COLOR_BACKGROUND_SEARCH,
             self.win.config.COLOR_SEARCH_TEXT,
         )
-
-        self.load_css_context_menu()
 
     def unload_css_and_restart(self):
         Gtk.StyleContext.remove_provider_for_display(

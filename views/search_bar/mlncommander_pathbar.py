@@ -8,7 +8,11 @@ import os
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GLib, Pango, Gdk  # noqa E402
+from gi.repository import Gtk, Gio, GLib, Pango, Gdk, GObject  # noqa E402
+
+
+class StringItem(GObject.Object):
+    value = GObject.Property(type=str)
 
 
 class PathBar(Gtk.Box):
@@ -29,7 +33,6 @@ class PathBar(Gtk.Box):
         self.win = win
         self.action = Actions()
         self.explorer = explorer
-        self.menu = Gio.Menu()
         self.action_list: list[int] = []
         self.last_entry_total_chars = 0
         self.actual_path_temp = self.explorer.actual_path
@@ -58,8 +61,7 @@ class PathBar(Gtk.Box):
 
         self.append(self.search_entry)
 
-        self.search_popover = Gtk.PopoverMenu.new_from_model()
-        self.search_popover.get_style_context().add_class("contextual_menu")
+        self.search_popover = Gtk.Popover.new()
 
         # Signal section
 
@@ -95,17 +97,18 @@ class PathBar(Gtk.Box):
 
             if key_pressed_name == self._ESCAPE:
                 self.explorer.grab_focus()
-                return
+                return True
 
             if key_pressed_name == self._KEY_DOWN:
-
-                if not self.search_popover.has_focus():
-                    self.search_popover.grab_focus()
+                if not self.column_view.has_focus():
+                    self.column_view.grab_focus()
+                    return True
 
         self.key_controller = Gtk.EventControllerKey.new()
         self.key_controller_id = self.key_controller.connect(
             "key-pressed", on_key_press
         )
+
         self.search_entry.add_controller(self.key_controller)
 
     def add_backslash(self, controller: Gtk.EventControllerFocus) -> None:
@@ -145,8 +148,6 @@ class PathBar(Gtk.Box):
             print("Except")
             return
 
-        width = self.search_entry.get_width()
-
         startswith_list = [
             path.name
             for path in list_dir_content
@@ -182,27 +183,55 @@ class PathBar(Gtk.Box):
             self.change_entry_text(str(path))
             self.search_entry.select_region(position, characters)
 
-        self.menu.remove_all()
+        def bind(
+            factory: Gtk.SignalListItemFactory, list_item: Gtk.ListItem
+        ) -> None:
+            item = list_item.get_item()
+            box = Gtk.Box()
+            label = Gtk.Label.new(item.value)
+            box.append(label)
+            label.set_hexpand(True)
+            label.set_halign(Gtk.Align.START)
 
-        self.search_popover.set_menu_model(self.menu)
+            gesture = Gtk.GestureClick.new()
+            gesture.connect("pressed", self.on_row_selected)
+            box.add_controller(gesture)
+
+            list_item.set_child(box)
+
+        factory = Gtk.SignalListItemFactory()
+        factory.connect("bind", bind)
+        self.column_view = Gtk.ColumnView()
+        self.column_view.set_can_focus(True)
+        self.column_view.set_hexpand(True)
+
+        self.column_view.get_first_child().set_visible(False)
+
+        self.store = Gio.ListStore.new(StringItem)
+        self.selection = Gtk.SingleSelection.new(self.store)
+        self.column_view.connect("activate", self.on_row_selected)
+        self.column_view.set_model(self.selection)
+
+        column = Gtk.ColumnViewColumn.new(None, factory)
+        column.set_expand(True)
+        self.column_view.append_column(column)
+
+        self.main_box = Gtk.Box()
+        self.main_box.set_hexpand(True)
+        self.main_box.append(self.column_view)
 
         for folder in startswith_list:
             folder_filtered = folder
             if "_" in folder:
                 folder_filtered = folder.replace("_", "__")
-
-            self.menu.append(folder_filtered, f"win.{folder}")
-            action = Gio.SimpleAction.new(str(folder), None)
-            action_id = action.connect(
-                "activate", partial(self.menu_action, folder)
-            )
-            self.win.add_action(action)
-            self.action_list.append(action_id)
+            self.store.append(StringItem(value=folder_filtered))
 
         if startswith_list:
-            self.search_popover.set_size_request(width + 20, 0)
-            self.search_popover.set_has_arrow(False)
+            entry_width = self.search_entry.get_width()
             self.search_popover.set_parent(self.search_entry)
+            self.search_popover.set_child(self.main_box)
+            self.search_popover.set_size_request(entry_width + 20, -1)
+            self.search_popover.set_has_arrow(False)
             self.search_popover.set_autohide(False)
             self.search_popover.set_focusable(True)
             self.search_popover.popup()
@@ -221,18 +250,20 @@ class PathBar(Gtk.Box):
         self.last_entry_total_chars = 0
         self.win.key_connect()
 
-    def menu_action(
+    def on_row_selected(
         self,
-        folder_path: Path,
-        action: Gio.SimpleAction,
-        parameter: any = None,
+        gesture: Gtk.GestureClick = None,
+        n_press: int = None,
+        x: float = None,
+        y: float = None,
     ) -> None:
+        folder_path = self.selection.get_selected_item().value
 
         if self.actual_path_temp == Path("/"):
             path = Path(f"{self.actual_path_temp}{folder_path}")
         else:
             path = Path(f"{self.actual_path_temp}/{folder_path}")
-
+        self.search_popover.popdown()
         self.change_entry_text(f"{str(path)}/")
         self.search_entry.set_position(-1)
 
