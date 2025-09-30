@@ -178,17 +178,6 @@ class File_manager:
                     ),
                 }
 
-            if not os.access(path, os.X_OK):
-                return {
-                    "status": False,
-                    "msg": _(
-                        (
-                            "No dispone de permiso de"
-                            " ejecución en el directorio contenedor"
-                        )
-                    ),
-                }
-
             mode = os.stat(path).st_mode
             file_permissions = stat.filemode(mode)
             file_permissions_filtered = file_permissions[1:]
@@ -209,16 +198,6 @@ class File_manager:
                     ),
                 }
 
-            if not os.access(path, os.X_OK):
-                return {
-                    "status": False,
-                    "msg": _(
-                        (
-                            "No dispone de permiso de"
-                            " ejecución en el directorio contenedor"
-                        )
-                    ),
-                }
             st = os.stat(path)
             user_id = st.st_uid
             group_id = st.st_gid

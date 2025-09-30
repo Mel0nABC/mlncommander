@@ -53,9 +53,9 @@ class File_or_directory_info(GObject.Object):
         else:
             from utilities.file_manager import File_manager
 
-            self.permissions = File_manager().get_permissions(self.path_file)[
-                "msg"
-            ]
+            response = File_manager().get_permissions(self.path_file)
+
+            self.permissions = response["msg"]
 
             _date_created = datetime.fromtimestamp(
                 self.path_file.stat().st_ctime
