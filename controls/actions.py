@@ -167,10 +167,10 @@ class Actions:
         win_dialog.get_style_context().add_class("font-color")
 
         vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        vertical_box.set_margin_top(10)
-        vertical_box.set_margin_end(10)
-        vertical_box.set_margin_bottom(10)
-        vertical_box.set_margin_start(10)
+        vertical_box.set_margin_top(20)
+        vertical_box.set_margin_end(20)
+        vertical_box.set_margin_bottom(20)
+        vertical_box.set_margin_start(20)
 
         horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         horizontal_box.set_margin_top(10)
