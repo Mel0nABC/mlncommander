@@ -44,7 +44,6 @@ class Preferences(Gtk.Window):
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
 
-        self.parent = parent
         self.win = win
 
         # Sections
@@ -212,7 +211,6 @@ class Preferences(Gtk.Window):
 
     def on_close(self, widget: Gtk.Widget = None) -> None:
         self.destroy()
-        self.parent.preferences = None
 
     def change_box(self, button: Gtk.Button, actual_box: Gtk.Box) -> None:
         """

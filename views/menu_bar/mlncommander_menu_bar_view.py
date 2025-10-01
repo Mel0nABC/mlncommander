@@ -69,9 +69,7 @@ class Menu_bar(Gio.Menu):
     def open_preferences(
         self, action: Gio.SimpleAction = None, parameter=None
     ) -> None:
-
-        if not self.preferences:
-            self.preferences = Preferences(self.win, self)
+        self.preferences = Preferences(self.win, self)
 
     def open_propieties(
         self, action: Gio.SimpleAction = None, parameter=None
