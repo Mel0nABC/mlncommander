@@ -5,7 +5,6 @@
 from utilities.i18n import _
 from pathlib import Path
 import subprocess
-import asyncio
 import sys
 import gi
 
@@ -156,19 +155,50 @@ class Actions:
             print(f"Error inicialización: {e}")
 
     def close_with_question(self, *args, win: Gtk.ApplicationWindow) -> None:
-        def on_close_response(dialog: Gtk.AlertDialog, task: Gio.Task):
-            response = dialog.choose_finish(task)
-            if not response:  # Accept
-                win.exit()
 
-        async def on_alarm(text: str):
-            alert = Gtk.AlertDialog()
-            alert.set_message(text)
-            alert.set_buttons(["Aceptar", "Cancelar"])
-            alert.set_cancel_button(1)
-            alert.set_default_button(1)
-            await alert.choose(win, None, on_close_response)
+        win_dialog = Gtk.Window.new()
+        win_dialog.set_title(_("Cerrando aplicación"))
+        win_dialog.set_transient_for(win)
+        win_dialog.set_modal(True)
+        win_dialog.set_decorated(False)
+
+        win_dialog.get_style_context().add_class("app_background")
+        win_dialog.get_style_context().add_class("font")
+        win_dialog.get_style_context().add_class("font-color")
+
+        vertical_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        vertical_box.set_margin_top(10)
+        vertical_box.set_margin_end(10)
+        vertical_box.set_margin_bottom(10)
+        vertical_box.set_margin_start(10)
+
+        horizontal_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        horizontal_box.set_margin_top(10)
+        horizontal_box.set_hexpand(True)
+        horizontal_box.set_halign(Gtk.Align.CENTER)
 
         text = _("¿Confirma que quieres cerrar la aplicación?")
+        label = Gtk.Label.new(text)
 
-        asyncio.ensure_future(on_alarm(text))
+        btn_accept = Gtk.Button.new_with_label(_("Aceptar"))
+        btn_accept.set_margin_end(30)
+        btn_cancel = Gtk.Button.new_with_label(_("Cancelar"))
+
+        horizontal_box.append(btn_accept)
+        horizontal_box.append(btn_cancel)
+
+        vertical_box.append(label)
+        vertical_box.append(horizontal_box)
+
+        win_dialog.set_child(vertical_box)
+
+        def on_accept(button: Gtk.Button) -> None:
+            win.exit()
+
+        def on_cancel(button: Gtk.Button) -> None:
+            win_dialog.destroy()
+
+        btn_accept.connect("clicked", on_accept)
+        btn_cancel.connect("clicked", on_cancel)
+
+        win_dialog.present()
