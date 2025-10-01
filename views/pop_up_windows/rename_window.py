@@ -69,6 +69,9 @@ class RenameWindow(Gtk.Popover):
         name_size = len(dst_info.name)
         final_select = name_size - suffix_size
 
+        if dst_info.is_dir():
+            final_select = -1
+
         self.entry.select_region(0, final_select)
 
         self.entry.connect("activate", self.on_rename)
