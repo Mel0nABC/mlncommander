@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from controls.shortcuts_keys import Shortcuts_keys
+from utilities.utilities_for_window import UtilsForWindow
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -17,6 +18,8 @@ class ShortCutsHelp(Gtk.Window):
         header.set_title_widget(
             Gtk.Label(label=_("Descripción de los atajos de teclado"))
         )
+
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         self.win = win
 

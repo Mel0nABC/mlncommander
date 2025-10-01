@@ -4,6 +4,7 @@
 from utilities.i18n import _
 from views.properties.mlncommander_permissions import Permissions
 from views.properties.mlncommander_information import Information
+from utilities.utilities_for_window import UtilsForWindow
 from utilities.screen_info import ScreenInfo
 import gi
 from gi.repository import Gtk, Gio, Gdk, GLib, GObject  # noqa E402
@@ -19,6 +20,9 @@ class Properties(Gtk.Window):
         header.set_title_widget(
             Gtk.Label(label=_("Propiedades de archivos y carpetas"))
         )
+
+        UtilsForWindow().set_event_key_to_close(self, self)
+
         self.set_size_request(
             ScreenInfo.horizontal * 0.33, ScreenInfo.vertical * 0.6
         )

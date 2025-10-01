@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from utilities.utilities_for_window import UtilsForWindow
 from pathlib import Path
 import App
 import gi
@@ -14,6 +15,8 @@ class About(Gtk.Window):
 
     def __init__(self, win):
         super().__init__(transient_for=win)
+
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         self.win = win
 

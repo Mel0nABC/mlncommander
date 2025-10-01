@@ -7,6 +7,7 @@ from views.menu_bar.file.preferences.directory import Directory
 from views.menu_bar.file.preferences.general import General
 from views.menu_bar.file.preferences.appearance import Appearance
 from views.menu_bar.file.preferences.shortcuts import Shortcuts
+from utilities.utilities_for_window import UtilsForWindow
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -34,6 +35,8 @@ class Preferences(Gtk.Window):
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Preferencias")))
         self.set_titlebar(header)
+
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         # Load css
 
