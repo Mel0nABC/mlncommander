@@ -26,16 +26,9 @@ class Selected_for_copy_move(Gtk.Window):
     ):
         title_text = _("Listo para")
         title_text_final = f"{title_text} {action_to_exec} .."
-        super().__init__(
-            transient_for=parent,
-            modal=True,
-        )
+        super().__init__(transient_for=parent, modal=True, decorated=False)
 
         UtilsForWindow().set_event_key_to_close(self, self)
-
-        header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=title_text_final))
-        self.set_titlebar(header)
 
         # Load css
 
@@ -52,7 +45,7 @@ class Selected_for_copy_move(Gtk.Window):
         horizontal = parent.horizontal
         vertical = parent.vertical
 
-        self.horizontal_size = horizontal / 5
+        self.horizontal_size = horizontal / 6
         self.vertical_size = vertical / 8
 
         self.on_default_size()
@@ -69,6 +62,9 @@ class Selected_for_copy_move(Gtk.Window):
         self.vertical_box.set_margin_start(20)
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
+
+        label_title = Gtk.Label.new(title_text_final)
+        self.vertical_box.append(label_title)
 
         lbl_dst = Gtk.Label(label=_("Destino:"))
         lbl_dst.set_halign(Gtk.Align.START)
@@ -107,9 +103,7 @@ class Selected_for_copy_move(Gtk.Window):
         horizonntal_btns = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        horizonntal_btns.set_margin_top(20)
-        horizonntal_btns.set_margin_end(20)
-        horizonntal_btns.set_margin_bottom(20)
+        horizonntal_btns.set_margin_top(10)
         horizonntal_box_btn.set_hexpand(True)
 
         horizonntal_btns.append(horizonntal_box_btn)

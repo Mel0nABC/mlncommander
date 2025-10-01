@@ -21,14 +21,7 @@ class Selected_for_delete(Gtk.Window):
         explorer_src: Explorer,
         selected_items: list,
     ):
-        super().__init__(
-            transient_for=parent,
-            modal=True,
-        )
-
-        header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=_("Lista para eliminar")))
-        self.set_titlebar(header)
+        super().__init__(transient_for=parent, modal=True, decorated=False)
 
         UtilsForWindow().set_event_key_to_close(self, self)
 
@@ -63,6 +56,10 @@ class Selected_for_delete(Gtk.Window):
         self.vertical_box.set_hexpand(True)
         self.vertical_box.set_vexpand(True)
 
+        label_title = Gtk.Label(label=_("Lista para eliminar"))
+        label_title.set_margin_bottom(10)
+        self.vertical_box.append(label_title)
+
         lbl_src = Gtk.Label(
             label=_(
                 "¿Eliminar permanentemente el/los archivo(s) e "
@@ -95,9 +92,7 @@ class Selected_for_delete(Gtk.Window):
         horizonntal_btns = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
-        horizonntal_btns.set_margin_top(20)
-        horizonntal_btns.set_margin_end(20)
-        horizonntal_btns.set_margin_bottom(20)
+
         horizonntal_box_btn.set_hexpand(True)
 
         horizonntal_btns.append(horizonntal_box_btn)
@@ -144,9 +139,7 @@ class Selected_for_delete(Gtk.Window):
         scroll.set_child(list_view)
         scroll.set_vexpand(True)
         scroll.set_margin_top(20)
-        scroll.set_margin_end(20)
         scroll.set_margin_bottom(20)
-        scroll.set_margin_start(20)
 
         self.vertical_box.append(scroll)
         self.set_default_size(self.horizontal_size, self.vertical_size * 3)

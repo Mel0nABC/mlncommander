@@ -17,14 +17,7 @@ class CreateDirWindow(Gtk.Window):
         parent: Gtk.ApplicationWindow,
         explorer_src: "Explorer",  # noqa: F821
     ):
-        super().__init__(
-            transient_for=parent,
-            modal=True,
-        )
-
-        header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=_("Creando directorio")))
-        self.set_titlebar(header)
+        super().__init__(transient_for=parent, modal=True, decorated=False)
 
         UtilsForWindow().set_event_key_to_close(self, self)
 
@@ -37,21 +30,33 @@ class CreateDirWindow(Gtk.Window):
         self.dst_info = explorer_src.actual_path
 
         horizontal = parent.horizontal
-        vertical = parent.vertical
 
-        self.set_default_size(horizontal / 5, vertical / 8)
+        self.set_default_size(horizontal / 10, -1)
 
         vertical_box_info = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
+
         vertical_box_info.set_margin_top(20)
+        vertical_box_info.set_margin_end(20)
+        vertical_box_info.set_margin_bottom(20)
         vertical_box_info.set_margin_start(20)
+
         self.set_child(vertical_box_info)
+
+        label_title = Gtk.Label(label=_("Creando carpeta"))
+        label_title.set_margin_bottom(10)
+        vertical_box_info.append(label_title)
 
         self.entry_file_name = Gtk.Entry()
         self.entry_file_name.connect("activate", self.get_selected_option)
 
         vertical_box_info.append(self.entry_file_name)
+
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        button_box.set_margin_top(10)
+        button_box.set_hexpand(True)
+        button_box.set_halign(Gtk.Align.END)
 
         self.btn_accept = Gtk.Button(label=_("Aceptar"))
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
@@ -63,14 +68,10 @@ class CreateDirWindow(Gtk.Window):
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
 
-        self.vertical_box.set_margin_top(20)
-        self.vertical_box.set_margin_bottom(20)
-        self.vertical_box.set_margin_start(20)
-        self.vertical_box.set_margin_end(20)
+        button_box.append(self.btn_accept)
+        button_box.append(self.btn_cancel)
 
-        self.vertical_box.append(self.btn_accept)
-        self.vertical_box.append(self.btn_cancel)
-
+        vertical_box_info.append(button_box)
         vertical_box_info.append(self.vertical_box)
 
         self.response_text = None

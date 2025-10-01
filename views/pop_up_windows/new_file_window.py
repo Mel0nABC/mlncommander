@@ -19,19 +19,19 @@ class NewFileWindow(Gtk.Window):
         src_dir: "Explorer",  # noqa: F821
         new_file: "NewFile",  # noqa: F821
     ):
-        super().__init__(transient_for=parent)
+        super().__init__(transient_for=parent, modal=True, decorated=False)
 
         UtilsForWindow().set_event_key_to_close(self, self)
-
-        header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=_("Crear fichero")))
-        self.set_titlebar(header)
 
         # Load css
 
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")
         self.get_style_context().add_class("font-color")
+
+        horizontal = parent.horizontal
+
+        self.set_default_size(horizontal / 10, -1)
 
         self.actions = Actions()
         self.win = parent
@@ -41,16 +41,19 @@ class NewFileWindow(Gtk.Window):
         vertical_box_info = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
         )
+
+        vertical_box_info.set_hexpand(True)
+        vertical_box_info.set_vexpand(True)
         vertical_box_info.set_margin_top(20)
         vertical_box_info.set_margin_start(20)
+        vertical_box_info.set_margin_end(20)
 
         horizontal_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
         )
 
-        name_label = Gtk.Label.new(_("Nombre del nuevo archivo:"))
-        name_label.set_margin_top(20)
-        name_label.set_halign(Gtk.Align.START)
+        name_label = Gtk.Label.new(_("Nuevo archivo"))
+        name_label.set_margin_bottom(10)
 
         vertical_box_info.append(name_label)
         self.entry_file_name = Gtk.Entry()
@@ -72,9 +75,13 @@ class NewFileWindow(Gtk.Window):
         self.extension_drop_down = Gtk.DropDown(model=extension_list)
         self.extension_drop_down.set_selected(0)
         horizontal_box.append(self.extension_drop_down)
-        horizontal_box.set_margin_end(20)
 
         vertical_box_info.append(horizontal_box)
+
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        button_box.set_margin_top(10)
+        button_box.set_hexpand(True)
+        button_box.set_halign(Gtk.Align.END)
 
         self.btn_accept = Gtk.Button(label=_("Aceptar"))
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
@@ -87,12 +94,13 @@ class NewFileWindow(Gtk.Window):
         )
 
         self.vertical_box.set_margin_top(20)
-        self.vertical_box.set_margin_bottom(20)
         self.vertical_box.set_margin_start(20)
         self.vertical_box.set_margin_end(20)
 
-        self.vertical_box.append(self.btn_accept)
-        self.vertical_box.append(self.btn_cancel)
+        button_box.append(self.btn_accept)
+        button_box.append(self.btn_cancel)
+
+        vertical_box_info.append(button_box)
         vertical_box_info.append(self.vertical_box)
 
         self.set_child(vertical_box_info)

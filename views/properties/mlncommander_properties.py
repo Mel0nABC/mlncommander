@@ -14,7 +14,7 @@ gi.require_version("Gtk", "4.0")
 
 class Properties(Gtk.Window):
     def __init__(self, win: Gtk.Window, path_list: list):
-        super().__init__()
+        super().__init__(transient_for=win)
 
         header = Gtk.HeaderBar()
         header.set_title_widget(
