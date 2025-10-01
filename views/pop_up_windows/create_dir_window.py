@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from utilities.utilities_for_window import UtilsForWindow
+import asyncio
 import gi
 from gi.repository import Gtk
-import asyncio
 
 
 gi.require_version("Gtk", "4.0")
@@ -24,6 +25,8 @@ class CreateDirWindow(Gtk.Window):
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Creando directorio")))
         self.set_titlebar(header)
+
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         # Load css
 

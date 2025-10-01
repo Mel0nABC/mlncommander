@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from utilities.utilities_for_window import UtilsForWindow
 from controls.actions import Actions
 from pathlib import Path
 import asyncio
@@ -19,6 +20,8 @@ class NewFileWindow(Gtk.Window):
         new_file: "NewFile",  # noqa: F821
     ):
         super().__init__(transient_for=parent)
+
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Crear fichero")))

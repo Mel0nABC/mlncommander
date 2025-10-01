@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from entity.file_or_directory_info import File_or_directory_info
+from utilities.utilities_for_window import UtilsForWindow
 from views.mlncommander_explorer import Explorer
-import gi
 import asyncio
+import gi
 from gi.repository import Gtk, Gio
 
 
@@ -28,6 +29,8 @@ class Selected_for_delete(Gtk.Window):
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=_("Lista para eliminar")))
         self.set_titlebar(header)
+
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         # Load css
 

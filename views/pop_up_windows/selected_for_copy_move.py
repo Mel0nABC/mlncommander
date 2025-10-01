@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from views.mlncommander_explorer import Explorer
+from entity.file_or_directory_info import File_or_directory_info
+from utilities.utilities_for_window import UtilsForWindow
+import asyncio
+
 import gi
 from gi.repository import Gtk, Gio
-from entity.file_or_directory_info import File_or_directory_info
-import asyncio
 
 gi.require_version("Gtk", "4.0")
 
@@ -28,6 +30,8 @@ class Selected_for_copy_move(Gtk.Window):
             transient_for=parent,
             modal=True,
         )
+
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         header = Gtk.HeaderBar()
         header.set_title_widget(Gtk.Label(label=title_text_final))
