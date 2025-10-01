@@ -259,6 +259,7 @@ class Information(Gtk.Box):
 
         def on_accept(button: Gtk.Button):
             self.win.destroy()
+            self.win.win.get_explorer_focused().grab_focus()
 
         btn_accept.connect("clicked", on_accept)
 

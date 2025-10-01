@@ -211,6 +211,7 @@ class Preferences(Gtk.Window):
 
     def on_close(self, widget: Gtk.Widget = None) -> None:
         self.destroy()
+        self.win.get_explorer_focused().grab_focus()
 
     def change_box(self, button: Gtk.Button, actual_box: Gtk.Box) -> None:
         """

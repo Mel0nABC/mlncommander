@@ -27,6 +27,11 @@ class UtilsForWindow:
             if key_pressed_name == _ESCAPE:
                 to_close.destroy()
 
+                try:
+                    to_close.win.get_explorer_focused().grab_focus()
+                except AttributeError:
+                    return
+
         event_key = Gtk.EventControllerKey.new()
         event_key.connect("key_pressed", partial(on_key_pressed, to_close))
         to_set_event.add_controller(event_key)
