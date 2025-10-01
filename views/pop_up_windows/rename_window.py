@@ -44,7 +44,7 @@ class RenameWindow(Gtk.Popover):
         label_file = Gtk.Label.new(f"«{dst_info.name}»")
         self.entry = Gtk.Entry()
         self.entry.set_text(str(dst_info.name))
-        self.entry.select_region(0, -1)
+
         button = Gtk.Button.new_with_label(_("Renombrar"))
         button.set_hexpand(False)
         button.set_halign(Gtk.Align.END)
@@ -53,7 +53,6 @@ class RenameWindow(Gtk.Popover):
         label.set_margin_bottom(5)
         label_file.set_margin_bottom(5)
         self.entry.set_margin_bottom(15)
-        # button.set_margin_bottom(10)
 
         box.append(label)
         box.append(label_file)
@@ -65,6 +64,12 @@ class RenameWindow(Gtk.Popover):
         self.set_child(box)
 
         self.popup()
+
+        suffix_size = len(dst_info.suffix)
+        name_size = len(dst_info.name)
+        final_select = name_size - suffix_size
+
+        self.entry.select_region(0, final_select)
 
         self.entry.connect("activate", self.on_rename)
 
