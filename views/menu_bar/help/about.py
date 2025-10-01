@@ -35,7 +35,7 @@ class About(Gtk.Window):
         path = Path(f"{App.APP_HOME}/icons/mlncommander_transparente.png")
 
         img_preview = Gtk.Image.new_from_file(str(path))
-        img_preview.set_size_request(height_percent, height_percent)
+        img_preview.set_pixel_size(height_percent)
 
         text_about = _(
             "MlnCommander\n\n"
