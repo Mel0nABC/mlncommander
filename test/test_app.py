@@ -4,6 +4,7 @@
 import pytest
 from pathlib import Path
 from utilities.file_manager import File_manager
+from entity.properties_enty import PropertiesEnty
 import shutil
 import os
 
@@ -29,78 +30,60 @@ def dir_and_files_for_test():
         shutil.rmtree(path_test)
 
 
-# def test_change_permissions_validations_permissions_leng(
-#     dir_and_files_for_test,
-# ):
-#     file = dir_and_files_for_test
+def test_change_permissions_validations_permissions_leng(
+    dir_and_files_for_test,
+):
+    path = dir_and_files_for_test
 
-#     assert (
-#         File_manager().change_permissions(
-#             file,
-#             [
-#                 "",
-#                 "",
-#                 "",
-#             ],
-#         )["status"]
-#         is False
-#     )
+    permissions_test_list = [
+        [
+            "",
+            "",
+            "",
+        ],
+        [
+            "rwxae",
+            "rwxee",
+            "rwxee",
+        ],
+        [
+            "rwxae",
+            "rwxee",
+            "rwxee",
+        ],
+        [
+            "rwxa",
+            "rwx",
+            "rwx",
+        ],
+        [
+            "rwx",
+            "rwxa",
+            "rwx",
+        ],
+        [
+            "rwx",
+            "rwx",
+            "rwxa",
+        ],
+        [
+            "rwx",
+            "rwx",
+            "rwx",
+        ],
+    ]
 
-#     assert (
-#         File_manager().change_permissions(
-#             file,
-#             [
-#                 "rwxae",
-#                 "rwxee",
-#                 "rwxee",
-#             ],
-#         )["status"]
-#         is False
-#     )
+    propertieenty_list = []
 
-#     assert (
-#         File_manager().change_permissions(
-#             file,
-#             [
-#                 "rwxa",
-#                 "rwx",
-#                 "rwx",
-#             ],
-#         )["status"]
-#         is False
-#     )
-#     assert (
-#         File_manager().change_permissions(
-#             file,
-#             [
-#                 "rwx",
-#                 "rwxa",
-#                 "rwx",
-#             ],
-#         )["status"]
-#         is False
-#     )
+    for permissions in permissions_test_list:
+        propertieenty_list.append(
+            PropertiesEnty(path, permissions, "mel0n", "mel0n")
+        )
 
-#     assert (
-#         File_manager().change_permissions(
-#             file,
-#             [
-#                 "rwx",
-#                 "rwx",
-#                 "rwxa",
-#             ],
-#         )["status"]
-#         is False
-#     )
-
-#     assert File_manager().change_permissions(
-#         file,
-#         [
-#             "rwx",
-#             "rwx",
-#             "rwx",
-#         ],
-#     )["status"]
+    assert (
+        File_manager().change_permissions(None, propertieenty_list)["status"]
+        is False
+    )
 
 
 # def test_change_permissions_true(dir_and_files_for_test):
@@ -149,10 +132,14 @@ def dir_and_files_for_test():
 #     ]
 
 #     combinaciones = list(itertools.product(usuario, grupo, otros))
+#     propertieenty_list = [
+#         PropertiesEnty(file, permissions, "mel0n", "mel0n")
+#         for permissions in combinaciones
+#     ]
 
-#     for i, v in enumerate(combinaciones):
-
-#         assert File_manager().change_permissions(file, v)["status"]
+#     salida = File_manager().change_permissions(None, propertieenty_list)
+#     print(salida)
+#     assert salida
 
 
 # def test_change_permissions_false(dir_and_files_for_test):

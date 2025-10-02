@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from entity.file_or_directory_info import File_or_directory_info
+from entity.properties_enty import PropertiesEnty
 from multiprocessing import Process, Queue
 from queue import Empty
 import subprocess
@@ -216,7 +217,7 @@ class File_manager:
         }
 
     def change_permissions(
-        self, win: Gtk.Window, path_list: list[Path]
+        self, win: Gtk.Window = None, path_list: list[PropertiesEnty] = None
     ) -> bool:
         try:
             cmd_to_execute = ""
@@ -239,19 +240,15 @@ class File_manager:
                         break
 
                     listc = list(c)
-                    if listc[0] != "r" and listc[0] != "-":
-                        penalty_check = True
-
-                    if listc[1] != "w" and listc[1] != "-":
+                    if listc[0] not in ["r", "-"]:
                         penalty_check = True
                         break
 
-                    if (
-                        listc[2] != "x"
-                        and listc[2] != "-"
-                        and listc[2] != "s"
-                        and listc[2] != "t"
-                    ):
+                    if listc[1] not in ["w", "-"]:
+                        penalty_check = True
+                        break
+
+                    if listc[2] not in ["x", "-", "s", "t"]:
                         penalty_check = True
                         break
 
