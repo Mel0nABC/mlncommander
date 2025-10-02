@@ -163,7 +163,7 @@ class Selected_for_copy_move(Gtk.Window):
             self.vertical_box.remove(self.scroll)
             self.on_default_size()
 
-    def on_exit(self, button: Gtk.Button) -> None:
+    def on_exit(self, button: Gtk.Button = None) -> None:
         """
         Set respose false
         """

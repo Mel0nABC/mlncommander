@@ -25,8 +25,7 @@ class UtilsForWindow:
         ) -> None:
             key_pressed_name = Gdk.keyval_name(keyval)
             if key_pressed_name == _ESCAPE:
-                to_close.destroy()
-
+                to_close.on_exit()
                 try:
                     to_close.win.get_explorer_focused().grab_focus()
                 except AttributeError:

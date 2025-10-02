@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from utilities.utilities_for_window import UtilsForWindow
 from pathlib import Path
 import gi
 import asyncio
@@ -14,14 +15,9 @@ from gi.repository import Gtk, Pango  # noqa: E402
 class Deleting(Gtk.Window):
 
     def __init__(self, parent: Gtk.ApplicationWindow, src_info: Path):
-        super().__init__(
-            transient_for=parent,
-            modal=True,
-        )
+        super().__init__(transient_for=parent, modal=True, decorated=False)
 
-        header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=_("Eliminando  ..")))
-        self.set_titlebar(header)
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         # Load css
 
@@ -86,3 +82,9 @@ class Deleting(Gtk.Window):
         response = await self.future
         self.destroy()
         return response
+
+    def on_exit(self) -> None:
+        """
+        Close window
+        """
+        self.destroy()

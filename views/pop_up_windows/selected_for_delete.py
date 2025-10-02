@@ -145,7 +145,7 @@ class Selected_for_delete(Gtk.Window):
         self.set_default_size(self.horizontal_size, self.vertical_size * 3)
 
     def on_exit(
-        self, button: Gtk.Button, window: Gtk.ApplicationWindow
+        self, button: Gtk.Button = None, window: Gtk.ApplicationWindow = None
     ) -> None:
         """
         Set respose false

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from views.pop_up_windows.confirm_window import ConfirmWindow
+from utilities.utilities_for_window import UtilsForWindow
 from controls.actions import Actions
 import time
 import gi
@@ -22,6 +23,8 @@ class Transfering(Gtk.Window):
         src_explorer: Gtk.Window,
         dst_explorer: Gtk.Window,
     ):
+
+        internal_margin = 10
         margin = 20
 
         title_str = ""
@@ -31,14 +34,9 @@ class Transfering(Gtk.Window):
         else:
             title_str = _("Copiando ..")
 
-        super().__init__(
-            transient_for=parent,
-            modal=True,
-        )
+        super().__init__(transient_for=parent, modal=True, decorated=False)
 
-        header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=title_str))
-        self.set_titlebar(header)
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         # Load css
 
@@ -57,30 +55,37 @@ class Transfering(Gtk.Window):
         self.dst_info = None
         self.time_file = None
 
+        label_title = Gtk.Label.new(title_str)
+        label_title.set_margin_bottom(internal_margin)
+
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        box.set_margin_top(margin)
+        box.set_margin_end(margin)
+        box.set_margin_bottom(margin)
+        box.set_margin_start(margin)
+
         self.grid = Gtk.Grid(column_spacing=10, row_spacing=1)
         self.grid.set_hexpand(True)
-        self.set_child(self.grid)
+
+        box.append(label_title)
+        box.append(self.grid)
+
+        self.set_child(box)
 
         self.set_default_size(500, 60)
 
         self.lbl_src = Gtk.Label(label="SRC")
         self.lbl_src.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
         self.lbl_src.set_halign(Gtk.Align.START)
-        self.lbl_src.set_margin_top(margin)
-        self.lbl_src.set_margin_end(margin)
-        self.lbl_src.set_margin_start(margin)
+        self.lbl_src.set_margin_bottom(internal_margin)
 
         self.lbl_dst = Gtk.Label(label="DST")
         self.lbl_dst.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
         self.lbl_dst.set_halign(Gtk.Align.START)
-        self.lbl_dst.set_margin_top(margin)
-        self.lbl_dst.set_margin_end(margin)
-        self.lbl_dst.set_margin_start(margin)
+        self.lbl_dst.set_margin_bottom(internal_margin)
 
         self.lbl_size = Gtk.Label(label="0 bytes")
-        self.lbl_size.set_margin_top(margin)
-        self.lbl_size.set_margin_end(margin)
-        self.lbl_size.set_margin_start(margin)
+        self.lbl_size.set_margin_bottom(internal_margin)
 
         self.progress_box = Gtk.Box(
             orientation=Gtk.Orientation.HORIZONTAL, spacing=6
@@ -89,23 +94,21 @@ class Transfering(Gtk.Window):
         self.progress = Gtk.ProgressBar.new()
         self.progress.set_hexpand(True)
         self.progress.set_show_text(True)
-        self.progress.set_margin_start(margin)
-        self.progress.set_margin_end(margin)
 
         self.progress_box.append(self.progress)
 
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
         self.btn_cancel.connect("clicked", self.verify_on_exit)
-        self.btn_cancel.set_margin_top(margin)
-        self.btn_cancel.set_margin_end(margin)
-        self.btn_cancel.set_margin_start(margin)
+        self.btn_cancel.set_margin_top(internal_margin)
+        self.btn_cancel.set_margin_end(internal_margin)
+        self.btn_cancel.set_margin_start(internal_margin)
 
         self.btn_background = Gtk.Button(label=_("Minimizar"))
         self.btn_background.connect("clicked", self.to_background)
-        self.btn_background.set_margin_top(margin)
-        self.btn_background.set_margin_end(margin)
-        self.btn_background.set_margin_bottom(margin)
-        self.btn_background.set_margin_start(margin)
+        self.btn_background.set_margin_top(internal_margin)
+        self.btn_background.set_margin_end(internal_margin)
+        self.btn_background.set_margin_bottom(internal_margin)
+        self.btn_background.set_margin_start(internal_margin)
 
         self.grid.attach(self.lbl_src, 0, 0, 1, 1)
         self.grid.attach(self.lbl_dst, 0, 1, 1, 1)

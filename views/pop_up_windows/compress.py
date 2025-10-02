@@ -5,9 +5,10 @@
 from utilities.i18n import _
 from utilities.compression import CompressionManager
 from controls.actions import Actions
-from views.file_explorer.explorer import Explorer
+from views.mlncommander_explorer import Explorer
 from views.pop_up_windows.password_entry import PasswordWindow
 from views.pop_up_windows.confirm_window import ConfirmWindow
+from utilities.utilities_for_window import UtilsForWindow
 from pathlib import Path
 from multiprocessing import Queue
 import asyncio
@@ -24,11 +25,9 @@ class CompressWindow(Gtk.Window):
     def __init__(
         self, win, selected_items: list, dst_explorer: Explorer, dst_dir: Path
     ):
-        super().__init__(transient_for=win)
+        super().__init__(transient_for=win, modal=True, decorated=False)
 
-        header = Gtk.HeaderBar()
-        header.set_title_widget(Gtk.Label(label=_("Comprimir ficheros")))
-        self.set_titlebar(header)
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         # Load css
 

@@ -100,3 +100,9 @@ class CreateDirWindow(Gtk.Window):
         """
         response = await self.future
         return response
+
+    def on_exit(self) -> None:
+        """
+        Close window
+        """
+        self.destroy()

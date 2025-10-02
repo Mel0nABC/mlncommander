@@ -87,7 +87,7 @@ class NewFileWindow(Gtk.Window):
         self.btn_cancel = Gtk.Button(label=_("Cancelar"))
 
         self.btn_accept.connect("clicked", self.get_selected_option)
-        self.btn_cancel.connect("clicked", self.exit)
+        self.btn_cancel.connect("clicked", self.on_exit)
 
         self.vertical_box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL, spacing=6
@@ -143,9 +143,9 @@ class NewFileWindow(Gtk.Window):
                 _("Ha surgido algún problema al crear el archivo."),
             )
             return
-        self.exit()
+        self.on_exit()
         self.src_dir.load_new_path(self.src_dir.actual_path)
         self.actions.set_explorer_to_focused(self.src_dir, self.win)
 
-    def exit(self, botton: Gtk.Button = None) -> None:
+    def on_exit(self, botton: Gtk.Button = None) -> None:
         self.destroy()

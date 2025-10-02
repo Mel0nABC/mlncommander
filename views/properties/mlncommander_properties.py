@@ -83,3 +83,9 @@ class Properties(Gtk.Window):
             self.information.file_manager.set_stop(True)
 
         self.connect("unrealize", on_unrealize)
+
+    def on_exit(self) -> None:
+        """
+        Close window
+        """
+        self.destroy()

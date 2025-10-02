@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
 from entity.file_or_directory_info import File_or_directory_info
+from utilities.utilities_for_window import UtilsForWindow
 from views.mlncommander_explorer import Explorer
 import asyncio
 import gi
@@ -18,16 +19,9 @@ class OverwriteWindow(Gtk.Window):
         src_info: Explorer,
         dst_info: Explorer,
     ):
-        super().__init__(
-            transient_for=parent,
-            modal=True,
-        )
+        super().__init__(transient_for=parent, modal=True, decorated=False)
 
-        header = Gtk.HeaderBar()
-        header.set_title_widget(
-            Gtk.Label(label=_("Elige una opción para sobre escribir"))
-        )
-        self.set_titlebar(header)
+        UtilsForWindow().set_event_key_to_close(self, self)
 
         # Load css
 
