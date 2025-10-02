@@ -9,6 +9,7 @@ from utilities.remove import Remove
 from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from controls.actions import Actions
+import time
 
 
 gi.require_version("Gtk", "4.0")
@@ -92,6 +93,10 @@ def on_key_press(
     }
 
 
+time_first_pressed = 0
+time_second_pressed = 0
+
+
 def handle_navitation_keys(
     explorer_src: "Explorer",  # noqa: F821
     explorer_dst: "Explorer",  # noqa: F821
@@ -105,8 +110,29 @@ def handle_navitation_keys(
     """
 
     if key_pressed_name == _BACKSLASH:
-        explorer_src.entry_box.search_entry.grab_focus()
-        explorer_src.entry_box.search_entry.set_position(-1)
+        global time_first_pressed, time_second_pressed
+
+        if not time_first_pressed:
+            time_first_pressed = time.time()
+
+            def wait_time():
+                global time_first_pressed, time_second_pressed
+                explorer_src.entry_box.search_entry.grab_focus()
+                explorer_src.entry_box.search_entry.set_position(-1)
+
+                if (
+                    time_second_pressed - time_first_pressed
+                ) < 0.25 and time_second_pressed:
+                    explorer_src.entry_box.search_entry.select_region(0, -1)
+
+                time_first_pressed = 0
+                time_second_pressed = 0
+                return False
+
+            GLib.timeout_add(200, wait_time)
+        else:
+            time_second_pressed = time.time()
+
         return True
 
     if key_pressed_name == _TAB:
