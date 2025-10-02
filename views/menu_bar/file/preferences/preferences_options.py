@@ -152,7 +152,7 @@ class Preferences(Gtk.Window):
 
         self.vertical_option_box.append(self.horizontal_option_btn)
 
-    def on_exit(self, button: Gtk.Button) -> None:
+    def on_exit(self, button: Gtk.Button = None) -> None:
         """
         Close preferencesc window
         """

@@ -146,3 +146,9 @@ class About(Gtk.Window):
             )
 
         text_buffer.set_text(text)
+
+    def on_exit(self) -> None:
+        """
+        Close window
+        """
+        self.destroy()

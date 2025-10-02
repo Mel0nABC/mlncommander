@@ -375,3 +375,9 @@ class ShortCutsHelp(Gtk.Window):
         main_box.append(lbl_description)
 
         return main_box
+
+    def on_exit(self) -> None:
+        """
+        Close window
+        """
+        self.destroy()
