@@ -182,8 +182,9 @@ class ShortCutsHelp(Gtk.Window):
                 "",
                 "",
                 _(
-                    "Con / teclado númerico, se entra en el "
-                    "entry de la ruta del explorador actual"
+                    "Con / teclado númerico se entra en el entry"
+                    " de la ruta del explorador actual. Dos veces "
+                    "/+/ se selecciona todo el texto"
                 ),
             ),
             1,
@@ -331,6 +332,7 @@ class ShortCutsHelp(Gtk.Window):
         main_box.set_size_request(400, -1)
         btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         btn_box.set_size_request(250, -1)
+        btn_box.set_valign(Gtk.Align.CENTER)
 
         if first_key == "<Control>":
             first_key = "Ctrl"
