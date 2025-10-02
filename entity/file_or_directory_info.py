@@ -20,7 +20,7 @@ class File_or_directory_info(GObject.Object):
     date_created_str = GObject.Property(type=GObject.TYPE_STRING, default="")
     date_created_float = GObject.Property(type=GObject.TYPE_FLOAT)
     size = GObject.Property(type=GObject.TYPE_STRING, default="")
-    size_number = GObject.Property(type=GObject.TYPE_INT)
+    size_number = GObject.Property(type=GObject.TYPE_LONG)
     type_str = GObject.Property(type=GObject.TYPE_STRING, default="")
     is_sys_link = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
     path_exist = GObject.Property(type=GObject.TYPE_BOOLEAN, default=True)
