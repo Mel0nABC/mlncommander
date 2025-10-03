@@ -219,11 +219,7 @@ class CompressWindow(Gtk.Window):
                 self.verify_on_exit(destroy)
 
     def disable_grid_pannel(self):
-        for i in range(6):
-            for widget in self.grid.get_child_at(1, i):
-                widget.set_sensitive(False)
-
-        self.grid.get_child_at(2, 5).set_sensitive(False)
+        self.grid.set_sensitive(False)
 
     def enable_grid_pannel(self):
         for i in range(6):
