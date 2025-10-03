@@ -42,17 +42,33 @@ class ContextBox(Gio.Menu):
             mirror_str = _("<-- Espejo")
 
         file_list_btn = {
-            _("Renombrar"): self.rename,
-            _("Copiar"): self.copy,
-            _("Mover"): self.move,
-            _("Eliminar"): self.delete,
-            _("Duplicar"): self.duplicate,
             mirror_str: self.explorer_mirror,
+            _("Mover"): self.move,
+            _("Copiar"): self.copy,
+            _("Duplicar"): self.duplicate,
+            _("Eliminar"): self.delete,
+            _("Renombrar"): self.rename,
             _("Copiar rutas"): self.copy_text_path,
+            _("Comprimir"): self.zip_file,
+            _("Descomprimir"): self.unzip_file,
             _("Propiedades"): self.get_properties,
         }
 
         self.set_options_and_actions(file_list_btn)
+
+    def zip_file(self, *args):
+        from controls.shortcuts_keys import Shortcuts_keys
+
+        Shortcuts_keys(
+            self.main_window, self.explorer_src, self.explorer_dst
+        ).zip_file(explorer=self.explorer_src)
+
+    def unzip_file(self, *args):
+        from controls.shortcuts_keys import Shortcuts_keys
+
+        Shortcuts_keys(
+            self.main_window, self.explorer_src, self.explorer_dst
+        ).unzip_file(explorer=self.explorer_src)
 
     def create_explorer_context_menu(self) -> None:
         mirror_str = ""

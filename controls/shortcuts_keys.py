@@ -185,7 +185,10 @@ class Shortcuts_keys:
         GLib.idle_add(self.win.key_connect)
 
     def unzip_file(
-        self, widget: Gtk.Widget, *args, explorer: "Explorer"  # noqa: F821
+        self,
+        widget: Gtk.Widget = None,
+        *args,
+        explorer: "Explorer" = None,  # noqa: F821
     ) -> None:
         exec_uncompress_window = True
         # Disconnect key controller from main window
@@ -220,7 +223,10 @@ class Shortcuts_keys:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
 
     def zip_file(
-        self, widget: Gtk.Widget, *args, explorer: "Explorer"  # noqa: F821
+        self,
+        widget: Gtk.Widget = None,
+        *args,
+        explorer: "Explorer" = None,  # noqa: F821
     ):
         exec_uncompress_window = True
         # Disconnect key controller from main window
