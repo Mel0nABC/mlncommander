@@ -143,9 +143,9 @@ class File_manager:
                 dev, mp, fstype, *_ = line_clean.split()
                 if Path(mp) == path:
                     if dev.startswith("/dev"):
-                        return "local"
+                        return {"status": "mount", "msg": "local"}
                     elif dev.startswith("//"):
-                        return "network"
+                        return {"status": "mount", "msg": "network"}
 
             return self.get_types_from_fstab(path)
 
@@ -163,9 +163,9 @@ class File_manager:
                             if dev.startswith("/dev") or dev.startswith(
                                 "UUID"
                             ):
-                                return "local"
+                                return {"status": "fstab", "msg": "local"}
                             elif dev.startswith("//"):
-                                return "network"
+                                return {"status": "fstab", "msg": "network"}
 
             return False
 

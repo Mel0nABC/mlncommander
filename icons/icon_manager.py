@@ -24,7 +24,7 @@ class IconManager:
         fm = File_manager()
         result = fm.get_type_folder(path)
 
-        if result == "local":
+        if result["msg"] == "local":
             paintable_icon = self.icon_theme.lookup_icon(
                 "folder",
                 None,
@@ -33,15 +33,27 @@ class IconManager:
                 Gtk.TextDirection.LTR,
                 Gtk.IconLookupFlags.FORCE_SYMBOLIC,
             )
-        elif result == "network":
-            paintable_icon = self.icon_theme.lookup_icon(
-                "folder-remote",
-                None,
-                256,
-                1,
-                Gtk.TextDirection.LTR,
-                Gtk.IconLookupFlags.FORCE_SYMBOLIC,
-            )
+        elif result["msg"] == "network":
+            paintable_icon = None
+            if result["status"] == "mount":
+                paintable_icon = self.icon_theme.lookup_icon(
+                    "folder-remote",
+                    None,
+                    256,
+                    1,
+                    Gtk.TextDirection.LTR,
+                    Gtk.IconLookupFlags.FORCE_SYMBOLIC,
+                )
+            else:
+                paintable_icon = self.icon_theme.lookup_icon(
+                    "network-wired-disconnected",
+                    None,
+                    256,
+                    1,
+                    Gtk.TextDirection.LTR,
+                    Gtk.IconLookupFlags.FORCE_SYMBOLIC,
+                )
+
         return paintable_icon
 
     def get_back_icon(self) -> Gtk.IconPaintable:
