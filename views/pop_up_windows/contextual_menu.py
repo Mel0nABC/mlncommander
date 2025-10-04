@@ -63,7 +63,7 @@ class ContextBox(Gio.Menu):
         selection = self.explorer_src.get_selected_items_from_explorer()[1]
 
         if not selection:
-            self.actions.show_msg_alert(
+            self.action.show_msg_alert(
                 self.main_window, _("Debes seleccionar un archivo")
             )
             return
@@ -71,7 +71,7 @@ class ContextBox(Gio.Menu):
         path = selection[0]
 
         if path.is_dir():
-            self.actions.show_msg_alert(
+            self.action.show_msg_alert(
                 self.main_window, _("Debes seleccionar un archivo")
             )
             return
