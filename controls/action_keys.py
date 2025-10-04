@@ -35,6 +35,7 @@ _DELETE = Gdk.keyval_name(Gdk.KEY_Delete)  # supr
 _BACKSLASH = Gdk.keyval_name(Gdk.KEY_KP_Divide)  # /
 _SHIFT_L = Gdk.keyval_name(Gdk.KEY_Shift_L)  # Left shift
 _CTRL_L = Gdk.keyval_name(Gdk.KEY_Control_L)  # Left shift
+_ADD = Gdk.keyval_name(Gdk.KEY_KP_Add)  # + on number keyboard
 
 # Dictionary for numeric keyboard
 KP_KEYVALS = {
@@ -82,13 +83,13 @@ def on_key_press(
 
     return {
         handle_navitation_keys(
-            explorer_src, explorer_dst, key_pressed_name, win, flags
+            explorer_src, explorer_dst, key_pressed_name, win, flags, actions
         )
         or handle_file_operation(
-            explorer_src, explorer_dst, win, key_pressed_name
+            explorer_src, explorer_dst, win, key_pressed_name, actions
         )
         or handle_search_keys(
-            explorer_src, explorer_dst, win, key_pressed_name, keyval
+            explorer_src, explorer_dst, win, key_pressed_name, keyval, actions
         )
     }
 
@@ -103,6 +104,7 @@ def handle_navitation_keys(
     key_pressed_name: str,
     win: Gtk.ApplicationWindow,
     flags: list,
+    actions: Actions,
 ) -> bool:
     """
     Manage navigation keys, change explorer focus,
@@ -169,6 +171,7 @@ def handle_file_operation(
     explorer_dst: "Explorer",  # noqa: F821
     win: Gtk.ApplicationWindow,
     key_pressed_name: str,
+    actions: Actions,
 ) -> bool:
     """
     Manage shortkeys, keyboard and GUI button actions
@@ -237,6 +240,49 @@ def handle_file_operation(
         Actions().close_with_question(win=win)
         return True
 
+    global time_first_pressed, time_second_pressed
+    if key_pressed_name == _ADD:
+        selection = explorer_src.get_selected_items_from_explorer()[1]
+
+        if not selection:
+            actions.show_msg_alert(win, _("Debes seleccionar un archivo"))
+            return
+
+        path = selection[0]
+
+        if path.is_dir():
+            actions.show_msg_alert(win, _("Debes seleccionar un archivo"))
+            return
+
+        if not time_first_pressed:
+            time_first_pressed = time.time()
+
+            def wait_time():
+                global time_first_pressed, time_second_pressed
+
+                if (
+                    time_second_pressed - time_first_pressed
+                ) < 0.25 and time_second_pressed:
+                    explorer_src.selection.select_all()
+                    explorer_src.selection.unselect_item(0)
+                else:
+                    origin_suffix = path.suffix
+
+                    for index, item in enumerate(explorer_src.selection):
+                        if item.path_file.suffix == origin_suffix:
+                            explorer_src.selection.select_item(index, False)
+
+                time_first_pressed = 0
+                time_second_pressed = 0
+                return False
+
+            GLib.timeout_add(200, wait_time)
+
+        else:
+            time_second_pressed = time.time()
+
+        return True
+
     return False
 
 
@@ -246,6 +292,7 @@ def handle_search_keys(
     win: Gtk.ApplicationWindow,
     key_pressed_name: str,
     keyval: int,
+    actions: Actions,
 ) -> bool:
     """
     Manages the search for files or folders

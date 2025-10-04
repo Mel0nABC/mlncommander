@@ -193,6 +193,23 @@ class ShortCutsHelp(Gtk.Window):
             1,
         )
 
+        grid_right.attach(
+            self.create_buttons(
+                "+",
+                "",
+                "",
+                _(
+                    "Con + teclado númerico una vez "
+                    "sobre un archivo, selecciona todos"
+                    " los de esa extensión, dos rápidos, selecciona todo"
+                ),
+            ),
+            1,
+            10,
+            1,
+            1,
+        )
+
         # Actions on files and folders
 
         grid_left.attach(lbl_event_files, 1, 9, 1, 1)
