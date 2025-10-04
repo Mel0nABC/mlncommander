@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from controls.actions import Actions
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -27,6 +28,7 @@ class ContextBox(Gio.Menu):
         self.path_list = path_list
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
+        self.action = Actions()
 
         if file_context:
             self.create_file_context_menu()
@@ -48,22 +50,46 @@ class ContextBox(Gio.Menu):
             _("Duplicar"): self.duplicate,
             _("Eliminar"): self.delete,
             _("Renombrar"): self.rename,
-            _("Copiar rutas"): self.copy_text_path,
+            _("Copiar ruta"): self.copy_text_path,
             _("Comprimir"): self.zip_file,
             _("Descomprimir"): self.unzip_file,
+            _("Seleccinar por ext"): self.select_for_extension,
             _("Propiedades"): self.get_properties,
         }
 
         self.set_options_and_actions(file_list_btn)
 
-    def zip_file(self, *args):
+    def select_for_extension(self, *args) -> None:
+        selection = self.explorer_src.get_selected_items_from_explorer()[1]
+
+        if not selection:
+            self.actions.show_msg_alert(
+                self.main_window, _("Debes seleccionar un archivo")
+            )
+            return
+
+        path = selection[0]
+
+        if path.is_dir():
+            self.actions.show_msg_alert(
+                self.main_window, _("Debes seleccionar un archivo")
+            )
+            return
+
+        origin_suffix = path.suffix
+
+        for index, item in enumerate(self.explorer_src.selection):
+            if item.path_file.suffix == origin_suffix:
+                self.explorer_src.selection.select_item(index, False)
+
+    def zip_file(self, *args) -> None:
         from controls.shortcuts_keys import Shortcuts_keys
 
         Shortcuts_keys(
             self.main_window, self.explorer_src, self.explorer_dst
         ).zip_file(explorer=self.explorer_src)
 
-    def unzip_file(self, *args):
+    def unzip_file(self, *args) -> None:
         from controls.shortcuts_keys import Shortcuts_keys
 
         Shortcuts_keys(
@@ -86,7 +112,7 @@ class ContextBox(Gio.Menu):
 
         self.set_options_and_actions(file_list_btn)
 
-    def set_options_and_actions(self, file_list_btn):
+    def set_options_and_actions(self, file_list_btn: list) -> None:
         for key in file_list_btn.keys():
             method = file_list_btn[key]
             method_str = method.__func__.__name__
@@ -194,3 +220,4 @@ class ContextBox(Gio.Menu):
 
     def select_all(self, *args) -> None:
         self.explorer_src.selection.select_all()
+        self.explorer_src.selection.unselect_item(0)
