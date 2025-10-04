@@ -126,7 +126,7 @@ class File_manager:
         """
         tmp = path
         result = self.get_type_from_mounts(tmp)
-        while not result:
+        while not result["status"]:
             tmp = tmp.parent
             if path.is_relative_to(tmp):
                 result = self.get_type_from_mounts(tmp)
@@ -167,7 +167,7 @@ class File_manager:
                             elif dev.startswith("//"):
                                 return {"status": "fstab", "msg": "network"}
 
-            return False
+            return {"status": False, "msg": "nothing"}
 
     def get_permissions(self, path: Path) -> dict:
         try:
@@ -532,3 +532,16 @@ class File_manager:
 
     def set_stop(self, stop: bool) -> None:
         self.STOP_PROCESS = stop
+
+    def mount_or_umount(
+        self, win: Gtk.ApplicationWindow, path: Path, mount: bool
+    ) -> dict:
+
+        cmd = ""
+        print(f"MOUNT: {mount}")
+        if mount:
+            cmd = f"mount {path}"
+        else:
+            cmd = f"umount {path}"
+
+        return self.execute_cmd(win, cmd, True)

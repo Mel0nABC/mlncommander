@@ -2,11 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
+from utilities.file_manager import File_manager
+from views.pop_up_windows.loading import Loading
 from controls.actions import Actions
+from pathlib import Path
+import threading
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio  # noqa E402
+from gi.repository import Gtk, Gdk, Gio, GLib  # noqa E402
 
 
 class ContextBox(Gio.Menu):
@@ -29,6 +33,7 @@ class ContextBox(Gio.Menu):
         self.explorer_src = explorer_src
         self.explorer_dst = explorer_dst
         self.action = Actions()
+        self.fm = File_manager()
 
         if file_context:
             self.create_file_context_menu()
@@ -54,6 +59,8 @@ class ContextBox(Gio.Menu):
             _("Comprimir"): self.zip_file,
             _("Descomprimir"): self.unzip_file,
             _("Seleccinar por ext"): self.select_for_extension,
+            _("Montar"): self.mount_unit,
+            _("Desmontar"): self.umount_unit,
             _("Propiedades"): self.get_properties,
         }
 
@@ -221,3 +228,124 @@ class ContextBox(Gio.Menu):
     def select_all(self, *args) -> None:
         self.explorer_src.selection.select_all()
         self.explorer_src.selection.unselect_item(0)
+
+    def mount_unit(self, *args) -> None:
+
+        response = self.mount_check()
+
+        if not response["status"]:
+            return
+
+        if response["status"] == "mount":
+            self.action.show_msg_alert(
+                self.main_window, _("Esta carpeta ya está montada")
+            )
+            return
+
+        path = response["msg"]
+
+        loading = Loading(self.main_window)
+
+        def on_waiting(
+            main_window: Gtk.ApplicationWindow,
+            explorer_src: Gtk.ColumnView,
+            action: Actions,
+            path: Path,
+            loading: Gtk.Window,
+        ):
+            GLib.idle_add(loading.start)
+            mount_response = self.fm.mount_or_umount(main_window, path, True)
+            GLib.idle_add(loading.stop)
+
+            if not mount_response["status"]:
+                GLib.idle_add(
+                    action.show_msg_alert,
+                    main_window,
+                    _(f"Error al montar: {mount_response["msg"]}"),
+                )
+
+            GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
+
+        threading.Thread(
+            target=on_waiting,
+            args=(
+                self.main_window,
+                self.explorer_src,
+                self.action,
+                path,
+                loading,
+            ),
+        ).start()
+
+    def umount_unit(self, *args) -> None:
+
+        response = self.mount_check()
+
+        if not response["status"]:
+            return
+
+        if response["status"] == "fstab":
+            self.action.show_msg_alert(
+                self.main_window, _("Esta carpeta no está montada")
+            )
+            return
+        path = response["msg"]
+
+        loading = Loading(self.main_window)
+
+        def on_waiting(
+            main_window: Gtk.ApplicationWindow,
+            explorer_src: Gtk.ColumnView,
+            action: Actions,
+            path: Path,
+            loading: Gtk.Window,
+        ):
+            GLib.idle_add(loading.start)
+            umount_response = self.fm.mount_or_umount(main_window, path, False)
+            GLib.idle_add(loading.stop)
+            print(umount_response)
+            if not umount_response["status"]:
+                GLib.idle_add(
+                    action.show_msg_alert,
+                    main_window,
+                    _(f"Error al desmontar: {umount_response["msg"]}"),
+                )
+
+            GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
+
+        threading.Thread(
+            target=on_waiting,
+            args=(
+                self.main_window,
+                self.explorer_src,
+                self.action,
+                path,
+                loading,
+            ),
+        ).start()
+
+    def mount_check(self) -> dict:
+
+        selected = self.explorer_src.get_selected_items_from_explorer()[1]
+
+        if len(selected) > 1:
+            self.action.show_msg_alert(
+                self.main_window,
+                _("Debes seleccionar sólo una carpeta"),
+            )
+            return
+
+        path = selected[0]
+
+        response = self.fm.get_type_from_mounts(path)
+
+        if not response["status"]:
+            self.action.show_msg_alert(
+                self.main_window,
+                _("Esta carpeta no dispone de una ruta de montaje"),
+            )
+            return {"status": False, "msg": "nothing"}
+
+        response["msg"] = path
+
+        return response
