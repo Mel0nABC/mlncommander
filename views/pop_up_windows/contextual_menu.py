@@ -6,11 +6,14 @@ from utilities.file_manager import File_manager
 from views.pop_up_windows.loading import Loading
 from controls.actions import Actions
 from pathlib import Path
+import subprocess
 import threading
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, Gio, GLib  # noqa E402
+gi.require_version("Xdp", "1.0")
+gi.require_version("XdpGtk4", "1.0")
+from gi.repository import Gtk, Gdk, Gio, GLib, Xdp, XdpGtk4  # noqa E402
 
 
 class ContextBox(Gio.Menu):
@@ -50,6 +53,8 @@ class ContextBox(Gio.Menu):
 
         file_list_btn = {
             mirror_str: self.explorer_mirror,
+            _("Abrir"): self.open_file,
+            _("Abrir con ..."): self.app_chooser,
             _("Mover"): self.move,
             _("Copiar"): self.copy,
             _("Duplicar"): self.duplicate,
@@ -121,6 +126,7 @@ class ContextBox(Gio.Menu):
 
     def set_options_and_actions(self, file_list_btn: list) -> None:
         for key in file_list_btn.keys():
+
             method = file_list_btn[key]
             method_str = method.__func__.__name__
 
@@ -303,7 +309,6 @@ class ContextBox(Gio.Menu):
             GLib.idle_add(loading.start)
             umount_response = self.fm.mount_or_umount(main_window, path, False)
             GLib.idle_add(loading.stop)
-            print(umount_response)
             if not umount_response["status"]:
                 GLib.idle_add(
                     action.show_msg_alert,
@@ -349,3 +354,60 @@ class ContextBox(Gio.Menu):
         response["msg"] = path
 
         return response
+
+    def open_file(self, *args) -> None:
+
+        path = self.path_list[0]
+
+        if not path or path.is_dir():
+            self.action.show_msg_alert(
+                self.main_window,
+                _("Debes seleccionar un archivo"),
+            )
+            return
+
+        try:
+            subprocess.run(["xdg-open", path])
+        except Exception:
+            self.show_msg_alert(
+                self.parent,
+                _(
+                    f"""Ha ocurrido algun problema al intentar ejecutar el
+                    archivo:\n{path}"""
+                ),
+            )
+
+    def app_chooser(self, *args) -> None:
+
+        path = self.path_list[0]
+
+        if not path or path.is_dir() or not path.exists():
+            self.action.show_msg_alert(
+                self.main_window,
+                _("Debes seleccionar un archivo"),
+            )
+            return
+
+        portal = Xdp.Portal.initable_new()
+        path = f"file://{path}"
+        parent = XdpGtk4.parent_new_gtk(self.main_window)
+
+        def on_uri_opened(portal, result, data=None) -> None:
+            try:
+                portal.open_uri_finish(result)
+            except Exception as e:
+                if e.domain != "g-io-error-quark":
+                    self.action.show_msg_alert(
+                        self.main_window,
+                        _(f"Error al abrir el archivo: {e}"),
+                    )
+
+        GLib.idle_add(
+            portal.open_uri,
+            parent,
+            path,
+            Xdp.OpenUriFlags.ASK,
+            None,
+            on_uri_opened,
+            None,
+        )

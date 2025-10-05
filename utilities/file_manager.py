@@ -538,7 +538,7 @@ class File_manager:
     ) -> dict:
 
         cmd = ""
-        print(f"MOUNT: {mount}")
+
         if mount:
             cmd = f"mount {path}"
         else:
