@@ -302,6 +302,7 @@ class ContextBox(Gio.Menu):
         def on_waiting(
             main_window: Gtk.ApplicationWindow,
             explorer_src: Gtk.ColumnView,
+            explorer_dst: Gtk.ColumnView,
             action: Actions,
             path: Path,
             loading: Gtk.Window,
@@ -316,6 +317,14 @@ class ContextBox(Gio.Menu):
                     _(f"Error al desmontar: {umount_response["msg"]}"),
                 )
 
+            if not explorer_dst.actual_path == explorer_src.actual_path:
+                if explorer_dst.actual_path.absolute().is_relative_to(
+                    explorer_src.actual_path.absolute()
+                ):
+                    GLib.idle_add(
+                        explorer_dst.load_new_path, explorer_src.actual_path
+                    )
+
             GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
 
         threading.Thread(
@@ -323,6 +332,7 @@ class ContextBox(Gio.Menu):
             args=(
                 self.main_window,
                 self.explorer_src,
+                self.explorer_dst,
                 self.action,
                 path,
                 loading,
