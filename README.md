@@ -61,6 +61,8 @@ This started as a project to learn Python. Then, I searched for a native graphic
 - pango >= 1:1.56.4
 - mailcap >= 2.1.54
 - 7zip >= 25.01
+- libportal >= 0.9.1
+- libportal-gtk4 >= 0.9.1
 
 
 ## Installation
