@@ -23,9 +23,7 @@ class Properties(Gtk.Window):
 
         UtilsForWindow().set_event_key_to_close(self, self)
 
-        self.set_size_request(
-            ScreenInfo.horizontal * 0.33, ScreenInfo.vertical * 0.6
-        )
+        self.set_size_request(ScreenInfo.horizontal * 0.33, 640)
 
         self.set_titlebar(header)
 
