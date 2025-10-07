@@ -137,9 +137,12 @@ class ContextBox(Gio.Menu):
             self.append(key, f"win.{method_str}")
 
     def rename(self, *args) -> None:
+
         from utilities.rename import Rename_Logic
 
         rename_logic = Rename_Logic()
+        if self.explorer_src.popovermenu:
+            self.explorer_src.popovermenu.unparent()
         rename_logic.on_rename(self.explorer_src, self.main_window)
 
     def copy(self, *args) -> None:

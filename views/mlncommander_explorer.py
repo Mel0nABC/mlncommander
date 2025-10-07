@@ -73,6 +73,8 @@ class Explorer(Gtk.ColumnView):
         self.label_gesture_list = {}
         self.row_gesture_right_list = {}
         self.add_fav_btn = add_fav_btn
+        self.popovermenu = None
+        self.widget_popovermenu = None
 
         for property_name in type_list:
 
@@ -868,9 +870,22 @@ class Explorer(Gtk.ColumnView):
             else:
                 fav_btn.get_style_context().remove_class("fav")
 
-    def select_gesture_right_click(self, gesture, n_press, x, y, cell, widget):
+    def select_gesture_right_click(
+        self,
+        gesture=None,
+        n_press=None,
+        x=None,
+        y=None,
+        cell=None,
+        widget=None,
+    ):
+
+        if self.popovermenu:
+            self.popovermenu.unparent()
+
         # Stop all events
-        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
+        if gesture:
+            gesture.set_state(Gtk.EventSequenceState.CLAIMED)
 
         contextbox = None
         if cell:
@@ -884,19 +899,19 @@ class Explorer(Gtk.ColumnView):
         rect.width = 1
         rect.height = 1
 
-        popovermenu = Gtk.PopoverMenu.new_from_model(contextbox)
-        popovermenu.get_style_context().add_class("contextual_menu")
+        self.popovermenu = Gtk.PopoverMenu.new_from_model(contextbox)
+        self.popovermenu.get_style_context().add_class("contextual_menu")
 
-        popovermenu.set_has_arrow(False)  # no show arrow
-        popovermenu.set_autohide(True)
-        popovermenu.set_cascade_popdown(True)
+        self.popovermenu.set_has_arrow(False)  # no show arrow
+        self.popovermenu.set_autohide(True)
+        self.popovermenu.set_cascade_popdown(True)
 
-        popovermenu.set_parent(widget)
-        popovermenu.set_pointing_to(rect)
+        self.popovermenu.set_parent(widget)
+        self.popovermenu.set_pointing_to(rect)
 
         time.sleep(0.1)
 
-        popovermenu.popup()
+        self.popovermenu.popup()
 
     def open_file_contextual_menu(self, cell) -> None:
         # Open with file clicked

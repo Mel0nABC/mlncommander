@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-import gi
 from utilities.my_copy_or_move import MyCopyMove
 from utilities.create import Create
 from utilities.remove import Remove
@@ -10,7 +9,7 @@ from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from controls.actions import Actions
 import time
-
+import gi
 
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gdk, GLib  # noqa: E402
@@ -36,6 +35,7 @@ _BACKSLASH = Gdk.keyval_name(Gdk.KEY_KP_Divide)  # /
 _SHIFT_L = Gdk.keyval_name(Gdk.KEY_Shift_L)  # Left shift
 _CTRL_L = Gdk.keyval_name(Gdk.KEY_Control_L)  # Left shift
 _ADD = Gdk.keyval_name(Gdk.KEY_KP_Add)  # + on number keyboard
+_MENU = Gdk.keyval_name(Gdk.KEY_Menu)  # Menu
 
 # Dictionary for numeric keyboard
 KP_KEYVALS = {
@@ -283,6 +283,20 @@ def handle_file_operation(
 
         return True
 
+    if key_pressed_name == _MENU:
+
+        selected_item = explorer_src.get_selected_items_from_explorer()[1]
+
+        if selected_item:
+            explorer_src.select_gesture_right_click(
+                x=1, y=1, cell=Gtk.ColumnViewCell(), widget=explorer_src
+            )
+        else:
+            explorer_src.select_gesture_right_click(
+                x=1, y=1, cell=None, widget=explorer_src
+            )
+
+        return True
     return False
 
 
@@ -345,6 +359,8 @@ def handle_search_keys(
 
     if key_pressed_name == _ESCAPE:
         stop_search_mode(explorer_src)
+        explorer_src.selection.unselect_all()
+
         return True
 
     return False
