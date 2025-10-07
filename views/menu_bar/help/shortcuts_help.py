@@ -334,6 +334,22 @@ class ShortCutsHelp(Gtk.Window):
             1,
         )
 
+        grid_left.attach(
+            self.create_buttons(
+                "Fn",
+                "",
+                "",
+                _(
+                    "Abre menú contextual. Si pulsas Esc antes,"
+                    " desseleciona todo y abre el del explorador"
+                ),
+            ),
+            1,
+            21,
+            1,
+            1,
+        )
+
         self.present()
 
     def create_buttons(
