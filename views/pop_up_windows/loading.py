@@ -15,7 +15,6 @@ class Loading(Gtk.Window):
         super().__init__(transient_for=parent, modal=True, decorated=False)
 
         # Load css
-        print(parent)
         self.parent = parent
         self.explorer_src = explorer_src
 
@@ -35,4 +34,3 @@ class Loading(Gtk.Window):
     def stop(self) -> None:
         self.spinner.stop()
         self.destroy()
-        self.explorer_src.load_new_path(self.parent.actual_path)

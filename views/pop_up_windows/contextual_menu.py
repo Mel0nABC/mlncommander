@@ -278,6 +278,7 @@ class ContextBox(Gio.Menu):
                 )
 
             GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
+            GLib.idle_add(explorer_src.set_explorer_focus)
 
         threading.Thread(
             target=on_waiting,
@@ -332,8 +333,8 @@ class ContextBox(Gio.Menu):
                     GLib.idle_add(
                         explorer_dst.load_new_path, explorer_src.actual_path
                     )
-
             GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
+            GLib.idle_add(explorer_src.set_explorer_focus)
 
         threading.Thread(
             target=on_waiting,
