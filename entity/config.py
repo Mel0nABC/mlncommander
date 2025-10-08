@@ -99,7 +99,7 @@ class ConfigEntity:
         self.SHOW_DIR_LAST = True
         self.SWITCH_IMG_STATUS = True
         self.SWITCH_WATCHDOG_STATUS = True
-        self.TERMINAL_COMMAND = "gnome-terminal"
+        self.TERMINAL_COMMAND = "gnome-terminal --working-directory"
 
         # APPEARANCE
         self.SWITCH_CSS_STATUS = False

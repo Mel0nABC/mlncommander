@@ -221,24 +221,20 @@ class Actions:
         try:
             terminal_command = explorer.get_root().config.TERMINAL_COMMAND
 
+            cmd = terminal_command.split(" ")
+            cmd.append(path)
+
             p = subprocess.run(
-                [terminal_command, "--working-directory", path],
+                cmd,
                 capture_output=True,
                 text=True,
             )
 
             if p.returncode != 0:
-                p = subprocess.run(
-                    [terminal_command, "--workdir", path],
-                    capture_output=True,
-                    text=True,
+                error_text = _(
+                    "Error al ejecutar la terminal, comprueba la bandera"
                 )
-                if p.returncode != 0:
-                    error_text = _(
-                        "La terminal debe aceptar la "
-                        "bandera --workdir o --working-directory"
-                    )
-                    GLib.idle_add(self.show_msg_alert, self.parent, error_text)
+                GLib.idle_add(self.show_msg_alert, self.parent, error_text)
 
         except Exception as e:
             print(f"Error al abrir terminal: {e}")

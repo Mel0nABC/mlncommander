@@ -167,7 +167,18 @@ class Preferences(Gtk.Window):
         """
         Confirm changes.
         """
-        response = shutil.which(self.directory_box.TERMINAL_COMMAND)
+        exec_split = self.directory_box.TERMINAL_COMMAND.split(" ")
+
+        if len(exec_split) != 2:
+            self.actions.show_msg_alert(
+                self.win,
+                _("Debes especificar <commando --flag_directorio_de_trabajo"),
+            )
+            return
+
+        exec_file = exec_split[0]
+        # exec_flag = exec_split[1]
+        response = shutil.which(exec_file)
 
         if not response:
             self.actions.show_msg_alert(

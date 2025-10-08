@@ -31,7 +31,9 @@ class Directory(Gtk.Box):
         )
         self.SHOW_WATCHDOG_PREVIEW_LABEL = _("Activar o desactivar watchdog:")
         self.TERMINAL_EXECUTABLE_LABEL = _(
-            "Indica el comando para abrir la termianl"
+            "Indica el comando para abrir la termianl\n"
+            "y la flag del directorio de trabajo\n"
+            "Ejemplo: --workdir, --working-directory, etc"
         )
 
         self.SHOW_DIR_LAST = win.config.SHOW_DIR_LAST
@@ -164,6 +166,9 @@ class Directory(Gtk.Box):
         terminal_label.set_halign(Gtk.Align.START)
         terminal_entry = Gtk.Entry.new()
         terminal_entry.set_text(self.TERMINAL_COMMAND)
+        terminal_entry.set_vexpand(False)
+        terminal_entry.set_hexpand(True)
+        terminal_entry.set_valign(Gtk.Align.CENTER)
 
         def on_changed_terminal(entry: Gtk.Entry):
             self.TERMINAL_COMMAND = terminal_entry.get_text()
@@ -179,7 +184,7 @@ class Directory(Gtk.Box):
         grid.attach(watchdog_label, 0, 1, 1, 1)
         grid.attach(sw_watchdog, 1, 1, 1, 1)
         grid.attach(terminal_label, 0, 2, 1, 1)
-        grid.attach(terminal_entry, 1, 2, 1, 1)
+        grid.attach(terminal_entry, 1, 2, 1, 2)
 
         self.append(grid)
 
