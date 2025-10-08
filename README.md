@@ -48,6 +48,15 @@ MlnCommander is a dual-window file explorer that uses hotkeys to perform actions
 - Search mode on change of owner and group in permissions
 - Improved browser focus and reminder of previous directories.
 
+#### V1.04
+
+- Pressing + on the numeric keypad, you can select all the extensions of the same extension, if you press ++, all are selected.
+- Now, by right-clicking on a folder, we can mount or unmount, if it is configured.
+- Open with . has been added to the right-click on files, this option is not maintained for the next time.
+- New keyboard shortcuts, Fn key to open the context menu on files, folders or if none is selected, the explorer menu.
+- You can now open the terminal with Control+t in the current location of the explorer, also in right click. Set it in the directory
+  options.
+
 ## Motivation
 
 This started as a project to learn Python. Then, I searched for a native graphical environment for Linux and found Gtk. I realized I could adapt it to my needs, since despite excellent similar programs, I had specific needs, such as image previews.
@@ -84,6 +93,6 @@ In the LICENSES folder, you'll find several types of licenses, depending on whet
 
 ## Download
 
-[Download AppImage v1.03](https://github.com/Mel0nABC/mlncommander/releases/download/v1.03/mlnCommander_v1.03.AppImage)
+[Download AppImage v1.04](https://github.com/Mel0nABC/mlncommander/releases/download/v1.04/mlnCommander_v1.04.AppImage)
 
 
