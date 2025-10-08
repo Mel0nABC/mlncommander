@@ -10,12 +10,14 @@ gi.require_version("Gtk", "4.0")
 
 class Loading(Gtk.Window):
     def __init__(
-        self,
-        parent: Gtk.ApplicationWindow,
+        self, parent: Gtk.ApplicationWindow, explorer_src: Gtk.ColumnView
     ):
         super().__init__(transient_for=parent, modal=True, decorated=False)
 
         # Load css
+        print(parent)
+        self.parent = parent
+        self.explorer_src = explorer_src
 
         self.get_style_context().add_class("app_background")
         self.get_style_context().add_class("font")
@@ -33,3 +35,4 @@ class Loading(Gtk.Window):
     def stop(self) -> None:
         self.spinner.stop()
         self.destroy()
+        self.explorer_src.load_new_path(self.parent.actual_path)

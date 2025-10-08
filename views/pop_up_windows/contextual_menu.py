@@ -251,7 +251,7 @@ class ContextBox(Gio.Menu):
 
         path = response["msg"]
 
-        loading = Loading(self.main_window)
+        loading = Loading(self.main_window, self.explorer_src)
 
         def on_waiting(
             main_window: Gtk.ApplicationWindow,
@@ -305,7 +305,7 @@ class ContextBox(Gio.Menu):
             return
         path = response["msg"]
 
-        loading = Loading(self.main_window)
+        loading = Loading(self.main_window, self.explorer_src)
 
         def on_waiting(
             main_window: Gtk.ApplicationWindow,
