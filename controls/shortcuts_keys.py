@@ -195,6 +195,13 @@ class Shortcuts_keys:
         dst_explorer = self.win.get_other_explorer_with_name(explorer.name)
         dst_dir = dst_explorer.actual_path
 
+        for item in selected_items:
+            if item.is_dir():
+                self.action.show_msg_alert(
+                    self.win, _("Tienes carpetas en tu selección.")
+                )
+                exec_uncompress_window = False
+
         if not self.compression_manager.get_dst_suficient_space(
             selected_items, dst_dir
         ):
@@ -218,6 +225,8 @@ class Shortcuts_keys:
 
         if exec_uncompress_window:
             UncompressWindow(self.win, selected_items, dst_explorer, dst_dir)
+        else:
+            GLib.idle_add(self.win.key_connect)
 
     def zip_file(
         self,
