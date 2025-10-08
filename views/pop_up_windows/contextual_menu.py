@@ -66,6 +66,7 @@ class ContextBox(Gio.Menu):
             _("Seleccinar por ext"): self.select_for_extension,
             _("Montar"): self.mount_unit,
             _("Desmontar"): self.umount_unit,
+            _("Abrir terminal"): self.open_terminal,
             _("Propiedades"): self.get_properties,
         }
 
@@ -120,6 +121,7 @@ class ContextBox(Gio.Menu):
             _("Nueva carpeta"): self.new_folder,
             mirror_str: self.explorer_mirror,
             _("Seleccionar todo"): self.select_all,
+            _("Abrir terminal"): self.open_terminal,
         }
 
         self.set_options_and_actions(file_list_btn)
@@ -137,13 +139,9 @@ class ContextBox(Gio.Menu):
             self.append(key, f"win.{method_str}")
 
     def rename(self, *args) -> None:
-
-        from utilities.rename import Rename_Logic
-
-        rename_logic = Rename_Logic()
-        if self.explorer_src.popovermenu:
-            self.explorer_src.popovermenu.unparent()
-        rename_logic.on_rename(self.explorer_src, self.main_window)
+        self.action.open_rename_dialog(
+            self.explorer_src, self.main_window, self.explorer_src.popovermenu
+        )
 
     def copy(self, *args) -> None:
         from utilities.my_copy_or_move import MyCopyMove
@@ -431,3 +429,6 @@ class ContextBox(Gio.Menu):
             on_uri_opened,
             None,
         )
+
+    def open_terminal(self, *args) -> None:
+        self.action.open_terminal(self.explorer_src)

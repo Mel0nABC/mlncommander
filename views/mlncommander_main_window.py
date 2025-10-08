@@ -605,6 +605,7 @@ class Window(Gtk.ApplicationWindow):
                 self.config.SWITCH_WATCHDOG_STATUS = bool(
                     data["SWITCH_WATCHDOG_STATUS"]
                 )
+                self.config.TERMINAL_COMMAND = data["TERMINAL_COMMAND"]
 
                 # APPEARANCE
                 self.config.SWITCH_CSS_STATUS = data["SWITCH_CSS_STATUS"]

@@ -210,6 +210,22 @@ class ShortCutsHelp(Gtk.Window):
             1,
         )
 
+        grid_right.attach(
+            self.create_buttons(
+                "Ctrl",
+                "t",
+                "+",
+                _(
+                    "Abre terminal configurada por"
+                    " el usuario en la ruta actual"
+                ),
+            ),
+            1,
+            11,
+            1,
+            1,
+        )
+
         # Actions on files and folders
 
         grid_left.attach(lbl_event_files, 1, 9, 1, 1)

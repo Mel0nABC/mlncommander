@@ -30,10 +30,14 @@ class Directory(Gtk.Box):
             "Mostrar preview de la imagen al seleccionar:"
         )
         self.SHOW_WATCHDOG_PREVIEW_LABEL = _("Activar o desactivar watchdog:")
+        self.TERMINAL_EXECUTABLE_LABEL = _(
+            "Indica el comando para abrir la termianl"
+        )
 
         self.SHOW_DIR_LAST = win.config.SHOW_DIR_LAST
         self.SWITCH_IMG_STATUS = win.config.SWITCH_IMG_STATUS
         self.SWITCH_WATCHDOG_STATUS = win.config.SWITCH_WATCHDOG_STATUS
+        self.TERMINAL_COMMAND = win.config.TERMINAL_COMMAND
 
         self.win = win
         self.set_margin_top(20)
@@ -139,8 +143,9 @@ class Directory(Gtk.Box):
         # Image preview
 
         img_preview_label = Gtk.Label(label=self.SHOW_IMAGE_PREVIEW_LABEL)
-
+        img_preview_label.set_halign(Gtk.Align.START)
         switch_img = Gtk.Switch.new()
+        switch_img.set_halign(Gtk.Align.END)
         switch_img.set_active(self.SWITCH_IMG_STATUS)
         switch_img.connect("state-set", self.on_press_switch_img)
 
@@ -149,8 +154,21 @@ class Directory(Gtk.Box):
         watchdog_label = Gtk.Label(label=self.SHOW_WATCHDOG_PREVIEW_LABEL)
         watchdog_label.set_halign(Gtk.Align.START)
         sw_watchdog = Gtk.Switch.new()
+        sw_watchdog.set_halign(Gtk.Align.END)
         sw_watchdog.set_active(self.SWITCH_WATCHDOG_STATUS)
         sw_watchdog.connect("state-set", self.on_press_switch_wd)
+
+        # Configure terminal
+
+        terminal_label = Gtk.Label(label=self.TERMINAL_EXECUTABLE_LABEL)
+        terminal_label.set_halign(Gtk.Align.START)
+        terminal_entry = Gtk.Entry.new()
+        terminal_entry.set_text(self.TERMINAL_COMMAND)
+
+        def on_changed_terminal(entry: Gtk.Entry):
+            self.TERMINAL_COMMAND = terminal_entry.get_text()
+
+        terminal_entry.connect("changed", on_changed_terminal)
 
         # add image preview and watchdog
 
@@ -160,6 +178,8 @@ class Directory(Gtk.Box):
         grid.attach(switch_img, 1, 0, 1, 1)
         grid.attach(watchdog_label, 0, 1, 1, 1)
         grid.attach(sw_watchdog, 1, 1, 1, 1)
+        grid.attach(terminal_label, 0, 2, 1, 1)
+        grid.attach(terminal_entry, 1, 2, 1, 1)
 
         self.append(grid)
 

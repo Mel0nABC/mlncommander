@@ -382,67 +382,86 @@ class Shortcuts_keys:
 
         ShortCutsHelp(self.win)
 
+    def open_terminal(
+        self, widget: Gtk.Widget, *args, explorer: "Explorer"  # noqa: F821
+    ):
+        self.win.key_disconnect()
+        self.action.open_terminal(explorer)
+        GLib.idle_add(self.win.key_connect)
+        return True
+
     def load_shortcuts_config_prede(self) -> list[Shortcut]:
 
-        _("Muestra la carpeta en el otro explorador.")
-        _("Para descomprimir archivos")
-        _("Para comprimir archivos")
-        _("Para añadir directorios en favoritos")
-        _("Para eliminar directorios en favoritos")
-        _("Salir de la aplicación")
-        _("Muestra información sobre atajos de teclado")
+        shortcut_mirroring_folder_str = _(
+            "Muestra la carpeta en el otro explorador."
+        )
+        unzip_file_str = _("Para descomprimir archivos")
+        zip_file_str = _("Para comprimir archivos")
+        add_fav_path_str = _("Para añadir directorios en favoritos")
+        del_fav_paths_str = _("Para eliminar directorios en favoritos")
+        exit_str = _("Salir de la aplicación")
+        open_terminal_str = _(
+            "Abre terminal configurada por el usuario en la ruta actual"
+        )
+        show_shortcut_str = _("Muestra información sobre atajos de teclado")
+        show_propeties_str = _(
+            "Muestra los permisos, propietario y grupo de archivos y carpetas"
+        )
 
         return [
             Shortcut(
                 "<Control>",
                 "o",
                 "shortcut_mirroring_folder",
-                "Muestra la carpeta en el otro explorador.",
+                shortcut_mirroring_folder_str,
             ),
             Shortcut(
                 "<Control>",
                 "p",
                 "unzip_file",
-                "Para descomprimir archivos",
+                unzip_file_str,
             ),
             Shortcut(
                 "<Control>",
                 "i",
                 "zip_file",
-                "Para comprimir archivos",
+                zip_file_str,
             ),
             Shortcut(
                 "<Control>",
                 "f",
                 "add_fav_path",
-                "Para añadir directorios en favoritos",
+                add_fav_path_str,
             ),
             Shortcut(
                 "<Control>",
                 "d",
                 "del_fav_path",
-                "Para eliminar directorios en favoritos",
+                del_fav_paths_str,
             ),
             Shortcut(
                 "<Control>",
                 "q",
                 "exit",
-                "Salir de la aplicación",
+                exit_str,
+            ),
+            Shortcut(
+                "<Control>",
+                "t",
+                "open_terminal",
+                open_terminal_str,
             ),
             Shortcut(
                 "<Control>",
                 "apostrophe",
                 "show_shortcut",
-                "Muestra información sobre atajos de teclado",
+                show_shortcut_str,
             ),
             Shortcut(
                 "<Alt>",
                 "Return",
                 "show_propeties",
-                (
-                    "Muestra los permisos, propietario"
-                    " y grupo de archivos y carpetas"
-                ),
+                show_propeties_str,
             ),
         ]
 

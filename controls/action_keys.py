@@ -5,7 +5,6 @@ from utilities.i18n import _
 from utilities.my_copy_or_move import MyCopyMove
 from utilities.create import Create
 from utilities.remove import Remove
-from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from controls.actions import Actions
 import time
@@ -181,8 +180,7 @@ def handle_file_operation(
 
     if key_pressed_name == _F2_KEY:
         # Rename
-        rename_logic = Rename_Logic()
-        rename_logic.on_rename(explorer_src, win)
+        actions.open_rename_dialog(explorer_src, win, None)
         return True
 
     if key_pressed_name == _F3_KEY:

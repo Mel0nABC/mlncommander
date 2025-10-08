@@ -2,12 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 from utilities.i18n import _
-from entity.config import ConfigEntity
 from views.menu_bar.file.preferences.directory import Directory
 from views.menu_bar.file.preferences.general import General
 from views.menu_bar.file.preferences.appearance import Appearance
 from views.menu_bar.file.preferences.shortcuts import Shortcuts
 from utilities.utilities_for_window import UtilsForWindow
+from entity.config import ConfigEntity
+from controls.actions import Actions
+import shutil
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -45,6 +47,7 @@ class Preferences(Gtk.Window):
         self.get_style_context().add_class("font-color")
 
         self.win = win
+        self.actions = Actions()
 
         # Sections
 
@@ -164,6 +167,14 @@ class Preferences(Gtk.Window):
         """
         Confirm changes.
         """
+        response = shutil.which(self.directory_box.TERMINAL_COMMAND)
+
+        if not response:
+            self.actions.show_msg_alert(
+                self.win, _("El ejecutable de terminal no existe.")
+            )
+            return
+
         config = ConfigEntity()
 
         # GENERAL
@@ -185,6 +196,7 @@ class Preferences(Gtk.Window):
         config.SWITCH_WATCHDOG_STATUS = (
             self.directory_box.SWITCH_WATCHDOG_STATUS
         )
+        config.TERMINAL_COMMAND = self.directory_box.TERMINAL_COMMAND
 
         # APPEARANCE
         config.SWITCH_CSS_STATUS = self.appearance.SWITCH_CSS_STATUS

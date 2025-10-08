@@ -202,3 +202,26 @@ class Actions:
         btn_cancel.connect("clicked", on_cancel)
 
         win_dialog.present()
+
+    def open_rename_dialog(
+        self,
+        explorer_src: Gtk.ColumnView,
+        win: Gtk.ApplicationWindow,
+        popovermenu: Gtk.PopoverMenu = None,
+    ) -> None:
+        from utilities.rename import Rename_Logic
+
+        rename_logic = Rename_Logic()
+        if popovermenu:
+            popovermenu.unparent()
+        rename_logic.on_rename(explorer_src, win)
+
+    def open_terminal(self, explorer: Gtk.ColumnView) -> None:
+        path = explorer.actual_path
+        try:
+            terminal_command = explorer.get_root().config.TERMINAL_COMMAND
+            subprocess.run([terminal_command, "--working-directory", path])
+        except Exception as e:
+            print(f"Error al abrir terminal: {e}")
+            text = _(f"Error al abrir la terminal: {e}")
+            GLib.idle_add(self.show_msg_alert, self.parent, text)

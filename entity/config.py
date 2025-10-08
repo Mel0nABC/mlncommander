@@ -29,6 +29,7 @@ class ConfigEntity:
         self.SHOW_DIR_LAST = None
         self.SWITCH_IMG_STATUS = None
         self.SWITCH_WATCHDOG_STATUS = None
+        self.TERMINAL_COMMAND = None
 
         # APPEARANCE
         self.SWITCH_CSS_STATUS = None
@@ -60,6 +61,7 @@ class ConfigEntity:
             "SHOW_DIR_LAST": self.SHOW_DIR_LAST,
             "SWITCH_IMG_STATUS": self.SWITCH_IMG_STATUS,
             "SWITCH_WATCHDOG_STATUS": self.SWITCH_WATCHDOG_STATUS,
+            "TERMINAL_COMMAND": self.TERMINAL_COMMAND,
             # APPEARANCE
             "SWITCH_CSS_STATUS": self.SWITCH_CSS_STATUS,
             "COLOR_BACKGROUND_APP": self.COLOR_BACKGROUND_APP,
@@ -97,6 +99,7 @@ class ConfigEntity:
         self.SHOW_DIR_LAST = True
         self.SWITCH_IMG_STATUS = True
         self.SWITCH_WATCHDOG_STATUS = True
+        self.TERMINAL_COMMAND = "gnome-terminal"
 
         # APPEARANCE
         self.SWITCH_CSS_STATUS = False
