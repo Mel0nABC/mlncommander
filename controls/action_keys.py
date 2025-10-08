@@ -239,18 +239,10 @@ def handle_file_operation(
         return True
 
     global time_first_pressed, time_second_pressed
+
     if key_pressed_name == _ADD:
+
         selection = explorer_src.get_selected_items_from_explorer()[1]
-
-        if not selection:
-            actions.show_msg_alert(win, _("Debes seleccionar un archivo"))
-            return
-
-        path = selection[0]
-
-        if path.is_dir():
-            actions.show_msg_alert(win, _("Debes seleccionar un archivo"))
-            return
 
         if not time_first_pressed:
             time_first_pressed = time.time()
@@ -262,13 +254,16 @@ def handle_file_operation(
                     time_second_pressed - time_first_pressed
                 ) < 0.25 and time_second_pressed:
                     explorer_src.selection.select_all()
-                    explorer_src.selection.unselect_item(0)
                 else:
+
+                    path = selection[0]
                     origin_suffix = path.suffix
 
                     for index, item in enumerate(explorer_src.selection):
                         if item.path_file.suffix == origin_suffix:
                             explorer_src.selection.select_item(index, False)
+
+                explorer_src.selection.unselect_item(0)
 
                 time_first_pressed = 0
                 time_second_pressed = 0
