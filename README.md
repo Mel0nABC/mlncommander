@@ -7,56 +7,6 @@
 
 MlnCommander is a dual-window file explorer that uses hotkeys to perform actions and save time from tedious double-clicking. It offers customizable colors and directory options. You can copy, move, create directories, create office files, and duplicate the current directory in the other explorer.
 
-## Features
-
-#### v1.00
-
-- Copy, move, duplicate and rename actions
-- Create a new directory
-- Create office files: *.docx, *.odt, *.xlsx, *.ods, *.txt, and *.csv
-- Duplicate files or folders with a different name
-- Preview images
-- Hotkeys and shortcuts
-- Different native icons of the symbolic type
-- Managing connection loss to network drives, preventing application crashes
-- Compress and decompress with 7zip system
-- Watchdog, monitors changes in browsers, both local and external
-- Favorite directories for each browser
-- Settings to automatically minimize copy, move, duplicate, compress and decompress options
-
-
-#### V1.01
-
-- Managing permissions, owners, and groups of files and folders.
-- Options on the right button, on files or explorers
-- Select themes, new ones should go to /usr/share/themes
-
-
-#### V1.02
-
-- Select themes, new ones should go to /usr/share/themes
-- Stop loading data process on path properties in properties section
-- Added more action buttons on right click on explorer and files
-
-
-#### V1.03
-
-- New path bar, suggestion when typing folder. Based on the Nautilus bar.
-- Visual improvements, pop-ups without decoration, closes when pressing 
-  escape, rename pop-up on the file or folder, etc.
-- New keyboard shortcuts
-- Search mode on change of owner and group in permissions
-- Improved browser focus and reminder of previous directories.
-
-#### V1.04
-
-- Pressing + on the numeric keypad, you can select all the extensions of the same extension, if you press ++, all are selected.
-- Now, by right-clicking on a folder, we can mount or unmount, if it is configured.
-- Open with . has been added to the right-click on files, this option is not maintained for the next time.
-- New keyboard shortcuts, Fn key to open the context menu on files, folders or if none is selected, the explorer menu.
-- You can now open the terminal with Control+t in the current location of the explorer, also in right click. Set it in the directory
-  options.
-
 ## Motivation
 
 This started as a project to learn Python. Then, I searched for a native graphical environment for Linux and found Gtk. I realized I could adapt it to my needs, since despite excellent similar programs, I had specific needs, such as image previews.
@@ -83,16 +33,13 @@ This started as a project to learn Python. Then, I searched for a native graphic
 - pip install -r requirements.txt
 - ./venv/bin/python App.py
 
-## Licenses
-
-MlnCommander attempts to comply with the SPDX specifications and generally uses the MIT license.
-
-In the LICENSES folder, you'll find several types of licenses, depending on whether you're using a third-party utility.
-
-
-
 ## Download
 
 [Download AppImage v1.04](https://github.com/Mel0nABC/mlncommander/releases/download/v1.04/mlnCommander_v1.04.AppImage)
 
 
+## Licenses
+
+MlnCommander attempts to comply with the SPDX specifications and generally uses the MIT license.
+
+In the LICENSES folder, you'll find several types of licenses, depending on whether you're using a third-party utility.
