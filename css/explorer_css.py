@@ -12,14 +12,14 @@ gi.require_version("Gtk", "4.0")
 class Css_explorer_manager:
 
     PREDE_COLOR_BACKGROUND_APP = "#353535"
-    PREDE_COLOR_ENTRY = "#2d2d2d"
-    PREDE_COLOR_EXPLORER_LEFT = "#222226"
-    PREDE_COLOR_EXPLORER_RIGHT = "#222226"
+    PREDE_COLOR_ENTRY = "#000000"
+    PREDE_COLOR_EXPLORER_LEFT = "#000000"
+    PREDE_COLOR_EXPLORER_RIGHT = "#000000"
     PREDE_COLOR_BUTTON = "#393939"
     PREDE_COLOR_FAV_BUTTON = "#222226"
     PREDE_COLOR_BACKGROUND_SEARCH = "rgb(0,0,0)"
     PREDE_COLOR_SEARCH_TEXT = "rgb(246,211,45)"
-    PREDE_FONT_STYLE = "Adwaita Sans 12"
+    PREDE_FONT_STYLE = "Adwaita Sans 10"
     PREDE_FONT_STYLE_COLOR = "white"
 
     def __init__(self, win: Gtk.ApplicationWindow):
