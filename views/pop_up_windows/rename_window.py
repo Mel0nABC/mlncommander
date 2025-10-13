@@ -15,6 +15,7 @@ class RenameWindow(Gtk.Popover):
     def __init__(
         self,
         win: Gtk.ApplicationWindow,
+        explorer: Gtk.ColumnView,
         parent: Gtk.Label,
         dst_info: Path,
         rename_logic: Rename_Logic,
@@ -24,6 +25,7 @@ class RenameWindow(Gtk.Popover):
         self.set_size_request(350, -1)
 
         self.win = win
+        self.explorer = explorer
         self.action = Actions()
         self.rename_logic = rename_logic
         self.dst_info = dst_info
@@ -92,5 +94,14 @@ class RenameWindow(Gtk.Popover):
 
         if not status:
             self.action.show_msg_alert(self.win, msg)
+
+        self.explorer.load_new_path(self.explorer.actual_path)
+
+        other_explorer = self.win.get_other_explorer_with_name(
+            self.explorer.name
+        )
+
+        if self.explorer.actual_path == other_explorer.actual_path:
+            other_explorer.load_new_path(other_explorer.actual_path)
 
         self.popdown()
