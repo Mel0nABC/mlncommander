@@ -53,7 +53,11 @@ class Rename_Logic:
                         label_text = widget.get_text()
                         if src_name == label_text:
                             RenameWindow(
-                                explorer_src.win, widget, src_info, self
+                                explorer_src.win,
+                                explorer_src,
+                                widget,
+                                src_info,
+                                self,
                             )
 
     def rename(self, path_src: Path, new_name: str) -> dict:
