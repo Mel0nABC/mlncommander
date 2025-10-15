@@ -81,8 +81,6 @@ class Window(Gtk.ApplicationWindow):
         self.horizontal = ScreenInfo.horizontal
         self.vertical = ScreenInfo.vertical
 
-        print(f"Screen resolution: {self.horizontal}x{self.vertical}")
-
         self.set_default_size(self.horizontal / 2, self.vertical)
 
         self.set_titlebar(header().header)
@@ -532,8 +530,12 @@ class Window(Gtk.ApplicationWindow):
         self.destroy()
 
     def stop_to_close(self) -> None:
-        self.explorer_1.my_watchdog.stop()
-        self.explorer_2.my_watchdog.stop()
+
+        if self.explorer_1.my_watchdog:
+            self.explorer_1.my_watchdog.stop()
+
+        if self.explorer_2.my_watchdog:
+            self.explorer_2.my_watchdog.stop()
 
         if self.config.SHOW_DIR_LAST:
             self.config.EXP_1_PATH = str(self.explorer_1.actual_path)
@@ -645,7 +647,6 @@ class Window(Gtk.ApplicationWindow):
                 yaml.dump(config.to_dict(), config_file, sort_keys=False)
 
         except Exception as e:
-            print(f"ERROR EN SAVE CONFIG FILE: {e}")
             text = _(
                 (
                     "Ha ocurrido algún error al guardar el archivo de configuración:\n\n"  # noqa : E501

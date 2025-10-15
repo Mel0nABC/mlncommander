@@ -19,7 +19,7 @@ from gi.repository import Gtk, GLib  # noqa : E402
 
 class CompressionManager:
 
-    def __init__(self, compression_win: "Window"):  # noqa : F821
+    def __init__(self, compression_win: Gtk.Window = None):  # noqa : F821
 
         self.uncompress_popen = None
         self.compression_win = compression_win
@@ -40,7 +40,7 @@ class CompressionManager:
 
     def uncompress(self, file: Path, dst_dir: Path, q: Queue) -> dict:
         try:
-
+            print("UNCOMPRESS")
             if file.is_dir():
                 result = {
                     "status": False,
@@ -48,8 +48,9 @@ class CompressionManager:
                 }
                 q.put(result)
                 return
-
+            print(4)
             if self.check_file_compressed_ratio(file):
+                print(5)
                 result = {
                     "status": False,
                     "msg": _(
@@ -61,15 +62,15 @@ class CompressionManager:
                 }
                 q.put(result)
                 return
-
+            print(6)
             cmd = [
                 self.EXEC_SEVEN_Z_TYPE,
                 "l",
                 file,
             ]
-
+            print("AQUI AQUI")
             p = subprocess.run(cmd, capture_output=True, text=True)
-
+            print(p)
             if p.returncode != 0:
                 result = {
                     "status": False,
@@ -103,9 +104,13 @@ class CompressionManager:
             q.put(result)
             return
         except FileExistsError as e:
-            return e
-        except Exception as e:
-            return e
+            result = {
+                "status": False,
+                "msg": _(f"Ha ocurrido algun error:\n\n{e}"),
+            }
+            q.put(result)
+        except ZeroDivisionError as e:
+            print(e)
 
     def uncompress_file_with_7z(
         self, path: Path, dst_dir: Path, password: str
@@ -259,6 +264,9 @@ class CompressionManager:
                 total_size_uncompressed = int(m.group(1))
                 total_size_compressed = int(m.group(2))
                 break
+
+        if total_size_compressed == 0:
+            total_size_compressed = 0.1
 
         return (total_size_uncompressed / total_size_compressed) > 500
 

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from controls.actions import Actions
+from utilities.compressed_types import compressed_extensions
 from pathlib import Path
 from functools import partial
 import os
@@ -121,6 +122,9 @@ class PathBar(Gtk.Box):
         self, widget: Gtk.SearchEntry, explorer: Gtk.ColumnView
     ) -> None:
 
+        if self.action.is_path_compressed_file(explorer.actual_path):
+            return
+
         entry_text = self.search_entry.get_text()
         new_text = entry_text.replace(f"{self.actual_path_temp}", "")
         new_text = new_text.replace("/", "")
@@ -141,7 +145,9 @@ class PathBar(Gtk.Box):
             list_dir_content = [
                 item
                 for item in search
-                if item.is_dir() and new_text.lower() in str(item).lower()
+                if item.is_dir()
+                and new_text.lower() in str(item).lower()
+                or item.suffix in compressed_extensions
             ]
 
         except FileNotFoundError:
@@ -223,8 +229,6 @@ class PathBar(Gtk.Box):
 
         for folder in startswith_list:
             folder_filtered = folder
-            if "_" in folder:
-                folder_filtered = folder.replace("_", "__")
             self.store.append(StringItem(value=folder_filtered))
 
         if startswith_list:

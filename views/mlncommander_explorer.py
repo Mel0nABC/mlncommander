@@ -15,7 +15,7 @@ import threading
 import time
 import os
 import gi
-from gi.repository import Gtk, Gdk, GLib, GObject, Pango
+from gi.repository import Gtk, Gdk, GLib, Gio, GObject, Pango
 
 gi.require_version("Gtk", "4.0")
 
@@ -346,18 +346,22 @@ class Explorer(Gtk.ColumnView):
         else:
             self.action.set_explorer_to_focused(self, self.win)
 
-    def load_data(self, path: Path) -> None:
+    def load_data(self, path: Path, store: Gio.ListStore) -> None:
         """
         Load information from the current directory
         """
         if self.selection:
             self.selection.unselect_all()
-        self.store = File_manager().get_path_list(path)
 
-        if self.actual_path != path:
-            self.start_watchdog(path, self)
+        if store:
+            self.store = store
+        else:
+            self.store = File_manager().get_path_list(path)
+            if self.actual_path != path:
+                self.start_watchdog(path, self)
 
         self.actual_path = path
+
         if self.name == "explorer_1":
             self.win.path_bar_1.actual_path_temp = self.actual_path
         else:
@@ -374,28 +378,32 @@ class Explorer(Gtk.ColumnView):
         """
         Create another watchdog with other path
         """
-        self.stop_watchdog()
-        self.my_watchdog = My_watchdog(
-            self.win, str(path), self.APP_USER_PATH, explorer
-        )
-        self.watchdog_thread = threading.Thread(target=self.my_watchdog.start)
-        self.watchdog_thread.start()
+        if self.win.config.SWITCH_WATCHDOG_STATUS:
+            self.stop_watchdog()
+            self.my_watchdog = My_watchdog(
+                self.win, str(path), self.APP_USER_PATH, explorer
+            )
+            self.watchdog_thread = threading.Thread(
+                target=self.my_watchdog.start
+            )
+            self.watchdog_thread.start()
 
     def stop_watchdog(self) -> None:
         if self.my_watchdog:
             self.my_watchdog.stop()
 
-    def load_new_path(self, path: Path) -> None:
+    def load_new_path(self, path: Path, store: Gio.ListStore = None) -> None:
         """
         Load data and display the contents
         of the current directory in the browser
         """
         # Management to save the row number when advancing a directory
 
-        if not self.access_control.validate_src_read(path, self.win):
-            return
+        if not store:
+            if not self.access_control.validate_src_read(path, self.win):
+                return
 
-        self.load_data(path)
+        self.load_data(path, store)
 
         for k in list(self.path_history.keys()):
             if k.is_relative_to(path):
@@ -761,6 +769,9 @@ class Explorer(Gtk.ColumnView):
 
         path = selected_items[0]
 
+        if self.action.is_path_compressed_file(path):
+            return
+
         if path.is_dir() or not selected_items:
             self.disable_img_box()
             return
@@ -804,8 +815,8 @@ class Explorer(Gtk.ColumnView):
         from gi.repository import GdkPixbuf
 
         box_width = self.win.explorer_1.get_allocated_width()
-
         self.img_file = GdkPixbuf.Pixbuf.new_from_file(str(path))
+
         img_width = self.img_file.get_width()
         img_height = self.img_file.get_height()
         img_ratio = img_width / img_height

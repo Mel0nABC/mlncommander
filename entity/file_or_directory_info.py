@@ -23,19 +23,23 @@ class File_or_directory_info(GObject.Object):
     size_number = GObject.Property(type=GObject.TYPE_LONG)
     type_str = GObject.Property(type=GObject.TYPE_STRING, default="")
     is_sys_link = GObject.Property(type=GObject.TYPE_BOOLEAN, default=False)
-    path_exist = GObject.Property(type=GObject.TYPE_BOOLEAN, default=True)
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, zip_type: bool = False):
         super().__init__()
         self.path: str = path
         self.path_file = Path(path)
         self.name: str = self.path_file.name
         self.is_directory: bool = Path(path).is_dir()
         self.is_sys_link: bool = self.path_file.is_symlink()
-        self.path_exist: bool = self.path_file.exists()
-        self.selected = False
+        self.full_path = None
 
-        self.filter_file_or_sys_link()
+        from controls.actions import Actions
+
+        action = Actions()
+        self.is_compressed = action.is_path_compressed_file(Path(path))
+
+        if not zip_type:
+            self.filter_file_or_sys_link()
 
     def filter_file_or_sys_link(self) -> None:
         """
@@ -74,3 +78,15 @@ class File_or_directory_info(GObject.Object):
                 self.type = "FILE"
                 self.size_number = int(self.size)
                 self.size = File_manager().get_size_and_unit(int(self.size))
+
+    def to_dict(self) -> dict:
+        return {
+            "path": self.path,
+            "name": self.name,
+            "is_directory": self.is_directory,
+            "is_sys_link": self.is_sys_link,
+            "type": self.type,
+            "size": self.size,
+            "date_created_str": self.date_created_str,
+            "permissions": self.permissions,
+        }

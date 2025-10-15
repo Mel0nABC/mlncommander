@@ -116,7 +116,6 @@ class Menu_bar(Gio.Menu):
         About(self.win)
 
     def open_log(self, action: Gio.SimpleAction, parameter):
-        print("OPEN LOG")
         try:
             log_file = f"{self.win.APP_USER_PATH}/log/mlncommander.log"
             subprocess.run(["xdg-open", log_file])

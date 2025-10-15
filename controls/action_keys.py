@@ -306,24 +306,27 @@ def handle_search_keys(
     """
     if key_pressed_name == _BACKSPACE:
 
-        # Reload store from actual dir
-        explorer_src.load_data(explorer_src.actual_path)
+        if explorer_src.count_rst_int == 0:
+            actions.change_path(explorer_src, explorer_src.actual_path.parent)
+        else:
+            # Reload store from actual dir
+            explorer_src.load_data(explorer_src.actual_path)
 
-        # File and folder name search system, character deletion
-        search_word = explorer_src.search_str_entry.get_text()[:-1]
+            # File and folder name search system, character deletion
+            search_word = explorer_src.search_str_entry.get_text()[:-1]
 
-        set_search_word(search_word, explorer_src, win)
+            set_search_word(search_word, explorer_src, win)
 
-        if search_word != "":
-            explorer_src.set_str_search_backspace(search_word)
+            if search_word != "":
+                explorer_src.set_str_search_backspace(search_word)
 
-            find_name_path(explorer_src, search_word, win)
+                find_name_path(explorer_src, search_word, win)
 
-            return True
+                return True
 
-        stop_search_mode(explorer_src)
-        parent_path = explorer_src.actual_path.parent
-        explorer_src.load_new_path(parent_path)
+            stop_search_mode(explorer_src)
+            parent_path = explorer_src.actual_path.parent
+            explorer_src.load_new_path(parent_path)
 
         return True
 

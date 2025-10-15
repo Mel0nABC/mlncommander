@@ -171,11 +171,10 @@ class Transfering(Gtk.Window):
                 if (time_now - self.time_file) >= 1:
                     update_worker()
 
-        except Exception as e:
+        except Exception:
             self.lbl_src.set_text(str(self.src_info))
             self.lbl_dst.set_text(_("Obteniendo destino .."))
             self.lbl_size.set_text(_("Caldulando ..."))
-            print(e)
 
     def on_close_window(self, signal) -> bool:
         """
@@ -206,7 +205,6 @@ class Transfering(Gtk.Window):
         asyncio.ensure_future(response())
 
     def on_finish_close(self) -> None:
-        print("FINISH")
         self.finish_background()
         self.destroy()
         self.dst_explorer.load_new_path(self.dst_explorer.actual_path)
