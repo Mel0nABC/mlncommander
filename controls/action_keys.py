@@ -180,7 +180,11 @@ def handle_file_operation(
 
     if key_pressed_name == _F2_KEY:
         # Rename
-        actions.open_rename_dialog(explorer_src, win, None)
+        actions.open_rename_dialog(
+            explorer_src,
+            win,
+            explorer_src.popovermenu,
+        )
         return True
 
     if key_pressed_name == _F3_KEY:

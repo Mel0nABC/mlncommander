@@ -407,10 +407,14 @@ class Window(Gtk.ApplicationWindow):
 
         self.main_vertical_box.append(self.horizontal_bottom)
 
-        rename_logic = Rename_Logic()
+        # rename_logic = Rename_Logic()
         self.btn_F2.connect(
             "clicked",
-            lambda btn: rename_logic.on_rename(self.explorer_src, self),
+            lambda btn: self.action.open_rename_dialog(
+                self.explorer_src,
+                self,
+                self.explorer_src.popovermenu,
+            ),
         )
 
         new_file = NewFile()
