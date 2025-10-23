@@ -12,7 +12,6 @@ from views.mlncommander_explorer import Explorer
 from utilities.my_copy_or_move import MyCopyMove
 from utilities.create import Create
 from utilities.remove import Remove
-from utilities.rename import Rename_Logic
 from utilities.new_file import NewFile
 from utilities.file_manager import File_manager
 from css.explorer_css import Css_explorer_manager
