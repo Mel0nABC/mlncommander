@@ -143,8 +143,7 @@ class Permissions(Gtk.Box):
         loading_box = self.add_loading_box()
         threading.Thread(target=waiting_to_create, args=(loading_box,)).start()
 
-        if not self.result_total_files:
-            return loading_box
+        return loading_box
 
     def create_right_content(self) -> Gtk.Box:
 
