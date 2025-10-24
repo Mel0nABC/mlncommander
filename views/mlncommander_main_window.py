@@ -848,6 +848,10 @@ class Window(Gtk.ApplicationWindow):
         self.explorer_1.load_new_path(old_path_explorer_1)
         self.explorer_2.load_new_path(old_path_explorer_2)
 
+        self.explorer_1.fav_path_list = self.config.FAV_PATH_LIST_1
+        self.explorer_2.fav_path_list = self.config.FAV_PATH_LIST_2
+        self.load_botons_fav()
+
         self.menu_bar.open_preferences()
 
     def load_env_language(self):
