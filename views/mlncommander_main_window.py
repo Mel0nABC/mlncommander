@@ -349,6 +349,8 @@ class Window(Gtk.ApplicationWindow):
             self.horizontal_button_list_margin
         )
 
+        self.horizontal_botton_menu.set_selection_mode(Gtk.SelectionMode.NONE)
+
         self.btn_F2 = Gtk.Button(label=_("Renombrar < F2 >"))
         self.horizontal_botton_menu.append(self.btn_F2)
 
