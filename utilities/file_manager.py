@@ -4,7 +4,8 @@
 from utilities.i18n import _
 from entity.file_or_directory_info import File_or_directory_info
 from entity.properties_enty import PropertiesEnty
-from multiprocessing import Process, Queue
+from multiprocessing import Queue
+from threading import Thread
 from queue import Empty
 import subprocess
 from pathlib import Path
@@ -44,20 +45,8 @@ class File_manager:
 
             # Sorted list with, .., directorys and files
 
-            def get_sorted_dir(path: Path, q: Queue):
-                try:
-                    ordered_list = sorted(path.iterdir(), key=self.custom_key)
-
-                    q.put({"status": True, "data": ordered_list})
-                except OSError as e:
-                    print(e)
-                    q.put({"status": False, "data": e})
-                except Exception as e:
-                    print(e)
-                    q.put({"status": False, "data": e})
-
             q = Queue()
-            p = Process(target=get_sorted_dir, args=(path, q))
+            p = Thread(target=self.get_sorted_dir, args=(path, q))
             p.start()
 
             try:
@@ -93,6 +82,18 @@ class File_manager:
         else:
             group = 2
         return (group, name.lower())
+
+    def get_sorted_dir(self, path: Path, q: Queue):
+        try:
+            ordered_list = sorted(path.iterdir(), key=self.custom_key)
+
+            q.put({"status": True, "data": ordered_list})
+        except OSError as e:
+            print(e)
+            q.put({"status": False, "data": e})
+        except Exception as e:
+            print(e)
+            q.put({"status": False, "data": e})
 
     def check_free_space(self, item_list: list, dst_dir: Path) -> bool:
         """

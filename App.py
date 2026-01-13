@@ -4,17 +4,18 @@
 from views.mlncommander_main_window import Window
 from controls.actions import Actions
 from pathlib import Path
-import gbulb
+
+import asyncio
 import subprocess
 import gettext
 import yaml
 import gi
 import os
 
+from gi.events import GLibEventLoopPolicy
+
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk  # noqa: E402
-
-gbulb.install()  # Integrate asyncio into Gtk
 
 # Configure gettext
 APP_NAME = "mlncommander"
@@ -34,12 +35,16 @@ class App(Gtk.Application):
         Constructor
         """
         super().__init__(application_id="com.mel0n.mlncommander")
+        self._policy = GLibEventLoopPolicy()
         self.window = None
 
     def do_activate(self) -> None:
         """
         Initializes the application when the run() method is executed
         """
+
+        loop = self._policy.new_event_loop()
+        asyncio.set_event_loop(loop)
 
         action = Actions()
         self.window = Window(self, action)
@@ -95,8 +100,11 @@ def load_theme():
         print(f"ERROR ON LOADING THEME: {e}")
 
 
+def main():
+    app = App()
+    app.run()
+
+
 if __name__ == "__main__":
     load_theme()
-
-app = App()
-app.run()
+    main()

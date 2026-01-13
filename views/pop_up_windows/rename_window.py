@@ -104,4 +104,6 @@ class RenameWindow(Gtk.Popover):
         if self.explorer.actual_path == other_explorer.actual_path:
             other_explorer.load_new_path(other_explorer.actual_path)
 
+        print(f"NEW NAME: {new_name}")
+
         self.popdown()
