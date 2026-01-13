@@ -13,7 +13,7 @@ from views.mlncommander_explorer import Explorer
 from utilities.rename import Rename_Logic
 from utilities.access_control import AccessControl
 from utilities.file_manager import File_manager
-from multiprocessing import Process, Queue
+from multiprocessing import Queue
 from asyncio import Future
 import gi
 import os
@@ -105,7 +105,7 @@ class MyCopyMove:
                 explorer_src,
                 explorer_dst,
                 duplicate,
-            )
+            ),
         )
 
     async def copy_proccess(
@@ -355,7 +355,7 @@ class MyCopyMove:
         """
         try:
             self.q = Queue()
-            self.thread_copy = Process(
+            self.thread_copy = threading.Thread(
                 target=self.copy_file_worker, args=(src_info, dst_info, self.q)
             )
             self.thread_copy.start()

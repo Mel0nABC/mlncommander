@@ -35,16 +35,18 @@ class App(Gtk.Application):
         Constructor
         """
         super().__init__(application_id="com.mel0n.mlncommander")
-        self._policy = GLibEventLoopPolicy()
+        # self._policy = GLibEventLoopPolicy()
+        # self.loop = self._policy.new_event_loop()
+        # asyncio.set_event_loop(self.loop)
+
+        # Temporal solution, < 3.16 python version.
+        asyncio.set_event_loop_policy(GLibEventLoopPolicy())
         self.window = None
 
     def do_activate(self) -> None:
         """
         Initializes the application when the run() method is executed
         """
-
-        loop = self._policy.new_event_loop()
-        asyncio.set_event_loop(loop)
 
         action = Actions()
         self.window = Window(self, action)
