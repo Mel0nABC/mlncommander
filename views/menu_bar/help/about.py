@@ -42,7 +42,7 @@ class About(Gtk.Window):
 
         text_about = _(
             "MlnCommander\n\n"
-            "Versión: 1.0\n\n"
+            "Versión: 1.04.1\n\n"
             "Descripción:\n\n"
             "MlnCommander es un explorador de archivos de doble explorador\n"
             "que permite gestionar tus carpetas y archivos de manera rápida\n"
