@@ -8,7 +8,7 @@ from pathlib import Path
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk  # noqa: E402
+from gi.repository import Gtk, GLib  # noqa: E402
 
 
 class RenameWindow(Gtk.Popover):
@@ -104,6 +104,12 @@ class RenameWindow(Gtk.Popover):
         if self.explorer.actual_path == other_explorer.actual_path:
             other_explorer.load_new_path(other_explorer.actual_path)
 
-        print(f"NEW NAME: {new_name}")
-
         self.popdown()
+
+        row_response = self.explorer.find_row_number_from_name(new_name)
+
+        print(f"ROW FINAL: {row_response}")
+
+        GLib.idle_add(
+            self.explorer.scroll_to, row_response, None, self.explorer.flags
+        )

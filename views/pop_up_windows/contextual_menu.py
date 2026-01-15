@@ -333,6 +333,12 @@ class ContextBox(Gio.Menu):
                     GLib.idle_add(
                         explorer_dst.load_new_path, explorer_src.actual_path
                     )
+
+            if explorer_dst.actual_path == explorer_src.actual_path:
+                GLib.idle_add(
+                    explorer_dst.load_new_path, explorer_dst.actual_path
+                )
+
             GLib.idle_add(explorer_src.load_new_path, explorer_src.actual_path)
             GLib.idle_add(explorer_src.set_explorer_focus)
 

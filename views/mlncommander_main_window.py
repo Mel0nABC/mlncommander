@@ -433,6 +433,7 @@ class Window(Gtk.ApplicationWindow):
                 None,
                 self,
                 _("copiar"),
+                True,
                 False,
             ),
         )
@@ -472,6 +473,7 @@ class Window(Gtk.ApplicationWindow):
                 None,
                 self,
                 _("copiar"),
+                True,
                 True,
             ),
         )

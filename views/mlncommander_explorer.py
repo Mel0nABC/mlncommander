@@ -970,3 +970,8 @@ class Explorer(Gtk.ColumnView):
             self,
             self.win.get_other_explorer_with_name(self.name),
         )
+
+    def find_row_number_from_name(self, name: str) -> bool:
+        for index, row in enumerate(list(self.store)):
+            if row.name == name:
+                return index
