@@ -35,7 +35,7 @@ This started as a project to learn Python. Then, I searched for a native graphic
 
 ## Download
 
-[Download AppImage v1.04.2](https://github.com/Mel0nABC/mlncommander/releases/download/v1.04/mlnCommander_v1.04.2.AppImage)
+[Download AppImage v1.04.1](https://github.com/Mel0nABC/mlncommander/releases/download/v1.04.1/mlnCommander_v1.04.1.AppImage)
 
 
 ## Licenses
